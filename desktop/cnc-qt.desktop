@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=0.1.0
+Name=CNC-Qt
+Comment=CNC controller
+GenericName=CNC-Qt
+TryExec=cnc-qt
+Exec=cncqt
+Terminal=false
+Icon=cnc-qt.xpm
+Type=Application
+Categories=Hardware;Qt;
+

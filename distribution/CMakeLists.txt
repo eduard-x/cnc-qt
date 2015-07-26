@@ -1,0 +1,114 @@
+# Setup automatic generation of the changelog
+MESSAGE(STATUS "CPack for Linux configuration..." )
+
+SET( CPACK_SOURCE_PACKAGE_FILE_NAME "cnc-qt-${CNCQT_VERSION}" )
+SET( CPACK_SOURCE_IGNORE_FILES
+    "/\\\\.svn/"
+    "/\\\\.kdev4/"
+    "/\\\\.git/"
+    "/pics/"
+    "/build/"
+    "~$"
+    "\\\\.pcs$"
+#     "TODO.txt"
+#     "CMakeLists.txt.user"
+#     "/doxygen/"
+#     "${CMAKE_BINARY_DIR}"
+)
+
+
+# --- Package generation
+SET( CNCQT_CPACK_BUILD_CONFIG "Release_and_Debug" )
+SET( CNCQT_CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
+SET( CNCQT_CPACK_PACKAGE_VENDOR "KarboSoft" )
+SET( CNCQT_CPACK_PACKAGE_INSTALL_DIRECTORY "CNCQT ${CNCQT_VERSION}" )
+SET( CNCQT_CPACK_PACKAGE_INSTALL_REGISTRY_KEY "CNCQT ${CNCQT_VERSION}" )
+SET( CNCQT_CPACK_PACKAGE_HOMEPAGE "http://cncqt.sourceforge.net/" )
+
+
+# Setup global packaging parameters ...
+SET( CNCQT_CPACK_INSTALL_CMAKE_PROJECTS "${CURRENT_BUILD_DIR};cnc-qt;ALL;/" )
+# MESSAGE("CNCQT_BINARY_DIR ${CURRENT_BUILD_DIR}")
+# SET( CNCQT_CPACK_PACKAGE_DESCRIPTION "CNC-Qt free GUI for httrack library." )
+SET( CNCQT_CPACK_PACKAGE_FILE_NAME "cnc-qt-setup-${CNCQT_VERSION}" )
+SET( CNCQT_CPACK_PACKAGE_VERSION "${CNCQT_VERSION}" )
+SET( CNCQT_CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENCE" )
+SET( CNCQT_CPACK_SOURCE_IGNORE_FILES "/CVS/;/.svn/;/.hg/" )
+SET( CNCQT_CPACK_SOURCE_INSTALLED_DIRECTORIES "${PROJECT_SOURCE_DIR};/" )
+SET( CNCQT_CPACK_SOURCE_PACKAGE_FILE_NAME "cnc-qt-source-${CNCQT_VERSION}" )
+
+# SET( CNCQT_CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME} )
+SET( CNCQT_CPACK_PACKAGE_VERSION ${CNCQT_VERSION} )
+SET( CNCQT_CPACK_PACKAGE_RELEASE 0 )
+SET( CNCQT_CPACK_PACKAGE_MAINTAINER "Eduard Kalinowski <eduard_kalinowski@yahoo.de>" )
+SET( CNCQT_CPACK_PACKAGE_MAINTAINER_NAME "Eduard Kalinowski" )
+SET( CNCQT_CPACK_PACKAGE_MAINTAINER_EMAIL "eduard_kalinowski@yahoo.de" )
+SET( CNCQT_CPACK_PACKAGE_DESCRIPTION "CNCQT is the website copier for offline browsing" )
+SET( CNCQT_CPACK_PACKAGE_DESCRIPTION_SUMMARY "CNCQT network tool" )
+# SET( PACKAGE_DEPENDS ${hugr_dependencies} )
+
+SET( CNCQT_CPACK_PACKAGE_SHLIBDEPS ON )
+#SET( CNCQT_CPACK_PACKAGE_DEPENDS "libhttrack2, libqtcore4, libqtgui4, libc6, libstdc++6" )
+# SET( CNCQT_CPACK_PACKAGE_DEPENDS "libhttrack2, libqtcore4, libqtgui4" )
+# SET( PACKAGE_DEPENDS "libc6 (>= 2.1.3), libhttrack (>= 3.42.1), libqtcore4 (>= 4:4.6.1), libqtgui4 (>= 4:4.5.3), libstdc++6 (>= 4.1.1)" )
+
+
+SET( CNCQT_CPACK_PACKAGE_GROUP "Groupe" )
+SET( CNCQT_CPACK_PACKAGE_LICENSE "GPL3" )
+
+# ADD_CUSTOM_TARGET(changelog
+# 	COMMAND ${GITCOMMAND} log > ${CNCQT_BINARY_DIR}/ChangeLog
+# 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+# 	)
+
+# Setup convenience targets for tagging and branching
+# SET( CNCQT_VERSION_TAG "cncqt-${CNCQT_MAJOR_VERSION}.${CNCQT_MINOR_VERSION}.${CNCQT_RELEASE_VERSION}.${CNCQT_BUILD_VERSION}" )
+# SET( CNCQT_VERSION_TAG "cncqt-${CNCQT_VERSION}" )
+# ADD_CUSTOM_TARGET(tag-version
+# 	COMMAND ${GITCOMMAND} tag ${CNCQT_VERSION_TAG}
+# 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+# 	)
+
+#SET( CNCQT_BRANCH_TAG "cncqt-release-${CNCQT_MAJOR_VERSION}.${CNCQT_MINOR_VERSION}" )
+#ADD_CUSTOM_TARGET(tag-branch
+#	COMMAND ${SVNCOMMAND} cp ${CNCQT_SVN_TRUNK}
+#	${CNCQT_SVN_BRANCHES}/${CNCQT_BRANCH_TAG} -m "COMP: Branched CNCQT Version ${CNCQT_MAJOR_VERSION}.${CNCQT_MINOR_VERSION}"
+#	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+#	)
+# MESSAGE("CMAKE_CURRENT_SOURCE_DIR distr ${CMAKE_CURRENT_SOURCE_DIR} : ${PROJECT_SOURCE_DIR}")
+# Get a SourceForge username so we can upload distributables to the FRS
+IF(WIN32)
+	SET( CNCQT_SOURCEFORGE_USERNAME "$ENV{USERNAME}" CACHE STRING "SourceForge user account name, for uploading distribution files." )
+ELSE(WIN32)
+	SET( CNCQT_SOURCEFORGE_USERNAME "$ENV{USER}" CACHE STRING "SourceForge user account name, for uploading distribution files." )
+ENDIF(WIN32)
+MARK_AS_ADVANCED(CNCQT_SOURCEFORGE_USERNAME)
+
+
+
+# Setup some macros that can be used by the platform-specific distribution logic
+MACRO(CNCQT_CHECK_INSTALLED_VERSION FOUND PACKAGE EXPECTED)
+	IF(NOT ${FOUND} STREQUAL ${EXPECTED})
+		MESSAGE(SEND_ERROR "Found ${PACKAGE} version ${FOUND} - for installation, version ${EXPECTED} is required." )
+	ENDIF(NOT ${FOUND} STREQUAL ${EXPECTED})
+ENDMACRO(CNCQT_CHECK_INSTALLED_VERSION)
+
+
+
+# Generate source packages
+# ADD_SUBDIRECTORY(source)
+INCLUDE(CPack)
+
+# Generate platform-specific binary packages
+IF(APPLE)
+	ADD_SUBDIRECTORY(osx)
+ENDIF(APPLE)
+
+IF(UNIX AND NOT APPLE)
+	ADD_SUBDIRECTORY(posix)
+ENDIF(UNIX AND NOT APPLE)
+
+IF(WIN32)
+	ADD_SUBDIRECTORY(win32)
+ENDIF(WIN32)
+

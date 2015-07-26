@@ -1,0 +1,20 @@
+How to compile source code and create packages
+Get the project from sourceforge.net.
+Must be installed on your Linux system: gcc-c++, make, cmake, usbpp-dev, opengl-dev
+
+For creating makefile and compiling of CNC-mk1-Q:
+cmake .
+make
+
+If You want to create th package (DEB of RPM), must be installed rpm-build or dpkg
+and:
+for DEB based distributions:
+make package-binary-deb
+
+or for RPM
+make package-binary-rpm
+
+Version history
+
+0.1.0   init release
+

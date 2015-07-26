@@ -1,0 +1,9 @@
+#ifndef CNCMK1VERSION_H
+#define CNCMK1VERSION_H
+
+#define CNCMK1QTVERSION  "0.1.0"
+#define PROGRAM_DATE  "24 Jul 2015"
+
+#define USE_QT_VERSION  4
+
+#endif
