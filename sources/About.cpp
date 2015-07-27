@@ -1,11 +1,17 @@
 /****************************************************************************
- * C++ Implementation:                                                      *
+ * Main developer:                                                          *
+ * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ *                                                                          *
+ * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
  * ported from C# project CNC-controller-for-mk1                            *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
  *                                                                          *
  * CNC-Qt is free software; may be distributed and/or modified under the    *
  * terms of the GNU General Public License version 3 as published by the    *
@@ -68,7 +74,7 @@ void AboutDialog::translateDialog()
     QString link2 = "http://www.selenur.ru";
     QString link3 = "http://www.cnc-club.ru/forum/viewtopic.php?f=16&t=7078&p=175365#p175365";
     QString link3_descr = "http://www.cnc-club.ru (forum)";
-    QString link4 = "https://sourceforge.net/projects/cncqt/";
+    QString link4 = "https://github.com/eduard-x/cnc-qt";
 
     ab.replace("\n", "<br>");
     ab = ab.arg("<a href=\"" + link1 + "\">" + link1 + "</a>")

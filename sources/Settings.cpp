@@ -1,11 +1,17 @@
 /****************************************************************************
- * C++ Implementation:                                                      *
+ * Main developer:                                                          *
+ * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ *                                                                          *
+ * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
  * ported from C# project CNC-controller-for-mk1                            *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
  *                                                                          *
  * CNC-Qt is free software; may be distributed and/or modified under the    *
  * terms of the GNU General Public License version 3 as published by the    *

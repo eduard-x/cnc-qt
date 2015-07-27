@@ -1,11 +1,17 @@
 /****************************************************************************
- * C++ Implementation:                                                      *
+ * Main developer:                                                          *
+ * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ *                                                                          *
+ * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
  * ported from C# project CNC-controller-for-mk1                            *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
  *                                                                          *
  * CNC-Qt is free software; may be distributed and/or modified under the    *
  * terms of the GNU General Public License version 3 as published by the    *
@@ -50,38 +56,6 @@
 
 class mk1Controller;
 
-#if 0
-static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
-{
-    struct libusb_device_descriptor desc;
-    int rc;
-
-    rc = libusb_get_device_descriptor(dev, &desc);
-
-    if (LIBUSB_SUCCESS != rc) {
-        fprintf (stderr, "Error getting device descriptor\n");
-    }
-
-    printf ("Device attached: %04x:%04x\n", desc.idVendor, desc.idProduct);
-
-    libusb_open (dev, &mk1Controller::handle);
-
-    //     done++;
-
-    return 0;
-}
-
-static int LIBUSB_CALL hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
-{
-    printf ("Device detached\n");
-
-    libusb_close (mk1Controller::handle);
-
-    //     done++;
-    return 0;
-}
-#endif
-
 
 class usbHotplugThread : public QThread
 {
@@ -91,9 +65,10 @@ class usbHotplugThread : public QThread
             /* expensive or blocking operation  */
 
             while(true) {
-                libusb_handle_events(NULL);
-                msleep(50);
-                //                                 qDebug() << "hotdog" <<;
+                int r = libusb_handle_events(NULL);
+                msleep(150);
+                //                 qDebug() << "libusb_handle_events" << r;
+
                 emit hotplugEvent();
             }
         }
@@ -109,7 +84,7 @@ class BinaryData
 {
     public:
         enum TypeSignal {
-            None,
+            None = 0,
             Hz,
             RC
         };
@@ -138,8 +113,6 @@ class BinaryData
         //     protected:
         static byte writeBuf[BUFFER_SIZE];
         static byte readBuf[BUFFER_SIZE];
-        //         static byte newBuf[BUFFER_SIZE]; // for compaire of readBuf from controller
-
 };
 
 
@@ -151,8 +124,8 @@ class DeviceInfo
 {
     public:
         // Сырые данные от контроллера
-        static byte rawDataRead[BUFFER_SIZE];
-        static byte rawDataWrite[BUFFER_SIZE];
+        //         static byte rawDataRead[BUFFER_SIZE];
+        //         static byte rawDataWrite[BUFFER_SIZE];
 
         // Размер доступного буфера в контроллере
         static short FreebuffSize;
@@ -200,7 +173,7 @@ class DeviceInfo
         static double AxesY_PositionMM();
         static double AxesZ_PositionMM();
         static double AxesA_PositionMM();
-        static byte getByte(short pos);
+        //         static byte getByte(short pos);
 
         //
         // Вычисление положения в импульсах, при указании оси, и положения в миллиметрах
@@ -272,7 +245,7 @@ class mk1Controller : public QObject, public BinaryData
 
         static libusb_hotplug_callback_handle hotplug[2];
         //         DeviceInfo devInfo;
-//     private:
+        //     private:
         //
         // Поток для получения, посылки данных в контроллер
         //
@@ -338,12 +311,12 @@ class mk1Controller : public QObject, public BinaryData
         //         static int LIBUSB_CALL hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
         //         static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
         //  void ADDMessage(const QString &s);
-// private:
+        // private:
         Q_DISABLE_COPY(mk1Controller);
 
     private slots:
-//         void threadsStart();
-//         void threadFinished();
+        //         void threadsStart();
+        //         void threadFinished();
         //         void processReadBytes(const QByteArray &bytes);
 
 };
@@ -401,6 +374,9 @@ class usbReadThread : public QThread
                 //                 //                                 qDebug() << "hotdog" <<;
                 //                 emit hotplugEvent();
             }
+
+            qDebug() << "exit from read thread";
+            exit();
         }
     signals:
         void readEvent();

@@ -1,11 +1,17 @@
 /****************************************************************************
- * C++ Implementation:                                                      *
+ * Main developer:                                                          *
+ * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ *                                                                          *
+ * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
  * ported from C# project CNC-controller-for-mk1                            *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
  *                                                                          *
  * CNC-Qt is free software; may be distributed and/or modified under the    *
  * terms of the GNU General Public License version 3 as published by the    *
@@ -26,8 +32,6 @@
 
 #include "includes/mk1Controller.h"
 
-
-// #include <libusb-1.0/libusb.h>
 
 
 /******************************************************************************
@@ -204,10 +208,10 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     hotplugThread = 0;
 
     readTHread = 0;
-    readTHread = new usbReadThread(this);
-
-    connect(readTHread, SIGNAL(readEvent()), this, SLOT(readNewData()));
-    connect(readTHread, SIGNAL(finished()), readTHread, SLOT(deleteLater()));
+    //     readTHread = new usbReadThread(this);
+    //
+    //     connect(readTHread, SIGNAL(readEvent()), this, SLOT(readNewData()));
+    //     connect(readTHread, SIGNAL(finished()), readTHread, SLOT(deleteLater()));
 
     //     qDebug() << " Devices in list." << endl;
 
@@ -399,7 +403,16 @@ void mk1Controller::handleHotplug()
     //         emit mk1Controller::wasConnected();
     //     }
     if (handle) {
-        readTHread->start();
+        //         readTHread = 0;
+        if (readTHread == 0) {
+            readTHread = new usbReadThread(this);
+
+            connect(readTHread, SIGNAL(readEvent()), this, SLOT(readNewData()));
+            //             connect(readTHread, SIGNAL(finished()), readTHread, SLOT(deleteLater()));
+
+            readTHread->start();
+        }
+
         //         if (readThread->isRunning()) {
         //             ADDMessage(_NOT_POSSIBLE);
         //             return;
@@ -412,7 +425,9 @@ void mk1Controller::handleHotplug()
 
         //         printf("Vendor:Device = %04x:%04x\n", desc.idVendor, desc.idProduct);
     } else {
-        readTHread->quit();
+        readTHread = 0;
+        //         qDebug() << readTHread;
+        //         readTHread->quit();
         //         readThread->quit();
     }
 
@@ -754,14 +769,14 @@ public class DeviceEventArgsMessage
 public enum EStatusDevice { Connect = 0, Disconnect };
 #endif
 
-byte DeviceInfo::rawDataRead[BUFFER_SIZE];
-byte DeviceInfo::rawDataWrite[BUFFER_SIZE];
+// byte DeviceInfo::rawDataRead[BUFFER_SIZE];
+// byte DeviceInfo::rawDataWrite[BUFFER_SIZE];
 
 
-byte DeviceInfo::getByte(short offs)
-{
-    return rawDataRead[offs];
-}
+// byte DeviceInfo::getByte(short offs)
+// {
+//     return rawDataRead[offs];
+// }
 
 
 double DeviceInfo::AxesX_PositionMM ()

@@ -1,11 +1,17 @@
 /****************************************************************************
- * C++ Implementation:                                                      *
+ * Main developer:                                                          *
+ * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ *                                                                          *
+ * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
  * ported from C# project CNC-controller-for-mk1                            *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
  *                                                                          *
  * CNC-Qt is free software; may be distributed and/or modified under the    *
  * terms of the GNU General Public License version 3 as published by the    *
@@ -846,13 +852,13 @@ void MainWindow::onMainTaskTimer()
     // скорость с главной формы
     int userSpeedG1 = (int)numericUpDown1->value();
     int userSpeedG0 = (int)numericUpDown2->value();
-    
-//     qDebug() << "main timer" << GCodeList.count() << Task::posCodeNow;
-    if (Task::posCodeNow >= GCodeList.count()){
+
+    //     qDebug() << "main timer" << GCodeList.count() << Task::posCodeNow;
+    if (Task::posCodeNow >= GCodeList.count()) {
         mainTaskTimer.stop();
         return;
     }
-    
+
     GCodeCommand gcodeNow = GCodeList.at(Task::posCodeNow);
 
     // TaskStart
@@ -1399,7 +1405,7 @@ void  MainWindow::refreshElementsForms()
     //***************
 
     //DEBUG:
-    byte bb14 = DeviceInfo::getByte(14);
+    byte bb14 = cnc->getByte(14);
 
     checkB14B0->setChecked( bb14 & (1 << 0));
     checkB14B1->setChecked( bb14 & (1 << 1));
@@ -1411,7 +1417,7 @@ void  MainWindow::refreshElementsForms()
     checkB14B7->setChecked( bb14 & (1 << 7));
 
 
-    byte bb15 = DeviceInfo::getByte(15);
+    byte bb15 = cnc->getByte(15);
 
     checkB15B0->setChecked( bb15 & (1 << 0));
     checkB15B1->setChecked( bb15 & (1 << 1));
@@ -1423,7 +1429,7 @@ void  MainWindow::refreshElementsForms()
     checkB15B7->setChecked( bb15 & (1 << 7));
 
 
-    byte bb19 = DeviceInfo::getByte(19);
+    byte bb19 = cnc->getByte(19);
 
     checkB19B0->setChecked( bb19 & (1 << 0));
     checkB19B1->setChecked( bb19 & (1 << 1));
