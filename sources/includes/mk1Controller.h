@@ -46,13 +46,9 @@
 
 #include <libusb-1.0/libusb.h>
 
-// #define USB_ENDPOINT_IN    ( LIBUSB_ENDPOINT_IN  | 1 )   /* endpoint address */
-// #define USB_ENDPOINT_OUT   ( LIBUSB_ENDPOINT_OUT | 2 )   /* endpoint address */
-
 #define BULK_ENDPOINT_OUT     0x81
 #define BULK_ENDPOINT_IN      0x01
 
-// extern struct dPoint;
 
 class mk1Controller;
 
@@ -90,7 +86,7 @@ class BinaryData
         };
 
         static void packC0(byte byte05 = 0x0, bool send = true);
-        static void packB5(bool shpindelON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 0, bool send = true);
+        static void packB5(bool spindelON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 0, bool send = true);
         static void packAA(bool send = true);
         static void packC8(int x, int y, int z, bool send = true);
         static void packD2(int speed, double returnDistance, bool send = true);
@@ -110,7 +106,7 @@ class BinaryData
         static libusb_device_handle *handle;
         static libusb_device_descriptor desc;
 
-        //     protected:
+        // Сырые данные от контроллера
         static byte writeBuf[BUFFER_SIZE];
         static byte readBuf[BUFFER_SIZE];
 };
@@ -123,10 +119,6 @@ enum EStatusDevice { Connect = 0, Disconnect };
 class DeviceInfo
 {
     public:
-        // Сырые данные от контроллера
-        //         static byte rawDataRead[BUFFER_SIZE];
-        //         static byte rawDataWrite[BUFFER_SIZE];
-
         // Размер доступного буфера в контроллере
         static short FreebuffSize;
 
@@ -160,8 +152,8 @@ class DeviceInfo
         static bool AxesA_LimitMax;
         static bool AxesA_LimitMin;
 
-        static int shpindel_MoveSpeed;
-        static bool shpindel_Enable;
+        static int spindel_MoveSpeed;
+        static bool spindel_Enable;
 
         static bool Estop;
 
@@ -173,8 +165,6 @@ class DeviceInfo
         static double AxesY_PositionMM();
         static double AxesZ_PositionMM();
         static double AxesA_PositionMM();
-        //         static byte getByte(short pos);
-
         //
         // Вычисление положения в импульсах, при указании оси, и положения в миллиметрах
         //
@@ -233,7 +223,6 @@ class mk1Controller : public QObject, public BinaryData
         //         BinaryData rawData;
 
     public slots:
-        //         void processBytes(const QByteArray &bytes);
         void handleHotplug();
         void readNewData();
 

@@ -64,8 +64,8 @@ bool DeviceInfo::AxesZ_LimitMin = false;
 bool DeviceInfo::AxesA_LimitMax = false;
 bool DeviceInfo::AxesA_LimitMin = false;
 
-int DeviceInfo::shpindel_MoveSpeed = 0;
-bool DeviceInfo::shpindel_Enable = false;
+int DeviceInfo::spindel_MoveSpeed = 0;
+bool DeviceInfo::spindel_Enable = false;
 
 bool DeviceInfo::Estop = false;
 
@@ -204,18 +204,11 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
     if (rc < 0) {
         qDebug() << QString("failed to initialise libusb: %1").arg(libusb_error_name(rc));
-        //         return EXIT_FAILURE;
     }
 
     hotplugThread = 0;
 
     readThread = 0;
-    //     readThread = new usbReadThread(this);
-    //
-    //     connect(readThread, SIGNAL(readEvent()), this, SLOT(readNewData()));
-    //     connect(readThread, SIGNAL(finished()), readThread, SLOT(deleteLater()));
-
-    //     qDebug() << " Devices in list." << endl;
 
     handle = libusb_open_device_with_vid_pid(NULL, vendor_id, product_id); //these are vendorID and productID I found for my usb device
 
@@ -240,7 +233,6 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
                 qDebug() << "Couldn't detach kernel driver!";
                 libusb_close(handle);
                 handle = 0;
-                //             return -1;
             }
         }
 
@@ -271,7 +263,6 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     if (!libusb_has_capability (LIBUSB_CAP_HAS_HOTPLUG)) {
         qDebug() << "Hotplug capabilites are not supported on this platform";
         libusb_exit (NULL);
-        //         return EXIT_FAILURE;
     }
 
     rc = libusb_hotplug_register_callback (NULL, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED, LIBUSB_HOTPLUG_ENUMERATE, vendor_id,
@@ -280,7 +271,6 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     if (LIBUSB_SUCCESS != rc) {
         qDebug() << "Error registering callback 0";
         libusb_exit (NULL);
-        //         return EXIT_FAILURE;
     } else {
         qDebug() << "Device registering attach callback";
     }
@@ -291,12 +281,11 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     if (LIBUSB_SUCCESS != rc) {
         qDebug() << "Error registering callback 1";
         libusb_exit (NULL);
-        //         return EXIT_FAILURE;
     } else {
         qDebug() << "Device registering detach callback";
         hotplugThread = new usbHotplugThread();
         connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
-        connect(hotplugThread, SIGNAL(finished()), hotplugThread, SLOT(deleteLater()));
+//         connect(hotplugThread, SIGNAL(finished()), hotplugThread, SLOT(deleteLater()));
         hotplugThread->start();
     }
 
@@ -486,7 +475,7 @@ bool mk1Controller::isConnected()
 //
 int mk1Controller::spindelMoveSpeed()
 {
-    return DeviceInfo::shpindel_MoveSpeed;
+    return DeviceInfo::spindel_MoveSpeed;
 }
 
 //
@@ -502,7 +491,7 @@ long mk1Controller::numberComleatedInstructions()
 //
 bool mk1Controller::isSpindelOn()
 {
-    return DeviceInfo::shpindel_Enable;
+    return DeviceInfo::spindel_Enable;
 }
 
 //
@@ -551,7 +540,7 @@ int mk1Controller::availableBufferSize()
 void mk1Controller::parseBinaryInfo()
 {
     DeviceInfo::FreebuffSize = readBuf[1];
-    DeviceInfo::shpindel_MoveSpeed = (int)((((readBuf[22] << 16) + (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
+    DeviceInfo::spindel_MoveSpeed = (int)((((readBuf[22] << 16) + (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
     DeviceInfo::AxesX_PositionPulse = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
     DeviceInfo::AxesY_PositionPulse = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
     DeviceInfo::AxesZ_PositionPulse = ((readBuf[35] << 24) + (readBuf[34] << 16) + (readBuf[33] << 8) + (readBuf[32]));
@@ -569,7 +558,7 @@ void mk1Controller::parseBinaryInfo()
 
     byte bb19 = readBuf[19];
 
-    DeviceInfo::shpindel_Enable = (bb19 & (1 << 0)) ? true : false;
+    DeviceInfo::spindel_Enable = (bb19 & (1 << 0)) ? true : false;
 
     byte bb14 = readBuf[14];
     DeviceInfo::Estop = (bb14 & (1 << 7)) ? true : false;
@@ -724,45 +713,6 @@ void mk1Controller::deviceNewPosition(double x, double y, double z, double a)
     packC8(DeviceInfo::CalcPosPulse("X", x), DeviceInfo::CalcPosPulse("Y", y), DeviceInfo::CalcPosPulse("Z", z));
 }
 
-
-
-//         #endregion
-
-// }
-
-#if 0
-//
-// Аргументы для события
-//
-public class DeviceEventArgsMessage
-{
-        protected QString _str;
-
-        public QString Message {
-            get { return _str; }
-            set { _str = value;}
-        }
-
-        public DeviceEventArgsMessage(QString Str)
-        {
-            _str = Str;
-        }
-}
-
-//
-// Статусы работы с устройством
-//
-public enum EStatusDevice { Connect = 0, Disconnect };
-#endif
-
-// byte DeviceInfo::rawDataRead[BUFFER_SIZE];
-// byte DeviceInfo::rawDataWrite[BUFFER_SIZE];
-
-
-// byte DeviceInfo::getByte(short offs)
-// {
-//     return rawDataRead[offs];
-// }
 
 
 double DeviceInfo::AxesX_PositionMM ()
@@ -927,12 +877,12 @@ void BinaryData::sendBinaryData(bool checkBuffSize)
 //
 // Управление работой шпинделя
 //
-// параметр "shpindelON" Вкл/Выключен
+// параметр "spindelON" Вкл/Выключен
 // параметр "numShimChanel" номер канала 1,2, или 3
 // параметр "ts" Тип сигнала
 // параметр "SpeedShim" Значение определяющее форму сигнала
 //
-void BinaryData::packB5(bool shpindelON, int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
+void BinaryData::packB5(bool spindelON, int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -940,7 +890,7 @@ void BinaryData::packB5(bool shpindelON, int numShimChanel, TypeSignal ts, int S
     writeBuf[4] = 0x80;
 
 
-    if (shpindelON) {
+    if (spindelON) {
         writeBuf[5] = 0x02;
     } else {
         writeBuf[5] = 0x01;
