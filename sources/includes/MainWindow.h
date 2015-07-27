@@ -281,7 +281,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 
     private:
         QTimer  mainTaskTimer;
-
+        //         bool    devConnected;
         QLabel *statusLabel1;
         QProgressBar *statusProgress;
         QLabel *statusSt;

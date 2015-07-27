@@ -196,16 +196,13 @@ class mk1Controller : public QObject, public BinaryData
         explicit mk1Controller(QObject *parent = 0);
         virtual ~mk1Controller();
 
-        //     private:
-        //         MainWindow* parent;
-
-
     signals:
         void Message (int num);
         void wasConnected();
         void wasDisconnected();
         void hotplugSignal();
-        //         void hotplugDisconnected();
+        
+        // Получены новые данные от контроллера
         void newDataFromMK1Controller();
         //         void hotplugEvent();
 #if 0
@@ -242,26 +239,17 @@ class mk1Controller : public QObject, public BinaryData
 
     private:
         int count;
+        bool devConnected;
 
         static libusb_hotplug_callback_handle hotplug[2];
-        //         DeviceInfo devInfo;
-        //     private:
+       
+        usbHotplugThread *hotplugThread;
+
         //
         // Поток для получения, посылки данных в контроллер
-        //
-        //         QThread *readThread;
-
-        usbHotplugThread *hotplugThread;
-        usbReadThread *readTHread;
-
-        //         byte readBuffer[BUFFER_SIZE];
-        //         byte _oldInfoFrommk1Controller[BUFFER_SIZE];
+        usbReadThread *readThread;
 
         QSettings *settingsFile; // Файл настроек программы
-
-        //         libusb_device_handle *dev_handle; //a device handle
-        //         libusb_context *ctx; //a libusb session
-        //         libusb_device *_myUsbDevice;
 
         int _error_code;
 
@@ -270,10 +258,7 @@ class mk1Controller : public QObject, public BinaryData
         //         UsbEndpointWriter _usbWriter;
 
         bool availableNewData;
-        //  DataCode   dataCode;
-
-        //     private:
-        //         bool _connected;
+        
         QTimer hotplugTimer;
 
     public:
@@ -299,19 +284,9 @@ class mk1Controller : public QObject, public BinaryData
         int  availableBufferSize();// Размер свободного буфера
 
     private:
-        //         int read(libusb_device_handle *handle);
-        //         int write(libusb_device_handle *handle);
-        //         int readWrite(libusb_device_handle *handle);
-        //         int readWriteLoop(libusb_device_handle *handle);
-
         void parseBinaryInfo();
-        //         bool CompareArray(byte *arr1, byte *arr2);
         void ADDMessage(int code);
 
-        //         static int LIBUSB_CALL hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
-        //         static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
-        //  void ADDMessage(const QString &s);
-        // private:
         Q_DISABLE_COPY(mk1Controller);
 
     private slots:
@@ -332,24 +307,14 @@ class usbReadThread : public QThread
         }
         void run()
         {
-            /* expensive or blocking operation  */
+            // init of read array
             memset( buf, 0x0, BUFFER_SIZE);
 
             while(p->handle) {
                 int bytesRead  = 0;
                 int _error_code = libusb_bulk_transfer(p->handle, BULK_ENDPOINT_OUT, buf, BUFFER_SIZE, &bytesRead, 3000);
-                //                 qDebug() << "read" << bytesRead << "err code" << _error_code;
 
                 if (_error_code < 0 || bytesRead != BUFFER_SIZE) {
-                    //                     qDebug() << "libusb_bulk_read failed:" << libusb_error_name(_error_code);
-
-                    //                 if (_error_code != None) {
-                    //                     //                     _connected = false;
-                    //
-                    //                     ADDMessage(_BREAK_CONN);
-                    //
-                    //                     //                     emit wasDisconnected();
-                    //                 }
                     continue;
                 }
 
@@ -358,24 +323,13 @@ class usbReadThread : public QThread
                     continue; //пока получаем пакеты только с кодом 0х01
                 }
 
-                //                 qDebug() << "buf" << buf[0];
-
                 if (memcmp(buf, p->readBuf, BUFFER_SIZE) != 0) {
                     memcpy(p->readBuf, buf, BUFFER_SIZE);
 
-
-                    //                     availableNewData = true;
-
                     emit readEvent();
                 }
-
-                //                 libusb_handle_events(NULL);
-                //                 msleep(50);
-                //                 //                                 qDebug() << "hotdog" <<;
-                //                 emit hotplugEvent();
             }
 
-            qDebug() << "exit from read thread";
             exit();
         }
     signals:

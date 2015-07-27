@@ -195,6 +195,8 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
     handle = NULL;
 
+    devConnected = false;
+
     int class_id   = LIBUSB_HOTPLUG_MATCH_ANY;
     //     libusb_context* ct;
 
@@ -207,11 +209,11 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
     hotplugThread = 0;
 
-    readTHread = 0;
-    //     readTHread = new usbReadThread(this);
+    readThread = 0;
+    //     readThread = new usbReadThread(this);
     //
-    //     connect(readTHread, SIGNAL(readEvent()), this, SLOT(readNewData()));
-    //     connect(readTHread, SIGNAL(finished()), readTHread, SLOT(deleteLater()));
+    //     connect(readThread, SIGNAL(readEvent()), this, SLOT(readNewData()));
+    //     connect(readThread, SIGNAL(finished()), readThread, SLOT(deleteLater()));
 
     //     qDebug() << " Devices in list." << endl;
 
@@ -394,49 +396,33 @@ void mk1Controller::handleHotplug()
     disconnect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
     qDebug() << "hotplug" << handle;
 
-    emit hotplugSignal();
-
-    //     if (handle == 0){
-    //         emit mk1Controller::wasDisconnected();
-    //     }
-    //     else{
-    //         emit mk1Controller::wasConnected();
-    //     }
     if (handle) {
-        //         readTHread = 0;
-        if (readTHread == 0) {
-            readTHread = new usbReadThread(this);
-
-            connect(readTHread, SIGNAL(readEvent()), this, SLOT(readNewData()));
-            //             connect(readTHread, SIGNAL(finished()), readTHread, SLOT(deleteLater()));
-
-            readTHread->start();
+        if (devConnected == false) {
+            emit hotplugSignal();
         }
 
-        //         if (readThread->isRunning()) {
-        //             ADDMessage(_NOT_POSSIBLE);
-        //             return;
-        //         } else {
-        //             //Запустим поток
-        //             readThread->start();//.RunWorkerAsync();
-        //         }
+        if (readThread == 0) {
+            readThread = new usbReadThread(this);
 
-        //         assert(rc == 0);
+            connect(readThread, SIGNAL(readEvent()), this, SLOT(readNewData()));
 
-        //         printf("Vendor:Device = %04x:%04x\n", desc.idVendor, desc.idProduct);
+            //             qDebug() << "new readThread";
+            readThread->start();
+        }
+
+        devConnected = true;
+
     } else {
-        readTHread = 0;
-        //         qDebug() << readTHread;
-        //         readTHread->quit();
-        //         readThread->quit();
+        if (devConnected == true) {
+            emit hotplugSignal();
+        }
+
+        readThread = 0;
+
+        devConnected = false;
     }
 
     connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
-    //     if (handle == 0) {
-    //         emit hotplugDisconnected();
-    //     } else {
-    //         emit hotplugConnected();
-    //     }
 }
 
 

@@ -1125,7 +1125,7 @@ void MainWindow::addStatusWidgets()
     //
     //     statusbar->setSizeGripEnabled(true);
     statusLabel1 = new QLabel();
-    statusLabel1->setFixedWidth(150);
+    statusLabel1->setFixedWidth(250);
     statusLabel1->setFixedHeight(17);
     statusbar->addWidget(statusLabel1);
 
@@ -1136,7 +1136,7 @@ void MainWindow::addStatusWidgets()
     statusbar->addWidget(statusProgress);
 
     statusSt = new QLabel();
-    statusSt->setFixedWidth(150);
+    statusSt->setFixedWidth(250);
     statusSt->setFixedHeight(17);
     statusbar->addWidget(statusSt);
 
@@ -1271,6 +1271,7 @@ void MainWindow::onCncHotplug()
     actionInfo->setEnabled(e);
 
     refreshElementsForms();
+
     //     actionConnectDisconnect->setEnabled(e);
     //     actionConnect->setEnabled(e);
     //     actionDisconnect->setEnabled(e);
@@ -1686,7 +1687,7 @@ void MainWindow::fillListWidget(QStringList listCode)
 
     tabWidget->setCurrentIndex(0);
 
-    statusProgress->setRange(1, listGCodeWidget->rowCount());
+    statusProgress->setRange(1, listGCodeWidget->rowCount() - 1);
 
     scene3d->matrixReloaded();
 }
