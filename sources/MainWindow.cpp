@@ -869,7 +869,7 @@ void MainWindow::onStartTask()
     groupControl->setChecked( false ); // отключим реакцию на нажатие NUM-pad
 
     Task::StatusTask = TaskStart;
-    mainTaskTimer.start(1); // every 1 msec update
+    mainTaskTimer.start(10); // every 1 msec update
 
     refreshElementsForms();
 }
@@ -982,6 +982,7 @@ void MainWindow::onMainTaskTimer()
     //Все необходимые команды завершены, пора всё завершить
     if (Task::posCodeNow > Task::posCodeEnd) {
         Task::StatusTask = TaskStop;
+        AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
         return;
     }
 
@@ -1145,15 +1146,15 @@ void MainWindow::onSendCommand()
 }
 
 // to connect slider with spinbox
-void MainWindow::trackBar1_Scroll()
-{
-
-    //     spinBoxVelo->setValue( trackBar1->value());
-
-    //     SendSignal();
-
-    // cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), checkBox19.isChecked(), (int)spinBoxVelo->value());
-}
+// void MainWindow::trackBar1_Scroll()
+// {
+//
+//     //     spinBoxVelo->setValue( trackBar1->value());
+//
+//     //     SendSignal();
+//
+//     // cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), checkBox19.isChecked(), (int)spinBoxVelo->value());
+// }
 
 
 // void MainWindow::onLikePoint()
@@ -1161,22 +1162,6 @@ void MainWindow::trackBar1_Scroll()
 //     //TODO: откроем окно со списком точек
 // }
 
-
-// void MainWindow::listBox1()
-// {
-//     if (Task::StatusTask == Waiting) {
-//         Task::posCodeStart = listGCodeWidget->currentIndex().row();
-//         numberLine->setText( QString::number(listGCodeWidget->currentIndex().row() + 1));
-//     }
-//
-// }
-
-
-// void MainWindow::listBox1_DataSourceChanged()
-// {
-//
-//
-// }
 
 void MainWindow::addStatusWidgets()
 {
@@ -1204,20 +1189,9 @@ void MainWindow::addStatusWidgets()
     //     statusbar->addPermanentWidget(statLabelNumInstr);
 }
 
-#if 0
-void MainWindow::listBox1_SelectedIndexChanged()
-{
-    if (Task::StatusTask == Waiting) {
-        Task::posCodeStart = listGCodeWidget->currentIndex().row();
-        Task::posCodeEnd = listGCodeWidget->currentIndex().row() + listGCodeWidget->selectedItems().count() ;
-        labelRunFrom->setText( translate(_FROM_NUM) + QString::number(listGCodeWidget->currentIndex().row() + 1));
-    }
-}
-#endif
 
 void MainWindow::onGeneratorCode()
 {
-
     //     GeneratorCodeDialog *frm = new GeneratorCodeDialog(this);
     //     frm->exec()
 }
@@ -1536,143 +1510,10 @@ void MainWindow::fillListWidget(QStringList listCode)
     listGCodeWidget->setHorizontalHeaderLabels(header);
 
     int maxIndexLen = QString::number(listCode.count()).length(); //вычисление количества символов используемых для нумерации записей
-    //     GCodeCommand *tmpCommand = new GCodeCommand();
 
     foreach (QString valueStr, listCode) {
-#if 0
-        bool decoded;
-        //         QStringList lcmd = parserGCodeLine(valueStr, decoded);
-
-        //         for (int i = 0; i < lcmd.count(); i++) {
-        QString property = lcmd.at(i).mid(0, 1);
-        QString value = lcmd.at(i).mid(1);
-
-        if (property == "" || value == "") {
-            continue;    //ошибочная команда
-        }
-
-        if (property == "G") {
-            if (value == "0" || value == "00") {
-                tmpCommand->workspeed = false;
-            }
-
-            if (value == "1" || value == "01") {
-                tmpCommand->workspeed = true;
-            }
-
-            if (value == "4" || value == "04") {
-                //нужен следующий параметр
-                QString property1 = lcmd.at(i + 1).mid(0, 1);
-                QString value1 = lcmd.at(i + 1).mid(1);
-
-                if (property1 == "P") {
-                    tmpCommand->needPause = true;
-                    bool res;
-                    tmpCommand->timeSeconds = value1.toInt(&res);
-
-                    if (res == false) {
-                        AddLog(translate(_WRONGLINE) + " " + lcmd.at(i + 1));
-                    }
-
-                    i++;
-                }
-            }
-        }
-
-        if (property == "X") {
-            //из-за кодировок, пока так сделаю...
-            QString value1 = value.replace('.', ',');
-            bool res;
-            tmpCommand->X = value1.toDouble(&res);
-
-            if (res == false) {
-                AddLog(translate(_WRONGLINE) + " " + lcmd.at(i));
-            }
-        }
-
-        if (property == "Y") {
-            //из-за кодировок, пока так сделаю...
-            QString value1 = value.replace('.', ',');
-            bool res;
-            tmpCommand->Y = value1.toDouble(&res);
-
-            if (res == false) {
-                AddLog(translate(_WRONGLINE) + " " + lcmd.at(i));
-            }
-        }
-
-        if (property == "Z") {
-            //из-за кодировок, пока так сделаю...
-            QString value1 = value.replace('.', ',');
-            bool res;
-            tmpCommand->Z = value1.toDouble(&res);
-
-            if (res == false) {
-                AddLog(translate(_WRONGLINE) + " " + lcmd.at(i));
-            }
-        }
-
-        if (property == "M") {
-            if (value == "0" || value == "0") {
-                tmpCommand->needPause = true;
-            }
-
-            if (value == "3" || value == "03") {
-                tmpCommand->spindelON = true;
-            }
-
-            if (value == "5" || value == "05") {
-                tmpCommand->spindelON = false;
-            }
-
-            if (value == "6" || value == "06") {
-                //нужен следующий параметр
-                QString property1 = lcmd.at(i + 1).mid(0, 1);
-                QString value1 = lcmd.at(i + 1).mid(1);
-
-                QString property2 = lcmd.at(i + 2).mid(0, 1);
-                QString value2 = lcmd.at(i + 2).mid(1).replace('.', ',');
-
-                if (property1 == "T" && property2 == "D") {
-                    tmpCommand->changeInstrument = true;
-                    bool res;
-                    tmpCommand->numberInstrument = value1.toInt(&res);
-
-                    if (res == false) {
-                        AddLog(translate(_WRONGLINE) + " " + lcmd.at(i + 1));
-                    }
-
-                    tmpCommand->timeSeconds = value1.toInt(&res);
-
-                    if (res == false) {
-                        AddLog(translate(_WRONGLINE) + " " + lcmd.at(i + 1));
-                    }
-
-                    tmpCommand->diametr = value2.toDouble(&res);
-
-                    if (res == false) {
-                        AddLog(translate(_WRONGLINE) + " " + lcmd.at(i + 1));
-                    }
-
-                    i += 2;
-                }
-            }
-        }
-
-        //         }
-
-        GCodeList << *tmpCommand;
-
-        tmpCommand->numberInstruct++;
-        tmpCommand->needPause = false;
-        tmpCommand->changeInstrument = false;
-        tmpCommand->timeSeconds = 0;
-
-#endif
-
         listGCodeWidget->insertRow( listGCodeWidget->rowCount() );
 
-        //         QTableWidgetItem *newItem = new QTableWidgetItem(QString("[" + QString::number(tmpCommand->numberInstruct) + "] " + valueStr));
         QTableWidgetItem *newItem = new QTableWidgetItem(valueStr);
         newItem->setFlags(newItem->flags() ^ Qt::ItemIsEditable); // set read only
 

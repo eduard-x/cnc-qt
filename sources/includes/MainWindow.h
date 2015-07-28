@@ -226,11 +226,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 
         void on3dSettings();
 
-        void trackBar1_Scroll(); // not connected
-        //         void onLikePoint(); // not connected
-        //         void listBox1(); // not connected
-        //         void listBox1_DataSourceChanged(); // not connected
-        //         void listBox1_SelectedIndexChanged(); // not connected
         void onGeneratorCode(); // not connected
 
         bool readLangDir();
