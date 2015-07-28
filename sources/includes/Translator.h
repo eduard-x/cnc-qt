@@ -1,6 +1,8 @@
 /****************************************************************************
  * Main developer:                                                          *
  * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Russia, Novy Urengoy                                                     *
+ * zheigurov@gmail.com                                                      *
  *                                                                          *
  * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
@@ -200,6 +202,8 @@ enum TR_CONSTS {
     _MOVING, // 146
     _HOTPLUGED, //  147
     _DETACHED, // 148
+    _WARN, // 149
+    _REALLYQUIT, // 150
     _NULL
 };
 

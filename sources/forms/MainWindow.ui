@@ -961,8 +961,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>746</width>
-                  <height>514</height>
+                  <width>400</width>
+                  <height>300</height>
                  </rect>
                 </property>
                </widget>
@@ -1600,8 +1600,6 @@
      <string>Controller</string>
     </property>
     <addaction name="actionInfo"/>
-    <!--addaction name="actionConnect"/>
-    <addaction name="actionDisconnect"/-->
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1642,7 +1640,6 @@
    <addaction name="actionOpenGL"/>
    <addaction name="separator"/>
    <addaction name="actionInfo"/>
-   <!--addaction name="actionConnectDisconnect"/-->
    <addaction name="actionSpindle"/>
    <addaction name="actionStop"/>
    <addaction name="separator"/>
@@ -1669,15 +1666,6 @@
     <string>&amp;Settings</string>
    </property>
   </action>
-  <!--action name="actionConnect">
-   <property name="icon">
-    <iconset resource="../CNC-Qt.qrc">
-     <normaloff>:/images/connect.png</normaloff>:/images/connect.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Connect</string>
-   </property>
-  </action-->
   <action name="actionSpindle">
    <property name="icon">
     <iconset resource="../CNC-Qt.qrc">
@@ -1717,7 +1705,7 @@
   <action name="actionAbout">
    <property name="icon">
     <iconset resource="../CNC-Qt.qrc">
-     <normaloff>:/images/ques_tion.png</normaloff>:/images/ques_tion.png</iconset>
+     <normaloff>:/images/icon.png</normaloff>:/images/icon.png</iconset>
    </property>
    <property name="text">
     <string>About</string>
@@ -1732,28 +1720,6 @@
     <string>About Qt</string>
    </property>
   </action>
-  <!--action name="actionConnectDisconnect">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../CNC-Qt.qrc">
-     <normaloff>:/images/disconnect.png</normaloff>
-     <normalon>:/images/connect.png</normalon>:/images/disconnect.png</iconset>
-   </property>
-   <property name="text">
-    <string>Connect</string>
-   </property>
-  </action>
-  <action name="actionDisconnect">
-   <property name="icon">
-    <iconset resource="../CNC-Qt.qrc">
-     <normaloff>:/images/disconnect.png</normaloff>:/images/disconnect.png</iconset>
-   </property>
-   <property name="text">
-    <string>Disconnect</string>
-   </property>
-  </action-->
   <action name="actionProgram">
    <property name="icon">
     <iconset resource="../CNC-Qt.qrc">

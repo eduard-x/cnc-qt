@@ -1,6 +1,8 @@
 /****************************************************************************
  * Main developer:                                                          *
  * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Russia, Novy Urengoy                                                     *
+ * zheigurov@gmail.com                                                      *
  *                                                                          *
  * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
@@ -75,7 +77,6 @@ class usbHotplugThread : public QThread
 
 
 // Класс для получиния бинарных данных
-
 class BinaryData
 {
     public:
@@ -187,40 +188,14 @@ class mk1Controller : public QObject, public BinaryData
         virtual ~mk1Controller();
 
     signals:
+        // Посылка строки описания (для ведения логов)
         void Message (int num);
-        void wasConnected();
-        void wasDisconnected();
+        // Событие при успешном подключении к контроллеру
+        // Событие при отключении от контроллера, или разрыве связи с контроллером
         void hotplugSignal();
-        
+
         // Получены новые данные от контроллера
         void newDataFromMK1Controller();
-        //         void hotplugEvent();
-#if 0
-    public:
-        delegate void DeviceEventConnect(object sender); //уведомление об установки связи
-        delegate void DeviceEventDisconnect(object sender, DeviceEventArgsMessage e); //уведомление об обрыве/прекращении связи
-        delegate void DeviceEventNewData(object sender); //уведомление что получены новые данные контроллером
-        delegate void DeviceEventNewMessage(object sender, DeviceEventArgsMessage e); //для посылки управляющей программе сообщений о действиях
-
-        //
-        // Событие при успешном подключении к контроллеру
-        //
-        public event DeviceEventConnect WasConnected;
-        //
-        // Событие при отключении от контроллера, или разрыве связи с контроллером
-        //
-        public event DeviceEventDisconnect WasDisconnected;
-        //
-        // Получены новые данные от контроллера
-        //
-        public event DeviceEventNewData NewDataFrommk1Controller;
-        //
-        // Посылка строки описания (для ведения логов)
-        //
-        public event DeviceEventNewMessage Message;
-#endif
-        //     public:
-        //         BinaryData rawData;
 
     public slots:
         void handleHotplug();
@@ -231,7 +206,7 @@ class mk1Controller : public QObject, public BinaryData
         bool devConnected;
 
         static libusb_hotplug_callback_handle hotplug[2];
-       
+
         usbHotplugThread *hotplugThread;
 
         //
@@ -247,7 +222,7 @@ class mk1Controller : public QObject, public BinaryData
         //         UsbEndpointWriter _usbWriter;
 
         bool availableNewData;
-        
+
         QTimer hotplugTimer;
 
     public:
@@ -299,7 +274,7 @@ class usbReadThread : public QThread
             // init of read array
             memset( buf, 0x0, BUFFER_SIZE);
 
-            while(p->handle) {
+            while(p->handle) { // running if connected
                 int bytesRead  = 0;
                 int _error_code = libusb_bulk_transfer(p->handle, BULK_ENDPOINT_OUT, buf, BUFFER_SIZE, &bytesRead, 3000);
 

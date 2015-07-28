@@ -1,6 +1,8 @@
 /****************************************************************************
  * Main developer:                                                          *
  * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Russia, Novy Urengoy                                                     *
+ * zheigurov@gmail.com                                                      *
  *                                                                          *
  * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
@@ -168,7 +170,7 @@ QString cTranslator::engText[] = {
     "RUN",
     "Clean",
     "Execution of program",
-    "From nr:",
+    "Line nr:",
     "G-code",
     "Yes", // 130
     "No",
@@ -189,6 +191,8 @@ QString cTranslator::engText[] = {
     "Movement",
     "Device hotplugged",
     "Device detached",
+    "Warning",
+    "Do you really want to close the program?",
     ""
 };
 

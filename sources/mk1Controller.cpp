@@ -1,6 +1,8 @@
 /****************************************************************************
  * Main developer:                                                          *
  * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Russia, Novy Urengoy                                                     *
+ * zheigurov@gmail.com                                                      *
  *                                                                          *
  * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
@@ -38,9 +40,9 @@
 ** mk1Controller
 */
 
-class handle;
-class io;
-class count;
+// class handle;
+// class io;
+// class count;
 
 short DeviceInfo::FreebuffSize = 0;
 
@@ -136,7 +138,7 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
         qDebug() << "Error in libusb_set_configuration";
         libusb_close(mk1Controller::handle);
         return -1;
-    } else    {
+    } else {
         qDebug() << "Device is in configured state!";
     }
 
@@ -146,7 +148,7 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
         qDebug() << "Cannot Claim Interface";
         libusb_close(mk1Controller::handle);
         return -1;
-    } else    {
+    } else {
         qDebug() << "Claimed Interface";
     }
 
@@ -263,33 +265,32 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     if (!libusb_has_capability (LIBUSB_CAP_HAS_HOTPLUG)) {
         qDebug() << "Hotplug capabilites are not supported on this platform";
         libusb_exit (NULL);
-    }
-
-    rc = libusb_hotplug_register_callback (NULL, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED, LIBUSB_HOTPLUG_ENUMERATE, vendor_id,
-                                           product_id, class_id, hotplug_callback, NULL, &hotplug[0]);
-
-    if (LIBUSB_SUCCESS != rc) {
-        qDebug() << "Error registering callback 0";
-        libusb_exit (NULL);
     } else {
-        qDebug() << "Device registering attach callback";
+        rc = libusb_hotplug_register_callback (NULL, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED, LIBUSB_HOTPLUG_ENUMERATE, vendor_id,
+                                               product_id, class_id, hotplug_callback, NULL, &hotplug[0]);
+
+        if (LIBUSB_SUCCESS != rc) {
+            qDebug() << "Error registering callback 0";
+            libusb_exit (NULL);
+        } else {
+            qDebug() << "Device registering attach callback";
+        }
+
+        rc = libusb_hotplug_register_callback (NULL, LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT, LIBUSB_HOTPLUG_ENUMERATE, vendor_id,
+                                               product_id, class_id, hotplug_callback_detach, NULL, &hotplug[1]);
+
+        if (LIBUSB_SUCCESS != rc) {
+            qDebug() << "Error registering callback 1";
+            libusb_exit (NULL);
+        } else {
+            qDebug() << "Device registering detach callback";
+            hotplugThread = new usbHotplugThread();
+            connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
+            hotplugThread->start();
+        }
     }
 
-    rc = libusb_hotplug_register_callback (NULL, LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT, LIBUSB_HOTPLUG_ENUMERATE, vendor_id,
-                                           product_id, class_id, hotplug_callback_detach, NULL, &hotplug[1]);
-
-    if (LIBUSB_SUCCESS != rc) {
-        qDebug() << "Error registering callback 1";
-        libusb_exit (NULL);
-    } else {
-        qDebug() << "Device registering detach callback";
-        hotplugThread = new usbHotplugThread();
-        connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
-//         connect(hotplugThread, SIGNAL(finished()), hotplugThread, SLOT(deleteLater()));
-        hotplugThread->start();
-    }
-
-    settingsFile = new QSettings("KarboSoft", "CNC-Qt");
+    settingsFile = new QSettings("CNCSoft", "CNC-Qt");
 }
 
 
@@ -304,6 +305,7 @@ mk1Controller::~mk1Controller()
 }
 
 
+// for the popup window
 int mk1Controller::getConfiguration()
 {
     //     char *data;
@@ -383,10 +385,11 @@ void mk1Controller::readNewData()
 void mk1Controller::handleHotplug()
 {
     disconnect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
-    qDebug() << "hotplug" << handle;
 
     if (handle) {
         if (devConnected == false) {
+            qDebug() << "hotplug attach" << handle;
+
             emit hotplugSignal();
         }
 
@@ -403,6 +406,8 @@ void mk1Controller::handleHotplug()
 
     } else {
         if (devConnected == true) {
+            qDebug() << "hotplug detach" << handle;
+
             emit hotplugSignal();
         }
 
@@ -766,10 +771,10 @@ int DeviceInfo::CalcPosPulse(QString axes, double posMm)
 }
 
 
-// You MUST declare it in a CPP, because of static field
+// You MUST declare it, because of static field
 byte BinaryData::readBuf[BUFFER_SIZE];
-// byte BinaryData::newBuf[BUFFER_SIZE];
 byte BinaryData::writeBuf[BUFFER_SIZE];
+
 //
 // Данная команда пока непонятна....
 //
@@ -820,17 +825,8 @@ byte BinaryData::getByte(short offset)
 
 void BinaryData::cleanBuf(byte *m)
 {
-
     memset(m, 0x0, BUFFER_SIZE);
-    //     for (int i = 0; i < BUFFER_SIZE) i++) {
-    //         buf[i] = 0x00;
-    //     }
 }
-//         public enum TypeSignal {
-//             None,
-//             Hz,
-//             RC
-//         };
 
 
 //region Послания данных в контроллер
@@ -1043,7 +1039,6 @@ void BinaryData::packD2(int speed, double returnDistance, bool send)
         sendBinaryData();
     }
 }
-
 
 
 //

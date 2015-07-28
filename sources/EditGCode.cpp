@@ -1,6 +1,8 @@
 /****************************************************************************
  * Main developer:                                                          *
  * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Russia, Novy Urengoy                                                     *
+ * zheigurov@gmail.com                                                      *
  *                                                                          *
  * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *

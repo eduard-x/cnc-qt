@@ -1,6 +1,8 @@
 /****************************************************************************
  * Main developer:                                                          *
  * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Russia, Novy Urengoy                                                     *
+ * zheigurov@gmail.com                                                      *
  *                                                                          *
  * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
@@ -34,6 +36,7 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QTimer>
+#include <QCloseEvent>
 
 #include <QGLPixelBuffer>
 #include <QScrollArea>
@@ -139,8 +142,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         MainWindow(QWidget *parent = 0);
         ~MainWindow();
 
-
-        void fillListWidget(QStringList listCode);
         double GetDeltaZ(double _x, double _y);
 
     public:
@@ -194,18 +195,12 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
     public slots:
         // connect to controller
         void onCncMessage(int n_msg);
-        //         void onCncConnect();
         void onCncNewData();
-        //         void onCncDisconnect();
         void onCncHotplug();
-        //         void onCncDetach();
 
 
     private slots:
         void onExit();
-        //         void onConnect();
-        //         void onDisconnect();
-        //         void onConnDisconnect();
         void onManualControlDialog();
 
         void onOpenFile();
@@ -235,7 +230,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         //         void onLikePoint(); // not connected
         //         void listBox1(); // not connected
         //         void listBox1_DataSourceChanged(); // not connected
-        void listBox1_SelectedIndexChanged(); // not connected
+        //         void listBox1_SelectedIndexChanged(); // not connected
         void onGeneratorCode(); // not connected
 
         bool readLangDir();
@@ -246,7 +241,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         void setLang(QAction* mnu);
 
     public slots:
-
         void onButtonXtoZero();
         void onButtonYtoZero();
         void onButtonZtoZero();
@@ -256,10 +250,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         void getXRotation(int x);
         void getScale(int s);
 
-
     private:
-
         void Feed();
+        void fillListWidget(QStringList listCode);
         QString getLocaleString();
         bool getLangTable();
         void setLangGUI();
@@ -270,22 +263,23 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 
         void refreshElementsForms();
 
-
         void AddLog(QString _text = "");
         void SendSignal();
         void readGUISettings();
+        void writeGUISettings();
         void readSettings(bool global);
         void writeSettings(bool global);
-        void writeGUISettings(void);
         QString selectedLang;
+
+    protected:
+        void closeEvent(QCloseEvent *event);
 
     private:
         QTimer  mainTaskTimer;
-        //         bool    devConnected;
         QLabel *statusLabel1;
         QProgressBar *statusProgress;
         QLabel *statusSt;
-        QLabel *statLabelNumInstr;
+        //         QLabel *statLabelNumInstr;
 
         QTimer  renderTimer;
         QVector<QAction*> actLangSelect;

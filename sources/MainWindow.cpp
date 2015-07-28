@@ -1,6 +1,8 @@
 /****************************************************************************
  * Main developer:                                                          *
  * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Russia, Novy Urengoy                                                     *
+ * zheigurov@gmail.com                                                      *
  *                                                                          *
  * Qt developing                                                            *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
@@ -341,10 +343,7 @@ void MainWindow::addConnections()
     connect(pushSendSignal, SIGNAL(clicked()), this, SLOT(onSendCommand()));
     connect(toolRunMoving, SIGNAL(clicked()), this, SLOT(onRunToPoint()));
 
-
-    //     connect(cnc, SIGNAL(wasConnected ()), this, SLOT(onCncConnect())); // cnc->WasConnected += CncConnect;
-    //     connect(cnc, SIGNAL(wasDisconnected ()), this, SLOT(onCncDisconnect())); // cnc->WasDisconnected += CncDisconnect;
-
+    // connected or disconnected
     connect(cnc, SIGNAL(hotplugSignal ()), this, SLOT(onCncHotplug())); // cnc->WasConnected += CncConnect;
     //     connect(cnc, SIGNAL(hotplugDisconnected ()), this, SLOT(onCncHotplug())); // cnc->WasDisconnected += CncDisconnect;
 
@@ -527,10 +526,36 @@ QString MainWindow::getLocaleString()
 }
 
 
+void MainWindow::writeGUISettings()
+{
+    QSettings* s;
+    s = new QSettings(QSettings::UserScope, "CNCSoft", "CNC-Qt");
+    s->setValue("pos", pos());
+    s->setValue("size", size());
+    //     s->setValue("WorkDir", currentWorkDir);
+    s->setValue("LANGUAGE", currentLang);
+    //     s->setValue("LASTPROJ", currentProject);
+    //     s->setValue("FontSize", fontSize);
+    //     s->setValue("GUIFont", sysFont);
+    // qDebug() << "writeGUISettings";
+    //     int i = 0;
+    //
+    //     for (QStringList::Iterator iDir = lastDirs.begin(); iDir != lastDirs.end(); iDir++, i++) {
+    //         if (i > 8) { // max last dirs
+    //             break;
+    //         }
+    //
+    //         s->setValue("LASDIR" + QString::number(i), (*iDir));
+    //     }
+
+    s->sync();
+}
+
+
 void MainWindow::readGUISettings()
 {
     QSettings* s;
-    s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt");
+    s = new QSettings(QSettings::UserScope, "CNCSoft", "CNC-Qt");
     QPoint pos = s->value("pos", QPoint(200, 200)).toPoint();
     QSize size = s->value("size", QSize(840, 640)).toSize();
     resize(size);
@@ -656,20 +681,53 @@ void MainWindow::displayRotation()
 
 MainWindow::~MainWindow()
 {
-    if (cnc->isConnected()) {
-        MessageBox::exec(this, translate(_ERR), translate(_MSG_FOR_DISABLE), QMessageBox::Critical);
-    } else {
-        //disconnect if exit
-        //         disconnect(cnc, SIGNAL(wasConnected ()), this, SLOT(onCncConnect())); // cnc->WasConnected -= CncConnect;
-        //         disconnect(cnc, SIGNAL(wasDisconnected ()), this, SLOT(onCncDisconnect())); // cnc->WasDisconnected -= CncDisconnect;
-        //         disconnect(cnc, SIGNAL(hotplugConnected ()), this, SLOT(onCncHotplug())); // cnc->WasConnected += CncConnect;
-        //         disconnect(cnc, SIGNAL(hotplugDisconnected ()), this, SLOT(onCncHotplug())); // cnc->WasDisconnected += CncDisconnect;
-        //         disconnect(cnc, SIGNAL(newDataFromMK1Controller ()), this, SLOT(onCncNewData())); // cnc->NewDataFromController -= CncNewData;
-        disconnect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
-
-        QCoreApplication::quit();
-    }
 };
+
+
+void MainWindow::closeEvent(QCloseEvent* ce)
+{
+    if (cnc->isConnected()) {
+        MessageBox::exec(this, translate(_WARN), translate(_MSG_FOR_DISABLE), QMessageBox::Critical);
+        ce->ignore();
+        return;
+    }
+
+    int ans;
+    ans = MessageBox::exec(this, translate(_EXIT), translate(_REALLYQUIT), QMessageBox::Question);
+
+    if (ans == QMessageBox::No) {
+        ce->ignore();
+        return;
+    }
+
+    disconnect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
+
+    writeGUISettings();
+
+    ce->accept();
+
+    QCoreApplication::quit();
+}
+
+
+void MainWindow::onExit()
+{
+    if (cnc->isConnected()) {
+        MessageBox::exec(this, translate(_WARN), translate(_MSG_FOR_DISABLE), QMessageBox::Critical);
+        return;
+    }
+
+    if (MessageBox::exec(this, translate(_EXIT), translate(_REALLYQUIT), QMessageBox::Question) == QMessageBox::No) {
+        //         ce->ignore();
+        return;
+    }
+
+    disconnect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
+
+    writeGUISettings();
+
+    QCoreApplication::quit();
+}
 
 
 void MainWindow::translateGUI()
@@ -1000,7 +1058,7 @@ void MainWindow::onMainTaskTimer()
     cnc->packCA(posX, posY, posZ, speed, Task::posCodeNow);
 
     Task::posCodeNow++;
-    labelRunFrom->setText( "Run line:" + QString::number(Task::posCodeNow));
+    labelRunFrom->setText( translate(_FROM_NUM) + QString::number(Task::posCodeNow));
 
 } //void mainTaskTimer_Tick
 
@@ -1138,24 +1196,24 @@ void MainWindow::addStatusWidgets()
     statusSt = new QLabel();
     statusSt->setFixedWidth(250);
     statusSt->setFixedHeight(17);
-    statusbar->addWidget(statusSt);
+    statusbar->addPermanentWidget(statusSt);
 
-    statLabelNumInstr = new QLabel();
-    statLabelNumInstr->setFixedWidth(150);
-    statLabelNumInstr->setFixedHeight(17);
-    statusbar->addPermanentWidget(statLabelNumInstr);
+    //     statLabelNumInstr = new QLabel();
+    //     statLabelNumInstr->setFixedWidth(150);
+    //     statLabelNumInstr->setFixedHeight(17);
+    //     statusbar->addPermanentWidget(statLabelNumInstr);
 }
 
-
+#if 0
 void MainWindow::listBox1_SelectedIndexChanged()
 {
     if (Task::StatusTask == Waiting) {
         Task::posCodeStart = listGCodeWidget->currentIndex().row();
         Task::posCodeEnd = listGCodeWidget->currentIndex().row() + listGCodeWidget->selectedItems().count() ;
-        labelRunFrom->setText( "Run line: " + QString::number(listGCodeWidget->currentIndex().row() + 1));
+        labelRunFrom->setText( translate(_FROM_NUM) + QString::number(listGCodeWidget->currentIndex().row() + 1));
     }
 }
-
+#endif
 
 void MainWindow::onGeneratorCode()
 {
@@ -1241,21 +1299,6 @@ void MainWindow::onCncNewData()
     qDebug() << "onCncNewData";
 }
 
-#if 0
-//событие о прекращении связи
-void MainWindow::onCncDisconnect()
-{
-    RefreshElementsForms();
-    qDebug() << "cnc disconnected";
-}
-
-//событие успешного подключения
-void MainWindow::onCncConnect()
-{
-    RefreshElementsForms();
-    qDebug() << "cnc connected";
-}
-#endif
 
 void MainWindow::onCncHotplug()
 {
@@ -1271,23 +1314,7 @@ void MainWindow::onCncHotplug()
     actionInfo->setEnabled(e);
 
     refreshElementsForms();
-
-    //     actionConnectDisconnect->setEnabled(e);
-    //     actionConnect->setEnabled(e);
-    //     actionDisconnect->setEnabled(e);
 }
-
-
-// void MainWindow::onCncDetach()
-// {
-// //     RefreshElementsForms();
-//     bool e = (cnc->handle != 0);
-//     actionInfo->setEnabled(e);
-//     actionConnectDisconnect->setEnabled(e);
-//     actionConnect->setEnabled(e);
-//     actionDisconnect->setEnabled(e);
-// //     qDebug() << "cnc detached";
-// }
 
 
 void  MainWindow::refreshElementsForms()
@@ -1318,9 +1345,8 @@ void  MainWindow::refreshElementsForms()
     actionStop->setEnabled( cncConnected);
     actionSpindle->setEnabled( cncConnected);
 
-
     labelSpeed->setText( QString::number(cnc->spindelMoveSpeed()) + translate(_MM_MIN));
-    statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(cnc->numberComleatedInstructions()));
+    //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(cnc->numberComleatedInstructions()));
 
     if (!cncConnected) {
         maxXLED->setPixmap( QPixmap(":/images/ball_gray.png"));
@@ -1480,37 +1506,13 @@ void  MainWindow::refreshElementsForms()
             //TODO: переделать алгоритм, иначе это изменение сбивает выделенный диапазон
             //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;
         }
-    }
-}
-
-
-
-void MainWindow::onExit()
-{
-    QApplication::quit();
-}
-
-#if 0
-void MainWindow::onConnect()
-{
-    cnc->startJob();
-}
-
-void MainWindow::onDisconnect()
-{
-    cnc->stopJob();
-}
-
-
-void MainWindow::onConnDisconnect()
-{
-    if (cnc->isConnected()) {
-        cnc->stopJob();
     } else {
-        cnc->startJob();
+        toolRun->setEnabled( cncConnected);
+        toolPause->setEnabled( cncConnected);
+        toolStop->setEnabled( cncConnected);
     }
 }
-#endif
+
 
 void MainWindow::onManualControlDialog()
 {
