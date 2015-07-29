@@ -1,6 +1,6 @@
 /****************************************************************************
  * Main developer:                                                          *
- * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
@@ -137,7 +137,7 @@ int MessageBox::exec(void* p, const QString &title, const QString &text, int tic
     return ret;
 }
 
-
+// because of static
 EStatusTask  Task::StatusTask = Waiting;
 int Task::posCodeStart = -1;
 int Task::posCodeEnd = -1;
@@ -862,14 +862,18 @@ void MainWindow::onStartTask()
 
     //установим границы выполнения
     Task::posCodeStart = beg;
-    Task::posCodeEnd = end;
+    Task::posCodeEnd = end - 1;
     Task::posCodeNow = Task::posCodeStart;
 
     //     qDebug() << "start " << Task::posCodeStart << Task::posCodeEnd;
+    QString s = "from :" + QString::number( Task::posCodeStart + 1 ) + " to: " + QString::number( Task::posCodeEnd + 1);
+    statusSt->setText( s );
+
     groupControl->setChecked( false ); // отключим реакцию на нажатие NUM-pad
 
     Task::StatusTask = TaskStart;
-    mainTaskTimer.start(10); // every 1 msec update
+
+    mainTaskTimer.start(20); // every 20 msec update
 
     refreshElementsForms();
 }
@@ -900,13 +904,8 @@ void MainWindow::onStopTask()
 }
 
 
-void MainWindow::onMainTaskTimer()
+void MainWindow::runCommand()
 {
-    if (!cnc->isConnected()) {
-        mainTaskTimer.stop();
-        return;
-    }
-
     // скорость с главной формы
     int userSpeedG1 = (int)numericUpDown1->value();
     int userSpeedG0 = (int)numericUpDown2->value();
@@ -970,7 +969,7 @@ void MainWindow::onMainTaskTimer()
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
         Task::StatusTask = Waiting;
         mainTaskTimer.stop();
-        refreshElementsForms();
+
     }
 
     // TaskWorking
@@ -983,6 +982,8 @@ void MainWindow::onMainTaskTimer()
     if (Task::posCodeNow > Task::posCodeEnd) {
         Task::StatusTask = TaskStop;
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
+
+        mainTaskTimer.stop();
         return;
     }
 
@@ -1053,13 +1054,33 @@ void MainWindow::onMainTaskTimer()
     int posY = DeviceInfo::CalcPosPulse("Y", pointY);
     int posZ = DeviceInfo::CalcPosPulse("Z", pointZ);
 
-    //TODO: доделать управление скоростью ручая/по программе
+    //TODO: доделать управление скоростью ручная/по программе
     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
 
     cnc->packCA(posX, posY, posZ, speed, Task::posCodeNow);
 
     Task::posCodeNow++;
     labelRunFrom->setText( translate(_FROM_NUM) + QString::number(Task::posCodeNow));
+}
+
+
+void MainWindow::onMainTaskTimer()
+{
+    if (!cnc->isConnected()) {
+        if (mainTaskTimer.isActive()) {
+            mainTaskTimer.stop();
+        }
+
+        return;
+    }
+
+    mainTaskTimer.stop();
+
+    runCommand();
+
+    //     refreshElementsForms();
+
+    mainTaskTimer.start();
 
 } //void mainTaskTimer_Tick
 

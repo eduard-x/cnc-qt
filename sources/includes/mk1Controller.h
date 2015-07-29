@@ -1,6 +1,6 @@
 /****************************************************************************
  * Main developer:                                                          *
- * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
@@ -61,7 +61,6 @@ class usbHotplugThread : public QThread
         void run()
         {
             /* expensive or blocking operation  */
-
             while(true) {
                 int r = libusb_handle_events(NULL);
                 msleep(150);
@@ -200,6 +199,7 @@ class mk1Controller : public QObject, public BinaryData
     public slots:
         void handleHotplug();
         void readNewData();
+        void onBufFree();
 
     private:
         int count;
@@ -282,12 +282,19 @@ class usbReadThread : public QThread
                     continue;
                 }
 
+                if (bytesRead == 0) {
+                    continue;
+                }
 
-                if (bytesRead == 0 || buf[0] != 0x01) {
+                if (buf[0] != 0x01) {
                     continue; //пока получаем пакеты только с кодом 0х01
                 }
 
-                if (memcmp(buf, p->readBuf, BUFFER_SIZE) != 0) {
+                //                 if (buf[1] < 2){
+                //                     emit bufIsFree(); // здесь не выполнялось никогда.
+                //                 }
+
+                if (memcmp(buf, p->readBuf, BUFFER_SIZE) != 0) { // quick compare
                     memcpy(p->readBuf, buf, BUFFER_SIZE);
 
                     emit readEvent();
@@ -298,6 +305,7 @@ class usbReadThread : public QThread
         }
     signals:
         void readEvent();
+        //         void bufIsFree();
 
     private:
         byte buf[BUFFER_SIZE];

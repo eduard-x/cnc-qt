@@ -1,6 +1,6 @@
 /****************************************************************************
  * Main developer:                                                          *
- * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *

@@ -1,6 +1,6 @@
 /****************************************************************************
  * Main developer:                                                          *
- * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
@@ -247,6 +247,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 
     private:
         void Feed();
+        void runCommand();
         void fillListWidget(QStringList listCode);
         QString getLocaleString();
         bool getLangTable();

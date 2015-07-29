@@ -1,6 +1,6 @@
 /****************************************************************************
  * Main developer:                                                          *
- * Copyright (C) 2014-2015 by Sergej Zheigurov                              *
+ * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
@@ -382,6 +382,12 @@ void mk1Controller::readNewData()
 }
 
 
+void mk1Controller::onBufFree()
+{
+    qDebug() << "signal: read buffer is free";
+}
+
+
 void mk1Controller::handleHotplug()
 {
     disconnect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
@@ -398,7 +404,7 @@ void mk1Controller::handleHotplug()
 
             connect(readThread, SIGNAL(readEvent()), this, SLOT(readNewData()));
 
-            //             qDebug() << "new readThread";
+            //             connect(readThread, SIGNAL(bufIsFree()), this, SLOT(onBufFree()));
             readThread->start();
         }
 
@@ -838,11 +844,12 @@ void BinaryData::cleanBuf(byte *m)
 // параметр "checkBuffSize" Проверять ли размер доступного буффера контроллера
 void BinaryData::sendBinaryData(bool checkBuffSize)
 {
-    if (checkBuffSize && (DeviceInfo::FreebuffSize < 2)) {
-        //тут нужно зависнуть пока буфер не освободится
+    if (checkBuffSize) {
+        if (DeviceInfo::FreebuffSize < 2) {
+            //тут нужно зависнуть пока буфер не освободится
+        }
 
         //TODO: перед выполнением проверять буфер на занятость....
-
     }
 
     // ReSharper disable once SuggestVarOrType_BuiltInTypes
@@ -853,7 +860,7 @@ void BinaryData::sendBinaryData(bool checkBuffSize)
         //         _error_code = _usb->write(rawData);//, 2000, bytesWritten);
         if (handle != 0) {
             int transferred = 0;
-            int e = libusb_bulk_transfer(handle, BULK_ENDPOINT_IN, writeBuf, BUFFER_SIZE, &transferred, 0);
+            int e = libusb_bulk_transfer(handle, BULK_ENDPOINT_IN, writeBuf, BUFFER_SIZE, &transferred, 30); // timeout 30 msecons
 
             if(e == 0 && transferred == BUFFER_SIZE) {
                 qDebug() << "Write successful!";
