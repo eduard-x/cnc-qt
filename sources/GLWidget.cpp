@@ -37,6 +37,7 @@
 #include <utility>
 #include "includes/vec.h"
 
+#include "includes/mk1Controller.h"
 #include "includes/GLWidget.h"
 
 #include <math.h>

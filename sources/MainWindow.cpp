@@ -925,19 +925,20 @@ void MainWindow::runCommand()
         int MaxSpeedX = 100;
         int MaxSpeedY = 100;
         int MaxSpeedZ = 100;
+        int MaxSpeedA = 100;
 
         cnc->pack9E(0x05);
 
-        cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ);
+        cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
 
         cnc->packC0();
 
         //так-же спозиционируемся, над первой точкой по оси X и Y
         //TODO: нужно ещё и поднять повыше шпиндель, а пока на 10 мм (продумать реализацию)
-        cnc->packCA(DeviceInfo::AxesX_PositionPulse, DeviceInfo::AxesY_PositionPulse, DeviceInfo::AxesZ_PositionPulse + DeviceInfo::CalcPosPulse("Z", 10), userSpeedG0, 0);
+        cnc->packCA(DeviceInfo::AxesX_PositionPulse, DeviceInfo::AxesY_PositionPulse, DeviceInfo::AxesZ_PositionPulse + DeviceInfo::CalcPosPulse("Z", 10), DeviceInfo::AxesA_PositionPulse, userSpeedG0, 0);
 
         //TODO: И продумать реализацию к подходу к точке
-        cnc->packCA(DeviceInfo::CalcPosPulse("X", gcodeNow.X), DeviceInfo::CalcPosPulse("Y", gcodeNow.Y), DeviceInfo::AxesZ_PositionPulse + DeviceInfo::CalcPosPulse("Z", 10), userSpeedG0, 0);
+        cnc->packCA(DeviceInfo::CalcPosPulse("X", gcodeNow.X), DeviceInfo::CalcPosPulse("Y", gcodeNow.Y), DeviceInfo::AxesZ_PositionPulse + DeviceInfo::CalcPosPulse("Z", 10), DeviceInfo::CalcPosPulse("A", gcodeNow.A), userSpeedG0, 0);
 
         Task::StatusTask = TaskWorking;
         refreshElementsForms();
@@ -989,7 +990,7 @@ void MainWindow::runCommand()
 
     //TODO: добавить в параметр значение
     if (cnc->availableBufferSize() < 5) {
-        return;    // откажемся от посылки контроллеру, пока буфер не освободиться
+        return;    // откажемся от посылки контроллеру, пока буфер не освободится
     }
 
 
@@ -1032,6 +1033,7 @@ void MainWindow::runCommand()
     double pointX = gcodeNow.X;
     double pointY = gcodeNow.Y;
     double pointZ = gcodeNow.Z;
+    double pointA = gcodeNow.A;
 
     //добавление смещения G-кода
     if (Correction) {
@@ -1053,11 +1055,12 @@ void MainWindow::runCommand()
     int posX = DeviceInfo::CalcPosPulse("X", pointX);
     int posY = DeviceInfo::CalcPosPulse("Y", pointY);
     int posZ = DeviceInfo::CalcPosPulse("Z", pointZ);
+    int posA = DeviceInfo::CalcPosPulse("A", pointA);
 
     //TODO: доделать управление скоростью ручная/по программе
     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
 
-    cnc->packCA(posX, posY, posZ, speed, Task::posCodeNow);
+    cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
 
     Task::posCodeNow++;
     labelRunFrom->setText( translate(_FROM_NUM) + QString::number(Task::posCodeNow));
@@ -1114,16 +1117,17 @@ void MainWindow::onRunToPoint()
 
     cnc->pack9E(0x05);
 
-    cnc->packBF((int)spinMoveVelo->value(), (int)spinMoveVelo->value(), (int)spinMoveVelo->value());
+    cnc->packBF((int)spinMoveVelo->value(), (int)spinMoveVelo->value(), (int)spinMoveVelo->value(), (int)spinMoveVelo->value());
 
     cnc->packC0();
 
-    double posX, posY, posZ;
+    double posX, posY, posZ, posA;
     posX = DeviceInfo::CalcPosPulse("X", doubleSpinMoveX->value());
     posY = DeviceInfo::CalcPosPulse("Y", doubleSpinMoveY->value());
     posZ = DeviceInfo::CalcPosPulse("Z", doubleSpinMoveZ->value());
+    posA = DeviceInfo::CalcPosPulse("A", numAngleGrad->value());
 
-    cnc->packCA(posX, posY, posZ, (int)spinMoveVelo->value(), 0);
+    cnc->packCA(posX, posY, posZ, posA, (int)spinMoveVelo->value(), 0);
 
     cnc->packFF();
 

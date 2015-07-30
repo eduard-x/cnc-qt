@@ -40,9 +40,6 @@
 ** mk1Controller
 */
 
-// class handle;
-// class io;
-// class count;
 
 short DeviceInfo::FreebuffSize = 0;
 
@@ -705,7 +702,7 @@ void mk1Controller::deviceNewPosition(int x, int y, int z, int a)
         return;
     }
 
-    packC8(x, y, z);
+    packC8(x, y, z, a);
 }
 
 //
@@ -721,7 +718,7 @@ void mk1Controller::deviceNewPosition(double x, double y, double z, double a)
         return;
     }
 
-    packC8(DeviceInfo::CalcPosPulse("X", x), DeviceInfo::CalcPosPulse("Y", y), DeviceInfo::CalcPosPulse("Z", z));
+    packC8(DeviceInfo::CalcPosPulse("X", x), DeviceInfo::CalcPosPulse("Y", y), DeviceInfo::CalcPosPulse("Z", z), DeviceInfo::CalcPosPulse("A", a));
 }
 
 
@@ -820,15 +817,6 @@ byte BinaryData::getByte(short offset)
 
 
 
-
-// QByteArray BinaryData::getArray()
-// {
-//     QByteArray buffer;
-//     buffer.append(buf, BUFFER_SIZE);
-//     return buffer;
-// }
-
-
 void BinaryData::cleanBuf(byte *m)
 {
     memset(m, 0x0, BUFFER_SIZE);
@@ -889,7 +877,7 @@ void BinaryData::packB5(bool spindelON, int numShimChanel, TypeSignal ts, int Sp
 {
     cleanBuf(writeBuf);
 
-    writeBuf[0] = 0xB5;
+    writeBuf[0] = 0xb5;
     writeBuf[4] = 0x80;
 
 
@@ -946,8 +934,8 @@ void BinaryData::packB5(bool spindelON, int numShimChanel, TypeSignal ts, int Sp
         sendBinaryData();
     }
 
-    //writeBuf[10] = 0xFF;
-    //writeBuf[11] = 0xFF;
+    //writeBuf[10] = 0xff;
+    //writeBuf[11] = 0xff;
     //writeBuf[12] = 0x04;
 }
 
@@ -959,7 +947,7 @@ void BinaryData::packAA(bool send)
 {
     cleanBuf(writeBuf);
 
-    writeBuf[0] = 0xAA;
+    writeBuf[0] = 0xaa;
     writeBuf[4] = 0x80;
 
     if (send == true) {
@@ -974,30 +962,40 @@ void BinaryData::packAA(bool send)
 // параметр "y"
 // параметр "z"
 //
-void BinaryData::packC8(int x, int y, int z, bool send)
+void BinaryData::packC8(int x, int y, int z, int a, bool send)
 {
     int newPosX = x;
     int newPosY = y;
     int newPosZ = z;
+    int newPosA = a;
 
     cleanBuf(writeBuf);
 
-    writeBuf[0] = 0xC8;
+    writeBuf[0] = 0xc8;
+
     //сколько импульсов сделать
     writeBuf[6] = (byte)(newPosX);
     writeBuf[7] = (byte)(newPosX >> 8);
     writeBuf[8] = (byte)(newPosX >> 16);
     writeBuf[9] = (byte)(newPosX >> 24);
+
     //сколько импульсов сделать
     writeBuf[10] = (byte)(newPosY);
     writeBuf[11] = (byte)(newPosY >> 8);
     writeBuf[12] = (byte)(newPosY >> 16);
     writeBuf[13] = (byte)(newPosY >> 24);
+
     //сколько импульсов сделать
     writeBuf[14] = (byte)(newPosZ);
     writeBuf[15] = (byte)(newPosZ >> 8);
     writeBuf[16] = (byte)(newPosZ >> 16);
     writeBuf[17] = (byte)(newPosZ >> 24);
+
+    //сколько импульсов сделать
+    writeBuf[18] = (byte)(newPosA);
+    writeBuf[19] = (byte)(newPosA >> 8);
+    writeBuf[20] = (byte)(newPosA >> 16);
+    writeBuf[21] = (byte)(newPosA >> 24);
 
     if (send == true) {
         sendBinaryData();
@@ -1012,7 +1010,7 @@ void BinaryData::packD2(int speed, double returnDistance, bool send)
 {
     cleanBuf(writeBuf);
 
-    writeBuf[0] = 0xD2;
+    writeBuf[0] = 0xd2;
 
     int inewSpd = 0;
 
@@ -1058,7 +1056,7 @@ void BinaryData::packBE(byte direction, int speed, bool send)
 {
     cleanBuf(writeBuf);
 
-    writeBuf[0] = 0xBE;
+    writeBuf[0] = 0xbe;
     writeBuf[4] = 0x80;
     writeBuf[6] = direction;
 
@@ -1089,7 +1087,7 @@ void BinaryData::packBE(byte direction, int speed, bool send)
 //{
 //  cleanBuf(writeBuf);
 
-//    writeBuf[0] = 0xCA;
+//    writeBuf[0] = 0xca;
 
 //    writeBuf[5] = 0xB9;
 //    writeBuf[14] = 0xD0;
@@ -1120,8 +1118,9 @@ void BinaryData::pack9E(byte value, bool send)
 // параметр "speedLimitX" Максимальная скорость по оси X
 // параметр "speedLimitY" Максимальная скорость по оси Y
 // параметр "speedLimitZ" Максимальная скорость по оси Z
+// параметр "speedLimitA" Максимальная скорость по оси A
 //
-void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, bool send)
+void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1132,27 +1131,34 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, bool 
     double dnewSpdX = (3600 / (double)speedLimitX) * 1000;
     int inewSpdX = (int)dnewSpdX;
 
-    double dnewSpdY = (3600 / (double)speedLimitY) * 1000;
-    int inewSpdY = (int)dnewSpdY;
-
-    double dnewSpdZ = (3600 / (double)speedLimitZ) * 1000;
-    int inewSpdZ = (int)dnewSpdZ;
-
     writeBuf[7] = (byte)(inewSpdX);
     writeBuf[8] = (byte)(inewSpdX >> 8);
     writeBuf[9] = (byte)(inewSpdX >> 16);
     writeBuf[10] = (byte)(inewSpdX >> 24);
 
+    double dnewSpdY = (3600 / (double)speedLimitY) * 1000;
+    int inewSpdY = (int)dnewSpdY;
 
     writeBuf[11] = (byte)(inewSpdY);
     writeBuf[12] = (byte)(inewSpdY >> 8);
     writeBuf[13] = (byte)(inewSpdY >> 16);
     writeBuf[14] = (byte)(inewSpdY >> 24);
 
+    double dnewSpdZ = (3600 / (double)speedLimitZ) * 1000;
+    int inewSpdZ = (int)dnewSpdZ;
+
     writeBuf[15] = (byte)(inewSpdZ);
     writeBuf[16] = (byte)(inewSpdZ >> 8);
     writeBuf[17] = (byte)(inewSpdZ >> 16);
     writeBuf[18] = (byte)(inewSpdZ >> 24);
+
+    double dnewSpdA = (3600 / (double)speedLimitA) * 1000;
+    int inewSpdA = (int)dnewSpdA;
+
+    writeBuf[19] = (byte)(inewSpdA);
+    writeBuf[20] = (byte)(inewSpdA >> 8);
+    writeBuf[21] = (byte)(inewSpdA >> 16);
+    writeBuf[22] = (byte)(inewSpdA >> 24);
 
     if (send == true) {
         sendBinaryData();
@@ -1179,17 +1185,18 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, bool 
 // параметр "_speed" скорость мм/минуту
 // параметр "_NumberInstruction" Номер данной инструкции
 // возвращаемый набор данных для посылки
-void BinaryData::packCA(int _posX, int _posY, int _posZ, int _speed, int _NumberInstruction, bool send)
+void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send)
 {
     int newPosX = _posX;
     int newPosY = _posY;
     int newPosZ = _posZ;
+    int newPosA = _posA;
     int newInst = _NumberInstruction;
-
 
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xca;
+
     //запись номера инструкции
     writeBuf[1] = (byte)(newInst);
     writeBuf[2] = (byte)(newInst >> 8);
@@ -1197,7 +1204,6 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _speed, int _Number
     writeBuf[4] = (byte)(newInst >> 24);
 
     writeBuf[5] = 0x39; //TODO: непонятный байт
-
 
     //сколько импульсов сделать
     writeBuf[6] = (byte)(newPosX);
@@ -1217,6 +1223,11 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _speed, int _Number
     writeBuf[16] = (byte)(newPosZ >> 16);
     writeBuf[17] = (byte)(newPosZ >> 24);
 
+    //сколько импульсов сделать
+    writeBuf[18] = (byte)(newPosA);
+    writeBuf[19] = (byte)(newPosA >> 8);
+    writeBuf[20] = (byte)(newPosA >> 16);
+    writeBuf[21] = (byte)(newPosA >> 24);
 
     int inewSpd = 2328; //TODO: скорость по умолчанию
 
@@ -1269,9 +1280,9 @@ void BinaryData::pack9D(bool send)
 
 //void BinaryData::GetPack07()
 //{
-// //    QByteArray buf[64];// = new byte[64];
+//
 // cleanBuf();
-//    writeBuf[0] = 0x9E;
+//    writeBuf[0] = 0x9e;
 //    writeBuf[5] = 0x02;
 
 //    return buf;

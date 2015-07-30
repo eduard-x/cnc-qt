@@ -32,7 +32,7 @@
 #include <QtGui>
 // #include <QUrl>
 
-
+#include "includes/mk1Controller.h"
 #include "includes/ScanSurface.h"
 
 
@@ -40,7 +40,7 @@
 ** ScanSurfaceDialog
 */
 
-class DeviceInfo;
+// class DeviceInfo;
 
 ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     : QDialog(p)
@@ -49,7 +49,7 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
 
     parent = static_cast<MainWindow*>(p);
 
-    //     _cnc = (parent->cnc);
+    //         _cnc = (parent->cnc);
 
     //     _surfaceMatrix = &(this->parent->surfaceMatrix);
     //     _deviceInfo = parent->cnc->devInfo;
@@ -388,9 +388,10 @@ void ScanThread::run()
     double pz = sParent->numPosZ->value();
     //double py = dataCode.Matrix[indexScanY].Y;
     double py = parent->surfaceMatrix[sParent->indexScanY][sParent->indexScanX].Y;
+    double pa = 0;//sParent->numPosA->value();
 
     //спозиционируемся
-    cnc->packCA(DeviceInfo::CalcPosPulse("X", px), DeviceInfo::CalcPosPulse("Y", py), DeviceInfo::CalcPosPulse("Z", pz), (int)sParent->numSpeed->value(), 0);
+    cnc->packCA(DeviceInfo::CalcPosPulse("X", px), DeviceInfo::CalcPosPulse("Y", py), DeviceInfo::CalcPosPulse("Z", pz),  DeviceInfo::CalcPosPulse("A", pa), (int)sParent->numSpeed->value(), 0);
 
     sleep(100);
 
@@ -421,7 +422,7 @@ void ScanThread::run()
 
     sleep(100);
     //спозиционируемся
-    cnc->packCA(DeviceInfo::CalcPosPulse("X", px), DeviceInfo::CalcPosPulse("Y", py), DeviceInfo::CalcPosPulse("Z", pz), (int)sParent->numSpeed->value(), 0);
+    cnc->packCA(DeviceInfo::CalcPosPulse("X", px), DeviceInfo::CalcPosPulse("Y", py), DeviceInfo::CalcPosPulse("Z", pz),  DeviceInfo::CalcPosPulse("A", pa), (int)sParent->numSpeed->value(), 0);
 
     sleep(100);
 
@@ -457,77 +458,6 @@ void ScanSurfaceDialog::scanThreadDoWork()
 }
 #endif
 
-#if 0
-// Поток выполняющий сканирование
-// TODO: при сканировании иногда заполняет сразу 2 ячейки в таблице?!?
-void ::threads()
-{
-    if (parent->cnc->ShpindelMoveSpeed != 0) {
-        return;
-    }
-
-    //координаты куда передвинуться
-    //double px = dataCode.Matrix[indexScanY].X[indexScanX].X;
-    double px = parent->surfaceMatrix[indexScanY][indexScanX].X;
-    //double pz = dataCode.Matrix[indexScanY].X[indexScanX].Z;
-    double pz = numPosZ->value();
-    //double py = dataCode.Matrix[indexScanY].Y;
-    double py = parent->surfaceMatrix[indexScanY][indexScanX].Y;
-
-    //спозиционируемся
-    parent->cnc->packCA(DeviceInfo::CalcPosPulse("X", px), DeviceInfo::CalcPosPulse("Y", py), DeviceInfo::CalcPosPulse("Z", pz), (int)numSpeed->value(), 0);
-
-    sleep(100);
-
-    //опустим щуп
-    parent->cnc->packC0(0x01); //вкл
-
-    parent->cnc->packD2((int)numSpeed->value(), 0); // + настройка отхода, и скорости
-
-    parent->cnc->packC0(0x00); //выкл
-
-    Thread.Sleep(100);
-
-    while (!DeviceInfo::AxesZ_LimitMax) {
-        //dataCode.Matrix[indexScanY].X[indexScanX].Z = DeviceInfo::AxesZ_PositionMM() - numReturn->value();
-        Thread.Sleep(100);
-    }
-
-
-    Thread.Sleep(300);
-    //dataCode.Matrix[indexScanY].X[indexScanX].Z = DeviceInfo::AxesZ_PositionMM;
-    parent->surfaceMatrix[indexScanY][indexScanX].Z = (double)DeviceInfo::AxesZ_PositionMM();
-
-    parent->cnc->packC0(0x01); //вкл
-
-    parent->cnc->packD2((int)numSpeed->value(), (double)numReturn->value()); // + настройка отхода, и скорости
-
-    parent->cnc->packC0(0x00); //выкл
-
-
-    Thread.Sleep(100);
-    //спозиционируемся
-    parent->cnc->packCA(DeviceInfo::CalcPosPulse("X", px), DeviceInfo::CalcPosPulse("Y", py), DeviceInfo::CalcPosPulse("Z", pz), (int)numSpeed->value(), 0);
-    Thread.Sleep(100);
-
-    if (indexScanX == indexMaxScanX && indexScanY == indexMaxScanY) {
-        Scan = false;
-        parent->cnc->packFF();
-    }
-
-    if (indexScanX < indexMaxScanX) {
-        indexScanX++;
-    } else {
-        indexScanX = 0;
-
-        if (indexScanY < indexMaxScanY) {
-            indexScanY++;
-        } else {
-            indexScanY = 0;
-        }
-    }
-}
-#endif
 
 void ScanSurfaceDialog::onTimer1()
 {
@@ -554,14 +484,16 @@ void ScanSurfaceDialog::buttonMove()
 
     parent->cnc->pack9E(0x05);
 
-    parent->cnc->packBF(speed, speed, speed);
+    parent->cnc->packBF(speed, speed, speed, speed);
 
     parent->cnc->packC0();
 
     int pulseX = DeviceInfo::CalcPosPulse("X", parent->surfaceMatrix[selectedY][selectedX].X);
     int pulseY = DeviceInfo::CalcPosPulse("Y", parent->surfaceMatrix[selectedY][selectedX].Y);
     int pulseZ = DeviceInfo::CalcPosPulse("Z", parent->surfaceMatrix[selectedY][selectedX].Z);
-    parent->cnc->packCA(pulseX, pulseY, pulseZ, speed, 0);
+    int pulseA = DeviceInfo::CalcPosPulse("A", parent->surfaceMatrix[selectedY][selectedX].A);
+
+    parent->cnc->packCA(pulseX, pulseY, pulseZ, pulseA, speed, 0);
 
     parent->cnc->packFF();
 
