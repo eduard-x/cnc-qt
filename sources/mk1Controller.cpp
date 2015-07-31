@@ -548,7 +548,8 @@ int mk1Controller::availableBufferSize()
 void mk1Controller::parseBinaryInfo()
 {
     DeviceInfo::FreebuffSize = readBuf[1];
-    DeviceInfo::spindel_MoveSpeed = (int)((((readBuf[22] << 16) + (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
+    DeviceInfo::spindel_MoveSpeed = (int)(((/*(readBuf[23] << 24) + (readBuf[22] << 16) +*/ (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
+
     DeviceInfo::AxesX_PositionPulse = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
     DeviceInfo::AxesY_PositionPulse = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
     DeviceInfo::AxesZ_PositionPulse = ((readBuf[35] << 24) + (readBuf[34] << 16) + (readBuf[33] << 8) + (readBuf[32]));

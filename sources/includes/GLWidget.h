@@ -82,6 +82,7 @@ class GLWidget : public QGLWidget
         void drawSurface();
         void drawAxes();
         void drawWorkField();
+        void drawActualLine();
         void drawGrid();
 
     public slots:

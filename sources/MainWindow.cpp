@@ -159,7 +159,7 @@ MainWindow::MainWindow(QWidget *parent)
     currentAppDir = qApp->applicationDirPath();
 
     if (currentAppDir.lastIndexOf("/build") > 0) { // build dir detection
-        currentAppDir.remove("/build");
+        currentAppDir.remove("/build" );
     }
 
     currentLang = "English";
@@ -261,7 +261,7 @@ MainWindow::MainWindow(QWidget *parent)
                     AddLog(s);
                 }
             } else {
-                AddLog("File loaded");
+                AddLog("File loaded" );
             }
 
             //             scene3d->matrixReloaded();
@@ -352,6 +352,9 @@ void MainWindow::addConnections()
 
     connect(&mainTaskTimer, SIGNAL(timeout()), this, SLOT(onMainTaskTimer()));
 
+    mainTaskTimer.setInterval(20); // every 20 msec update
+
+
     // 3d buttons
     connect(posAngleXm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXm()));
     connect(posAngleX, SIGNAL(clicked()), scene3d, SLOT(onPosAngleX())); // reset to 0
@@ -432,7 +435,7 @@ bool MainWindow::readLangDir()
 
         if (fLang.open(QIODevice::ReadOnly)) {      //wird eingelesen
             QTextStream stream(&fLang);
-            stream.setCodec("UTF-8");
+            stream.setCodec("UTF-8" );
             QString line, nm;
 
             int lines = 0;
@@ -529,11 +532,16 @@ QString MainWindow::getLocaleString()
 void MainWindow::writeGUISettings()
 {
     QSettings* s;
-    s = new QSettings(QSettings::UserScope, "CNCSoft", "CNC-Qt");
+    s = new QSettings(QSettings::UserScope, "CNCSoft", "CNC-Qt" );
     s->setValue("pos", pos());
     s->setValue("size", size());
     //     s->setValue("WorkDir", currentWorkDir);
     s->setValue("LANGUAGE", currentLang);
+
+    s->setValue("VelocitySubmission", numVeloSubmission->value());
+    s->setValue("VelocityMoving", numVeloMoving->value());
+    s->setValue("VelocityManual", numVeloManual->value());
+
     //     s->setValue("LASTPROJ", currentProject);
     //     s->setValue("FontSize", fontSize);
     //     s->setValue("GUIFont", sysFont);
@@ -555,11 +563,20 @@ void MainWindow::writeGUISettings()
 void MainWindow::readGUISettings()
 {
     QSettings* s;
-    s = new QSettings(QSettings::UserScope, "CNCSoft", "CNC-Qt");
+    s = new QSettings(QSettings::UserScope, "CNCSoft", "CNC-Qt" );
     QPoint pos = s->value("pos", QPoint(200, 200)).toPoint();
     QSize size = s->value("size", QSize(840, 640)).toSize();
     resize(size);
     move(pos);
+
+
+    veloSubmission = s->value("VelocitySubmission", 200).toInt();
+    veloMoving = s->value("VelocityMoving", 500).toInt();
+    veloManual = s->value("VelocityManual", 400).toInt();
+
+    numVeloSubmission->setValue(veloSubmission);
+    numVeloMoving->setValue(veloMoving);
+    numVeloManual->setValue(veloManual);
 
     QString l;
     l = getLocaleString();
@@ -673,9 +690,9 @@ void MainWindow::getScale(int s)
 
 void MainWindow::displayRotation()
 {
-    posAngleX->setText( QString::number(xAngle) + "°");
-    posAngleY->setText( QString::number(yAngle) + "°");
-    posAngleZ->setText( QString::number(zAngle) + "°");
+    posAngleX->setText( QString::number(xAngle) + "°" );
+    posAngleY->setText( QString::number(yAngle) + "°" );
+    posAngleZ->setText( QString::number(zAngle) + "°" );
 }
 
 
@@ -873,7 +890,7 @@ void MainWindow::onStartTask()
 
     Task::StatusTask = TaskStart;
 
-    mainTaskTimer.start(20); // every 20 msec update
+    mainTaskTimer.start();
 
     refreshElementsForms();
 }
@@ -904,16 +921,17 @@ void MainWindow::onStopTask()
 }
 
 
-void MainWindow::runCommand()
+// rreturn value: false if timer to stop
+bool MainWindow::runCommand()
 {
     // скорость с главной формы
-    int userSpeedG1 = (int)numericUpDown1->value();
-    int userSpeedG0 = (int)numericUpDown2->value();
+    int userSpeedG1 = (int)numVeloSubmission->value();
+    int userSpeedG0 = (int)numVeloMoving->value();
 
     //     qDebug() << "main timer" << GCodeList.count() << Task::posCodeNow;
     if (Task::posCodeNow >= GCodeList.count()) {
-        mainTaskTimer.stop();
-        return;
+        //         mainTaskTimer.stop();
+        return false;
     }
 
     GCodeCommand gcodeNow = GCodeList.at(Task::posCodeNow);
@@ -943,7 +961,7 @@ void MainWindow::runCommand()
         Task::StatusTask = TaskWorking;
         refreshElementsForms();
 
-        return; //после запуска дальше код пропустим...
+        return true; //после запуска дальше код пропустим...
     }
 
     // TaskStop
@@ -969,14 +987,14 @@ void MainWindow::runCommand()
 
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
         Task::StatusTask = Waiting;
-        mainTaskTimer.stop();
-
+        //         mainTaskTimer.stop();
+        return false;
     }
 
     // TaskWorking
 
     if (Task::StatusTask != TaskWorking) {
-        return;
+        return false;
     }
 
     //Все необходимые команды завершены, пора всё завершить
@@ -984,19 +1002,19 @@ void MainWindow::runCommand()
         Task::StatusTask = TaskStop;
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
 
-        mainTaskTimer.stop();
-        return;
+        //         mainTaskTimer.stop();
+        return false;
     }
 
     //TODO: добавить в параметр значение
     if (cnc->availableBufferSize() < 5) {
-        return;    // откажемся от посылки контроллеру, пока буфер не освободится
+        return true;    // откажемся от посылки контроллеру, пока буфер не освободится
     }
 
 
     //TODO: добавить в параметр и это значение
     if (Task::posCodeNow > (cnc->numberComleatedInstructions() + 3)) {
-        return;    // Так-же не будем много посылать команд, т.е. далеко убегать
+        return true;    // Так-же не будем много посылать команд, т.е. далеко убегать
     }
 
     //команда остановки G4 или M0
@@ -1014,7 +1032,7 @@ void MainWindow::runCommand()
 
             QThread().wait(gcodeNow.mSeconds); // пауза в мсек.
 
-            statusSt->setText( "");
+            statusSt->setText( "" );
         }
     }
 
@@ -1064,6 +1082,8 @@ void MainWindow::runCommand()
 
     Task::posCodeNow++;
     labelRunFrom->setText( translate(_FROM_NUM) + QString::number(Task::posCodeNow));
+
+    return true;
 }
 
 
@@ -1079,11 +1099,9 @@ void MainWindow::onMainTaskTimer()
 
     mainTaskTimer.stop();
 
-    runCommand();
-
-    //     refreshElementsForms();
-
-    mainTaskTimer.start();
+    if (runCommand() == true) {
+        mainTaskTimer.start();
+    }
 
 } //void mainTaskTimer_Tick
 
@@ -1104,30 +1122,43 @@ void MainWindow::AddLog(QString _text)
 void MainWindow::onStatus()
 {
     // Вызовем очистку сообщения
-    statusSt->setText( "");
+    statusSt->setText( "" );
 }
 
 
-// движение в заданную точку
-void MainWindow::onRunToPoint()
+void MainWindow::moveToPoint(bool surfaceScan)
 {
-    if (!cnc->testAllowActions()) {
-        return;
+    int speed = 0;
+    double posX, posY, posZ, posA;
+
+    if (surfaceScan == true) {
+        speed = 200;
+
+        if (scanPosY == -1 || scanPosX == -1) {
+            return;
+        }
+
+        posX = DeviceInfo::CalcPosPulse("X", surfaceMatrix[scanPosY][scanPosX].X);
+        posY = DeviceInfo::CalcPosPulse("Y", surfaceMatrix[scanPosY][scanPosX].Y);
+        posZ = DeviceInfo::CalcPosPulse("Z", surfaceMatrix[scanPosY][scanPosX].Z);
+        posA = DeviceInfo::CalcPosPulse("A", surfaceMatrix[scanPosY][scanPosX].A);
+    } else {
+        speed = spinMoveVelo->value();
+
+        posX = DeviceInfo::CalcPosPulse("X", doubleSpinMoveX->value());
+        posY = DeviceInfo::CalcPosPulse("Y", doubleSpinMoveY->value());
+        posZ = DeviceInfo::CalcPosPulse("Z", doubleSpinMoveZ->value());
+        posA = DeviceInfo::CalcPosPulse("A", numAngleGrad->value());
     }
 
     cnc->pack9E(0x05);
 
-    cnc->packBF((int)spinMoveVelo->value(), (int)spinMoveVelo->value(), (int)spinMoveVelo->value(), (int)spinMoveVelo->value());
+    cnc->packBF(speed, speed, speed, speed);
 
     cnc->packC0();
 
-    double posX, posY, posZ, posA;
-    posX = DeviceInfo::CalcPosPulse("X", doubleSpinMoveX->value());
-    posY = DeviceInfo::CalcPosPulse("Y", doubleSpinMoveY->value());
-    posZ = DeviceInfo::CalcPosPulse("Z", doubleSpinMoveZ->value());
-    posA = DeviceInfo::CalcPosPulse("A", numAngleGrad->value());
 
-    cnc->packCA(posX, posY, posZ, posA, (int)spinMoveVelo->value(), 0);
+    cnc->packCA(posX, posY, posZ, posA, speed, 0);
 
     cnc->packFF();
 
@@ -1147,21 +1178,37 @@ void MainWindow::onRunToPoint()
 }
 
 
+// движение в заданную точку
+void MainWindow::onRunToPoint()
+{
+    if (!cnc->testAllowActions()) {
+        return;
+    }
+
+    moveToPoint();
+}
+
 
 //ОТЛАДКА генератора ШИМ
 void MainWindow::SendSignal()
 {
-    if (radioButtonOff->isChecked()) {
-        cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), BinaryData::None, (int)spinBoxVelo->value());
-    }
+    BinaryData::TypeSignal tSign;
+
+    tSign = BinaryData::None;
+
+    //     if (radioButtonOff->isChecked()) {
+    //         tSign = BinaryData::None;
+    //     }
 
     if (radioButtonHz->isChecked()) {
-        cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), BinaryData::Hz, (int)spinBoxVelo->value());
+        tSign = BinaryData::Hz;
     }
 
     if (radioButtonRC->isChecked()) {
-        cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), BinaryData::RC, (int)spinBoxVelo->value());
+        tSign = BinaryData::RC;
     }
+
+    cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), tSign, (int)spinBoxVelo->value());
 }
 
 
@@ -1169,6 +1216,7 @@ void MainWindow::onSendCommand()
 {
     SendSignal();
 }
+
 
 // to connect slider with spinbox
 // void MainWindow::trackBar1_Scroll()
@@ -1191,13 +1239,11 @@ void MainWindow::onSendCommand()
 void MainWindow::addStatusWidgets()
 {
     //
-    //     statusbar->setSizeGripEnabled(true);
     statusLabel1 = new QLabel();
     statusLabel1->setFixedWidth(250);
     statusLabel1->setFixedHeight(17);
     statusbar->addWidget(statusLabel1);
 
-    //     statusProgress->
     statusProgress = new QProgressBar();
     statusProgress->setFixedWidth(200);
     statusProgress->setFixedHeight(17);
@@ -1207,11 +1253,6 @@ void MainWindow::addStatusWidgets()
     statusSt->setFixedWidth(250);
     statusSt->setFixedHeight(17);
     statusbar->addPermanentWidget(statusSt);
-
-    //     statLabelNumInstr = new QLabel();
-    //     statLabelNumInstr->setFixedWidth(150);
-    //     statLabelNumInstr->setFixedHeight(17);
-    //     statusbar->addPermanentWidget(statLabelNumInstr);
 }
 
 
@@ -1263,7 +1304,6 @@ double MainWindow::GetDeltaZ(double _x, double _y)
 }
 
 
-
 //событие для ведения логов
 void MainWindow::onCncMessage(int n_msg)
 {
@@ -1295,7 +1335,7 @@ void MainWindow::onCncNewData()
         }
     }
 
-    qDebug() << "onCncNewData";
+    //     qDebug() << "onCncNewData";
 }
 
 
@@ -1348,14 +1388,20 @@ void  MainWindow::refreshElementsForms()
     //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(cnc->numberComleatedInstructions()));
 
     if (!cncConnected) {
-        maxXLED->setPixmap( QPixmap(":/images/ball_gray.png"));
-        minXLED->setPixmap( QPixmap(":/images/ball_gray.png"));
-        maxYLED->setPixmap( QPixmap(":/images/ball_gray.png"));
-        minYLED->setPixmap( QPixmap(":/images/ball_gray.png"));
-        maxZLED->setPixmap( QPixmap(":/images/ball_gray.png"));
-        minZLED->setPixmap( QPixmap(":/images/ball_gray.png"));
-        maxALED->setPixmap( QPixmap(":/images/ball_gray.png"));
-        minALED->setPixmap( QPixmap(":/images/ball_gray.png"));
+        QPixmap grayPix = QPixmap(":/images/ball_gray.png");
+
+        maxXLED->setPixmap( grayPix);
+        minXLED->setPixmap( grayPix);
+        maxYLED->setPixmap( grayPix);
+        minYLED->setPixmap( grayPix);
+        maxZLED->setPixmap( grayPix);
+        minZLED->setPixmap( grayPix);
+        maxALED->setPixmap( grayPix);
+        minALED->setPixmap( grayPix);
+
+        toolRun->setEnabled( cncConnected);
+        toolPause->setEnabled( cncConnected);
+        toolStop->setEnabled( cncConnected);
 
         return;
     }
@@ -1394,7 +1440,7 @@ void  MainWindow::refreshElementsForms()
 #if 0
 
     if (cnc->isEstopOn()) {
-        actionStop->setStyleSheet("");
+        actionStop->setStyleSheet("" );
         QPalette palette = actionStop->palette();
         palette.setColor(actionStop->backgroundRole(), Qt::red);
         palette.setColor(actionStop->foregroundRole(), Qt::white);
@@ -1402,37 +1448,39 @@ void  MainWindow::refreshElementsForms()
         //         actionStop->BackColor = Color.Red;
         //         actionStop->ForeColor = Color.White;
     } else {
-        actionStop->BackColor = Color.FromName("Control");
+        actionStop->BackColor = Color.FromName("Control" );
         actionStop->ForeColor = Color.Black;
     }
 
     // QLabel* pLabel = new QLabel;
-    // pLabel->setStyleSheet("QLabel { background-color : red; color : blue; }");
+    // pLabel->setStyleSheet("QLabel { background-color : red; color : blue; }" );
 
     if (cnc->isSpindelOn()) {
         actionSpindle->BackColor = Color.Green;
         actionSpindle->ForeColor = Color.White;
     } else {
-        actionSpindle->BackColor = Color.FromName("Control");
+        actionSpindle->BackColor = Color.FromName("Control" );
         actionSpindle->ForeColor = Color.Black;
     }
 
 #endif
 
-    maxXLED->setPixmap( DeviceInfo::AxesX_LimitMax ? QPixmap(":/images/ball_red.png") : QPixmap(":/images/ball_green.png"));
-    minXLED->setPixmap( DeviceInfo::AxesX_LimitMin ? QPixmap(":/images/ball_red.png") : QPixmap(":/images/ball_green.png"));
-    maxYLED->setPixmap( DeviceInfo::AxesY_LimitMax ? QPixmap(":/images/ball_red.png") : QPixmap(":/images/ball_green.png"));
-    minYLED->setPixmap( DeviceInfo::AxesY_LimitMin ? QPixmap(":/images/ball_red.png") : QPixmap(":/images/ball_green.png"));
-    maxZLED->setPixmap( DeviceInfo::AxesZ_LimitMax ? QPixmap(":/images/ball_red.png") : QPixmap(":/images/ball_green.png"));
-    minZLED->setPixmap( DeviceInfo::AxesZ_LimitMin ? QPixmap(":/images/ball_red.png") : QPixmap(":/images/ball_green.png"));
-    maxALED->setPixmap( DeviceInfo::AxesA_LimitMax ? QPixmap(":/images/ball_red.png") : QPixmap(":/images/ball_green.png"));
-    minALED->setPixmap( DeviceInfo::AxesA_LimitMin ? QPixmap(":/images/ball_red.png") : QPixmap(":/images/ball_green.png"));
+    QPixmap greenPix = QPixmap(":/images/ball_green.png");
+    QPixmap redPix = QPixmap(":/images/ball_red.png");
+
+    maxXLED->setPixmap( DeviceInfo::AxesX_LimitMax ? redPix : greenPix);
+    minXLED->setPixmap( DeviceInfo::AxesX_LimitMin ? redPix : greenPix);
+    maxYLED->setPixmap( DeviceInfo::AxesY_LimitMax ? redPix : greenPix);
+    minYLED->setPixmap( DeviceInfo::AxesY_LimitMin ? redPix : greenPix);
+    maxZLED->setPixmap( DeviceInfo::AxesZ_LimitMax ? redPix : greenPix);
+    minZLED->setPixmap( DeviceInfo::AxesZ_LimitMin ? redPix : greenPix);
+    maxALED->setPixmap( DeviceInfo::AxesA_LimitMax ? redPix : greenPix);
+    minALED->setPixmap( DeviceInfo::AxesA_LimitMin ? redPix : greenPix);
 
     //***************
 
     //DEBUG:
     byte bb14 = cnc->getByte(14);
-
     checkB14B0->setChecked( bb14 & (1 << 0));
     checkB14B1->setChecked( bb14 & (1 << 1));
     checkB14B2->setChecked( bb14 & (1 << 2));
@@ -1444,7 +1492,6 @@ void  MainWindow::refreshElementsForms()
 
 
     byte bb15 = cnc->getByte(15);
-
     checkB15B0->setChecked( bb15 & (1 << 0));
     checkB15B1->setChecked( bb15 & (1 << 1));
     checkB15B2->setChecked( bb15 & (1 << 2));
@@ -1456,7 +1503,6 @@ void  MainWindow::refreshElementsForms()
 
 
     byte bb19 = cnc->getByte(19);
-
     checkB19B0->setChecked( bb19 & (1 << 0));
     checkB19B1->setChecked( bb19 & (1 << 1));
     checkB19B2->setChecked( bb19 & (1 << 2));
@@ -1467,7 +1513,6 @@ void  MainWindow::refreshElementsForms()
     checkB19B7->setChecked( bb19 & (1 << 7));
 
     // end debug
-
 
     // Кнопки запуска остановки заданий
     groupBoxExec->setEnabled( cncConnected);
@@ -1490,13 +1535,29 @@ void  MainWindow::refreshElementsForms()
         }
 
         if (Task::StatusTask == Waiting) {
-            posAngleX->setEnabled(true);
-            posAngleY->setEnabled(true);
-            posAngleZ->setEnabled( true);
+            toolResetCoorX->setEnabled( true );
+            numPosX->setReadOnly( true );
+
+            toolResetCoorY->setEnabled( true );
+            numPosY->setReadOnly( true );
+
+            toolResetCoorZ->setEnabled( true );
+            numPosZ->setReadOnly( true );
+
+            toolResetCoorA->setEnabled( true );
+            numAngleGrad->setReadOnly( true );
         } else {
-            posAngleX->setEnabled( false);
-            posAngleY->setEnabled( false);
-            posAngleZ->setEnabled( false);
+            toolResetCoorX->setEnabled( false );
+            numPosX->setReadOnly( false );
+
+            toolResetCoorY->setEnabled( false );
+            numPosY->setReadOnly( false );
+
+            toolResetCoorZ->setEnabled( false );
+            numPosZ->setReadOnly( false );
+
+            toolResetCoorA->setEnabled( false );
+            numAngleGrad->setReadOnly( false );
         }
 
         if (Task::StatusTask == TaskWorking) {
@@ -1581,7 +1642,7 @@ void MainWindow::onOpenFile()
             AddLog(s);
         }
     } else {
-        AddLog("File loaded");
+        AddLog("File loaded" );
     }
 }
 

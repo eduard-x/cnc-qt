@@ -37,6 +37,7 @@
 #include <utility>
 #include "includes/vec.h"
 
+#include "includes/MainWindow.h"
 #include "includes/mk1Controller.h"
 #include "includes/GLWidget.h"
 
@@ -402,6 +403,13 @@ void GLWidget::drawAxes()
 }
 
 
+void GLWidget::drawActualLine()
+{
+    int numSelect = parent->cnc->numberComleatedInstructions() + 1;
+
+}
+
+
 void GLWidget::drawWorkField()
 {
 #if 1
@@ -413,6 +421,7 @@ void GLWidget::drawWorkField()
     foreach (GCodeCommand vv, parent->GCodeList) {
         glColor3fv((const GLfloat*) &colorArray[i]);
         glVertex3fv((const GLfloat*) &workArray[i]);
+#if 0
 
         if (Task::StatusTask == Waiting) {
             int numSelectStart = Task::posCodeStart - 1;
@@ -440,6 +449,7 @@ void GLWidget::drawWorkField()
             }
         }
 
+#endif
         i++;
     }
 

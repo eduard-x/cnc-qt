@@ -476,10 +476,16 @@ void ScanSurfaceDialog::buttonMove()
         return;
     }
 
+    parent->scanPosX = selectedX;
+    parent->scanPosY = selectedY;
+
     if (selectedX == -1 && selectedY == -1) {
         return;
     }
 
+    parent->moveToPoint(true);
+
+#if 0
     int speed = 200;
 
     parent->cnc->pack9E(0x05);
@@ -510,6 +516,7 @@ void ScanSurfaceDialog::buttonMove()
     parent->cnc->packFF();
 
     parent->cnc->packFF();
+#endif
 }
 
 // set z

@@ -143,6 +143,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         ~MainWindow();
 
         double GetDeltaZ(double _x, double _y);
+        void moveToPoint(bool surfaceScan = false);
 
     public:
         // Набор готовых инструкций для станка
@@ -150,6 +151,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         mk1Controller *cnc;
 
         QVector<QVector<dPoint> > surfaceMatrix; // dataCode
+        int scanPosX;
+        int scanPosY;
 
         QString programStyleSheet;
 
@@ -247,7 +250,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 
     private:
         void Feed();
-        void runCommand();
+        bool runCommand();
         void fillListWidget(QStringList listCode);
         QString getLocaleString();
         bool getLangTable();
@@ -290,6 +293,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         QString langDir;
         QString helpDir;
         QString currentLang;
+
+        int veloSubmission;
+        int veloMoving;
+        int veloManual;
 
         int xAngle, yAngle, zAngle;
         int scale;

@@ -97,9 +97,12 @@
              <widget class="QDoubleSpinBox" name="numPosX">
               <property name="minimumSize">
                <size>
-                <width>100</width>
+                <width>125</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="decimals">
+               <number>5</number>
               </property>
               <property name="minimum">
                <double>-999.990000000000009</double>
@@ -123,9 +126,12 @@
              <widget class="QDoubleSpinBox" name="numPosY">
               <property name="minimumSize">
                <size>
-                <width>100</width>
+                <width>125</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="decimals">
+               <number>5</number>
               </property>
               <property name="minimum">
                <double>-999.990000000000009</double>
@@ -149,9 +155,12 @@
              <widget class="QDoubleSpinBox" name="numPosZ">
               <property name="minimumSize">
                <size>
-                <width>100</width>
+                <width>125</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="decimals">
+               <number>5</number>
               </property>
               <property name="minimum">
                <double>-999.990000000000009</double>
@@ -175,14 +184,17 @@
              <widget class="QDoubleSpinBox" name="numAngleGrad">
               <property name="minimumSize">
                <size>
-                <width>100</width>
+                <width>125</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="decimals">
+               <number>5</number>
               </property>
              </widget>
             </item>
             <item row="3" column="3">
-             <widget class="QToolButton" name="toolButton">
+             <widget class="QToolButton" name="toolResetCoorA">
               <property name="text">
                <string/>
               </property>
@@ -399,12 +411,15 @@
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
             <item row="0" column="1">
-             <widget class="QSpinBox" name="numericUpDown1">
+             <widget class="QSpinBox" name="numVeloSubmission">
               <property name="minimumSize">
                <size>
                 <width>75</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
               </property>
              </widget>
             </item>
@@ -416,12 +431,15 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSpinBox" name="numericUpDown2">
+             <widget class="QSpinBox" name="numVeloMoving">
               <property name="minimumSize">
                <size>
                 <width>75</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
               </property>
              </widget>
             </item>
@@ -455,12 +473,15 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QSpinBox" name="spinBox">
+             <widget class="QSpinBox" name="numVeloManual">
               <property name="minimumSize">
                <size>
                 <width>75</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
               </property>
              </widget>
             </item>
@@ -1583,7 +1604,7 @@
      <x>0</x>
      <y>0</y>
      <width>974</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
