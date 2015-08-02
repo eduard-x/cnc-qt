@@ -4,7 +4,7 @@
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * Qt developing                                                            *
+ * C# to Qt portation, developing                                           *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
@@ -32,7 +32,7 @@
 #include <QtGui>
 #include <QPixmap>
 
-
+#include "includes/MainWindow.h"
 #include "includes/ManualControl.h"
 
 
@@ -46,37 +46,61 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
     setupUi(this);
 
     parent = static_cast<MainWindow*>(p);
-    
+
     cnc = parent->cnc;
 
     setStyleSheet(parent->programStyleSheet);
 
-    buttons = (QVector<QToolButton*>() << Ui::ManualControlDialog::toolButton2 << Ui::ManualControlDialog::toolButton3 <<
+    buttonsNumPad = (QVector<QToolButton*>() << Ui::ManualControlDialog::toolNum0 << Ui::ManualControlDialog::toolNum1 <<
+               Ui::ManualControlDialog::toolNum2 << Ui::ManualControlDialog::toolNum3 << Ui::ManualControlDialog::toolNum4 <<
+               Ui::ManualControlDialog::toolNum5 << Ui::ManualControlDialog::toolNum6 << Ui::ManualControlDialog::toolNum7 <<
+               Ui::ManualControlDialog::toolNum8 << Ui::ManualControlDialog::toolNum9 << Ui::ManualControlDialog::toolNumDel <<
+               Ui::ManualControlDialog::toolNumDiv << Ui::ManualControlDialog::toolNumEnter << Ui::ManualControlDialog::toolNumMinus <<
+               Ui::ManualControlDialog::toolNumMult << Ui::ManualControlDialog::toolNumPlus);
+
+    buttonsControl = (QVector<QToolButton*>() << Ui::ManualControlDialog::toolCurDel << Ui::ManualControlDialog::toolCurDown <<
+               Ui::ManualControlDialog::toolCurEnd << Ui::ManualControlDialog::toolCurHome << Ui::ManualControlDialog::toolCurInsert <<
+               Ui::ManualControlDialog::toolCurLeft << Ui::ManualControlDialog::toolCurPageDn << Ui::ManualControlDialog::toolCurPageUp <<
+               Ui::ManualControlDialog::toolCurRight << Ui::ManualControlDialog::toolCurUp);
+     
+    buttonsMouse = (QVector<QToolButton*>() << Ui::ManualControlDialog::toolButton2 << Ui::ManualControlDialog::toolButton3 <<
                Ui::ManualControlDialog::toolButton4 << Ui::ManualControlDialog::toolButton5 << Ui::ManualControlDialog::toolButton6 <<
                Ui::ManualControlDialog::toolButton7 << Ui::ManualControlDialog::toolButton8 << Ui::ManualControlDialog::toolButton9 <<
-               Ui::ManualControlDialog::toolButton10 << Ui::ManualControlDialog::toolButton11);
-
-    labelNumPad->setPixmap(QPixmap(":/images/Numpad1.png"));
-
+               Ui::ManualControlDialog::toolButton10 << Ui::ManualControlDialog::toolButton11 << Ui::ManualControlDialog::toolButton12 <<
+               Ui::ManualControlDialog::toolButton13);
+     
     connect(pushButton, SIGNAL(clicked()), this, SLOT(reject()));
+   
 
-    labelInfo->setWordWrap(true);
+    labelNumpad->setWordWrap(true);
+    labelCursor->setWordWrap(true);
 
-    spinBox->setRange ( 1, 2000 );
+    spinBoxVelo->setRange ( 1, 2000 );
 
     verticalSlider->setRange ( 1, 2000 );
     verticalSlider->setSingleStep ( 1 );
 
+    changePad(parent->currentKeyPad);
 
-    connect(spinBox, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
+    connect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
     connect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
 
 
-    for (QVector<QToolButton*>::iterator itB = buttons.begin(); itB != buttons.end(); ++itB) {
+    for (QVector<QToolButton*>::iterator itB = buttonsNumPad.begin(); itB != buttonsNumPad.end(); ++itB) {
+        connect((*itB), SIGNAL(pressed()), this, SLOT(numPressed()));
+        connect((*itB), SIGNAL(released()), this, SLOT(numPressed()));
+    }
+    
+    for (QVector<QToolButton*>::iterator itB = buttonsControl.begin(); itB != buttonsControl.end(); ++itB) {
+        connect((*itB), SIGNAL(pressed()), this, SLOT(curPressed()));
+        connect((*itB), SIGNAL(released()), this, SLOT(curPressed()));
+    }
+    
+    for (QVector<QToolButton*>::iterator itB = buttonsMouse.begin(); itB != buttonsMouse.end(); ++itB) {
         connect((*itB), SIGNAL(pressed()), this, SLOT(mousePressed()));
         connect((*itB), SIGNAL(released()), this, SLOT(mouseReleased()));
     }
-
+    
     translateDialog();
     //     labelNumPad-> picture of numpad
 
@@ -84,48 +108,14 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
 }
 
 
-void ManualControlDialog::translateDialog()
-{
-    labelVelocity->setText(translate(_VELOCITY));
-    labelInfo->setText(translate(_NUMPAD_HELP));
-    groupBox->setTitle(translate(_MOUSE_CONTROL));
-}
-
-
-void ManualControlDialog::spinChanged(int num)
-{
-    disconnect(spinBox, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
-    disconnect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
-
-    int n = spinBox->value();
-    verticalSlider->setSliderPosition(n);
-
-    connect(spinBox, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
-    connect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
-}
-
-
-void ManualControlDialog::sliderChanged(int num)
-{
-    disconnect(spinBox, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
-    disconnect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
-
-    int n =  verticalSlider->tickPosition();
-    spinBox->setValue(n);
-
-    connect(spinBox, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
-    connect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
-}
-
-
 void ManualControlDialog::mousePressed()
 {
     QToolButton* b  = static_cast<QToolButton*>(sender());
-    int speed = spinBox->value();
-
+  
     int pos = 0;
+    int decode[] ={Y_plus, Y_minus, Z_minus, Z_plus, X_minus, X_plus, X_minus_Y_plus, X_minus_Y_minus, X_plus_Y_plus, X_plus_Y_minus, A_minus, A_plus, -1 };
 
-    for (QVector<QToolButton*>::iterator itB = buttons.begin(); itB != buttons.end(); ++itB) {
+    for (QVector<QToolButton*>::iterator itB = buttonsMouse.begin(); itB != buttonsMouse.end(); ++itB) {
         if ((*itB) == b) {
             break;
         }
@@ -133,61 +123,184 @@ void ManualControlDialog::mousePressed()
         pos++;
     }
 
-    switch (pos) {
-        case 0: {
+    pressedCommand(decode[pos]);
+}
+
+
+void ManualControlDialog::numPressed()
+{
+    QToolButton* b  = static_cast<QToolButton*>(sender());
+  
+    int pos = 0;
+    int decode[] ={-1, -1, X_minus, -1, Y_minus, -1, Y_plus, A_minus, X_plus, A_plus, -1, -1, -1, Z_plus, -1, Z_minus, -1, -1};
+
+    for (QVector<QToolButton*>::iterator itB = buttonsNumPad.begin(); itB != buttonsNumPad.end(); ++itB) {
+        if ((*itB) == b) {
+            break;
+        }
+
+        pos++;
+    }
+
+    pressedCommand(decode[pos]);
+}
+
+
+void ManualControlDialog::curPressed()
+{
+    QToolButton* b  = static_cast<QToolButton*>(sender());
+  
+    int pos = 0;
+    int decode[] ={A_minus, Y_minus, Z_minus, Z_plus, -1, X_minus, A_plus, -1, X_plus, Y_plus, -1};
+
+    for (QVector<QToolButton*>::iterator itB = buttonsControl.begin(); itB != buttonsControl.end(); ++itB) {
+        if ((*itB) == b) {
+            break;
+        }
+
+        pos++;
+    }
+
+    pressedCommand(decode[pos]);
+}
+
+
+void ManualControlDialog::changePad(int n)
+{
+//     tabWidget->setCurrentIndex(n);
+//     switch (n) {
+//         case NumPad: {
+// //             labelNumPad->setPixmap(QPixmap(":/images/numpad.png"));
+//             labelInfo->setText(translate(_NUMPAD_HELP));
+//             break;
+//         }
+// 
+//         case ControlPad: {
+//             labelNumPad->setPixmap(QPixmap(":/images/controlpad.png"));
+//             labelInfo->setText(translate(_CONTROLPAD_HELP));
+//             break;
+//         }
+//         
+//         case MouseControl: {
+//             labelNumPad->setPixmap(QPixmap(":/images/controlpad.png"));
+//             labelInfo->setText(translate(_CONTROLPAD_HELP));
+//             break;
+//         }
+// 
+//         default: {
+//             break;
+//         }
+//     }
+}
+
+
+void ManualControlDialog::translateDialog()
+{
+    labelVelocity->setText(translate(_VELOCITY));
+//     groupBox->setTitle(translate(_MOUSE_CONTROL));
+}
+
+
+void ManualControlDialog::spinChanged(int num)
+{
+    disconnect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
+    disconnect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
+
+    int n = spinBoxVelo->value();
+    verticalSlider->setSliderPosition(n);
+
+    connect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
+    connect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
+}
+
+
+void ManualControlDialog::sliderChanged(int num)
+{
+    disconnect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
+    disconnect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
+
+    int n =  verticalSlider->tickPosition();
+    spinBoxVelo->setValue(n);
+
+    connect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
+    connect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
+}
+
+
+void ManualControlDialog::pressedCommand(int num)
+{
+    if (num == -1){
+        return;
+    }
+    
+    int speed = spinBoxVelo->value();
+
+     switch (num) {
+        case Y_plus: { // y+
             cnc->startManualMove("0", "+", "0", "0", speed);
             break;
         }
 
-        case 1: {
+        case Y_minus: { // y-
             cnc->startManualMove("0", "-", "0", "0", speed);
             break;
         }
 
-        case 2: {
+        case Z_plus: { // z+
             cnc->startManualMove("0", "0", "+", "0", speed);
             break;
         }
 
-        case 3: {
+        case Z_minus: { // z-
             cnc->startManualMove("0", "0", "-", "0",  speed);
             break;
         }
 
-        case 4: {
+        case X_minus: { // x-
             cnc->startManualMove("-", "0", "0", "0",  speed);
             break;
         }
 
-        case 5: {
+        case X_plus: { // x+
             cnc->startManualMove("+", "0", "0", "0",  speed);
             break;
         }
 
-        case 6: {
+        case X_plus_Y_minus: {
             cnc->startManualMove("+", "-", "0", "0",  speed);
             break;
         }
 
-        case 7: {
+        case X_minus_Y_minus: {
             cnc->startManualMove("-", "-", "0", "0",  speed);
             break;
         }
 
-        case 8: {
+        case X_plus_Y_plus: {
             cnc->startManualMove("+", "+", "0", "0",  speed);
             break;
         }
 
-        case 9: {
-            cnc->startManualMove("+", "-", "0", "0",  speed);
+        case X_minus_Y_plus: {
+            cnc->startManualMove("-", "+", "0", "0",  speed);
             break;
         }
-
+        
+        case A_minus: {
+            cnc->startManualMove("0", "0", "0", "-",  speed);
+            break;
+        }
+        
+        case A_plus: {
+            cnc->startManualMove("0", "0", "0", "+",  speed);
+            break;
+        }
+        
         default:
             break;
     }
 }
+
 
 
 void ManualControlDialog::mouseReleased()

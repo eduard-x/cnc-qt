@@ -4,7 +4,7 @@
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * Qt developing                                                            *
+ * C# to Qt portation, developing                                           *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
@@ -204,6 +204,7 @@ enum TR_CONSTS {
     _DETACHED, // 148
     _WARN, // 149
     _REALLYQUIT, // 150
+    _CONTROLPAD_HELP, // 151
     _NULL
 };
 

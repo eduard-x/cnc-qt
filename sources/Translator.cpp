@@ -4,7 +4,7 @@
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * Qt developing                                                            *
+ * C# to Qt portation, developing                                           *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
@@ -193,6 +193,7 @@ QString cTranslator::engText[] = {
     "Device detached",
     "Warning",
     "Do you really want to close the program?",
+    "For manual controlling used control keyboard (ControlPad)\n\nKey '1' -X and -Y moving\nKey '2' -Y moving\nKey '3' +X and -Y moving\nKey '6' +X moving\nKey '9' +X and +Y moving\nKey '8' +Y moving\nKey '7' -X and +Y moving\nKey '4' -X moving\n\nKey '5' +Z moving\nKey '0'  -Z",
     ""
 };
 

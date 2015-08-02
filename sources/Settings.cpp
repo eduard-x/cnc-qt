@@ -4,7 +4,7 @@
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * Qt developing                                                            *
+ * C# to Qt portation, developing                                           *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
@@ -32,7 +32,7 @@
 #include <QtGui>
 // #include <QUrl>
 
-
+#include "includes/mk1Controller.h"
 #include "includes/Settings.h"
 
 
@@ -48,7 +48,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
 
     parent = static_cast<MainWindow*>(p);
 
-    _cnc = parent->cnc;
+    //     _cnc = parent->cnc;
 
     setStyleSheet(parent->programStyleSheet);
 

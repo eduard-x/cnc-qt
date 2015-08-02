@@ -161,3 +161,4 @@ t147=Kontroller angeschloßen
 t148=Kontroller getrennt
 t149=Warnung
 t150=Möchten Sie das Programm verlassen?
+t151=Для управления применяются клавиши управления экраном (ControlPad)\n\n'1' -X and -Y движение\n'2' -Y движение\n'3' +X and -Y движение\n'6' +X движение\n'9' +X and +Y движение\n'8' +Y движение\n'7' -X and +Y движение\n'4' -X движение\n\n'5' +Z движение\n'0'  -Z

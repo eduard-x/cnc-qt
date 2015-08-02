@@ -4,7 +4,7 @@
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * Qt developing                                                            *
+ * C# to Qt portation, developing                                           *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
@@ -54,7 +54,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
 
     private:
         MainWindow* parent;
-        mk1Controller* _cnc;
+        //         mk1Controller* cnc;
 };
 
 
