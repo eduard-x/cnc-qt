@@ -61,7 +61,7 @@ class ManualControlDialog : public QDialog, public Ui::ManualControlDialog,  pub
     private:
         QVector<QToolButton*> buttons;
         MainWindow* parent;
-        mk1Controller _cnc;
+        mk1Controller* cnc;
 
 };
 

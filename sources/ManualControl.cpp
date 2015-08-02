@@ -46,6 +46,8 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
     setupUi(this);
 
     parent = static_cast<MainWindow*>(p);
+    
+    cnc = parent->cnc;
 
     setStyleSheet(parent->programStyleSheet);
 
@@ -133,52 +135,52 @@ void ManualControlDialog::mousePressed()
 
     switch (pos) {
         case 0: {
-            _cnc.startManualMove("0", "+", "0", "0", speed);
+            cnc->startManualMove("0", "+", "0", "0", speed);
             break;
         }
 
         case 1: {
-            _cnc.startManualMove("0", "-", "0", "0", speed);
+            cnc->startManualMove("0", "-", "0", "0", speed);
             break;
         }
 
         case 2: {
-            _cnc.startManualMove("0", "0", "+", "0", speed);
+            cnc->startManualMove("0", "0", "+", "0", speed);
             break;
         }
 
         case 3: {
-            _cnc.startManualMove("0", "0", "-", "0",  speed);
+            cnc->startManualMove("0", "0", "-", "0",  speed);
             break;
         }
 
         case 4: {
-            _cnc.startManualMove("-", "0", "0", "0",  speed);
+            cnc->startManualMove("-", "0", "0", "0",  speed);
             break;
         }
 
         case 5: {
-            _cnc.startManualMove("+", "0", "0", "0",  speed);
+            cnc->startManualMove("+", "0", "0", "0",  speed);
             break;
         }
 
         case 6: {
-            _cnc.startManualMove("+", "-", "0", "0",  speed);
+            cnc->startManualMove("+", "-", "0", "0",  speed);
             break;
         }
 
         case 7: {
-            _cnc.startManualMove("-", "-", "0", "0",  speed);
+            cnc->startManualMove("-", "-", "0", "0",  speed);
             break;
         }
 
         case 8: {
-            _cnc.startManualMove("+", "+", "0", "0",  speed);
+            cnc->startManualMove("+", "+", "0", "0",  speed);
             break;
         }
 
         case 9: {
-            _cnc.startManualMove("+", "-", "0", "0",  speed);
+            cnc->startManualMove("+", "-", "0", "0",  speed);
             break;
         }
 
@@ -190,7 +192,7 @@ void ManualControlDialog::mousePressed()
 
 void ManualControlDialog::mouseReleased()
 {
-    _cnc.stopManualMove();
+    cnc->stopManualMove();
 }
 
 
