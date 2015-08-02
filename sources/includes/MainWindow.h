@@ -168,7 +168,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         double koeffSizeX;
         double koeffSizeY;
         bool deltaFeed;
+
         //
+        int veloManual;
 
         KeyPad currentKeyPad;
 
@@ -181,7 +183,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         double grateXmax;
         double grateYmin;
         double grateYmax;
-
 
         int PosX, PosY, PosZ;
         int PosAngleX, PosAngleY, PosAngleZ;
@@ -301,7 +302,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 
         int veloSubmission;
         int veloMoving;
-        int veloManual;
 
         int xAngle, yAngle, zAngle;
         int scale;

@@ -2,8 +2,6 @@
     <qresource prefix="/" >
         <file>images/fileopen.png</file>
 	<file>images/cnc.png</file>
-        <file>images/numpad.png</file>
-        <file>images/controlpad.png</file>
         <file>images/canvas.png</file>
         <file>images/control_stop_blue.png</file>
 	<file>images/icon.png</file>
