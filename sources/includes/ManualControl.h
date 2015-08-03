@@ -53,10 +53,10 @@ class ManualControlDialog : public QDialog, public Ui::ManualControlDialog,  pub
         enum Direction { X_minus = 0, X_plus, Y_minus, Y_plus, Z_minus, Z_plus, A_minus, A_plus, X_minus_Y_minus, X_minus_Y_plus, X_plus_Y_plus, X_plus_Y_minus };
 
     private slots:
-        void mousePressed();
+        //         void mousePressed();
         void numPressed();
         void curPressed();
-        //         void changePad(int);
+        void closePopUp();
         void mouseReleased();
         void spinChanged(int num);
         void sliderChanged(int num);

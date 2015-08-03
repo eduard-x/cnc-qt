@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -44,7 +44,7 @@
         </size>
        </property>
        <property name="maximum">
-        <number>9999</number>
+        <number>999</number>
        </property>
        <property name="pageStep">
         <number>100</number>
@@ -59,10 +59,10 @@
         <bool>false</bool>
        </property>
        <property name="tickPosition">
-        <enum>QSlider::TicksBelow</enum>
+        <enum>QSlider::NoTicks</enum>
        </property>
        <property name="tickInterval">
-        <number>10</number>
+        <number>100</number>
        </property>
       </widget>
      </item>
@@ -112,7 +112,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -430,7 +430,7 @@ Del</string>
          <item>
           <widget class="QLabel" name="labelNumpad">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -633,257 +633,13 @@ Up</string>
          <item>
           <widget class="QLabel" name="labelCursor">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="text">
             <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_3">
-      <attribute name="title">
-       <string>Mouse control</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="1" column="0">
-        <widget class="QLabel" name="labelMouse">
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <layout class="QGridLayout" name="gridLayout_6">
-           <item row="0" column="0">
-            <widget class="QToolButton" name="toolButton8">
-             <property name="minimumSize">
-              <size>
-               <width>60</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>X - Y+</string>
-             </property>
-             <property name="autoRepeat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QToolButton" name="toolButton2">
-             <property name="minimumSize">
-              <size>
-               <width>60</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Y+</string>
-             </property>
-             <property name="autoRepeat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QToolButton" name="toolButton10">
-             <property name="minimumSize">
-              <size>
-               <width>60</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>X+Y+</string>
-             </property>
-             <property name="autoRepeat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QToolButton" name="toolButton6">
-             <property name="minimumSize">
-              <size>
-               <width>60</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>X -</string>
-             </property>
-             <property name="autoRepeat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QToolButton" name="toolButton7">
-             <property name="minimumSize">
-              <size>
-               <width>60</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>X+</string>
-             </property>
-             <property name="autoRepeat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QToolButton" name="toolButton9">
-             <property name="minimumSize">
-              <size>
-               <width>60</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>X - Y -</string>
-             </property>
-             <property name="autoRepeat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QToolButton" name="toolButton3">
-             <property name="minimumSize">
-              <size>
-               <width>60</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Y -</string>
-             </property>
-             <property name="autoRepeat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QToolButton" name="toolButton11">
-             <property name="minimumSize">
-              <size>
-               <width>60</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>X+Y -</string>
-             </property>
-             <property name="autoRepeat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <widget class="QToolButton" name="toolButton4">
-             <property name="minimumSize">
-              <size>
-               <width>60</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Z+</string>
-             </property>
-             <property name="autoRepeat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="toolButton5">
-             <property name="minimumSize">
-              <size>
-               <width>60</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Z -</string>
-             </property>
-             <property name="autoRepeat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QToolButton" name="toolButton12">
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>A -</string>
-           </property>
-           <property name="autoRepeat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="toolButton13">
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>A +</string>
-           </property>
-           <property name="autoRepeat">
-            <bool>true</bool>
            </property>
           </widget>
          </item>

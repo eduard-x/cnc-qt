@@ -63,14 +63,9 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
                       Ui::ManualControlDialog::toolCurLeft << Ui::ManualControlDialog::toolCurPageDn << Ui::ManualControlDialog::toolCurPageUp <<
                       Ui::ManualControlDialog::toolCurRight << Ui::ManualControlDialog::toolCurUp);
 
-    buttonsMouse = (QVector<QToolButton*>() << Ui::ManualControlDialog::toolButton2 << Ui::ManualControlDialog::toolButton3 <<
-                    Ui::ManualControlDialog::toolButton4 << Ui::ManualControlDialog::toolButton5 << Ui::ManualControlDialog::toolButton6 <<
-                    Ui::ManualControlDialog::toolButton7 << Ui::ManualControlDialog::toolButton8 << Ui::ManualControlDialog::toolButton9 <<
-                    Ui::ManualControlDialog::toolButton10 << Ui::ManualControlDialog::toolButton11 << Ui::ManualControlDialog::toolButton12 <<
-                    Ui::ManualControlDialog::toolButton13);
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(closePopUp()));
 
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(reject()));
-
+    tabWidget->setCurrentIndex(parent->currentKeyPad);
 
     labelNumpad->setWordWrap(true);
     labelCursor->setWordWrap(true);
@@ -80,11 +75,10 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
     verticalSlider->setRange ( 1, 2000 );
     verticalSlider->setSingleStep ( 1 );
 
-    spinBoxVelo->setValue(parent->veloManual);
-
     connect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
     connect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
 
+    spinBoxVelo->setValue(parent->veloManual);
 
     for (QVector<QToolButton*>::iterator itB = buttonsNumPad.begin(); itB != buttonsNumPad.end(); ++itB) {
         connect((*itB), SIGNAL(pressed()), this, SLOT(numPressed()));
@@ -96,42 +90,24 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
         connect((*itB), SIGNAL(released()), this, SLOT(curPressed()));
     }
 
-    for (QVector<QToolButton*>::iterator itB = buttonsMouse.begin(); itB != buttonsMouse.end(); ++itB) {
-        connect((*itB), SIGNAL(pressed()), this, SLOT(mousePressed()));
-        connect((*itB), SIGNAL(released()), this, SLOT(mouseReleased()));
-    }
-
     translateDialog();
 
     adjustSize();
 }
 
 
-void ManualControlDialog::mousePressed()
+void ManualControlDialog::closePopUp()
 {
-    QToolButton* b  = static_cast<QToolButton*>(sender());
-
-    int pos = 0;
-    int decode[] = {Y_plus, Y_minus, Z_minus, Z_plus, X_minus, X_plus, X_minus_Y_plus, X_minus_Y_minus, X_plus_Y_plus, X_plus_Y_minus, A_minus, A_plus, -1 };
-
-    for (QVector<QToolButton*>::iterator itB = buttonsMouse.begin(); itB != buttonsMouse.end(); ++itB) {
-        if ((*itB) == b) {
-            break;
-        }
-
-        pos++;
-    }
-
-    pressedCommand(decode[pos]);
+    parent->currentKeyPad = tabWidget->currentIndex();
+    reject();
 }
-
 
 void ManualControlDialog::numPressed()
 {
     QToolButton* b  = static_cast<QToolButton*>(sender());
 
     int pos = 0;
-    int decode[] = { -1, -1, X_minus, -1, Y_minus, -1, Y_plus, A_minus, X_plus, A_plus, -1, -1, -1, Z_plus, -1, Z_minus, -1, -1};
+    int decode[] = { -1, X_minus_Y_minus, Y_minus, X_plus_Y_minus, X_minus, -1, X_plus, X_minus_Y_plus, Y_plus, X_plus_Y_plus, -1, A_minus, -1, Z_plus, A_plus, Z_minus, -1, -1};
 
     for (QVector<QToolButton*>::iterator itB = buttonsNumPad.begin(); itB != buttonsNumPad.end(); ++itB) {
         if ((*itB) == b) {
@@ -168,8 +144,9 @@ void ManualControlDialog::translateDialog()
 {
     labelVelocity->setText(translate(_VELOCITY));
     labelNumpad->setText(translate(_NUMPAD_HELP));
+    labelNumpad->adjustSize();
     labelCursor->setText(translate(_CONTROLPAD_HELP));
-    //     groupBox->setTitle(translate(_MOUSE_CONTROL));
+    labelCursor->adjustSize();
 }
 
 
@@ -191,7 +168,7 @@ void ManualControlDialog::sliderChanged(int num)
     disconnect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
     disconnect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
 
-    int n =  verticalSlider->tickPosition();
+    int n =  verticalSlider->sliderPosition();
     spinBoxVelo->setValue(n);
 
     connect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));

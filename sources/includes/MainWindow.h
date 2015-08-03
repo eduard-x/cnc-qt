@@ -98,7 +98,7 @@ class MessageBox: public cTranslator
 enum EStatusTask { Waiting = 0, TaskStart, TaskWorking, TaskPaused, TaskStop };
 
 //
-enum KeyPad { NumPad = 0, ControlPad, MouseControl, UserDefined };
+enum KeyPad { NumPad = 0, ControlPad, UserDefined };
 
 //
 // Класс для работы с заданием для контроллера
@@ -172,7 +172,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         //
         int veloManual;
 
-        KeyPad currentKeyPad;
+        int currentKeyPad;
 
         GLWidget *scene3d; // OpenGL widget
 

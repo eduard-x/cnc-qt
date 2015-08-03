@@ -542,6 +542,7 @@ void MainWindow::writeGUISettings()
     s->setValue("VelocityMoving", numVeloMoving->value());
     s->setValue("VelocityManual", numVeloManual->value());
 
+    s->setValue("KeyControl", (int)currentKeyPad);
     //     s->setValue("LASTPROJ", currentProject);
     //     s->setValue("FontSize", fontSize);
     //     s->setValue("GUIFont", sysFont);
@@ -573,6 +574,7 @@ void MainWindow::readGUISettings()
     veloSubmission = s->value("VelocitySubmission", 200).toInt();
     veloMoving = s->value("VelocityMoving", 500).toInt();
     veloManual = s->value("VelocityManual", 400).toInt();
+    currentKeyPad = s->value("KeyControl", 0).toInt();
 
     numVeloSubmission->setValue(veloSubmission);
     numVeloMoving->setValue(veloMoving);
