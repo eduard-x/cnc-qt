@@ -57,6 +57,7 @@ class ManualControlDialog : public QDialog, public Ui::ManualControlDialog,  pub
         //         void mousePressed();
         void numPressed();
         void curPressed();
+        void userPressed();
         void closePopUp();
         void mouseReleased();
         void spinChanged(int num);
@@ -74,7 +75,7 @@ class ManualControlDialog : public QDialog, public Ui::ManualControlDialog,  pub
     private:
         QVector<QToolButton*> buttonsNumPad;
         QVector<QToolButton*> buttonsControl;
-        QVector<QToolButton*> buttonsMouse;
+        QVector<QToolButton*> buttonsUser;
 
         MainWindow* parent;
         mk1Controller* cnc;

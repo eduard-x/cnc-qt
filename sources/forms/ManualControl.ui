@@ -127,7 +127,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -138,7 +138,7 @@
         <layout class="QHBoxLayout" name="firstLayout">
          <item>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="1" column="0">
+           <item row="1" column="1">
             <widget class="QToolButton" name="toolNumNumLock">
              <property name="enabled">
               <bool>false</bool>
@@ -158,7 +158,20 @@ Lock</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="0" column="1" colspan="4">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="1" column="2">
             <widget class="QToolButton" name="toolNumDiv">
              <property name="minimumSize">
               <size>
@@ -174,7 +187,7 @@ Lock</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="2">
+           <item row="1" column="3">
             <widget class="QToolButton" name="toolNumMult">
              <property name="minimumSize">
               <size>
@@ -190,7 +203,7 @@ Lock</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="3">
+           <item row="1" column="4">
             <widget class="QToolButton" name="toolNumMinus">
              <property name="minimumSize">
               <size>
@@ -206,7 +219,7 @@ Lock</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item row="2" column="1">
             <widget class="QToolButton" name="toolNum7">
              <property name="minimumSize">
               <size>
@@ -223,7 +236,7 @@ Home</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
+           <item row="2" column="2">
             <widget class="QToolButton" name="toolNum8">
              <property name="minimumSize">
               <size>
@@ -240,7 +253,7 @@ Up</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="2">
+           <item row="2" column="3">
             <widget class="QToolButton" name="toolNum9">
              <property name="minimumSize">
               <size>
@@ -257,7 +270,7 @@ PgUp</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="3" rowspan="2">
+           <item row="2" column="4" rowspan="2">
             <widget class="QToolButton" name="toolNumPlus">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
@@ -279,7 +292,7 @@ PgUp</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="3" column="1">
             <widget class="QToolButton" name="toolNum4">
              <property name="minimumSize">
               <size>
@@ -296,7 +309,7 @@ Left</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="3" column="2">
             <widget class="QToolButton" name="toolNum5">
              <property name="enabled">
               <bool>false</bool>
@@ -316,7 +329,7 @@ Left</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="2">
+           <item row="3" column="3">
             <widget class="QToolButton" name="toolNum6">
              <property name="minimumSize">
               <size>
@@ -333,7 +346,7 @@ Right</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="4" column="1">
             <widget class="QToolButton" name="toolNum1">
              <property name="minimumSize">
               <size>
@@ -350,7 +363,7 @@ End</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="4" column="2">
             <widget class="QToolButton" name="toolNum2">
              <property name="minimumSize">
               <size>
@@ -367,7 +380,7 @@ Down</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="2">
+           <item row="4" column="3">
             <widget class="QToolButton" name="toolNum3">
              <property name="minimumSize">
               <size>
@@ -384,7 +397,7 @@ PgDn</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="3" rowspan="2">
+           <item row="4" column="4" rowspan="2">
             <widget class="QToolButton" name="toolNumEnter">
              <property name="enabled">
               <bool>false</bool>
@@ -409,7 +422,7 @@ PgDn</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
+           <item row="5" column="1" colspan="2">
             <widget class="QToolButton" name="toolNum0">
              <property name="enabled">
               <bool>false</bool>
@@ -435,7 +448,7 @@ Ins</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="2">
+           <item row="5" column="3">
             <widget class="QToolButton" name="toolNumDel">
              <property name="enabled">
               <bool>false</bool>
@@ -455,7 +468,7 @@ Del</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="0" colspan="4">
+           <item row="6" column="1" colspan="4">
             <spacer name="verticalSpacer_3">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -468,15 +481,15 @@ Del</string>
              </property>
             </spacer>
            </item>
-           <item row="0" column="0" colspan="4">
-            <spacer name="verticalSpacer_2">
+           <item row="3" column="0">
+            <spacer name="horizontalSpacer_7">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>20</width>
-               <height>40</height>
+               <width>40</width>
+               <height>20</height>
               </size>
              </property>
             </spacer>
@@ -656,6 +669,9 @@ Dn</string>
            </item>
            <item row="1" column="2">
             <widget class="QToolButton" name="toolCurPageUp">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="minimumSize">
               <size>
                <width>60</width>
@@ -673,6 +689,9 @@ Up</string>
            </item>
            <item row="1" column="0">
             <widget class="QToolButton" name="toolCurInsert">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="minimumSize">
               <size>
                <width>60</width>
@@ -803,7 +822,7 @@ Up</string>
          <item>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="2" column="1">
-            <widget class="QToolButton" name="toolCurEnd_2">
+            <widget class="QToolButton" name="toolZminus">
              <property name="minimumSize">
               <size>
                <width>60</width>
@@ -811,7 +830,7 @@ Up</string>
               </size>
              </property>
              <property name="text">
-              <string/>
+              <string>Z -</string>
              </property>
              <property name="autoRepeat">
               <bool>true</bool>
@@ -819,7 +838,7 @@ Up</string>
             </widget>
            </item>
            <item row="6" column="0">
-            <widget class="QToolButton" name="toolCurLeft_2">
+            <widget class="QToolButton" name="toolXminus">
              <property name="minimumSize">
               <size>
                <width>60</width>
@@ -827,7 +846,7 @@ Up</string>
               </size>
              </property>
              <property name="text">
-              <string/>
+              <string>X -</string>
              </property>
              <property name="autoRepeat">
               <bool>true</bool>
@@ -835,7 +854,7 @@ Up</string>
             </widget>
            </item>
            <item row="6" column="1">
-            <widget class="QToolButton" name="toolCurDown_2">
+            <widget class="QToolButton" name="toolYminus">
              <property name="minimumSize">
               <size>
                <width>60</width>
@@ -843,7 +862,7 @@ Up</string>
               </size>
              </property>
              <property name="text">
-              <string/>
+              <string>Y -</string>
              </property>
              <property name="autoRepeat">
               <bool>true</bool>
@@ -851,7 +870,7 @@ Up</string>
             </widget>
            </item>
            <item row="6" column="2">
-            <widget class="QToolButton" name="toolCurRight_2">
+            <widget class="QToolButton" name="toolXplus">
              <property name="minimumSize">
               <size>
                <width>60</width>
@@ -859,7 +878,7 @@ Up</string>
               </size>
              </property>
              <property name="text">
-              <string/>
+              <string>X+</string>
              </property>
              <property name="autoRepeat">
               <bool>true</bool>
@@ -867,7 +886,7 @@ Up</string>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QToolButton" name="toolCurHome_2">
+            <widget class="QToolButton" name="toolZplus">
              <property name="minimumSize">
               <size>
                <width>60</width>
@@ -875,7 +894,7 @@ Up</string>
               </size>
              </property>
              <property name="text">
-              <string/>
+              <string>Z+</string>
              </property>
              <property name="autoRepeat">
               <bool>true</bool>
@@ -883,7 +902,7 @@ Up</string>
             </widget>
            </item>
            <item row="1" column="2">
-            <widget class="QToolButton" name="toolCurPageUp_2">
+            <widget class="QToolButton" name="toolAplus">
              <property name="minimumSize">
               <size>
                <width>60</width>
@@ -891,7 +910,7 @@ Up</string>
               </size>
              </property>
              <property name="text">
-              <string/>
+              <string>A +</string>
              </property>
              <property name="autoRepeat">
               <bool>true</bool>
@@ -899,7 +918,7 @@ Up</string>
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QToolButton" name="toolCurInsert_2">
+            <widget class="QToolButton" name="toolAminus">
              <property name="minimumSize">
               <size>
                <width>60</width>
@@ -907,7 +926,7 @@ Up</string>
               </size>
              </property>
              <property name="text">
-              <string/>
+              <string>A -</string>
              </property>
              <property name="autoRepeat">
               <bool>true</bool>
@@ -928,7 +947,7 @@ Up</string>
             </spacer>
            </item>
            <item row="4" column="1">
-            <widget class="QToolButton" name="toolCurUp_2">
+            <widget class="QToolButton" name="toolYplus">
              <property name="minimumSize">
               <size>
                <width>60</width>
@@ -936,7 +955,7 @@ Up</string>
               </size>
              </property>
              <property name="text">
-              <string/>
+              <string>Y+</string>
              </property>
              <property name="autoRepeat">
               <bool>true</bool>

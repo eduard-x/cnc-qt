@@ -64,6 +64,10 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
                       Ui::ManualControlDialog::toolCurLeft << Ui::ManualControlDialog::toolCurPageDn << Ui::ManualControlDialog::toolCurPageUp <<
                       Ui::ManualControlDialog::toolCurRight << Ui::ManualControlDialog::toolCurUp);
 
+    buttonsUser = (QVector<QToolButton*>() << Ui::ManualControlDialog::toolAplus << Ui::ManualControlDialog::toolAminus <<
+                   Ui::ManualControlDialog::toolZplus << Ui::ManualControlDialog::toolZminus << Ui::ManualControlDialog::toolYplus <<
+                   Ui::ManualControlDialog::toolYminus << Ui::ManualControlDialog::toolXplus << Ui::ManualControlDialog::toolXminus);
+
     connect(pushButton, SIGNAL(clicked()), this, SLOT(closePopUp()));
 
     if (parent->currentKeyPad == NoManuaControl) {
@@ -103,6 +107,12 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
         connect((*itB), SIGNAL(released()), this, SLOT(curPressed()));
     }
 
+    for (QVector<QToolButton*>::iterator itB = buttonsUser.begin(); itB != buttonsUser.end(); ++itB) {
+        (*itB)->setFocusPolicy(Qt::NoFocus);
+        connect((*itB), SIGNAL(pressed()), this, SLOT(userPressed()));
+        connect((*itB), SIGNAL(released()), this, SLOT(userPressed()));
+    }
+
     installEventFilter(this);
 
     this->setFocus();
@@ -116,17 +126,18 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
 void ManualControlDialog::closePopUp()
 {
     parent->currentKeyPad = tabWidget->currentIndex();
+    parent->numVeloManual->setValue(spinBoxVelo->value());
     reject();
 }
 
 
 bool ManualControlDialog::eventFilter(QObject *target, QEvent *event)
 {
-//     qDebug() << "event filter" << event << target;
+    //     qDebug() << "event filter" << event << target;
     int currentMode = tabWidget->currentIndex();
     int evType = event->type();
 
-    
+
     if (evType == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
 
@@ -246,6 +257,9 @@ bool ManualControlDialog::eventFilter(QObject *target, QEvent *event)
             }
         }
 
+        if (currentMode == UserDefined) {
+        }
+
         event->setAccepted(true);
         return true;
     }
@@ -270,42 +284,66 @@ bool ManualControlDialog::eventFilter(QObject *target, QEvent *event)
 void ManualControlDialog::numPressed()
 {
     QToolButton* b  = static_cast<QToolButton*>(sender());
-//     qDebug() << "num pressed";
+    //     qDebug() << "num pressed";
     int pos = 0;
     int decode[] = { -1, X_minus_Y_minus, Y_minus, X_plus_Y_minus, X_minus, -1, X_plus, X_minus_Y_plus, Y_plus, X_plus_Y_plus, -1, A_minus, -1, Z_plus, A_plus, Z_minus, -1, -1};
 
     for (QVector<QToolButton*>::iterator itB = buttonsNumPad.begin(); itB != buttonsNumPad.end(); ++itB) {
         if ((*itB) == b) {
+            pressedCommand(decode[pos]);
             break;
         }
 
         pos++;
     }
 
-    if (pos < buttonsNumPad.count()) {
-        pressedCommand(decode[pos]);
+    //     if (pos < buttonsNumPad.count()) {
+    //         pressedCommand(decode[pos]);
+    //     }
+}
+
+
+void ManualControlDialog::userPressed()
+{
+    QToolButton* b  = static_cast<QToolButton*>(sender());
+    //     qDebug() << "num pressed";
+    int pos = 0;
+    int decode[] = { A_plus, A_minus, Z_plus, Z_minus, Y_plus, Y_minus, X_plus, X_minus, -1};
+
+    for (QVector<QToolButton*>::iterator itB = buttonsUser.begin(); itB != buttonsUser.end(); ++itB) {
+        if ((*itB) == b) {
+            pressedCommand(decode[pos]);
+            break;
+        }
+
+        pos++;
     }
+
+    //     if (pos < buttonsUser.count()) {
+    //         pressedCommand(decode[pos]);
+    //     }
 }
 
 
 void ManualControlDialog::curPressed()
 {
     QToolButton* b  = static_cast<QToolButton*>(sender());
-//     qDebug() << "cur pressed";
+    //     qDebug() << "cur pressed";
     int pos = 0;
     int decode[] = {A_minus, Y_minus, Z_minus, Z_plus, -1, X_minus, A_plus, -1, X_plus, Y_plus, -1};
 
     for (QVector<QToolButton*>::iterator itB = buttonsControl.begin(); itB != buttonsControl.end(); ++itB) {
         if ((*itB) == b) {
+            pressedCommand(decode[pos]);
             break;
         }
 
         pos++;
     }
 
-    if (pos < buttonsNumPad.count()) {
-        pressedCommand(decode[pos]);
-    }
+    //     if (pos < buttonsNumPad.count()) {
+    //         pressedCommand(decode[pos]);
+    //     }
 }
 
 
@@ -349,68 +387,92 @@ void ManualControlDialog::pressedCommand(int num)
         return;
     }
 
-    qDebug() << "pressedCommand" << num;
+    QString x, y, z, a;
+
+    x = y = z = a = "0";
+
+//     qDebug() << "pressedCommand" << num;
 
     int speed = spinBoxVelo->value();
 
     switch (num) {
         case Y_plus: { // y+
-            cnc->startManualMove("0", "+", "0", "0", speed);
+            y = "+";
+            //             cnc->startManualMove("0", "+", "0", "0", speed);
             break;
         }
 
         case Y_minus: { // y-
-            cnc->startManualMove("0", "-", "0", "0", speed);
+            y = "-";
+            //             cnc->startManualMove("0", "-", "0", "0", speed);
             break;
         }
 
         case Z_plus: { // z+
-            cnc->startManualMove("0", "0", "+", "0", speed);
+            z = "+";
+            //             cnc->startManualMove("0", "0", "+", "0", speed);
             break;
         }
 
         case Z_minus: { // z-
-            cnc->startManualMove("0", "0", "-", "0",  speed);
+            z = "-";
+            //             cnc->startManualMove("0", "0", "-", "0",  speed);
             break;
         }
 
         case X_minus: { // x-
-            cnc->startManualMove("-", "0", "0", "0",  speed);
+            x = "-";
+            //             cnc->startManualMove("-", "0", "0", "0",  speed);
             break;
         }
 
         case X_plus: { // x+
-            cnc->startManualMove("+", "0", "0", "0",  speed);
+            x = "+";
+            //             cnc->startManualMove("+", "0", "0", "0",  speed);
             break;
         }
 
         case X_plus_Y_minus: {
-            cnc->startManualMove("+", "-", "0", "0",  speed);
+            y = "-";
+            x = "+";
+            //             cnc->startManualMove("+", "-", "0", "0",  speed);
             break;
         }
 
         case X_minus_Y_minus: {
-            cnc->startManualMove("-", "-", "0", "0",  speed);
+            y = "-";
+            x = "-";
+
+            //             cnc->startManualMove("-", "-", "0", "0",  speed);
             break;
         }
 
         case X_plus_Y_plus: {
-            cnc->startManualMove("+", "+", "0", "0",  speed);
+            y = "+";
+            x = "+";
+
+            //             cnc->startManualMove("+", "+", "0", "0",  speed);
             break;
         }
 
         case X_minus_Y_plus: {
-            cnc->startManualMove("-", "+", "0", "0",  speed);
+            y = "+";
+            x = "-";
+
+            //             cnc->startManualMove("-", "+", "0", "0",  speed);
             break;
         }
 
         case A_minus: {
-            cnc->startManualMove("0", "0", "0", "-",  speed);
+            a = "-";
+
+            //             cnc->startManualMove("0", "0", "0", "-",  speed);
             break;
         }
 
         case A_plus: {
-            cnc->startManualMove("0", "0", "0", "+",  speed);
+            a = "+";
+            //             cnc->startManualMove("0", "0", "0", "+",  speed);
             break;
         }
 
@@ -418,6 +480,7 @@ void ManualControlDialog::pressedCommand(int num)
             break;
     }
 
+    cnc->startManualMove(x, y, z, a,  speed);
     cnc->stopManualMove();
 }
 
