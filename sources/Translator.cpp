@@ -87,9 +87,9 @@ QString cTranslator::engText[] = {
     "Correcture G-code",
     "G-code offset (mm.)",
     "Correcture height Z in view of\nscanned surface",
-    "For manual controlling used numerical keyboard (NumPad)\n\n'1' -X and -Y moving\n'2' -Y moving\n" \
-    "'3' +X and -Y moving\n'6' +X moving\n'9' +X and +Y moving\n'8' +Y moving\n" \
-    "'7' -X and +Y moving\n'4' -X moving\n'-' +Z moving\n'+'  -Z\n'/' -A\n'*' +A",
+    "For manual controlling used numerical keyboard (NumPad)\n\n'1'\t -X and -Y\n'2'\t -Y\n" \
+    "'3'\t +X and -Y\n'6'\t +X\n'9'\t +X and +Y\n'8'\t +Y\n" \
+    "'7'\t -X and +Y\n'4'\t -X\n'-'\t +Z\n'+'\t -Z\n'/'\t -A\n'*'\t +A",
     "moving velocity",
     "Mouse controlling",
     "Start point surface",
@@ -195,9 +195,9 @@ QString cTranslator::engText[] = {
     "Device detached",
     "Warning",
     "Do you really want to close the program?",
-    "For manual controlling used control keyboard (ControlPad)\n\n'Left' -X moving\'Right' +X moving\n" \
-    "'Up' +Y moving\n'Down' -Y moving\n'Del' -A moving\n'PgDn' +A moving\n" \
-    "'End' -Z moving\n'Home' +Z moving",
+    "For manual controlling used cursor control\n\n'Left'\t -X\'Right'\t +X\n" \
+    "'Up'\t +Y\n'Down'\t -Y\n'Del'\t -A\n'PgDn'\t +A\n" \
+    "'End'\t -Z\n'Home'\t +Z",
     ""
 };
 

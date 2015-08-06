@@ -37,6 +37,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QCloseEvent>
+#include <QKeyEvent>
 
 #include <QGLPixelBuffer>
 #include <QScrollArea>
@@ -98,7 +99,7 @@ class MessageBox: public cTranslator
 enum EStatusTask { Waiting = 0, TaskStart, TaskWorking, TaskPaused, TaskStop };
 
 //
-enum KeyPad { NumPad = 0, ControlPad, UserDefined };
+enum KeyPad { NoManuaControl = -1, NumPad = 0, CursorPad, UserDefined };
 
 //
 // Класс для работы с заданием для контроллера

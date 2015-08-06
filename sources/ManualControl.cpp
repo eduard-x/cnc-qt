@@ -31,6 +31,7 @@
 
 #include <QtGui>
 #include <QPixmap>
+#include <QDebug>
 
 #include "includes/MainWindow.h"
 #include "includes/ManualControl.h"
@@ -65,30 +66,46 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
 
     connect(pushButton, SIGNAL(clicked()), this, SLOT(closePopUp()));
 
-    tabWidget->setCurrentIndex(parent->currentKeyPad);
+    if (parent->currentKeyPad == NoManuaControl) {
+        tabWidget->setCurrentIndex(0);
+    } else {
+        tabWidget->setCurrentIndex(parent->currentKeyPad);
+    }
+
+    //     tabWidget->currentWidget()->setFocus();
 
     labelNumpad->setWordWrap(true);
     labelCursor->setWordWrap(true);
 
-    spinBoxVelo->setRange ( 1, 2000 );
+    spinBoxVelo->setRange ( 1, 1000 );
 
-    verticalSlider->setRange ( 1, 2000 );
-    verticalSlider->setSingleStep ( 1 );
+    slider->setRange ( 1, 1000 );
+    slider->setSingleStep ( 1 );
+
+    //     connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(num)));
+    //     tabWidget->setFocus();
+    //     slider->grabKeyboard(false);
 
     connect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
-    connect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
+    connect(slider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
 
     spinBoxVelo->setValue(parent->veloManual);
 
     for (QVector<QToolButton*>::iterator itB = buttonsNumPad.begin(); itB != buttonsNumPad.end(); ++itB) {
+        (*itB)->setFocusPolicy(Qt::NoFocus);
         connect((*itB), SIGNAL(pressed()), this, SLOT(numPressed()));
         connect((*itB), SIGNAL(released()), this, SLOT(numPressed()));
     }
 
     for (QVector<QToolButton*>::iterator itB = buttonsControl.begin(); itB != buttonsControl.end(); ++itB) {
+        (*itB)->setFocusPolicy(Qt::NoFocus);
         connect((*itB), SIGNAL(pressed()), this, SLOT(curPressed()));
         connect((*itB), SIGNAL(released()), this, SLOT(curPressed()));
     }
+
+    installEventFilter(this);
+
+    this->setFocus();
 
     translateDialog();
 
@@ -102,10 +119,158 @@ void ManualControlDialog::closePopUp()
     reject();
 }
 
+
+bool ManualControlDialog::eventFilter(QObject *target, QEvent *event)
+{
+//     qDebug() << "event filter" << event << target;
+    int currentMode = tabWidget->currentIndex();
+    int evType = event->type();
+
+    
+    if (evType == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+
+        if (currentMode == NumPad) {
+            switch (keyEvent->key()) {
+                case Qt::Key_division: {
+                    pressedCommand(A_minus);
+                    break;
+                }
+
+                case Qt::Key_multiply: {
+                    pressedCommand(A_plus);
+                    break;
+                }
+
+                case Qt::Key_Minus: {
+                    pressedCommand(Z_plus);
+                    break;
+                }
+
+                case Qt::Key_Plus: {
+                    pressedCommand(Z_minus);
+                    break;
+                }
+
+                case Qt::Key_7:
+                case Qt::Key_Home: {
+                    pressedCommand(X_minus_Y_plus);
+                    break;
+                }
+
+                case Qt::Key_1:
+                case Qt::Key_End: {
+                    pressedCommand(X_minus_Y_minus);
+                    break;
+                }
+
+                case Qt::Key_4:
+                case Qt::Key_Left: {
+                    pressedCommand(X_minus);
+                    break;
+                }
+
+                case Qt::Key_8:
+                case Qt::Key_Up: {
+                    pressedCommand(Y_plus);
+                    break;
+                }
+
+                case Qt::Key_6:
+                case Qt::Key_Right: {
+                    pressedCommand(X_plus);
+                    break;
+                }
+
+                case Qt::Key_2:
+                case Qt::Key_Down: {
+                    pressedCommand(Y_minus);
+                    break;
+                }
+
+                case Qt::Key_9:
+                case Qt::Key_PageUp: {
+                    pressedCommand(X_plus_Y_plus);
+                    break;
+                }
+
+                case Qt::Key_3:
+                case Qt::Key_PageDown: {
+                    pressedCommand(X_plus_Y_minus);
+                    break;
+                }
+            }
+        }
+
+        if (currentMode == CursorPad) {
+            switch (keyEvent->key()) {
+                case Qt::Key_Home: {
+                    pressedCommand(Z_plus);
+                    break;
+                }
+
+                case Qt::Key_End: {
+                    pressedCommand(Z_minus);
+                    break;
+                }
+
+                case Qt::Key_Left: {
+                    pressedCommand(X_minus);
+                    break;
+                }
+
+                case Qt::Key_Up: {
+                    pressedCommand(Y_plus);
+                    break;
+                }
+
+                case Qt::Key_Right: {
+                    pressedCommand(X_plus);
+                    break;
+                }
+
+                case Qt::Key_Down: {
+                    pressedCommand(Y_minus);
+                    break;
+                }
+
+                case Qt::Key_Delete: {
+                    pressedCommand(A_minus);
+                    break;
+                }
+
+                case Qt::Key_PageDown: {
+                    pressedCommand(A_plus);
+                    break;
+                }
+            }
+        }
+
+        event->setAccepted(true);
+        return true;
+    }
+
+    //     if (evType == QEvent::KeyRelease) {
+    //         cnc->stopManualMove();
+    //         return true;
+    //     }
+
+    //     if (evType == QMouseEvent::MouseTrackingChange ||
+    //             evType == QEvent::MouseButtonDblClick ||
+    //             evType == QEvent::MouseButtonPress ||
+    //             evType == QEvent::MouseButtonRelease ||
+    //             evType == QEvent::MouseMove) {
+    //         QDialog::eventFilter(target, event);
+    //     }
+
+    return QDialog::eventFilter(target, event);
+}
+
+
 void ManualControlDialog::numPressed()
 {
     QToolButton* b  = static_cast<QToolButton*>(sender());
-
+//     qDebug() << "num pressed";
     int pos = 0;
     int decode[] = { -1, X_minus_Y_minus, Y_minus, X_plus_Y_minus, X_minus, -1, X_plus, X_minus_Y_plus, Y_plus, X_plus_Y_plus, -1, A_minus, -1, Z_plus, A_plus, Z_minus, -1, -1};
 
@@ -117,14 +282,16 @@ void ManualControlDialog::numPressed()
         pos++;
     }
 
-    pressedCommand(decode[pos]);
+    if (pos < buttonsNumPad.count()) {
+        pressedCommand(decode[pos]);
+    }
 }
 
 
 void ManualControlDialog::curPressed()
 {
     QToolButton* b  = static_cast<QToolButton*>(sender());
-
+//     qDebug() << "cur pressed";
     int pos = 0;
     int decode[] = {A_minus, Y_minus, Z_minus, Z_plus, -1, X_minus, A_plus, -1, X_plus, Y_plus, -1};
 
@@ -136,7 +303,9 @@ void ManualControlDialog::curPressed()
         pos++;
     }
 
-    pressedCommand(decode[pos]);
+    if (pos < buttonsNumPad.count()) {
+        pressedCommand(decode[pos]);
+    }
 }
 
 
@@ -144,35 +313,33 @@ void ManualControlDialog::translateDialog()
 {
     labelVelocity->setText(translate(_VELOCITY));
     labelNumpad->setText(translate(_NUMPAD_HELP));
-    labelNumpad->adjustSize();
     labelCursor->setText(translate(_CONTROLPAD_HELP));
-    labelCursor->adjustSize();
 }
 
 
 void ManualControlDialog::spinChanged(int num)
 {
     disconnect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
-    disconnect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
+    disconnect(slider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
 
     int n = spinBoxVelo->value();
-    verticalSlider->setSliderPosition(n);
+    slider->setSliderPosition(n);
 
     connect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
-    connect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
+    connect(slider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
 }
 
 
 void ManualControlDialog::sliderChanged(int num)
 {
     disconnect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
-    disconnect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
+    disconnect(slider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
 
-    int n =  verticalSlider->sliderPosition();
+    int n =  slider->sliderPosition();
     spinBoxVelo->setValue(n);
 
     connect(spinBoxVelo, SIGNAL(valueChanged ( int)), this, SLOT(spinChanged(int)));
-    connect(verticalSlider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
+    connect(slider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
 }
 
 
@@ -181,6 +348,8 @@ void ManualControlDialog::pressedCommand(int num)
     if (num == -1) {
         return;
     }
+
+    qDebug() << "pressedCommand" << num;
 
     int speed = spinBoxVelo->value();
 
@@ -248,12 +417,15 @@ void ManualControlDialog::pressedCommand(int num)
         default:
             break;
     }
+
+    cnc->stopManualMove();
 }
 
 
 
 void ManualControlDialog::mouseReleased()
 {
+    qDebug() << "mouse released";
     cnc->stopManualMove();
 }
 

@@ -34,6 +34,7 @@
 #define MANUALCONTROL_H
 
 #include <QVector>
+#include <QKeyEvent>
 
 #include "MainWindow.h"
 #include "ui_ManualControl.h"
@@ -64,6 +65,11 @@ class ManualControlDialog : public QDialog, public Ui::ManualControlDialog,  pub
     private:
         void translateDialog();
         void pressedCommand(int n);
+
+        //         void keyPressEvent( QKeyEvent *e );
+        //         void keyReleaseEvent( QKeyEvent *e );
+        bool eventFilter(QObject *target, QEvent *event);
+        //         bool eventFilter(QObject *target, QMouseEvent *event);
 
     private:
         QVector<QToolButton*> buttonsNumPad;
