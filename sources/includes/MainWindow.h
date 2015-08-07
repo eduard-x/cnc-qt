@@ -46,7 +46,7 @@
 #include <QtOpenGL>
 #include <QImage>
 #include <QTimeLine>
-#include <QSvgRenderer>
+// #include <QSvgRenderer>
 
 #include <deque>
 #include <utility>
