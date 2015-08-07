@@ -39,14 +39,9 @@
 #include <QCloseEvent>
 #include <QKeyEvent>
 
-#include <QGLPixelBuffer>
 #include <QScrollArea>
-#include <QGLWidget>
-
-#include <QtOpenGL>
 #include <QImage>
 #include <QTimeLine>
-// #include <QSvgRenderer>
 
 #include <deque>
 #include <utility>

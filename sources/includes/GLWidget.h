@@ -39,7 +39,6 @@
 #include <QMainWindow>
 #include <QImage>
 #include <QTimeLine>
-// #include <QSvgRenderer>
 
 #include "Geometry.h"
 #include "MainWindow.h"
