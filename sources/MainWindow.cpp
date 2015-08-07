@@ -168,7 +168,12 @@ MainWindow::MainWindow(QWidget *parent)
     sysFont = sysFont;
 
     fontSize = sysFont.pointSize();
-
+    
+    userKeys =(QVector<uKeys>() << (uKeys){"UserZplus", Qt::Key_End} << (uKeys){"UserZminus", Qt::Key_End} 
+    << (uKeys){"UserXplus", Qt::Key_Right} << (uKeys){"UserXminus", Qt::Key_Left} <<
+                (uKeys){"UserYplus", Qt::Key_Up} << (uKeys){"UserYminus", Qt::Key_Down} << 
+                (uKeys){"UserAplus", Qt::Key_multiply} << (uKeys){"UserAminus", Qt::Key_division});
+    
     readGUISettings();
 
     setWindowIcon(QIcon(QPixmap(":/images/icon.png")));
@@ -542,6 +547,10 @@ void MainWindow::writeGUISettings()
     s->setValue("VelocityMoving", numVeloMoving->value());
     s->setValue("VelocityManual", numVeloManual->value());
 
+    for(int i =0; i< userKeys.count(); ++i){
+        s->setValue(userKeys.at(i).name, (quint32)userKeys.at(i).code);
+    }
+
     if (groupControl->isChecked() == false) {
         currentKeyPad = -1;
     }
@@ -580,6 +589,10 @@ void MainWindow::readGUISettings()
     veloManual = s->value("VelocityManual", 400).toInt();
     currentKeyPad = s->value("KeyControl", -1).toInt();
 
+    for(int i =0; i< userKeys.count(); ++i){
+        userKeys[i].code = (Qt::Key)s->value(userKeys.at(i).name, (quint32)userKeys.at(i).code).toUInt();
+    }
+    
     groupControl->setChecked(currentKeyPad != -1);
 
 

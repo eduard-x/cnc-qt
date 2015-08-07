@@ -137,6 +137,10 @@ class Task
         static int posCodeNow;
 };
 
+struct uKeys{
+    QString name;
+    Qt::Key code;
+};
 
 class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 {
@@ -170,6 +174,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         double koeffSizeY;
         bool deltaFeed;
 
+
+        QVector<uKeys> userKeys;
+        // user defined control keys
+    
         //
         int veloManual;
 
