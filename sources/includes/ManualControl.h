@@ -34,6 +34,7 @@
 #define MANUALCONTROL_H
 
 #include <QVector>
+#include <QLabel>
 #include <QKeyEvent>
 
 #include "MainWindow.h"
@@ -79,7 +80,10 @@ class ManualControlDialog : public QDialog, public Ui::ManualControlDialog,  pub
         QVector<QToolButton*> buttonsNumPad;
         QVector<QToolButton*> buttonsCursor;
         QVector<QToolButton*> buttonsUser;
+        QVector<QLabel*> userLabels;
+        QVector<QString> userStrs;
 
+        bool recordKey;
         MainWindow* parent;
         mk1Controller* cnc;
 

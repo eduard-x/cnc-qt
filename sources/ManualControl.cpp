@@ -49,6 +49,8 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
     parent = static_cast<MainWindow*>(p);
 
     cnc = parent->cnc;
+    
+    recordKey = false;
 
     setStyleSheet(parent->programStyleSheet);
 
@@ -65,9 +67,17 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
                       Ui::ManualControlDialog::toolCurRight << Ui::ManualControlDialog::toolCurUp);
 
     buttonsUser = (QVector<QToolButton*>() << Ui::ManualControlDialog::toolAplus << Ui::ManualControlDialog::toolAminus <<
-                   Ui::ManualControlDialog::toolZplus << Ui::ManualControlDialog::toolZminus << Ui::ManualControlDialog::toolYplus <<
-                   Ui::ManualControlDialog::toolYminus << Ui::ManualControlDialog::toolXplus << Ui::ManualControlDialog::toolXminus);
+                   Ui::ManualControlDialog::toolZplus << Ui::ManualControlDialog::toolZminus << 
+                   Ui::ManualControlDialog::toolYplus << Ui::ManualControlDialog::toolYminus << 
+                   Ui::ManualControlDialog::toolXplus << Ui::ManualControlDialog::toolXminus);
 
+    userLabels = (QVector<QLabel*>() << Ui::ManualControlDialog::labelAp << Ui::ManualControlDialog::labelAm << 
+                  Ui::ManualControlDialog::labelZp << Ui::ManualControlDialog::labelZm << 
+                  Ui::ManualControlDialog::labelYp << Ui::ManualControlDialog::labelYm <<
+                  Ui::ManualControlDialog::labelXp << Ui::ManualControlDialog::labelXm);
+    
+    userStrs = (QVector<QString>() << "A+ " << "A - " << "Z+ " << "Z - " << "Y+ " << "Y - " << "X+ " << "X - ");
+    
     connect(pushButton, SIGNAL(clicked()), this, SLOT(closePopUp()));
 
     if (parent->currentKeyPad == NoManuaControl) {
@@ -106,7 +116,7 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
         connect((*itB), SIGNAL(pressed()), this, SLOT(userPressed()));
         connect((*itB), SIGNAL(released()), this, SLOT(userPressed()));
     }
-
+     
     this->installEventFilter(this);
     this->setFocus();
 
@@ -143,7 +153,7 @@ bool ManualControlDialog::eventFilter(QObject *target, QEvent *event)
         }
 
         if (currentMode == UserDefined) {
-            if (pushRecord->isChecked() == true){
+            if (recordKey == true){
             }
             else {
                 decodeUserDefined(keyEvent->key());
@@ -152,6 +162,9 @@ bool ManualControlDialog::eventFilter(QObject *target, QEvent *event)
 
         event->setAccepted(true);
         return true;
+    }
+    
+    if (evType == QEvent::MouseButtonPress) {
     }
 
     return QDialog::eventFilter(target, event);
@@ -377,6 +390,10 @@ void ManualControlDialog::translateDialog()
     labelVelocity->setText(translate(_VELOCITY));
     labelNumpad->setText(translate(_NUMPAD_HELP));
     labelCursor->setText(translate(_CONTROLPAD_HELP));
+    
+    for (int i=0; i < userLabels.count(); i++) {
+        userLabels.at(i)->setText(userStrs.at(i));
+    }
 }
 
 

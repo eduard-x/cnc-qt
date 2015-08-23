@@ -78,7 +78,6 @@ GLint GLWidget::instrumentArray[][3] = {
 };
 
 
-
 GLWidget::GLWidget(QWidget *p)
     : QGLWidget(p)
 {
@@ -268,8 +267,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     } else if (event->buttons() & Qt::RightButton) {
         setXRotation(parent->PosAngleX + dy);
         setZRotation(parent->PosAngleZ + dx);
+        
 #if 0
-
         if (dy > 0) {
             setXRotation(PosAngleX -= dx);
             //         setXRotation(--PosAngleX);
