@@ -454,7 +454,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupControl">
+          <widget class="QGroupBox" name="groupManualControl">
            <property name="title">
             <string>NumPad control</string>
            </property>

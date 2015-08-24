@@ -67,9 +67,10 @@ class ManualControlDialog : public QDialog, public Ui::ManualControlDialog,  pub
     private:
         void translateDialog();
         void pressedCommand(int n);
-        void decodeUserDefined(int n);
-        void decodeCursor(int n);
-        void decodeNumPad(int n);
+        void decodeUserDefined(Qt::Key n);
+        void checkUserEnteredKey(Qt::Key n);
+        void decodeCursor(Qt::Key n);
+        void decodeNumPad(Qt::Key n);
 
         //         void keyPressEvent( QKeyEvent *e );
         //         void keyReleaseEvent( QKeyEvent *e );
@@ -80,10 +81,11 @@ class ManualControlDialog : public QDialog, public Ui::ManualControlDialog,  pub
         QVector<QToolButton*> buttonsNumPad;
         QVector<QToolButton*> buttonsCursor;
         QVector<QToolButton*> buttonsUser;
-        QVector<QLabel*> userLabels;
-        QVector<QString> userStrs;
+        QVector<QLabel*> labelsUser;
+        QVector<QString> strsUser;
+        QVector<uKeys> userManualKeys;
 
-        bool recordKey;
+        int recordKey; // num of element or -1
         MainWindow* parent;
         mk1Controller* cnc;
 

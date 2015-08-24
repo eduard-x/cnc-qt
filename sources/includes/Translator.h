@@ -206,6 +206,9 @@ enum TR_CONSTS {
     _WARN, // 149
     _REALLYQUIT, // 150
     _CONTROLPAD_HELP, // 151
+    _BUTTON, // 152
+    _PRESS_BUTTON, // 153
+    _USEDEF_TEXT, // 154
     _NULL
 };
 

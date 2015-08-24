@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
 
     // für sonderzeichen
-//     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    //     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 
     MainWindow win;
     win.resize(800, 600);

@@ -168,12 +168,25 @@ MainWindow::MainWindow(QWidget *parent)
     sysFont = sysFont;
 
     fontSize = sysFont.pointSize();
-    
-    userKeys =(QVector<uKeys>() << (uKeys){"UserZplus", Qt::Key_End} << (uKeys){"UserZminus", Qt::Key_End} 
-    << (uKeys){"UserXplus", Qt::Key_Right} << (uKeys){"UserXminus", Qt::Key_Left} <<
-                (uKeys){"UserYplus", Qt::Key_Up} << (uKeys){"UserYminus", Qt::Key_Down} << 
-                (uKeys){"UserAplus", Qt::Key_multiply} << (uKeys){"UserAminus", Qt::Key_division});
-    
+
+    userKeys = (QVector<uKeys>() << (uKeys) (uKeys) {
+        "UserAplus", Qt::Key_multiply
+    } << (uKeys) {
+        "UserAminus", Qt::Key_division
+    } << (uKeys) {
+        "UserZplus", Qt::Key_Home
+    } << (uKeys) {
+        "UserZminus", Qt::Key_End
+    } << (uKeys) {
+        "UserYplus", Qt::Key_Up
+    } << (uKeys) {
+        "UserYminus", Qt::Key_Down
+    } << (uKeys) {
+        "UserXplus", Qt::Key_Right
+    } << (uKeys) {
+        "UserXminus", Qt::Key_Left
+    });
+
     readGUISettings();
 
     setWindowIcon(QIcon(QPixmap(":/images/icon.png")));
@@ -547,11 +560,11 @@ void MainWindow::writeGUISettings()
     s->setValue("VelocityMoving", numVeloMoving->value());
     s->setValue("VelocityManual", numVeloManual->value());
 
-    for(int i =0; i< userKeys.count(); ++i){
+    for(int i = 0; i < userKeys.count(); ++i) {
         s->setValue(userKeys.at(i).name, (quint32)userKeys.at(i).code);
     }
 
-    if (groupControl->isChecked() == false) {
+    if (groupManualControl->isChecked() == false) {
         currentKeyPad = -1;
     }
 
@@ -589,11 +602,11 @@ void MainWindow::readGUISettings()
     veloManual = s->value("VelocityManual", 400).toInt();
     currentKeyPad = s->value("KeyControl", -1).toInt();
 
-    for(int i =0; i< userKeys.count(); ++i){
+    for(int i = 0; i < userKeys.count(); ++i) {
         userKeys[i].code = (Qt::Key)s->value(userKeys.at(i).name, (quint32)userKeys.at(i).code).toUInt();
     }
-    
-    groupControl->setChecked(currentKeyPad != -1);
+
+    groupManualControl->setChecked(currentKeyPad != -1);
 
 
     numVeloSubmission->setValue(veloSubmission);
@@ -779,7 +792,7 @@ void MainWindow::translateGUI()
     groupGenerate->setTitle(translate(_GEN_SIGNAL));
     groupPosition->setTitle(translate(_COORDINATES));
     groupBoxExec->setTitle(translate(_GCODE_RUNNING));
-    groupControl->setTitle(translate(_MANUAL_CONTROL));
+    groupManualControl->setTitle(translate(_MANUAL_CONTROL));
     groupIndicator->setTitle(translate(_DISPL_LIMITS));
     groupVelocity->setTitle(translate(_VELOCITY));
 
@@ -908,7 +921,7 @@ void MainWindow::onStartTask()
     QString s = "from :" + QString::number( Task::posCodeStart + 1 ) + " to: " + QString::number( Task::posCodeEnd + 1);
     statusSt->setText( s );
 
-    groupControl->setChecked( false ); // отключим реакцию на нажатие NUM-pad
+    groupManualControl->setChecked( false ); // отключим реакцию на нажатие NUM-pad
 
     Task::StatusTask = TaskStart;
 
@@ -1400,7 +1413,8 @@ void  MainWindow::refreshElementsForms()
     }
 
     groupPosition->setEnabled( cncConnected);
-    groupControl->setEnabled( cncConnected);
+    //     groupManualControl->setEnabled( cncConnected);
+    groupManualControl->setEnabled(true);
     // set groupVelocity too?
 
     actionStop->setEnabled( cncConnected);
@@ -1412,14 +1426,14 @@ void  MainWindow::refreshElementsForms()
     if (!cncConnected) {
         QPixmap grayPix = QPixmap(":/images/ball_gray.png");
 
-        maxXLED->setPixmap( grayPix);
-        minXLED->setPixmap( grayPix);
-        maxYLED->setPixmap( grayPix);
-        minYLED->setPixmap( grayPix);
-        maxZLED->setPixmap( grayPix);
-        minZLED->setPixmap( grayPix);
-        maxALED->setPixmap( grayPix);
-        minALED->setPixmap( grayPix);
+        maxXLED->setPixmap( grayPix );
+        minXLED->setPixmap( grayPix );
+        maxYLED->setPixmap( grayPix );
+        minYLED->setPixmap( grayPix );
+        maxZLED->setPixmap( grayPix );
+        minZLED->setPixmap( grayPix );
+        maxALED->setPixmap( grayPix );
+        minALED->setPixmap( grayPix );
 
         toolRun->setEnabled( cncConnected);
         toolPause->setEnabled( cncConnected);
@@ -1490,14 +1504,14 @@ void  MainWindow::refreshElementsForms()
     QPixmap greenPix = QPixmap(":/images/ball_green.png");
     QPixmap redPix = QPixmap(":/images/ball_red.png");
 
-    maxXLED->setPixmap( DeviceInfo::AxesX_LimitMax ? redPix : greenPix);
-    minXLED->setPixmap( DeviceInfo::AxesX_LimitMin ? redPix : greenPix);
-    maxYLED->setPixmap( DeviceInfo::AxesY_LimitMax ? redPix : greenPix);
-    minYLED->setPixmap( DeviceInfo::AxesY_LimitMin ? redPix : greenPix);
-    maxZLED->setPixmap( DeviceInfo::AxesZ_LimitMax ? redPix : greenPix);
-    minZLED->setPixmap( DeviceInfo::AxesZ_LimitMin ? redPix : greenPix);
-    maxALED->setPixmap( DeviceInfo::AxesA_LimitMax ? redPix : greenPix);
-    minALED->setPixmap( DeviceInfo::AxesA_LimitMin ? redPix : greenPix);
+    maxXLED->setPixmap( DeviceInfo::AxesX_LimitMax ? redPix : greenPix );
+    minXLED->setPixmap( DeviceInfo::AxesX_LimitMin ? redPix : greenPix );
+    maxYLED->setPixmap( DeviceInfo::AxesY_LimitMax ? redPix : greenPix );
+    minYLED->setPixmap( DeviceInfo::AxesY_LimitMin ? redPix : greenPix );
+    maxZLED->setPixmap( DeviceInfo::AxesZ_LimitMax ? redPix : greenPix );
+    minZLED->setPixmap( DeviceInfo::AxesZ_LimitMin ? redPix : greenPix );
+    maxALED->setPixmap( DeviceInfo::AxesA_LimitMax ? redPix : greenPix );
+    minALED->setPixmap( DeviceInfo::AxesA_LimitMin ? redPix : greenPix );
 
     //***************
 

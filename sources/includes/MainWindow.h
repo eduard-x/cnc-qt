@@ -132,7 +132,7 @@ class Task
         static int posCodeNow;
 };
 
-struct uKeys{
+struct uKeys {
     QString name;
     Qt::Key code;
 };
@@ -172,7 +172,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 
         QVector<uKeys> userKeys;
         // user defined control keys
-    
+
         //
         int veloManual;
 
