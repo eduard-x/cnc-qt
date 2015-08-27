@@ -67,6 +67,9 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     indexMaxScanY = 0;
 
     scanThread = NULL;
+    
+    numSpeed->setValue(200);
+    numReturn->setValue(400);
 
 
     surfaceArr = parent->surfaceMatrix;
