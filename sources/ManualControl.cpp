@@ -339,6 +339,7 @@ void ManualControlDialog::decodeUserDefined(Qt::Key n)
 
         if ( userManualKeys.at(i).name == "UserZplus") {
             pressedCommand(Z_plus);
+            return;
         }
 
         if ( userManualKeys.at(i).name == "UserZminus") {

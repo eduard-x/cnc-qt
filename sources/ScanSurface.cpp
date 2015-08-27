@@ -68,30 +68,51 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
 
     scanThread = NULL;
 
+
+    surfaceArr = parent->surfaceMatrix;
+
+    sizeY = surfaceArr.count();
+    sizeX = 0;
+
+    if (sizeY > 0) {
+        sizeX = surfaceArr[0].count();
+    }
+
     translateDialog();
+
+    //TODO: загрузить данные из существующей матрицы
+    startOffsetX->setValue(DeviceInfo::AxesX_PositionMM());
+    startOffsetY->setValue(DeviceInfo::AxesY_PositionMM());
+    startOffsetZ->setValue(DeviceInfo::AxesZ_PositionMM());
+
+
+    connect(pushOk, SIGNAL(clicked()), this, SLOT(onSave()));
+    connect(pushCancel, SIGNAL(clicked()), this, SLOT(reject()));
 
     connect(pushButtonScan, SIGNAL(clicked()), this, SLOT(onScan()));
     connect(pushButtonTest, SIGNAL(clicked()), this, SLOT(onTestScan()));
 
     connect(checkBoxViewOnly,  SIGNAL(stateChanged ( int)), this, SLOT(checkBoxChanged(int)));
 
-    connect(numPosX, SIGNAL(changed()), this, SLOT(valueChanged()));
-    connect(numPosY, SIGNAL(changed()), this, SLOT(valueChanged()));
-    connect(numPosZ, SIGNAL(changed()), this, SLOT(valueChanged()));
+    // start offset
+    connect(startOffsetX, SIGNAL(valueChanged(QString)), this, SLOT(writeDataGridHeader()));
+    connect(startOffsetY, SIGNAL(valueChanged(QString)), this, SLOT(writeDataGridHeader()));
 
-    connect(numStepX, SIGNAL(changed()), this, SLOT(valueChanged()));
-    connect(numCountX, SIGNAL(changed()), this, SLOT(valueChanged()));
-    connect(numStepY, SIGNAL(changed()), this, SLOT(valueChanged()));
-    connect(numCountY, SIGNAL(changed()), this, SLOT(valueChanged()));
+    connect(startOffsetZ, SIGNAL(valueChanged(QString)), this, SLOT(valueChanged()));
 
-    connect(numSpeed, SIGNAL(changed()), this, SLOT(valueChanged()));
-    connect(numReturn, SIGNAL(changed()), this, SLOT(valueChanged()));
+    connect(deltaStepX, SIGNAL(valueChanged(QString)), this, SLOT(writeDataGridHeader()));
+    connect(numCountX, SIGNAL(valueChanged(QString)), this, SLOT(resizeDataGrid()));
+    connect(deltaStepY, SIGNAL(valueChanged(QString)), this, SLOT(writeDataGridHeader()));
+    connect(numCountY, SIGNAL(valueChanged(QString)), this, SLOT(resizeDataGrid()));
+
+    connect(numSpeed, SIGNAL(valueChanged(int)), this, SLOT(valueSpeedChanged(int)));
+    connect(numReturn, SIGNAL(valueChanged(int)), this, SLOT(valueReturnChanged(int)));
 
     connect(dataGridView, SIGNAL(itemChanged ( QTableWidgetItem * )), this, SLOT(itemChanged(QTableWidgetItem*)));
     connect(dataGridView, SIGNAL(itemClicked ( QTableWidgetItem * )), this, SLOT(itemClicked(QTableWidgetItem*)));
     connect(dataGridView, SIGNAL(cellActivated ( int, int )), this, SLOT(cellActivated(int, int)));
 
-    connect(toolButtonZUp, SIGNAL(pressed()), this, SLOT(buttonMinusZUp()));
+    connect(toolButtonZUp, SIGNAL(pressed()), this, SLOT(buttonPlusZDown()));
     connect(toolButtonZUp, SIGNAL(released()), this, SLOT(buttonStop()));
     connect(toolButtonZSet, SIGNAL(clicked()), this, SLOT(buttonSetZ()));
     //     connect(toolButtonZSet, SIGNAL(released()), this, SLOT(valueChanged()));
@@ -100,6 +121,8 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     connect(toolButtonMove, SIGNAL(clicked(bool)), this, SLOT(valueChanged()));
     //     connect(toolButtonMove, SIGNAL(released()), this, SLOT(valueChanged()));
 
+    label10->setText("");
+    
     adjustSize();
 }
 
@@ -122,84 +145,129 @@ void ScanSurfaceDialog::translateDialog()
 }
 
 
-void ScanSurfaceDialog::feeler_Load()
+// void ScanSurfaceDialog::loadMatrix()
+// {
+//     //TODO: загрузить данные из существующей матрицы
+//
+// //     startOffsetX->setValue(DeviceInfo::AxesX_PositionMM());
+// //     startOffsetY->setValue(DeviceInfo::AxesY_PositionMM());
+// //     startOffsetZ->setValue(DeviceInfo::AxesZ_PositionMM());
+//
+//     refreshDataGrid();
+// }
+
+
+void ScanSurfaceDialog::valueSpeedChanged(int n)
 {
-    //TODO: загрузить данные из существующей матрицы
+}
 
-    numPosX->setValue(DeviceInfo::AxesX_PositionMM());
-    numPosY->setValue(DeviceInfo::AxesY_PositionMM());
-    numPosZ->setValue(DeviceInfo::AxesZ_PositionMM());
 
-    refrechDataGrid();
+void ScanSurfaceDialog::valueReturnChanged(int n)
+{
+}
+
+
+void ScanSurfaceDialog::onSave()
+{
+    parent->surfaceMatrix = surfaceArr;
+
+    accept();
+}
+
+
+// refresh the header text information
+void ScanSurfaceDialog::writeDataGridHeader()
+{
+    // start offset
+    if (sizeX == 0 || sizeY == 0) {
+        return;
+    }
+
+    double offsetX = startOffsetX->value();
+    double offsetY = startOffsetY->value();
+    double offsetZ = startOffsetZ->value();
+
+    // delta
+    double stepX = deltaStepX->value();
+    double stepY = deltaStepY->value();
+
+    QStringList xLabels, yLabels;
+
+    for (int x = 0; x < sizeX; x++) {
+        xLabels << QString().sprintf("X %4.2f", offsetX + (x * stepX));
+    }
+
+    dataGridView->setHorizontalHeaderLabels(xLabels);
+
+    for (int y = 0; y < sizeY; y++) {
+        yLabels << QString().sprintf("Y %4.2f", offsetY + (y * stepY));
+    }
+
+    dataGridView->setVerticalHeaderLabels(yLabels);
+}
+
+
+void ScanSurfaceDialog::resizeDataGrid()
+{
+    int countX = numCountX->value();
+    int countY = numCountY->value();
+
+    sizeX = countX;
+    sizeY = countY;
+
+    surfaceArr.resize(countY);
+
+    for (int y = 0; y < countY; y++) {
+        surfaceArr[y].resize(countX);
+    }
+
+    dataGridView->clear();
+
+    dataGridView->setColumnCount(countX);
+    dataGridView->setRowCount(countY);
+
+    writeDataGridHeader();
+
+    for (int y = 0; y < sizeY; y++) {
+        for (int x = 0; x < sizeX; x++) {
+            dataGridView->setItem(y, x, new QTableWidgetItem(""));
+        }
+    }
+
+    refreshDataGrid();
 }
 
 
 void ScanSurfaceDialog::valueChanged()
 {
-    refrechDataGrid();
+    refreshDataGrid();
 }
 
 
-void ScanSurfaceDialog::refrechDataGrid()
+void ScanSurfaceDialog::refreshDataGrid()
 {
     //наполним массив
-    //dataCode.Matrix.Clear();
+    double offsetX = startOffsetX->value();
+    double offsetY = startOffsetY->value();
+    double offsetZ = startOffsetZ->value();
 
-    int countX = numCountX->value();
-    int countY = numCountY->value();
-    double posX = numPosX->value();
-    double posY = numPosY->value();
-    double posZ = numPosZ->value();
-    double stepX = numStepX->value();
-    double stepY = numStepY->value();
-
-    //     parent->surfaceMatrix  parent->surfaceMatrix = new dobPoint[countX, countY];
-
-    for (int y = 0; y < countY; y++) {
-        //matrixYline matrixline = new matrixYline();
-
-        //matrixline.Y = numPosY->value() + (y* numStep->value());
-        parent->surfaceMatrix.push_back(QVector< dPoint > ());
-
-        for (int x = 0; x < countX; x++) {
-            //             parent->surfaceMatrix[x][y] = new dobPoint(posX + (x * stepX), posY + (y * stepY), posZ);
-            dPoint v = {posX + (x * stepX), posY + (y * stepY), posZ, 0.0 };
-            parent->surfaceMatrix[y].push_back(v);
-            //matrixline.X.Add(new matrixPoint(numPosX->value() + (x * numStep->value()), numPosZ->value(), true));
-        }
-
-        //dataCode.Matrix.Add(matrixline);
-    }
-
-    //и перезаполним таблицу
-    dataGridView->clear();
-
-    dataGridView->setColumnCount(countX + 1);
-    dataGridView->setRowCount(countY + 1);
-
-    for (int x = 0; x < countX; x++) {
-        QTableWidgetItem *item = dataGridView->item(0, x + 1);
-        item->setText("X " + QString::number(numPosX->value() + (x * numStepX->value())));
-        item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-    }
-
-    for (int y = 0; y < countY; y++) {
-
-        QTableWidgetItem *item = dataGridView->item(y + 1, 0);
-        item->setText("Y " + QString::number(numPosY->value() + (y * numStepY->value())));
-        item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-    }
+    double stepX = deltaStepX->value();
+    double stepY = deltaStepY->value();
 
     bool edit = !(checkBoxViewOnly->isChecked());
 
-    for (int y = 0; y < countY; y++) {
-        for (int x = 0; x < countX; x++) {
-            dataGridView->item(y + 1, x + 1)->setText(QString::number(parent->surfaceMatrix[y][x].Z));
+    for (int y = 0; y < sizeY; y++) {
+        for (int x = 0; x < sizeX; x++) {
+            surfaceArr[y][x].X = offsetX + (x * stepX);
+            surfaceArr[y][x].Y = offsetX + (y * stepY);
+            surfaceArr[y][x].Z = offsetZ;
+
+            dataGridView->item(y, x)->setText(QString().sprintf("Z %4.2f", surfaceArr[y][x].Z));
 
             if (edit == true) {
-                dataGridView->item(y + 1, x + 1)->setFlags(Qt::ItemIsEditable);
+                dataGridView->item(y, x)->setFlags(Qt::ItemIsEditable);
             } else {
-                QTableWidgetItem *item = dataGridView->item(y + 1, x + 1);
+                QTableWidgetItem *item = dataGridView->item(y, x);
                 item->setFlags(item->flags() ^ Qt::ItemIsEditable);
             }
         }
@@ -217,9 +285,9 @@ void ScanSurfaceDialog::checkBoxChanged(int st)
     for (int y = 0; y < countY; y++) {
         for (int x = 0; x < countX; x++) {
             if (edit == true) {
-                dataGridView->item(y + 1, x + 1)->setFlags(Qt::ItemIsEditable);
+                dataGridView->item(y, x)->setFlags(Qt::ItemIsEditable);
             } else {
-                QTableWidgetItem *item = dataGridView->item(y + 1, x + 1);
+                QTableWidgetItem *item = dataGridView->item(y, x);
                 item->setFlags(item->flags() ^ Qt::ItemIsEditable);
             }
         }
@@ -241,8 +309,8 @@ void ScanSurfaceDialog::cellActivated ( int y, int x )
 
 void ScanSurfaceDialog::itemClicked( QTableWidgetItem * item)
 {
-    int x = item->column() - 1;
-    int y = item->row() - 1;
+    int x = item->column();
+    int y = item->row();
 
     if (x < 0 || y < 0) {
         selectedX = -1;
@@ -267,15 +335,9 @@ void ScanSurfaceDialog::itemChanged( QTableWidgetItem * item)
     bool res;
     double val = ss.replace(".", ",").toDouble(&res);
 
-    //     try {
     if (res == true) {
-        parent->surfaceMatrix[y - 1][x - 1].Z = val;
+        surfaceArr[y][x].Z = val;
     }
-
-    //dataCode.Matrix[y - 1].X[x - 1].Z = val;
-    //     } catch (Exception) {
-    //throw;
-    //     }
 }
 
 
@@ -304,7 +366,6 @@ void ScanSurfaceDialog::onTestScan()
 void ScanSurfaceDialog::onScan()
 {
     //TODO: Добавить возможность выборочного сканирования
-
     if (Scan) {
         Scan = false;
         pushButtonScan->setText(translate(_SCAN));
@@ -316,8 +377,6 @@ void ScanSurfaceDialog::onScan()
 
         scanThread = NULL;
     } else {
-        pushButtonScan->setText(translate(_STOP_SCAN));
-
         if (scanThread == NULL) {
             return;
         }
@@ -326,41 +385,31 @@ void ScanSurfaceDialog::onScan()
             return;    //пока ещё работает поток
         }
 
-        indexScanX = 0;
-        indexScanY = 0;
-        //indexMaxScanX = dataCode.Matrix[0].X.Count - 1;
-        //indexMaxScanY = dataCode.Matrix.Count - 1;
-        indexMaxScanX = (int)numCountX->value() - 1;
-        indexMaxScanY = (int)numCountY->value() - 1;
+        pushButtonScan->setText(translate(_STOP_SCAN));
+
+        Scan = true;
+        indexMaxScanX = (int)numCountX->value();
+        indexMaxScanY = (int)numCountY->value();
 
         scanThread = new ScanThread(this);
 
         connect(scanThread, SIGNAL(finished()), scanThread, SLOT(deleteLater()));
         scanThread->start();
     }
+
+    groupStartPoint->setEnabled(!Scan);
+    groupSteps->setEnabled(!Scan);
+    groupPoint->setEnabled(!Scan);
 }
 
 
 void ScanSurfaceDialog::onTimer()
 {
-    //     if (Scan) {
-    //         button1.Text = @"Остановить";
-    //     } else {
-    //         button1.Text = @"Сканировать";
-    //     }
-
-    //     try {
-    // dataGridView.Rows[indexScanY + 1].Cells[indexScanX + 1]->setText(dataCode.Matrix[indexScanY].X[indexScanX].Z);
-    if (dataGridView->item(indexScanY + 1, indexScanX + 1) != NULL) {
-        dataGridView->item(indexScanY + 1, indexScanX + 1)->setText( QString::number(parent->surfaceMatrix[indexScanY][indexScanX].Z));
+    if (dataGridView->item(indexScanY, indexScanX) != NULL) {
+        dataGridView->item(indexScanY, indexScanX)->setText( QString().sprintf("Z %4.2f", surfaceArr[indexScanY][indexScanX].Z));
     }
-
-    //     } catch (Exception) {
-
-    // throw;
-    //     }
-
 }
+
 
 ScanThread::ScanThread(QObject* p)
 {
@@ -375,7 +424,7 @@ ScanThread::ScanThread(QObject* p)
 // TODO: при сканировании иногда заполняет сразу 2 ячейки в таблице?!?
 void ScanThread::run()
 {
-    mk1Controller *_cnc = sParent->parent->cnc;// = static_cast<MainWindow*>(parent);
+    //     mk1Controller *_cnc = sParent->parent->cnc;// = static_cast<MainWindow*>(parent);
 
     if (cnc->spindelMoveSpeed() != 0) {
         return;
@@ -383,11 +432,11 @@ void ScanThread::run()
 
     //координаты куда передвинуться
     //double px = dataCode.Matrix[indexScanY].X[indexScanX].X;
-    double px = parent->surfaceMatrix[sParent->indexScanY][sParent->indexScanX].X;
+    double px = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].X;
     //double pz = dataCode.Matrix[indexScanY].X[indexScanX].Z;
-    double pz = sParent->numPosZ->value();
+    double pz = sParent->startOffsetZ->value();
     //double py = dataCode.Matrix[indexScanY].Y;
-    double py = parent->surfaceMatrix[sParent->indexScanY][sParent->indexScanX].Y;
+    double py = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Y;
     double pa = 0;//sParent->numPosA->value();
 
     //спозиционируемся
@@ -412,7 +461,7 @@ void ScanThread::run()
 
     sleep(300);
     //dataCode.Matrix[indexScanY].X[indexScanX].Z = DeviceInfo::AxesZ_PositionMM;
-    parent->surfaceMatrix[sParent->indexScanY][sParent->indexScanX].Z = (double)DeviceInfo::AxesZ_PositionMM();
+    sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (double)DeviceInfo::AxesZ_PositionMM();
 
     cnc->packC0(0x01); //вкл
 
@@ -466,7 +515,7 @@ void ScanSurfaceDialog::onTimer1()
         return;
     }
 
-    label10->setText("X: " + QString::number(parent->surfaceMatrix[selectedY][selectedX].X) + "  Y: " + QString::number(parent->surfaceMatrix[selectedY][selectedX].X));
+    label10->setText("X: " + QString::number(surfaceArr[selectedY][selectedX].X) + "  Y: " + QString::number(surfaceArr[selectedY][selectedX].X));
 }
 
 // move to the point
@@ -483,6 +532,8 @@ void ScanSurfaceDialog::buttonMove()
         return;
     }
 
+    parent->surfaceMatrix = surfaceArr;
+
     parent->moveToPoint(true);
 
 #if 0
@@ -494,10 +545,10 @@ void ScanSurfaceDialog::buttonMove()
 
     parent->cnc->packC0();
 
-    int pulseX = DeviceInfo::CalcPosPulse("X", parent->surfaceMatrix[selectedY][selectedX].X);
-    int pulseY = DeviceInfo::CalcPosPulse("Y", parent->surfaceMatrix[selectedY][selectedX].Y);
-    int pulseZ = DeviceInfo::CalcPosPulse("Z", parent->surfaceMatrix[selectedY][selectedX].Z);
-    int pulseA = DeviceInfo::CalcPosPulse("A", parent->surfaceMatrix[selectedY][selectedX].A);
+    int pulseX = DeviceInfo::CalcPosPulse("X", surfaceArr[selectedY][selectedX].X);
+    int pulseY = DeviceInfo::CalcPosPulse("Y", surfaceArr[selectedY][selectedX].Y);
+    int pulseZ = DeviceInfo::CalcPosPulse("Z", surfaceArr[selectedY][selectedX].Z);
+    int pulseA = DeviceInfo::CalcPosPulse("A", surfaceArr[selectedY][selectedX].A);
 
     parent->cnc->packCA(pulseX, pulseY, pulseZ, pulseA, speed, 0);
 
@@ -528,8 +579,8 @@ void ScanSurfaceDialog::buttonSetZ()
         return;
     }
 
-    parent->surfaceMatrix[selectedY][selectedX].Z = DeviceInfo::AxesZ_PositionMM();
-    dataGridView->item(selectedY + 1, selectedX + 1)->setText( QString::number(parent->surfaceMatrix[selectedY][selectedX].Z));
+    surfaceArr[selectedY][selectedX].Z = DeviceInfo::AxesZ_PositionMM();
+    dataGridView->item(selectedY, selectedX)->setText( QString().sprintf("Z %4.2f", surfaceArr[selectedY][selectedX].Z));
 
 }
 
@@ -555,9 +606,3 @@ void ScanSurfaceDialog::buttonMinusZDown()
     parent->cnc->startManualMove("0", "0", "-", "0", 100);
 }
 
-
-// void ScanSurfaceDialog::butto()
-// {
-//     //     button5.BackColor = Color.FromName("Control");
-//     parent->cnc->StopManualMove();
-// }

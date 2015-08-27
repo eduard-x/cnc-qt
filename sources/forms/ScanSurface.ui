@@ -94,9 +94,6 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1" rowspan="7">
-    <widget class="QTableWidget" name="dataGridView"/>
-   </item>
    <item row="4" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
@@ -129,7 +126,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QDoubleSpinBox" name="numStepX">
+         <widget class="QDoubleSpinBox" name="deltaStepX">
           <property name="minimumSize">
            <size>
             <width>100</width>
@@ -189,7 +186,7 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QDoubleSpinBox" name="numStepY"/>
+         <widget class="QDoubleSpinBox" name="deltaStepY"/>
         </item>
        </layout>
       </item>
@@ -215,7 +212,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QDoubleSpinBox" name="numPosX">
+         <widget class="QDoubleSpinBox" name="startOffsetX">
           <property name="minimumSize">
            <size>
             <width>100</width>
@@ -235,7 +232,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QDoubleSpinBox" name="numPosY">
+         <widget class="QDoubleSpinBox" name="startOffsetY">
           <property name="minimumSize">
            <size>
             <width>100</width>
@@ -255,7 +252,7 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QDoubleSpinBox" name="numPosZ">
+         <widget class="QDoubleSpinBox" name="startOffsetZ">
           <property name="minimumSize">
            <size>
             <width>100</width>
@@ -280,71 +277,126 @@
      <property name="title">
       <string>GroupBox</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_9">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_8">
-        <item row="1" column="0">
-         <widget class="QToolButton" name="toolButtonZSet">
-          <property name="minimumSize">
-           <size>
-            <width>35</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Set</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QToolButton" name="toolButtonZUp">
-          <property name="minimumSize">
-           <size>
-            <width>35</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Z+</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QToolButton" name="toolButtonZDown">
-          <property name="minimumSize">
-           <size>
-            <width>35</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Z -</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QToolButton" name="toolButtonMove">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Move</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label10">
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="QToolButton" name="toolButtonMove">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>50</y>
+        <width>49</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>35</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Move</string>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="toolButtonZUp">
+      <property name="geometry">
+       <rect>
+        <x>23</x>
+        <y>26</y>
+        <width>36</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>35</width>
+        <height>35</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Z+</string>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="toolButtonZDown">
+      <property name="geometry">
+       <rect>
+        <x>23</x>
+        <y>67</y>
+        <width>35</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>35</width>
+        <height>35</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Z -</string>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="toolButtonZSet">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>50</y>
+        <width>37</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>35</width>
+        <height>35</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Set</string>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item row="0" column="1" rowspan="7" colspan="3">
+    <widget class="QTableWidget" name="dataGridView">
+     <property name="minimumSize">
+      <size>
+       <width>570</width>
+       <height>600</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label10">
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="3">
+    <widget class="QPushButton" name="pushOk">
+     <property name="text">
+      <string>Ok</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2">
+    <widget class="QPushButton" name="pushCancel">
+     <property name="text">
+      <string>Cancel</string>
+     </property>
     </widget>
    </item>
   </layout>

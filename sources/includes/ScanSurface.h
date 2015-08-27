@@ -33,6 +33,8 @@
 #ifndef SCANSURFACE_H
 #define SCANSURFACE_H
 
+#include <QVector>
+
 #include "MainWindow.h"
 
 #include "ui_ScanSurface.h"
@@ -48,11 +50,16 @@ class ScanSurfaceDialog : public QDialog, public Ui::ScanSurfaceDialog,  public 
 
     private slots:
         void onScan();
+        void onSave();
         void onTimer();
         void onTimer1();
         void onTestScan();
         void checkBoxChanged(int st ); // view only
         void valueChanged(); // from SpinBoxes only
+        void writeDataGridHeader();
+        void resizeDataGrid();
+        void valueSpeedChanged(int n);
+        void valueReturnChanged(int n);
         void cellActivated ( int row, int column );
         void itemChanged ( QTableWidgetItem * item );
         void itemClicked ( QTableWidgetItem * item );
@@ -65,8 +72,8 @@ class ScanSurfaceDialog : public QDialog, public Ui::ScanSurfaceDialog,  public 
 
     private:
         void translateDialog();
-        void refrechDataGrid();
-        void feeler_Load();
+        void refreshDataGrid();
+        //         void loadMatrix();
         //  void scanThreadDoWork();
 
     private:
@@ -83,6 +90,10 @@ class ScanSurfaceDialog : public QDialog, public Ui::ScanSurfaceDialog,  public 
         int selectedX;
         int selectedY;
 
+        QVector< QVector<dPoint> >surfaceArr;
+
+        int sizeX;
+        int sizeY;
         int indexScanX;
         int indexScanY;
         int indexMaxScanX;
