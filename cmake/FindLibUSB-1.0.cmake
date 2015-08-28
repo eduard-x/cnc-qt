@@ -1,98 +1,169 @@
-# - Try to find libusb-1.0
-# Once done this will define
+# This is a modified version of the file written by Hedrik Sattler,
+# from the OpenOBEX project (licensed GPLv2/LGPL).  (If this is not correct,
+# please contact us so we can attribute the author appropriately.)
 #
-#  LIBUSB_1_FOUND - system has libusb
-#  LIBUSB_1_INCLUDE_DIRS - the libusb include directory
-#  LIBUSB_1_LIBRARIES - Link these to use libusb
-#  LIBUSB_1_DEFINITIONS - Compiler switches required for using libusb
+# https://github.com/zuckschwerdt/openobex/blob/master/CMakeModules/FindLibUSB.cmake
+# http://dev.zuckschwerdt.org/openobex/
 #
-#  Adapted from cmake-modules Google Code project
+# Find libusb-1.0
 #
-#  Copyright (c) 2006 Andreas Schneider <mail@cynapses.org>
+# It will use PkgConfig if present and supported, otherwise this
+# script searches for binary distribution in the path defined by
+# the LIBUSB_PATH variable.
 #
-#  (Changes for libusb) Copyright (c) 2008 Kyle Machulis <kyle@nonpolynomial.com>
+# Define LIBUSB_SKIP_VERSION_CHECK=Yes to skip the execution of a program to fetch
+# libusb's version number. LIBUSB_VERSION will not be set if this if this is used.
+# To check the version number, this script expects CMAKE_HELPERS_SOURCE_DIR to
+# be defined with the path to libusb_version.c.
 #
-# Redistribution and use is allowed according to the terms of the New BSD license.
-#
-# CMake-Modules Project New BSD License
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-#
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the
-#   documentation and/or other materials provided with the distribution.
-#
-# * Neither the name of the CMake-Modules Project nor the names of its
-#   contributors may be used to endorse or promote products derived from this
-#   software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
+# The following standard variables get defined:
+#  LIBUSB_1_FOUND:            true if LibUSB was found
+#  LIBUSB_1_HEADER_FILE:      the location of the C header file
+#  LIBUSB_1_INCLUDE_DIRS:     the directorys that contain headers
+#  LIBUSB_1_LIBRARIES:        the library files
+#  LIBUSB_1_VERSION           the detected libusb version
+#  LIBUSB_1_HAVE_GET_VERSION  True if libusb has libusb_get_version()
+
+if(DEFINED __INCLUDED_BLADERF_FINDLIBUSB_CMAKE)
+    return()
+endif()
+set(__INCLUDED_BLADERF_FINDLIBUSB_CMAKE TRUE)
+
+include(CheckLibraryExists)
+include(CheckIncludeFile)
 
 
-if (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
-  # in cache already
-  set(LIBUSB_FOUND TRUE)
-else (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
-  find_path(LIBUSB_1_INCLUDE_DIR
-    NAMES
-	libusb.h
-    PATHS
-      /usr/include
-      /usr/local/include
-      /opt/local/include
-      /sw/include
-	PATH_SUFFIXES
-	  libusb-1.0
-  )
+# In Linux, folks should generally be able to simply fetch the libusb library and
+# development packages from their distros package repository. Windows users will
+# likely want to fetch a binary distribution, hence the Windows-oriented default.
+#
+# See http://www.libusb.org/wiki/windows_backend#LatestBinarySnapshots
+if(WIN32)
+    set(LIBUSB_PATH
+        "C:/Program Files (x86)/libusb-1.0.19"
+        CACHE
+        PATH
+        "Path to libusb files. (This is generally only needed for Windows users who downloaded binary distributions.)"
+       )
+endif()
 
-  find_library(LIBUSB_1_LIBRARY
-    NAMES
-      usb-1.0 usb
-    PATHS
-      /usr/lib
-      /usr/local/lib
-      /opt/local/lib
-      /sw/lib
-  )
+find_package(PkgConfig)
+if(PKG_CONFIG_FOUND)
+    pkg_check_modules(PKGCONFIG_LIBUSB libusb-1.0 QUIET)
+endif(PKG_CONFIG_FOUND)
 
-  set(LIBUSB_1_INCLUDE_DIRS
-    ${LIBUSB_1_INCLUDE_DIR}
-  )
-  set(LIBUSB_1_LIBRARIES
-    ${LIBUSB_1_LIBRARY}
-)
+if(PKGCONFIG_LIBUSB_FOUND)
+    set(LIBUSB_1_INCLUDE_DIRS ${PKGCONFIG_LIBUSB_1_INCLUDE_DIRS})
+    foreach(i ${PKGCONFIG_LIBUSB_LIBRARIES})
+        string(REGEX MATCH "[^-]*" ibase "${i}")
+        find_library(${ibase}_LIBRARY
+            NAMES ${i}
+            PATHS ${PKGCONFIG_LIBUSB_LIBRARY_DIRS}
+           )
+        if(${ibase}_LIBRARY)
+            list(APPEND LIBUSB_1_LIBRARIES ${${ibase}_LIBRARY})
+        endif(${ibase}_LIBRARY)
+        mark_as_advanced(${ibase}_LIBRARY)
+    endforeach(i)
 
-  if (LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
-     set(LIBUSB_1_FOUND TRUE)
-  endif (LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
+else(PKGCONFIG_LIBUSB_FOUND)
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+        # The libusbx binary distribution contains several libs.
+        # Use the lib that got compiled with the same compiler.
+        if(MSVC)
+            if(CMAKE_CL_64)
+                set(LIBUSB_LIBRARY_PATH_SUFFIX MS64/dll)
+            else(CMAKE_CL_64)
+                set(LIBUSB_LIBRARY_PATH_SUFFIX MS32/dll)
+            endif(CMAKE_CL_64)
+        elseif(CMAKE_COMPILER_IS_GNUCC)
+            if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+                set(LIBUSB_LIBRARY_PATH_SUFFIX MinGW32/dll)
+            else(CMAKE_SIZEOF_VOID_P EQUAL 8)
+                set(LIBUSB_LIBRARY_PATH_SUFFIX MinGW64/dll)
+            endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        endif(MSVC)
+    else()
+        set(LIBUSB_LIBRARY_PATH_SUFFIX lib)
+        set(LIBUSB_EXTRA_PATHS /usr /usr/local /opt/local)
+    endif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
-  if (LIBUSB_1_FOUND)
-    if (NOT libusb_1_FIND_QUIETLY)
-      message(STATUS "Found libusb-1.0:")
-	  message(STATUS " - Includes: ${LIBUSB_1_INCLUDE_DIRS}")
-	  message(STATUS " - Libraries: ${LIBUSB_1_LIBRARIES}")
-    endif (NOT libusb_1_FIND_QUIETLY)
-  else (LIBUSB_1_FOUND)
-    if (libusb_1_FIND_REQUIRED)
-      message(FATAL_ERROR "Could not find libusb")
-    endif (libusb_1_FIND_REQUIRED)
-  endif (LIBUSB_1_FOUND)
+    find_file(LIBUSB_1_HEADER_FILE
+        NAMES
+        libusb.h
+        PATHS
+        ${LIBUSB_PATH}
+        ${LIBUSB_EXTRA_PATHS}
+        PATH_SUFFIXES
+        include include/libusbx-1.0 include/libusb-1.0
+       )
+    mark_as_advanced(LIBUSB_1_HEADER_FILE)
+    get_filename_component(LIBUSB_1_INCLUDE_DIRS "${LIBUSB_1_HEADER_FILE}" PATH)
 
-  # show the LIBUSB_1_INCLUDE_DIRS and LIBUSB_1_LIBRARIES variables only in the advanced view
-  mark_as_advanced(LIBUSB_1_INCLUDE_DIRS LIBUSB_1_LIBRARIES)
 
-endif (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
+    find_library(usb_LIBRARY
+        NAMES
+        libusb-1.0 usb-1.0
+        PATHS
+        ${LIBUSB_PATH}
+        ${LIBUSB_EXTRA_PATHS}
+        PATH_SUFFIXES
+        ${LIBUSB_LIBRARY_PATH_SUFFIX}
+       )
+    mark_as_advanced(usb_LIBRARY)
+    if(usb_LIBRARY)
+        set(LIBUSB_1_LIBRARIES ${usb_LIBRARY})
+    endif(usb_LIBRARY)
+
+endif(PKGCONFIG_LIBUSB_FOUND)
+
+if(LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
+    set(LIBUSB_1_FOUND true)
+endif(LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
+
+if(LIBUSB_1_FOUND)
+    set(CMAKE_REQUIRED_INCLUDES "${LIBUSB_1_INCLUDE_DIRS}")
+    check_include_file("{LIBUSB_1_HEADER_FILE}" LIBUSB_1_FOUND)
+endif(LIBUSB_1_FOUND)
+
+if(LIBUSB_1_FOUND AND NOT CMAKE_CROSSCOMPILING)
+    if(LIBUSB_SKIP_VERSION_CHECK)
+        message(STATUS "Skipping libusb version number check.")
+        unset(LIBUSB_1_VERSION)
+    else()
+        message(STATUS "Checking libusb version...")
+
+        if(WIN32)
+            string(REPLACE ".lib" ".dll" LIBUSB_DLL "${LIBUSB_1_LIBRARIES}")
+            try_run(LIBUSB_VERCHECK_RUN_RESULT
+                    LIBUSB_VERCHECK_COMPILED
+                    ${CMAKE_HELPERS_BINARY_DIR}
+                    ${CMAKE_HELPERS_SOURCE_DIR}/libusb_version.c
+                    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${LIBUSB_1_INCLUDE_DIRS}"
+                    RUN_OUTPUT_VARIABLE LIBUSB_1_VERSION
+                    ARGS "\"${LIBUSB_DLL}\""
+            )
+        else()
+            try_run(LIBUSB_VERCHECK_RUN_RESULT
+                    LIBUSB_VERCHECK_COMPILED
+                    ${CMAKE_HELPERS_BINARY_DIR}
+                    ${CMAKE_HELPERS_SOURCE_DIR}/libusb_version.c
+                    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${LIBUSB_1_INCLUDE_DIRS}" "-DLINK_LIBRARIES=${LIBUSB_1_LIBRARIES}"
+                    RUN_OUTPUT_VARIABLE LIBUSB_1_VERSION
+            )
+        endif()
+
+
+        if (NOT LIBUSB_VERCHECK_COMPILED OR NOT LIBUSB_VERCHECK_RUN_RESULT EQUAL 0 )
+            message(STATUS "${LIBUSB_1_VERSION}")
+            set(LIBUSB_1_VERSION "0.0.0")
+            message(WARNING "\nFailed to compile (compiled=${LIBUSB_VERCHECK_COMPILED}) or run (retval=${LIBUSB_VERCHECK_RUN_RESULT}) libusb version check.\n"
+                             "This may occur if libusb is earlier than v1.0.10.\n"
+                             "Setting LIBUSB_1_VERSION to ${LIBUSB_1_VERSION}.\n")
+            return()
+        endif()
+
+        message(STATUS "libusb version: ${LIBUSB_1_VERSION}")
+    endif()
+endif(LIBUSB_1_FOUND AND NOT CMAKE_CROSSCOMPILING)
+

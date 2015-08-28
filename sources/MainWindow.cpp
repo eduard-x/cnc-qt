@@ -1166,6 +1166,10 @@ void MainWindow::moveToPoint(bool surfaceScan)
     int speed = 0;
     double posX, posY, posZ, posA;
 
+    if (cnc->isConnected() == false) {
+        return;
+    }
+
     if (surfaceScan == true) {
         speed = 200;
 
@@ -1251,18 +1255,6 @@ void MainWindow::onSendCommand()
 {
     SendSignal();
 }
-
-
-// to connect slider with spinbox
-// void MainWindow::trackBar1_Scroll()
-// {
-//
-//     //     spinBoxVelo->setValue( trackBar1->value());
-//
-//     //     SendSignal();
-//
-//     // cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), checkBox19.isChecked(), (int)spinBoxVelo->value());
-// }
 
 
 // void MainWindow::onLikePoint()
@@ -1602,6 +1594,9 @@ void  MainWindow::refreshElementsForms()
             //TODO: переделать алгоритм, иначе это изменение сбивает выделенный диапазон
             //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;
         }
+        
+        scene3d->Draw();
+        scene3d->updateGL();
     } else {
         toolRun->setEnabled( cncConnected);
         toolPause->setEnabled( cncConnected);

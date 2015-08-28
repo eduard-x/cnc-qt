@@ -33,6 +33,7 @@
 #define GLWIDGET_H
 
 #include <QtOpenGL>
+#include <QTimer>
 #include <QEvent>
 #include <QWidget>
 #include <QGLWidget>
@@ -68,13 +69,15 @@ class GLWidget : public QGLWidget
         ~GLWidget();
 
         void matrixReloaded();
-
+        void startAnimation();
+        void stopAnimation();
+  void Draw();
+  
     private:
-        void Draw();
-
         void initPreviewSettings();
+      
+        
         void normalizeAngle(int *angle);
-        //         void Init3D();
 
         void drawGrate();
         void drawInstrument();
@@ -145,6 +148,8 @@ class GLWidget : public QGLWidget
         pointGL *workArray; //
         colorGL *colorArray; //
         int workNum;
+        
+        QTimer aTimer;
 
         QPoint lastPos;
 };

@@ -230,7 +230,7 @@ void GLWidget::initializeGL()//Init3D()//*OK*
 
 void GLWidget::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     Draw();
 }
@@ -267,9 +267,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     } else if (event->buttons() & Qt::RightButton) {
         setXRotation(parent->PosAngleX + dy);
         setZRotation(parent->PosAngleZ + dx);
-
 #if 0
-
         if (dy > 0) {
             setXRotation(PosAngleX -= dx);
             //         setXRotation(--PosAngleX);
@@ -285,7 +283,6 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
             setXRotation(PosAngleY += dy);
             //    setXRotation(++PosAngleY);
         }
-
 #endif
     }
 
@@ -319,7 +316,6 @@ void GLWidget::Draw() // процедура отрисовки
     // ReSharper disable once PossibleLossOfFraction
 
     if (windowState() != Qt::WindowMinimized) {
-
         int p1 = width();
         int p2 = height();
 
@@ -372,6 +368,8 @@ void GLWidget::Draw() // процедура отрисовки
     glPopMatrix();
     // отрисовываем геометрию
     glFlush();
+    
+//     updateGL();
 }
 
 
@@ -562,6 +560,15 @@ void GLWidget::drawGrid()
     glEnd();
 }
 
+void GLWidget::startAnimation()
+{
+}
+
+
+void GLWidget::stopAnimation()
+{
+}
+
 
 void GLWidget::drawSurface()
 {
@@ -635,7 +642,11 @@ void GLWidget::drawInstrument()
     double startX = DeviceInfo::AxesX_PositionMM();
     double startY = DeviceInfo::AxesY_PositionMM();
     double startZ = DeviceInfo::AxesZ_PositionMM();
+    
+    glPushMatrix();
 
+    glEnableClientState(GL_VERTEX_ARRAY);
+      
     glColor3f(1.000f, 1.000f, 0.000f);
     glLineWidth(3);
 
@@ -643,6 +654,10 @@ void GLWidget::drawInstrument()
 
     glVertexPointer(3, GL_INT, 0, instrumentArray);
     glDrawArrays(GL_LINES, 0, 18);
+    
+    glDisableClientState(GL_VERTEX_ARRAY);  
+    
+    glPopMatrix();
 }
 
 

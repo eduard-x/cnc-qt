@@ -46,7 +46,6 @@ class ScanSurfaceDialog : public QDialog, public Ui::ScanSurfaceDialog,  public 
         Q_OBJECT
     public:
         ScanSurfaceDialog(QWidget *p = 0);
-        //         void threads();
 
     private slots:
         void onScan();
@@ -68,17 +67,12 @@ class ScanSurfaceDialog : public QDialog, public Ui::ScanSurfaceDialog,  public 
         void buttonPlusZDown();
         void buttonStop();
         void buttonMinusZDown();
-        //         void buttonMinusZUp();
 
     private:
         void translateDialog();
         void refreshDataGrid();
-        //         void loadMatrix();
-        //  void scanThreadDoWork();
 
     private:
-
-        //         DeviceInfo _deviceInfo;
 
         QTimer taskTimer;
         ScanThread *scanThread;
@@ -108,6 +102,7 @@ class ScanThread : public QThread
     public:
         ScanThread(QObject* p);
         void run();
+
     private:
         ScanSurfaceDialog* sParent;
         MainWindow *parent;

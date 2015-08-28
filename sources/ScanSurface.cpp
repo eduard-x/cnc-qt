@@ -40,7 +40,6 @@
 ** ScanSurfaceDialog
 */
 
-// class DeviceInfo;
 
 ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     : QDialog(p)
@@ -48,11 +47,6 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     setupUi(this);
 
     parent = static_cast<MainWindow*>(p);
-
-    //         _cnc = (parent->cnc);
-
-    //     _surfaceMatrix = &(this->parent->surfaceMatrix);
-    //     _deviceInfo = parent->cnc->devInfo;
 
     setStyleSheet(parent->programStyleSheet);
 
@@ -67,11 +61,11 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     indexMaxScanY = 0;
 
     scanThread = NULL;
-    
+
     numSpeed->setValue(200);
     numReturn->setValue(400);
 
-
+    //TODO: загрузить данные из существующей матрицы
     surfaceArr = parent->surfaceMatrix;
 
     sizeY = surfaceArr.count();
@@ -83,7 +77,6 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
 
     translateDialog();
 
-    //TODO: загрузить данные из существующей матрицы
     startOffsetX->setValue(DeviceInfo::AxesX_PositionMM());
     startOffsetY->setValue(DeviceInfo::AxesY_PositionMM());
     startOffsetZ->setValue(DeviceInfo::AxesZ_PositionMM());
@@ -125,7 +118,7 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     //     connect(toolButtonMove, SIGNAL(released()), this, SLOT(valueChanged()));
 
     label10->setText("");
-    
+
     adjustSize();
 }
 
@@ -146,18 +139,6 @@ void ScanSurfaceDialog::translateDialog()
 
     pushButtonScan->setText(translate(_SCAN));
 }
-
-
-// void ScanSurfaceDialog::loadMatrix()
-// {
-//     //TODO: загрузить данные из существующей матрицы
-//
-// //     startOffsetX->setValue(DeviceInfo::AxesX_PositionMM());
-// //     startOffsetY->setValue(DeviceInfo::AxesY_PositionMM());
-// //     startOffsetZ->setValue(DeviceInfo::AxesZ_PositionMM());
-//
-//     refreshDataGrid();
-// }
 
 
 void ScanSurfaceDialog::valueSpeedChanged(int n)
@@ -188,7 +169,7 @@ void ScanSurfaceDialog::writeDataGridHeader()
 
     double offsetX = startOffsetX->value();
     double offsetY = startOffsetY->value();
-    double offsetZ = startOffsetZ->value();
+    //     double offsetZ = startOffsetZ->value();
 
     // delta
     double stepX = deltaStepX->value();
@@ -233,6 +214,10 @@ void ScanSurfaceDialog::resizeDataGrid()
 
     for (int y = 0; y < sizeY; y++) {
         for (int x = 0; x < sizeX; x++) {
+            // init of coordinates: x, y, z, a
+            surfaceArr[y][x] = (dPoint) {
+                0.0, 0.0, 0.0, 0.0
+            };
             dataGridView->setItem(y, x, new QTableWidgetItem(""));
         }
     }
@@ -263,9 +248,9 @@ void ScanSurfaceDialog::refreshDataGrid()
         for (int x = 0; x < sizeX; x++) {
             surfaceArr[y][x].X = offsetX + (x * stepX);
             surfaceArr[y][x].Y = offsetX + (y * stepY);
-            surfaceArr[y][x].Z = offsetZ;
+            //             surfaceArr[y][x].Z = offsetZ;
 
-            dataGridView->item(y, x)->setText(QString().sprintf("Z %4.2f", surfaceArr[y][x].Z));
+            dataGridView->item(y, x)->setText(QString().sprintf("Z %4.2f", (surfaceArr[y][x].Z + offsetZ)));
 
             if (edit == true) {
                 dataGridView->item(y, x)->setFlags(Qt::ItemIsEditable);
@@ -351,16 +336,20 @@ void ScanSurfaceDialog::onTestScan()
     }
 
     if (scanThread->isRunning()) {
-        return;    //небудем вклиниваться если что....
+        return;    //не будем вклиниваться если что....
     }
 
     if (Scan) {
         return;
     }
 
+    if (parent->cnc->isConnected() == false) {
+        return;
+    }
+
     parent->cnc->packC0(0x01);  //вкл
 
-    parent->cnc->packD2((int)numSpeed->value(), (double)numReturn->value());      // + настройка отхода, и скорости
+    parent->cnc->packD2((int)numSpeed->value(), (double)numReturn->value());      // + настройка отхода и скорости
 
     parent->cnc->packC0(0x00); //выкл
 }
@@ -386,6 +375,10 @@ void ScanSurfaceDialog::onScan()
 
         if (scanThread->isRunning()) {
             return;    //пока ещё работает поток
+        }
+
+        if (parent->cnc->isConnected() == false) {
+            return;
         }
 
         pushButtonScan->setText(translate(_STOP_SCAN));
@@ -427,8 +420,6 @@ ScanThread::ScanThread(QObject* p)
 // TODO: при сканировании иногда заполняет сразу 2 ячейки в таблице?!?
 void ScanThread::run()
 {
-    //     mk1Controller *_cnc = sParent->parent->cnc;// = static_cast<MainWindow*>(parent);
-
     if (cnc->spindelMoveSpeed() != 0) {
         return;
     }
@@ -496,30 +487,17 @@ void ScanThread::run()
     }
 }
 
-#if 0
-void ScanSurfaceDialog::scanThreadDoWork()
-{
-    Scan = true;
-
-    // connect(scanThread, SIGNAL(resultReady(QString)), this, SLOT(handleResults(QString)));
-
-    //      scanThread->start();
-
-    ScanSurfaceDialog::theads();
-    //     }
-}
-#endif
-
 
 void ScanSurfaceDialog::onTimer1()
 {
     if ( selectedX == -1 && selectedY == -1) {
-        label10->setText("X: 000.000  Y: 000.000");
+        label10->setText(QString().sprintf("X: %4.2f Y: %4.2f", 0, 0));
         return;
     }
 
-    label10->setText("X: " + QString::number(surfaceArr[selectedY][selectedX].X) + "  Y: " + QString::number(surfaceArr[selectedY][selectedX].X));
+    label10->setText(QString().sprintf("X: %4.2f Y: %4.2f", surfaceArr[selectedY][selectedX].X, surfaceArr[selectedY][selectedX].Y));
 }
+
 
 // move to the point
 void ScanSurfaceDialog::buttonMove()
