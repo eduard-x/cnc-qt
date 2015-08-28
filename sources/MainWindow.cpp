@@ -725,7 +725,7 @@ void MainWindow::getScale(int s)
 
 void MainWindow::displayRotation()
 {
-    posAngleX->setText( QString::number(xAngle) + "°" );
+    posAngleX->setText( QString().sprintf("%d°", xAngle));
     posAngleY->setText( QString::number(yAngle) + "°" );
     posAngleZ->setText( QString::number(zAngle) + "°" );
 }
@@ -1594,7 +1594,7 @@ void  MainWindow::refreshElementsForms()
             //TODO: переделать алгоритм, иначе это изменение сбивает выделенный диапазон
             //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;
         }
-        
+
         scene3d->Draw();
         scene3d->updateGL();
     } else {

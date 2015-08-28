@@ -71,12 +71,12 @@ class GLWidget : public QGLWidget
         void matrixReloaded();
         void startAnimation();
         void stopAnimation();
-  void Draw();
-  
+        void Draw();
+
     private:
         void initPreviewSettings();
-      
-        
+
+
         void normalizeAngle(int *angle);
 
         void drawGrate();
@@ -148,7 +148,7 @@ class GLWidget : public QGLWidget
         pointGL *workArray; //
         colorGL *colorArray; //
         int workNum;
-        
+
         QTimer aTimer;
 
         QPoint lastPos;
