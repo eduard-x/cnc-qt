@@ -403,6 +403,14 @@ void GLWidget::drawAxes()
 
 void GLWidget::drawWorkField()
 {
+    if (workArray == NULL || colorArray == NULL) {
+        return;
+    }
+
+    if (workNum < 2) {
+        return;
+    }
+
     glPushMatrix();
 
     glEnable(GL_VERTEX_ARRAY);
