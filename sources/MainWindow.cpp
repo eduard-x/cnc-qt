@@ -726,8 +726,8 @@ void MainWindow::getScale(int s)
 void MainWindow::displayRotation()
 {
     posAngleX->setText( QString().sprintf("%d°", xAngle));
-    posAngleY->setText( QString::number(yAngle) + "°" );
-    posAngleZ->setText( QString::number(zAngle) + "°" );
+    posAngleY->setText( QString().sprintf("%d°", yAngle));
+    posAngleZ->setText( QString().sprintf("%d°", zAngle));
 }
 
 

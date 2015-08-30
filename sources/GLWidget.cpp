@@ -412,13 +412,14 @@ void GLWidget::drawActualLine()
 
 void GLWidget::drawWorkField()
 {
-#if 1
+#if 0
     glLineWidth(0.3f);
 
     glBegin(GL_LINE_STRIP);
 
-    int i = 0;
-    foreach (GCodeCommand vv, parent->GCodeList) {
+    //     int i = 0;
+    //     foreach (GCodeCommand vv, parent->GCodeList) {
+    for (int i = 0; i < workNum; i++) {
         glColor3fv((const GLfloat*) &colorArray[i]);
         glVertex3fv((const GLfloat*) &workArray[i]);
 #if 0
@@ -450,94 +451,39 @@ void GLWidget::drawWorkField()
         }
 
 #endif
-        i++;
+        //         i++;
     }
 
     glEnd();
 #else
 
-    if (parent->cached_lines.empty()) {
-        parent->cached_color.clear();
-        #pragma omp parallel
-        {
-            std::vector<Vec3f> local_cached_lines;
-            std::vector<Vec3f> local_cached_color;
-            #pragma omp for nowait
-
-            for(auto layer = parent->layers.begin() ; layer < parent->layers.end() ; ++layer) {
-                const double z = layer->first;
-                Vec2d prev(std::numeric_limits<double>::infinity(),
-                           std::numeric_limits<double>::infinity());
-                size_t i = local_cached_lines.size();
-
-                for(const Vec2d &p : layer->second) {
-                    if (p.x() == std::numeric_limits<double>::infinity()
-                            || prev.x() == std::numeric_limits<double>::infinity()) {
-                        prev = p;
-                        continue;
-                    }
-
-                    local_cached_lines.push_back(Vec3f(prev.x(), prev.y(), z));
-                    local_cached_lines.push_back(Vec3f(p.x(), p.y(), z));
-                    prev = p;
-                }
-
-                const float n = local_cached_lines.size() - i;
-
-                for(float k = 0.f ; i < local_cached_lines.size() ; ++i, ++k) {
-                    local_cached_color.push_back(Vec3f(k / n, k / n, k / n));
-                }
-            }
-
-            #pragma omp critical
-            {
-                parent->cached_lines.insert(parent->cached_lines.end(), local_cached_lines.begin(), local_cached_lines.end());
-                parent->cached_color.insert(parent->cached_color.end(), local_cached_color.begin(), local_cached_color.end());
-            }
-        }
-    }
+    glPushMatrix();
 
     glEnable(GL_VERTEX_ARRAY);
     glEnable(GL_COLOR_ARRAY);
     glDisable(GL_NORMAL_ARRAY);
     glDisable(GL_TEXTURE_COORD_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, parent->cached_lines.data());
-    glColorPointer(3, GL_FLOAT, 0, parent->cached_color.data());
-    glDrawArrays(GL_LINES, 0, parent->cached_lines.size());
 
-    glDisable(GL_COLOR_ARRAY);
-    glColor3ub(0, 0, 0xFF);
-    glEnable(GL_POINT_SMOOTH);
-    glPointSize(4.0);
+    glLineWidth(0.3f);
 
-    if (parent->cached_points.empty()) {
-        size_t n = 0;
-
-        for(const auto &layer : parent->layers) {
-            n += layer.second.size();
-        }
-
-        parent->cached_points.reserve(n);
-
-        for(const auto &layer : parent->layers) {
-            const double z = layer.first;
-
-            for(const Vec2d &p : layer.second) {
-                if (p.x() == std::numeric_limits<double>::infinity()) {
-                    continue;
-                }
-
-                parent->cached_points.push_back(Vec3f(p.x(), p.y(), z));
-            }
-        }
-    }
-
-    glVertexPointer(3, GL_FLOAT, 0, parent->cached_points.data());
-    glDrawArrays(GL_POINTS, 0, parent->cached_points.size());
-    glDisable(GL_POINT_SMOOTH);
-    glPointSize(1.0);
+    glVertexPointer(3, GL_FLOAT, 0, workArray);
+    glColorPointer(3, GL_FLOAT, 0, colorArray);
+    glDrawArrays(GL_LINE_STRIP, 0, workNum);
 
     glDisable(GL_VERTEX_ARRAY);
+    glDisable(GL_COLOR_ARRAY);
+    glEnable(GL_NORMAL_ARRAY);
+    glEnable(GL_TEXTURE_COORD_ARRAY);
+
+    // select with 3.0 the current cut of object
+    //     if (Task::StatusTask == Waiting) {
+    //     }
+    //     else{
+    //     }
+
+    glPopMatrix();
+
+
 #endif
 }
 
@@ -868,14 +814,14 @@ void GLWidget::restoreGLState()
 }
 
 
-
+#if 0
 void GLWidget::timerEvent(QTimerEvent *)
 {
     if (QApplication::mouseButtons() != 0) {
         return;
     }
 
-#if 0
+
     static bool scale_in = true;
 
     if (scale_in && PosZoom > 35.0f) {
@@ -914,7 +860,7 @@ void GLWidget::timerEvent(QTimerEvent *)
         }
     }
 
-#endif
-}
 
+}
+#endif
 

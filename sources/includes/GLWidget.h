@@ -33,7 +33,7 @@
 #define GLWIDGET_H
 
 #include <QtOpenGL>
-#include <QTimer>
+// #include <QTimer>
 #include <QEvent>
 #include <QWidget>
 #include <QGLWidget>
@@ -127,7 +127,7 @@ class GLWidget : public QGLWidget
         void resizeGL(int width, int height);
         void mousePressEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
-        void timerEvent(QTimerEvent *);
+        //         void timerEvent(QTimerEvent *);
         void wheelEvent(QWheelEvent *);
 
         void saveGLState();
@@ -149,7 +149,7 @@ class GLWidget : public QGLWidget
         colorGL *colorArray; //
         int workNum;
 
-        QTimer aTimer;
+        //         QTimer aTimer;
 
         QPoint lastPos;
 };
