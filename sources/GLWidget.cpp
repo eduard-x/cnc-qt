@@ -466,20 +466,32 @@ void GLWidget::drawWorkField()
 
     glLineWidth(0.3f);
 
-    glVertexPointer(3, GL_FLOAT, 0, workArray);
-    glColorPointer(3, GL_FLOAT, 0, colorArray);
+    glVertexPointer(3, GL_FLOAT, 0, &workArray[0]);
+    glColorPointer(3, GL_FLOAT, 0, &colorArray[0]);
     glDrawArrays(GL_LINE_STRIP, 0, workNum);
+
+    // select with 3.0 the current cut of object
+    if (Task::StatusTask == Waiting) {
+        int numSelectStart = Task::posCodeStart - 1;
+        int numSelectStop = Task::posCodeEnd - 1;
+        glLineWidth(3.0f);
+        glVertexPointer(3, GL_FLOAT, 0, &workArray[numSelectStart]);
+        glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelectStart]);
+        glDrawArrays(GL_LINE_STRIP, 0, numSelectStop - numSelectStart - 1);
+    } else {
+        int numSelect = parent->cnc->numberComleatedInstructions() - 1;
+        glLineWidth(3.0f);
+        glVertexPointer(3, GL_FLOAT, 0, &workArray[numSelect]);
+        glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect]);
+        glDrawArrays(GL_LINE_STRIP, 0, 2);
+    }
 
     glDisable(GL_VERTEX_ARRAY);
     glDisable(GL_COLOR_ARRAY);
     glEnable(GL_NORMAL_ARRAY);
     glEnable(GL_TEXTURE_COORD_ARRAY);
 
-    // select with 3.0 the current cut of object
-    //     if (Task::StatusTask == Waiting) {
-    //     }
-    //     else{
-    //     }
+
 
     glPopMatrix();
 
