@@ -370,8 +370,6 @@ void GLWidget::Draw() // процедура отрисовки
     glPopMatrix();
     // отрисовываем геометрию
     glFlush();
-
-    //     updateGL();
 }
 
 
@@ -403,60 +401,8 @@ void GLWidget::drawAxes()
 }
 
 
-void GLWidget::drawActualLine()
-{
-    int numSelect = parent->cnc->numberComleatedInstructions() + 1;
-
-}
-
-
 void GLWidget::drawWorkField()
 {
-#if 0
-    glLineWidth(0.3f);
-
-    glBegin(GL_LINE_STRIP);
-
-    //     int i = 0;
-    //     foreach (GCodeCommand vv, parent->GCodeList) {
-    for (int i = 0; i < workNum; i++) {
-        glColor3fv((const GLfloat*) &colorArray[i]);
-        glVertex3fv((const GLfloat*) &workArray[i]);
-#if 0
-
-        if (Task::StatusTask == Waiting) {
-            int numSelectStart = Task::posCodeStart - 1;
-            int numSelectStop = Task::posCodeEnd - 1;
-
-            if (vv.numberInstruct >= numSelectStart && vv.numberInstruct <= numSelectStop) {
-                glLineWidth(3.0f);
-                glVertex3fv((const GLfloat*) &workArray[i]);
-                glLineWidth(0.3f);
-            }
-        } else {
-            // Тут выделяется только одна линия из траектории
-            int numSelect = parent->cnc->numberComleatedInstructions() + 1;
-
-            if (vv.numberInstruct == (numSelect - 1)) {
-                glLineWidth(3.0f);
-                glVertex3fv((const GLfloat*) &workArray[i]);
-                glLineWidth(0.3f);
-            }
-
-            if (vv.numberInstruct == (numSelect)) {
-                glLineWidth(3.0f);
-                glVertex3fv((const GLfloat*) &workArray[i]);
-                glLineWidth(0.3f);
-            }
-        }
-
-#endif
-        //         i++;
-    }
-
-    glEnd();
-#else
-
     glPushMatrix();
 
     glEnable(GL_VERTEX_ARRAY);
@@ -491,12 +437,7 @@ void GLWidget::drawWorkField()
     glEnable(GL_NORMAL_ARRAY);
     glEnable(GL_TEXTURE_COORD_ARRAY);
 
-
-
     glPopMatrix();
-
-
-#endif
 }
 
 
@@ -518,15 +459,6 @@ void GLWidget::drawGrid()
     }
 
     glEnd();
-}
-
-void GLWidget::startAnimation()
-{
-}
-
-
-void GLWidget::stopAnimation()
-{
 }
 
 
@@ -824,55 +756,4 @@ void GLWidget::restoreGLState()
     glPopMatrix();
     glPopAttrib();
 }
-
-
-#if 0
-void GLWidget::timerEvent(QTimerEvent *)
-{
-    if (QApplication::mouseButtons() != 0) {
-        return;
-    }
-
-
-    static bool scale_in = true;
-
-    if (scale_in && PosZoom > 35.0f) {
-        scale_in = false;
-    } else if (!scale_in && PosZoom < .5f) {
-        scale_in = true;
-    }
-
-    PosZoom = scale_in ? PosZoom + PosZoom * 0.01f : PosZoom - PosZoom * 0.01f;
-    PosAngleZ += 0.3f;
-    PosAngleX += 0.1f;
-
-    int dx, dy; // disturbance point
-    float s, v, W, t;
-    int i, j;
-    static float wt[128][128];
-    const int width = logo.width();
-    const int AMP = 5;
-
-    dx = dy = width >> 1;
-
-    W = .3f;
-    v = -4; // wave speed
-
-    for (i = 0; i < width; ++i) {
-        for ( j = 0; j < width; ++j) {
-            s = sqrt((double) ((j - dx) * (j - dx) + (i - dy) * (i - dy)));
-            wt[i][j] += 0.1f;
-            t = s / v;
-
-            if (s != 0) {
-                wave[i * width + j] = AMP * sin(2 * PI * W * (wt[i][j] + t)) / (0.2 * (s + 2));
-            } else {
-                wave[i * width + j] = AMP * sin(2 * PI * W * (wt[i][j] + t));
-            }
-        }
-    }
-
-
-}
-#endif
 

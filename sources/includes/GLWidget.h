@@ -69,8 +69,6 @@ class GLWidget : public QGLWidget
         ~GLWidget();
 
         void matrixReloaded();
-        void startAnimation();
-        void stopAnimation();
         void Draw();
 
     private:
@@ -84,7 +82,6 @@ class GLWidget : public QGLWidget
         void drawSurface();
         void drawAxes();
         void drawWorkField();
-        void drawActualLine();
         void drawGrid();
 
     public slots:
@@ -127,7 +124,6 @@ class GLWidget : public QGLWidget
         void resizeGL(int width, int height);
         void mousePressEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
-        //         void timerEvent(QTimerEvent *);
         void wheelEvent(QWheelEvent *);
 
         void saveGLState();
@@ -148,8 +144,6 @@ class GLWidget : public QGLWidget
         pointGL *workArray; //
         colorGL *colorArray; //
         int workNum;
-
-        //         QTimer aTimer;
 
         QPoint lastPos;
 };
