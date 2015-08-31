@@ -466,7 +466,7 @@
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab1">
             <attribute name="title">
@@ -504,19 +504,6 @@
                <property name="sizeConstraint">
                 <enum>QLayout::SetMinimumSize</enum>
                </property>
-               <item>
-                <widget class="QLabel" name="labelRotat">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>Rotation</string>
-                 </property>
-                </widget>
-               </item>
                <item>
                 <widget class="QLabel" name="label_18">
                  <property name="sizePolicy">
@@ -560,7 +547,7 @@
                 <widget class="QPushButton" name="posAngleX">
                  <property name="minimumSize">
                   <size>
-                   <width>75</width>
+                   <width>60</width>
                    <height>25</height>
                   </size>
                  </property>
@@ -645,7 +632,7 @@
                 <widget class="QPushButton" name="posAngleY">
                  <property name="minimumSize">
                   <size>
-                   <width>75</width>
+                   <width>60</width>
                    <height>25</height>
                   </size>
                  </property>
@@ -735,7 +722,7 @@
                 <widget class="QPushButton" name="posAngleZ">
                  <property name="minimumSize">
                   <size>
-                   <width>75</width>
+                   <width>60</width>
                    <height>25</height>
                   </size>
                  </property>
@@ -772,6 +759,41 @@
                </item>
                <item>
                 <widget class="Line" name="line_3">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="labelFix">
+                 <property name="text">
+                  <string>Fix:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioFixX">
+                 <property name="text">
+                  <string>X</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioFixY">
+                 <property name="text">
+                  <string>Y</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioFixZ">
+                 <property name="text">
+                  <string>Z</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="Line" name="line_6">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
@@ -842,8 +864,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>740</width>
-                    <height>452</height>
+                    <width>743</width>
+                    <height>442</height>
                    </rect>
                   </property>
                  </widget>
@@ -1552,7 +1574,7 @@
      <x>0</x>
      <y>0</y>
      <width>974</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -45,24 +45,20 @@
 
 #define PI 3.14159265358979323846
 
-// #ifndef GL_MULTISAMPLE
-// #define GL_MULTISAMPLE  0x809D
-// #endif
 
-
-GLint GLWidget::xArray[][3] = {
+GLint GLWidget::xAxis[][3] = {
     {0, 0, 0}, {10, 0, 0}, {10, 0, 0},
     {9, 1, 0}, {10, 0, 0}, {9, -1, 0}
 };
 
 
-GLint GLWidget::yArray[][3] = {
+GLint GLWidget::yAxis[][3] = {
     {0, 0, 0}, {0, 10, 0}, {0, 10, 0},
     {1, 9, 0}, {0, 10, 0}, { -1, 9, 0}
 };
 
 
-GLint GLWidget::zArray[][3] = {
+GLint GLWidget::zAxis[][3] = {
     {0, 0, 0}, {0, 0, 10}, {0, 0, 10},
     {1, 1, 9}, {0, 0, 10}, { -1, -1, 9}
 };
@@ -85,7 +81,7 @@ GLWidget::GLWidget(QWidget *p)
         return;
     }
 
-    workArray = NULL;
+    coordArray = NULL;
     colorArray = NULL;
 
     parent = (MainWindow*)p;
@@ -105,9 +101,9 @@ void GLWidget::matrixReloaded()
 {
     workNum = 0;
 
-    if ( workArray != NULL) {
-        free(workArray);
-        workArray = NULL;
+    if ( coordArray != NULL) {
+        free(coordArray);
+        coordArray = NULL;
     }
 
     if ( colorArray != NULL) {
@@ -117,8 +113,8 @@ void GLWidget::matrixReloaded()
 
     workNum = parent->GCodeList.count();
 
-    if (workNum > 0) {
-        workArray = (pointGL*) malloc( sizeof(pointGL) * (workNum));
+    if (workNum > 1) {
+        coordArray = (pointGL*) malloc( sizeof(pointGL) * (workNum));
         colorArray = (colorGL*) malloc( sizeof(colorGL) * (workNum));
 
         int currWorkPoint = 0;
@@ -163,7 +159,7 @@ void GLWidget::matrixReloaded()
                 pointX, pointY, pointZ
             };
 
-            *(workArray + currWorkPoint) = p;
+            *(coordArray + currWorkPoint) = p;
             *(colorArray + currWorkPoint) = cl;
 
             currWorkPoint++;
@@ -186,7 +182,7 @@ void GLWidget::initPreviewSettings()
     parent->PosAngleX = 180;
     parent->PosAngleY = 180;
     parent->PosAngleZ = 180;
-    parent->PosZoom = 7;
+    parent->PosZoom = 25;
 
     parent->ShowInstrument = true;
     parent->ShowGrid = false;
@@ -220,6 +216,7 @@ void GLWidget::initializeGL()//Init3D()//*OK*
     glLoadIdentity();
 
     glScalef( 1, 1, -1 ); // negative z is top
+    //     glFrustum (-1, 1, -1, 1, 3, 15);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -265,32 +262,33 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
         setXCoord(parent->PosX += dx);
         setYCoord(parent->PosY -= dy);
     } else if (event->buttons() & Qt::RightButton) {
-        setXRotation(parent->PosAngleX + dy);
-        setZRotation(parent->PosAngleZ + dx);
-#if 0
+        switch (parent->fixedAxes) {
+            case FixY: {
+                setXRotation(parent->PosAngleX + dy);
+                setZRotation(parent->PosAngleZ + dx);
+                break;
+            }
 
-        if (dy > 0) {
-            setXRotation(PosAngleX -= dx);
-            //         setXRotation(--PosAngleX);
-        } else {
-            setXRotation(PosAngleX += dx);
-            //     setXRotation(++PosAngleX);
+            case FixX: {
+                setYRotation(parent->PosAngleY + dx);
+                setZRotation(parent->PosAngleZ + dy);
+                break;
+            }
+
+            case FixZ: {
+                setXRotation(parent->PosAngleX + dy);
+                setYRotation(parent->PosAngleY + dx);
+                break;
+            }
         }
-
-        if (dx > 0) {
-            setXRotation(PosAngleY -= dy);
-            //     setXRotation(--PosAngleY);
-        } else {
-            setXRotation(PosAngleY += dy);
-            //    setXRotation(++PosAngleY);
-        }
-
-#endif
     }
 
     lastPos = event->pos();
     updateGL();
 }
+
+
+#define GLSCALE 2000.0
 
 
 void GLWidget::Draw() // процедура отрисовки
@@ -304,7 +302,7 @@ void GLWidget::Draw() // процедура отрисовки
     glPushMatrix();                                           // помещаем состояние матрицы в стек матриц
 
     /// перемещаем камеру для более хорошего обзора объекта
-    glTranslated(parent->PosX / 1000.0, parent->PosY / 1000.0, parent->PosZ / 1000.0);
+    glTranslated(parent->PosX / GLSCALE, parent->PosY / GLSCALE, parent->PosZ / GLSCALE);
 
     ///угловое вращение
     glRotated(parent->PosAngleX, 1, 0, 0);
@@ -327,9 +325,9 @@ void GLWidget::Draw() // процедура отрисовки
             n = (p1 / p2);
         }
 
-        double scaleX = parent->PosZoom / (1000.0 * n);
-        double scaleY = parent->PosZoom / 1000.0;
-        double scaleZ = parent->PosZoom / 1000.0;
+        double scaleX = parent->PosZoom / (GLSCALE * n);
+        double scaleY = parent->PosZoom / GLSCALE;
+        double scaleZ = parent->PosZoom / GLSCALE;
 
         glScaled(scaleX, scaleY, scaleZ);
     }
@@ -381,19 +379,19 @@ void GLWidget::drawAxes()
 
     //ось x
     glColor3f(0.0f, 1.0f, 0.0f);
-    glVertexPointer(3, GL_INT, 0, xArray);
+    glVertexPointer(3, GL_INT, 0, xAxis);
     glDrawArrays(GL_LINES, 0, 6); //рисуем массив линий
     renderText(12.0, 0.0, 0.0, QString("X")); //координаты расположения текста
 
     //ось y
     glColor3f(1.0F, 0, 0.0F);
-    glVertexPointer(3, GL_INT, 0, yArray);
+    glVertexPointer(3, GL_INT, 0, yAxis);
     glDrawArrays(GL_LINES, 0, 6);
     renderText(0.0, 12.0, 0.0, QString("Y")); //координаты расположения текста
 
     //ось z
     glColor3f(0.0F, 0, 1.0F);
-    glVertexPointer(3, GL_INT, 0, zArray);
+    glVertexPointer(3, GL_INT, 0, zAxis);
     glDrawArrays(GL_LINES, 0, 6);
     renderText(0.0, 0.0, 12.0, QString("Z")); //координаты расположения текста
 
@@ -403,7 +401,7 @@ void GLWidget::drawAxes()
 
 void GLWidget::drawWorkField()
 {
-    if (workArray == NULL || colorArray == NULL) {
+    if (coordArray == NULL || colorArray == NULL) {
         return;
     }
 
@@ -420,7 +418,7 @@ void GLWidget::drawWorkField()
 
     glLineWidth(0.3f);
 
-    glVertexPointer(3, GL_FLOAT, 0, &workArray[0]);
+    glVertexPointer(3, GL_FLOAT, 0, &coordArray[0]);
     glColorPointer(3, GL_FLOAT, 0, &colorArray[0]);
     glDrawArrays(GL_LINE_STRIP, 0, workNum);
 
@@ -429,13 +427,13 @@ void GLWidget::drawWorkField()
         int numSelectStart = Task::posCodeStart - 1;
         int numSelectStop = Task::posCodeEnd - 1;
         glLineWidth(3.0f);
-        glVertexPointer(3, GL_FLOAT, 0, &workArray[numSelectStart]);
+        glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelectStart]);
         glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelectStart]);
         glDrawArrays(GL_LINE_STRIP, 0, numSelectStop - numSelectStart - 1);
     } else {
         int numSelect = parent->cnc->numberComleatedInstructions() - 1;
         glLineWidth(3.0f);
-        glVertexPointer(3, GL_FLOAT, 0, &workArray[numSelect]);
+        glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
         glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect]);
         glDrawArrays(GL_LINE_STRIP, 0, 2);
     }
@@ -563,7 +561,7 @@ void GLWidget::drawInstrument()
 
 void GLWidget::drawGrate()
 {
-    //отобразим лишь 4 линии
+    //
     glLineWidth(4.0f);
 
     glColor3f(0.541f, 0.169f, 0.886f);
@@ -595,25 +593,15 @@ void GLWidget::normalizeAngle(int *angle)
 // from slider
 void GLWidget::setXCoord(int x)
 {
-    //     normalizeAngle(&angle);
-
-    //     if (angle != PosAngleX) {
     parent->PosX = x;
-    //         emit xRotationChanged(angle);
     updateGL();
-    //     }
 }
 
 
 void GLWidget::setYCoord(int y)
 {
-    //     normalizeAngle(&angle);
-
-    //     if (angle != PosAngleY) {
     parent->PosY = y;
-    //         emit yRotationChanged(angle);
     updateGL();
-    //     }
 }
 
 

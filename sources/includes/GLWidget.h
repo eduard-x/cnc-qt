@@ -137,11 +137,11 @@ class GLWidget : public QGLWidget
     private:
         MainWindow* parent;
         static GLint instrumentArray[][3];
-        static GLint xArray[][3];
-        static GLint yArray[][3];
-        static GLint zArray[][3];
+        static GLint xAxis[][3];
+        static GLint yAxis[][3];
+        static GLint zAxis[][3];
 
-        pointGL *workArray; //
+        pointGL *coordArray; //
         colorGL *colorArray; //
         int workNum;
 

@@ -93,6 +93,8 @@ class MessageBox: public cTranslator
 //
 enum EStatusTask { Waiting = 0, TaskStart, TaskWorking, TaskPaused, TaskStop };
 
+enum AxesFix { FixX = 0, FixY, FixZ };
+
 //
 enum KeyPad { NoManuaControl = -1, NumPad = 0, CursorPad, UserDefined };
 
@@ -167,6 +169,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         double deltaZ;
         double koeffSizeX;
         double koeffSizeY;
+        int  fixedAxes;
         bool deltaFeed;
 
 
@@ -218,6 +221,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 
         void onOpenFile();
         void onSaveFile();
+
+        void onChangeFix(bool b);
 
         void onSettings();
         void onLogClear();

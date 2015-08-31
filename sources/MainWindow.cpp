@@ -394,9 +394,48 @@ void MainWindow::addConnections()
     connect(pushDefaultPreview, SIGNAL(clicked()), scene3d, SLOT(onDefaulPreview()));
     // end of 3d buttons
 
+    connect(radioFixX, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
+    connect(radioFixY, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
+    connect(radioFixZ, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
+
+    radioFixY->setChecked(true);
+
     onCncHotplug();
 }
 
+
+void MainWindow::onChangeFix(bool checked)
+{
+
+    QRadioButton* b  = static_cast<QRadioButton*>(sender());
+
+    disconnect(radioFixX, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
+    disconnect(radioFixY, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
+    disconnect(radioFixZ, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
+
+    if (b == radioFixX) {
+        fixedAxes = FixX;
+        radioFixY->setChecked(false);
+        radioFixZ->setChecked(false);
+    }
+
+    if (b == radioFixY) {
+        fixedAxes = FixY;
+        radioFixX->setChecked(false);
+        radioFixZ->setChecked(false);
+    }
+
+    if (b == radioFixZ) {
+        fixedAxes = FixZ;
+        radioFixX->setChecked(false);
+        radioFixY->setChecked(false);
+    }
+
+    connect(radioFixX, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
+    connect(radioFixY, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
+    connect(radioFixZ, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
+
+}
 
 bool MainWindow::readLangDir()
 {
@@ -821,7 +860,7 @@ void MainWindow::translateGUI()
 
     labelVelo->setText(translate(_VELO));
 
-    labelRotat->setText(translate(_ROTATION));
+    //     labelRotat->setText(translate(_ROTATION));
 
     labelMinX->setText(translate(_MIN));
     labelMaxX->setText(translate(_MAX));
