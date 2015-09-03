@@ -117,6 +117,9 @@ enum typeFileLoad {
     GCODE,
     PLT,
     DRL,
+    SVG,
+    EPS,
+    DXF,
     GBR
 };
 
@@ -310,6 +313,9 @@ class Reader : public cTranslator
         bool readGCode( const QByteArray &gcode );
         void readGBR( const QByteArray &gcode );
         void readDRL( const QByteArray &gcode );
+        void readDXF( const QByteArray &gcode );
+        void readSVG( const QByteArray &gcode );
+        void readEPS( const QByteArray &gcode );
         void readPLT( const QByteArray &gcode );
         void lock() const;
         void unlock() const;

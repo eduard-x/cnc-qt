@@ -97,6 +97,26 @@ GLWidget::~GLWidget()
 }
 
 
+void GLWidget::surfaceReloaded()
+{
+    for (int i = 0; i < workNum; i++) {
+        if (parent->deltaFeed) {
+            pointGL p;
+            double pointX = parent->GCodeList.at(i).X;
+            double pointY = parent->GCodeList.at(i).Y;
+            double pointZ = parent->GCodeList.at(i).Z;
+            pointZ += parent->GetDeltaZ(pointX, pointY);
+
+            p = (pointGL) {
+                pointX, pointY, pointZ
+            };
+
+            *(coordArray + i) = p;
+        }
+    }
+}
+
+
 void GLWidget::matrixReloaded()
 {
     workNum = 0;

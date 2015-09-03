@@ -174,6 +174,7 @@ void GerberData::CalculateGatePoints(int _accuracy)
 Reader::Reader()
     : mutex(QMutex::Recursive)
 {
+    TypeFile = None;
 }
 
 
@@ -206,8 +207,6 @@ void Reader::readFile(const QString &fileName)
     toDecimalPoint = (n.indexOf(",") > 0) ? ',' : '.';
     fromDecimalPoint = (toDecimalPoint == ',') ? '.' : ',';
 
-    QString ext = fileName.mid(pointPos + 1).toUpper();
-
     QFile file(fileName);
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     qint64 sz = file.size();
@@ -217,32 +216,56 @@ void Reader::readFile(const QString &fileName)
     }
 
     const QByteArray arr = file.readAll();
+    QByteArray detectArray = arr.left(255); // first 255 bytes for format detection
 
     file.close();
 
     TypeFile = None;
 
-    //     if ( ext == "GCODE" || ext == "NC") {
-    readGCode(arr);
-    TypeFile = GCODE;
-    //     }
+    if ((detectArray.indexOf("G90") >= 0) || (detectArray.indexOf("G91") >= 0)) { // G-Code program detect
+        TypeFile == GCODE;
+        readGCode(arr);
+        return;
+    }
 
-    if ( ext == "PLT") {
-        readPLT(arr);
+    if ( detectArray.indexOf("IN1;") >= 0 ) { // plotter format
         TypeFile = PLT;
+        readPLT(arr);
+        return;
     }
 
-    if ( ext == "DRL") { // excellon
-        readDRL(arr);
+    if ( detectArray.indexOf("<svg") >= 0 ) { // svg
+        TypeFile = SVG;
+        readSVG(arr);
+        return;
+    }
+
+    if ( detectArray.indexOf("") >= 0 ) { // eps
+        TypeFile = EPS;
+        readEPS(arr);
+        return;
+    }
+
+    if ( detectArray.indexOf("") >= 0 ) { // polylines
+        TypeFile = DXF;
+        readDXF(arr);
+        return;
+    }
+
+    if ( detectArray.indexOf("") >= 0 ) { // excellon
         TypeFile = DRL;
+        readDRL(arr);
+        return;
     }
 
-    if ( ext == "GBR" || ext == "PLC" || ext == "CMP", ext == "SOL") { // gerber
-        readGBR(arr);
+    if ((detectArray.indexOf("G04 ") >= 0) && (detectArray.indexOf("%MOMM*%") > 0 || detectArray.indexOf("%MOIN*%") > 0) ) { // extended gerber
         TypeFile = GBR;
+        readGBR(arr);
+        return;
     }
 
     if (TypeFile == None) { // error
+        // qmessagebox
     }
 }
 
@@ -1183,6 +1206,20 @@ void Reader::readPLT( const QByteArray &arr )
 
 }
 
+
+void Reader::readSVG( const QByteArray &arr)
+{
+}
+
+
+void Reader::readEPS( const QByteArray &arr)
+{
+}
+
+
+void Reader::readDXF( const QByteArray &arr)
+{
+}
 
 
 void Reader::readDRL( const QByteArray &arr)

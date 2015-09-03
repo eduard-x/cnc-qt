@@ -69,6 +69,7 @@ class GLWidget : public QGLWidget
         ~GLWidget();
 
         void matrixReloaded();
+        void surfaceReloaded();
         void Draw();
 
     private:
@@ -141,6 +142,7 @@ class GLWidget : public QGLWidget
         static GLint yAxis[][3];
         static GLint zAxis[][3];
 
+        pointGL *surfaceArray; //
         pointGL *coordArray; //
         colorGL *colorArray; //
         int workNum;

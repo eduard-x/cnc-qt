@@ -75,6 +75,11 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
         sizeX = surfaceArr[0].count();
     }
 
+    // ruled is th old
+    // hermite and cubic are new
+    QStringList ls = (QStringList() << "Ruled" << "Hermite-Spline" << "Quadric");
+    comboZ->addItems(ls);
+
     translateDialog();
 
     startOffsetX->setValue(DeviceInfo::AxesX_PositionMM());
