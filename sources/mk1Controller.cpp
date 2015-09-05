@@ -34,8 +34,9 @@
 
 #include "includes/mk1Controller.h"
 
+#include <QString>
 
-
+using namespace std;
 /******************************************************************************
 ** mk1Controller
 */
@@ -78,11 +79,14 @@ libusb_hotplug_callback_handle mk1Controller::hotplug[2];
 
 libusb_device_descriptor BinaryData::desc = {0};
 
+QString mk1Controller::devDescriptor;
+
 
 static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
 {
 
     int rc;
+    QString descrStr;
 
     //     struct libusb_device_descriptor desc;
 
@@ -112,6 +116,50 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
         return -1;
     }
 
+    // get device descriptor
+    descrStr = QString().sprintf("VendorID: 0x%x ProductID: 0x%x\n\n", mk1Controller::desc.idVendor,  mk1Controller::desc.idProduct);
+    descrStr += QString().sprintf("Number of possible configurations: %d\n", mk1Controller::desc.bNumConfigurations);
+    descrStr += QString().sprintf("Device Class: %d\n\n", mk1Controller::desc.bDeviceClass);
+
+    libusb_config_descriptor *config;
+    libusb_get_config_descriptor(dev, 0, &config);
+    descrStr += QString().sprintf("Interfaces: %d\n\n", config->bNumInterfaces);
+    const libusb_interface *inter;
+    const libusb_interface_descriptor *interdesc;
+    const libusb_endpoint_descriptor *epdesc;
+
+    for(int i = 0; i < (int)config->bNumInterfaces; i++) {
+        inter = &config->interface[i];
+        descrStr += QString().sprintf("Number of alternate settings: %d", inter->num_altsetting);
+
+        for(int j = 0; j < inter->num_altsetting; j++) {
+            interdesc = &inter->altsetting[j];
+            descrStr += QString().sprintf("\nInterface Number: %d\n", interdesc->bInterfaceNumber);
+            descrStr += QString().sprintf("Number of endpoints: %d\n", interdesc->bNumEndpoints);
+            descrStr += QString().sprintf("Alternate Setting: %d\n", interdesc->bAlternateSetting);
+            descrStr += QString().sprintf("Interface Class: %d\n", interdesc->bInterfaceClass);
+            descrStr += QString().sprintf("Interface SubClass: %d\n", interdesc->bInterfaceSubClass);
+            descrStr += QString().sprintf("Interface: %d\n", interdesc->iInterface);
+
+            for(int k = 0; k < (int)interdesc->bNumEndpoints; k++) {
+                epdesc = &interdesc->endpoint[k];
+                descrStr += QString().sprintf("\nDescriptor Type: %d\n", epdesc->bDescriptorType);
+                descrStr += QString().sprintf("Endpoint Address: %d\n", epdesc->bEndpointAddress);
+                descrStr += QString().sprintf("Attributes: %d\n", epdesc->bmAttributes);
+                descrStr += QString().sprintf("MaxPacketSize: %d\n", epdesc->wMaxPacketSize);
+                descrStr += QString().sprintf("Interval: %d\n", epdesc->bInterval);
+                descrStr += QString().sprintf("Refresh: %d\n", epdesc->bRefresh);
+                descrStr += QString().sprintf("SynchAddress: %d\n", epdesc->bSynchAddress);
+            }
+        }
+    }
+
+    //     qDebug() << descrStr;
+
+    libusb_free_config_descriptor(config);
+
+    mk1Controller::setDescription(descrStr);
+    // end of get device descriptor
 
 #ifdef __linux__
 
@@ -175,6 +223,8 @@ static int LIBUSB_CALL hotplug_callback_detach(libusb_context *ctx, libusb_devic
     }
 
     mk1Controller::handle = 0;
+
+    mk1Controller::resetDescription();
 
     //     emit mk1Controller::wasDisconnected();
 
@@ -299,6 +349,25 @@ mk1Controller::~mk1Controller()
     }
 
     libusb_exit(0);
+}
+
+
+void mk1Controller::resetDescription()
+{
+    devDescriptor.clear();
+}
+
+
+QString mk1Controller::getDescription()
+{
+    return devDescriptor;
+}
+
+
+void mk1Controller::setDescription(const QString &c)
+{
+    devDescriptor = c;
+    //     devDescriptor = st.split("\n");
 }
 
 

@@ -398,9 +398,23 @@ void MainWindow::addConnections()
     connect(radioFixY, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
     connect(radioFixZ, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
 
+    connect(actionInfo, SIGNAL(triggered()), this, SLOT(onDeviceInfo()));
+
     radioFixY->setChecked(true);
 
     onCncHotplug();
+}
+
+
+void MainWindow::onDeviceInfo()
+{
+    QDialog *gamatosdialog = new QDialog(this);
+    gamatosdialog->setWindowTitle("Device information");
+    QLabel *label = new QLabel(cnc->getDescription());
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(label);
+    gamatosdialog->setLayout(mainLayout);
+    gamatosdialog->exec();
 }
 
 

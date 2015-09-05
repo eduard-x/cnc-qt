@@ -224,6 +224,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 
         void onChangeFix(bool b);
 
+        void onDeviceInfo();
+
         void onSettings();
         void onLogClear();
 

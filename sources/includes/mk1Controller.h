@@ -39,6 +39,7 @@
 
 #include <QSettings>
 #include <QObject>
+#include <QStringList>
 #include <QByteArray>
 #include <QThread>
 #include <QIODevice>
@@ -209,6 +210,8 @@ class mk1Controller : public QObject, public BinaryData
 
         usbHotplugThread *hotplugThread;
 
+        static QString devDescriptor;
+
         //
         // Поток для получения, посылки данных в контроллер
         usbReadThread *readThread;
@@ -233,6 +236,10 @@ class mk1Controller : public QObject, public BinaryData
         void deviceNewPosition(int x, int y, int z, int a = 0);
         void deviceNewPosition(double x, double y, double z, double a = 0.0);
         void startManualMove(QString x, QString y, QString z, QString a, int speed);
+
+        QString getDescription();
+        static void setDescription(const QString &s);
+        static void resetDescription();
 
         void loadSettings();
         void saveSettings();
