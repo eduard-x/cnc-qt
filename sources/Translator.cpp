@@ -201,6 +201,8 @@ QString cTranslator::engText[] = {
     "button",
     "press button",
     "To set user defined keys push the direction button and after this push the key on you keyboard",
+    "Algorithmus Z",
+    "Grid, mm",
     ""
 };
 

@@ -6,7 +6,7 @@ CMAKE_POLICY(SET CMP0003 OLD)
 CMAKE_POLICY(SET CMP0015 OLD)
 
 # if you use the version 5, please change it to 5
-SET(USE_QT_VERSION 4)
+SET(USE_QT_VERSION 5)
 
 MESSAGE("Qt version for compiling: " ${USE_QT_VERSION})
 

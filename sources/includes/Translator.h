@@ -133,8 +133,7 @@ enum TR_CONSTS {
     _BASIC,  // 77
     _RESET, // 78
     _MAXIMUM, // 79
-    _MINIMUM, // 80labelNumPad-> picture of numpad
-
+    _MINIMUM, // 80
     _DISPLAY_RANG, // 81
     _ADDITIONAL_3D, // 82
     _SETTINGS3D_TITLE, // 83
@@ -209,6 +208,8 @@ enum TR_CONSTS {
     _BUTTON, // 152
     _PRESS_BUTTON, // 153
     _USEDEF_TEXT, // 154
+    _ALGORITHM_Z, // 155
+    _GRID, // 156
     _NULL
 };
 

@@ -75,10 +75,12 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
         sizeX = surfaceArr[0].count();
     }
 
-    // ruled is th old
+    // ruled is the old
     // hermite and cubic are new
     QStringList ls = (QStringList() << "Ruled" << "Hermite-Spline" << "Quadric");
     comboZ->addItems(ls);
+    
+    comboGrid->addItems((QStringList() << "10" << "5" << "3" << "2" << "1"));
 
     translateDialog();
 
@@ -139,7 +141,8 @@ void ScanSurfaceDialog::translateDialog()
     checkBoxViewOnly->setText(translate(_VIEW_ONLY));
     labelVelo->setText(translate(_VELOSCAN));
     labelRet->setText(translate(_RET_MM));
-
+    groupBoxZ->setTitle(translate(_ALGORITHM_Z));
+    labelGrid->setText(translate(_GRID));
     pushButtonTest->setText(translate(_TEST_SCAN));
 
     pushButtonScan->setText(translate(_SCAN));
