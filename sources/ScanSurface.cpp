@@ -79,7 +79,7 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     // hermite and cubic are new
     QStringList ls = (QStringList() << "Ruled" << "Hermite-Spline" << "Quadric");
     comboZ->addItems(ls);
-    
+
     comboGrid->addItems((QStringList() << "10" << "5" << "3" << "2" << "1"));
 
     translateDialog();
@@ -175,13 +175,13 @@ void ScanSurfaceDialog::writeDataGridHeader()
         return;
     }
 
-    double offsetX = startOffsetX->value();
-    double offsetY = startOffsetY->value();
-    //     double offsetZ = startOffsetZ->value();
+    float offsetX = startOffsetX->value();
+    float offsetY = startOffsetY->value();
+    //     float offsetZ = startOffsetZ->value();
 
     // delta
-    double stepX = deltaStepX->value();
-    double stepY = deltaStepY->value();
+    float stepX = deltaStepX->value();
+    float stepY = deltaStepY->value();
 
     QStringList xLabels, yLabels;
 
@@ -243,12 +243,12 @@ void ScanSurfaceDialog::valueChanged()
 void ScanSurfaceDialog::refreshDataGrid()
 {
     //наполним массив
-    double offsetX = startOffsetX->value();
-    double offsetY = startOffsetY->value();
-    double offsetZ = startOffsetZ->value();
+    float offsetX = startOffsetX->value();
+    float offsetY = startOffsetY->value();
+    float offsetZ = startOffsetZ->value();
 
-    double stepX = deltaStepX->value();
-    double stepY = deltaStepY->value();
+    float stepX = deltaStepX->value();
+    float stepY = deltaStepY->value();
 
     bool edit = !(checkBoxViewOnly->isChecked());
 
@@ -329,7 +329,7 @@ void ScanSurfaceDialog::itemChanged( QTableWidgetItem * item)
 
     QString ss = dataGridView->item(y, x)->text();
     bool res;
-    double val = ss.replace(".", ",").toDouble(&res);
+    float val = ss.replace(".", ",").toDouble(&res);
 
     if (res == true) {
         surfaceArr[y][x].Z = val;
@@ -357,7 +357,7 @@ void ScanSurfaceDialog::onTestScan()
 
     parent->cnc->packC0(0x01);  //вкл
 
-    parent->cnc->packD2((int)numSpeed->value(), (double)numReturn->value());      // + настройка отхода и скорости
+    parent->cnc->packD2((int)numSpeed->value(), (float)numReturn->value());      // + настройка отхода и скорости
 
     parent->cnc->packC0(0x00); //выкл
 }
@@ -433,13 +433,13 @@ void ScanThread::run()
     }
 
     //координаты куда передвинуться
-    //double px = dataCode.Matrix[indexScanY].X[indexScanX].X;
-    double px = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].X;
-    //double pz = dataCode.Matrix[indexScanY].X[indexScanX].Z;
-    double pz = sParent->startOffsetZ->value();
-    //double py = dataCode.Matrix[indexScanY].Y;
-    double py = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Y;
-    double pa = 0;//sParent->numPosA->value();
+    //float px = dataCode.Matrix[indexScanY].X[indexScanX].X;
+    float px = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].X;
+    //float pz = dataCode.Matrix[indexScanY].X[indexScanX].Z;
+    float pz = sParent->startOffsetZ->value();
+    //float py = dataCode.Matrix[indexScanY].Y;
+    float py = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Y;
+    float pa = 0;//sParent->numPosA->value();
 
     //спозиционируемся
     cnc->packCA(DeviceInfo::CalcPosPulse("X", px), DeviceInfo::CalcPosPulse("Y", py), DeviceInfo::CalcPosPulse("Z", pz),  DeviceInfo::CalcPosPulse("A", pa), (int)sParent->numSpeed->value(), 0);
@@ -463,11 +463,11 @@ void ScanThread::run()
 
     sleep(300);
     //dataCode.Matrix[indexScanY].X[indexScanX].Z = DeviceInfo::AxesZ_PositionMM;
-    sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (double)DeviceInfo::AxesZ_PositionMM();
+    sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (float)DeviceInfo::AxesZ_PositionMM();
 
     cnc->packC0(0x01); //вкл
 
-    cnc->packD2((int)sParent->numSpeed->value(), (double)sParent->numReturn->value()); // + настройка отхода, и скорости
+    cnc->packD2((int)sParent->numSpeed->value(), (float)sParent->numReturn->value()); // + настройка отхода, и скорости
 
     cnc->packC0(0x00);//выкл
 

@@ -1136,10 +1136,10 @@ bool MainWindow::runCommand()
         MessageBox::exec(this, translate(_PAUSE), msg.arg(QString::number(gcodeNow.numberInstrument)).arg(QString::number(gcodeNow.diametr)), QMessageBox::Information);
     }
 
-    double pointX = gcodeNow.X;
-    double pointY = gcodeNow.Y;
-    double pointZ = gcodeNow.Z;
-    double pointA = gcodeNow.A;
+    float pointX = gcodeNow.X;
+    float pointY = gcodeNow.Y;
+    float pointZ = gcodeNow.Z;
+    float pointA = gcodeNow.A;
 
     //добавление смещения G-кода
     if (Correction) {
@@ -1217,7 +1217,7 @@ void MainWindow::onStatus()
 void MainWindow::moveToPoint(bool surfaceScan)
 {
     int speed = 0;
-    double posX, posY, posZ, posA;
+    float posX, posY, posZ, posA;
 
     if (cnc->isConnected() == false) {
         return;
@@ -1343,7 +1343,94 @@ void MainWindow::onGeneratorCode()
 }
 
 
-double MainWindow::GetDeltaZ(double _x, double _y)
+
+// source:
+// http://blog.demofox.org/2015/08/09/cubic-hermite-rectangles/
+// http://blog.demofox.org/2015/08/08/cubic-hermite-interpolation/
+
+const Vec4f c_ControlPointsX[][4] = {
+    //     {
+    { 0.7, 0.8, 0.9, 0.3 },
+    { 0.2, 0.5, 0.4, 0.1 },
+    { 0.6, 0.3, 0.1, 0.4 },
+    { 0.8, 0.4, 0.2, 0.7 },
+    //     }
+};
+
+
+const Vec4f c_ControlPointsY[][4] = {
+    //     {
+    { 0.2f, 0.8f, 0.5f, 0.6f },
+    { 0.6f, 0.9f, 0.3f, 0.8f },
+    { 0.7f, 0.1f, 0.4f, 0.9f },
+    { 0.6f, 0.5f, 0.3f, 0.2f },
+    //     }
+};
+
+
+const Vec4f c_ControlPointsZ[][4] = {
+    //     {
+    { 0.6f, 0.5f, 0.3f, 0.2f },
+    { 0.7f, 0.1f, 0.9f, 0.5f },
+    { 0.8f, 0.4f, 0.2f, 0.7f },
+    { 0.6f, 0.3f, 0.1f, 0.4f },
+    //     }
+};
+
+
+// t is a value that goes from 0 to 1 to interpolate in a C1 continuous way across uniformly sampled data points.
+// when t is 0, this will return p[1].  When t is 1, this will return p[2].
+// p[0] and p[3] are used to calculate slopes at the edges.
+float MainWindow::CubicHermite(const Vec4f& p, float t)
+{
+    float a = -p[0] / 2.0f + (3.0f * p[1]) / 2.0f - (3.0f * p[2]) / 2.0f + p[3] / 2.0f;
+    float b = p[0] - (5.0f * p[1]) / 2.0f + 2.0f * p[2] - p[3] / 2.0f;
+    float c = -p[0] / 2.0f + p[2] / 2.0f;
+    float d = p[1];
+
+    return a * t * t * t + b * t * t + c * t + d;
+}
+
+
+float MainWindow::BicubicHermitePatch(const Vec4f& p, float u, float v)
+{
+    Vec4f uValues;
+    uValues[0] = CubicHermite(p[0], u);
+    uValues[1] = CubicHermite(p[1], u);
+    uValues[2] = CubicHermite(p[2], u);
+    uValues[3] = CubicHermite(p[2], u);
+    return CubicHermite(uValues, v);
+}
+
+
+bool MainWindow::gernerateBicubicHermiteField()
+{
+    // how many values to display on each axis. Limited by console resolution!
+    const int c_numValues = 4;
+
+    //     printf("Cubic Hermite rectangle:\n");
+    for (int i = 0; i < c_numValues; ++i) {
+        float iPercent = ((float)i) / ((float)(c_numValues - 1));
+
+        for (int j = 0; j < c_numValues; ++j) {
+            //             if (j == 0)
+            //                 printf("  ");
+            float jPercent = ((float)j) / ((float)(c_numValues - 1));
+            //             float valueX = BicubicHermitePatch(c_ControlPointsX, jPercent, iPercent);
+            //             float valueY = BicubicHermitePatch(c_ControlPointsY, jPercent, iPercent);
+            //             float valueZ = BicubicHermitePatch(c_ControlPointsZ, jPercent, iPercent);
+            //             printf("(%0.2f, %0.2f, %0.2f) ", valueX, valueY, valueZ);
+        }
+
+        //         printf("\n");
+    }
+
+    //     printf("\n");
+    return true;
+}
+
+
+float MainWindow::GetDeltaZ(float _x, float _y)
 {
     //точка которую нужно отобразить
     dPoint pResult = {_x, _y, 0.0, 0.0}; //new dobPoint(_x, _y, 0);

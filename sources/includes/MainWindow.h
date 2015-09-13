@@ -147,7 +147,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         MainWindow(QWidget *parent = 0);
         ~MainWindow();
 
-        double GetDeltaZ(double _x, double _y);
+        float GetDeltaZ(float _x, float _y);
+        float CubicHermite(const Vec4f& p, float t);
+        float BicubicHermitePatch(const Vec4f& p, float u, float v);
+        bool gernerateBicubicHermiteField();
         void moveToPoint(bool surfaceScan = false);
 
     public:
@@ -164,11 +167,11 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         // Для использования, корректировки положения
         // Необходимость применения корректировки данных
         bool Correction;
-        double deltaX;
-        double deltaY;
-        double deltaZ;
-        double koeffSizeX;
-        double koeffSizeY;
+        float deltaX;
+        float deltaY;
+        float deltaZ;
+        float koeffSizeX;
+        float koeffSizeY;
         int  fixedAxes;
         bool deltaFeed;
 
@@ -186,10 +189,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 
         // 3d Settings
         bool ShowGrate;
-        double grateXmin;
-        double grateXmax;
-        double grateYmin;
-        double grateYmax;
+        float grateXmin;
+        float grateXmax;
+        float grateYmin;
+        float grateYmax;
 
         int PosX, PosY, PosZ;
         int PosAngleX, PosAngleY, PosAngleZ;

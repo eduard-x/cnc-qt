@@ -35,10 +35,10 @@
 
 
 struct dPoint {
-    double X;       // координата в мм
-    double Y;       // координата в мм
-    double Z;       // координата в мм
-    double A;       // угол в °, angle
+    float X;       // координата в мм
+    float Y;       // координата в мм
+    float Z;       // координата в мм
+    float A;       // угол в °, angle
 };
 
 

@@ -102,9 +102,9 @@ void GLWidget::surfaceReloaded()
     for (int i = 0; i < workNum; i++) {
         if (parent->deltaFeed) {
             pointGL p;
-            double pointX = parent->GCodeList.at(i).X;
-            double pointY = parent->GCodeList.at(i).Y;
-            double pointZ = parent->GCodeList.at(i).Z;
+            float pointX = parent->GCodeList.at(i).X;
+            float pointY = parent->GCodeList.at(i).Y;
+            float pointZ = parent->GCodeList.at(i).Z;
             pointZ += parent->GetDeltaZ(pointX, pointY);
 
             p = (pointGL) {
@@ -154,9 +154,9 @@ void GLWidget::matrixReloaded()
 
             pointGL p;
             //координаты следующей точки
-            double pointX = vv.X;
-            double pointY = vv.Y;
-            double pointZ = vv.Z;
+            float pointX = vv.X;
+            float pointY = vv.Y;
+            float pointZ = vv.Z;
 
             //добавление смещения G-кода
             if (parent->Correction) {
@@ -269,6 +269,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 void GLWidget::wheelEvent(QWheelEvent *e)
 {
     e->delta() > 0 ? parent->PosZoom++ : parent->PosZoom--;
+
+    e->setAccepted(true);
     updateGL();
 }
 
@@ -304,6 +306,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     }
 
     lastPos = event->pos();
+
+    event->setAccepted(true);
     updateGL();
 }
 
@@ -339,15 +343,15 @@ void GLWidget::Draw() // процедура отрисовки
         int p1 = width();
         int p2 = height();
 
-        double n = 1;
+        float n = 1;
 
         if (p2 < p1) {
             n = (p1 / p2);
         }
 
-        double scaleX = parent->PosZoom / (GLSCALE * n);
-        double scaleY = parent->PosZoom / GLSCALE;
-        double scaleZ = parent->PosZoom / GLSCALE;
+        float scaleX = parent->PosZoom / (GLSCALE * n);
+        float scaleY = parent->PosZoom / GLSCALE;
+        float scaleZ = parent->PosZoom / GLSCALE;
 
         glScaled(scaleX, scaleY, scaleZ);
     }
@@ -557,9 +561,9 @@ void GLWidget::drawSurface()
 void GLWidget::drawInstrument()
 {
     //нарисуем курсор
-    double startX = DeviceInfo::AxesX_PositionMM();
-    double startY = DeviceInfo::AxesY_PositionMM();
-    double startZ = DeviceInfo::AxesZ_PositionMM();
+    float startX = DeviceInfo::AxesX_PositionMM();
+    float startY = DeviceInfo::AxesY_PositionMM();
+    float startZ = DeviceInfo::AxesZ_PositionMM();
 
     glPushMatrix();
 
@@ -613,15 +617,19 @@ void GLWidget::normalizeAngle(int *angle)
 // from slider
 void GLWidget::setXCoord(int x)
 {
-    parent->PosX = x;
-    updateGL();
+    if (parent->PosX != x) {
+        parent->PosX = x;
+        //     updateGL();
+    }
 }
 
 
 void GLWidget::setYCoord(int y)
 {
-    parent->PosY = y;
-    updateGL();
+    if (parent->PosY != y) {
+        parent->PosY = y;
+        //     updateGL();
+    }
 }
 
 
@@ -633,7 +641,7 @@ void GLWidget::setXRotation(int angle)
     if (angle != parent->PosAngleX) {
         parent->PosAngleX = angle;
         emit xRotationChanged(angle);
-        updateGL();
+        //         updateGL();
     }
 }
 
@@ -645,7 +653,7 @@ void GLWidget::setYRotation(int angle)
     if (angle != parent->PosAngleY) {
         parent->PosAngleY = angle;
         emit yRotationChanged(angle);
-        updateGL();
+        //         updateGL();
     }
 }
 
@@ -657,7 +665,7 @@ void GLWidget::setZRotation(int angle)
     if (angle != parent->PosAngleZ) {
         parent->PosAngleZ = angle;
         emit zRotationChanged(angle);
-        updateGL();
+        //         updateGL();
     }
 }
 

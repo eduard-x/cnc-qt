@@ -66,34 +66,34 @@ class GCodeCommand
         //
         // координата в мм
         //
-        double X;
+        float X;
         //
         // координата в мм
         //
-        double Y;
+        float Y;
         //
         // координата в мм
         //
-        double Z;
+        float Z;
 
         //
         // angle in grad
-        double A;
+        float A;
 
         int    speed;       // скорость
         bool   spindelON;  // вкл. шпинделя
         int    numberInstruct;     // номер инструкции
         bool   workspeed; // true=G1 false=G0
-        double diametr; // диаметр инструмента
+        float diametr; // диаметр инструмента
 
         //
         // Пустой конструктор
         //
         GCodeCommand();
 
-        //         GCodeCommand(int _numberInstruct, bool _spindelON, double _X, double _Y, double _Z, double _A, int _speed,
+        //         GCodeCommand(int _numberInstruct, bool _spindelON, float _X, float _Y, float _Z, float _A, int _speed,
         //                      bool _workspeed, bool _changeInstrument = false, int _numberInstrument = 0,
-        //                      bool _needPause = false, int _timeSeconds = 0, double _diametr = 0.0);
+        //                      bool _needPause = false, int _timeSeconds = 0, float _diametr = 0.0);
 
         //Конструктор на основе существующей команды
         GCodeCommand(GCodeCommand *_cmd);
@@ -142,10 +142,10 @@ enum typeCollections {
 struct typeSpline {
     int number;
     Apertures aperture;
-    double size1;
-    double size2;
+    float size1;
+    float size2;
 
-    //     public typeSpline(int _number, Apertures _aperture, double _size1 = 0, double _size2 = 0)
+    //     public typeSpline(int _number, Apertures _aperture, float _size1 = 0, float _size2 = 0)
     //     {
     //         number = _number;
     //         aperture = _aperture;
@@ -298,7 +298,7 @@ class Reader : public cTranslator
 
     public:
         QList<DataCollections> data;
-        std::deque<std::pair<double, std::vector<Vec2d> > > layers;
+        std::deque<std::pair<float, std::vector<Vec2d> > > layers;
         std::vector<Vec3f> cached_lines;
         std::vector<Vec3f> cached_points;
         std::vector<Vec3f> cached_color;
@@ -309,7 +309,7 @@ class Reader : public cTranslator
 
     private:
         void Swap(int &p1, int &p2);
-        bool parseCoord(const QString &line, Vec3 &pos, double &E, const double coef, double *F = NULL);
+        bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
         bool readGCode( const QByteArray &gcode );
         void readGBR( const QByteArray &gcode );
         void readDRL( const QByteArray &gcode );

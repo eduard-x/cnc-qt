@@ -782,7 +782,7 @@ void mk1Controller::deviceNewPosition(int x, int y, int z, int a)
 // параметр "y" в миллиметрах
 // параметр "z" в миллиметрах
 // ReSharper disable once UnusedMember.Global
-void mk1Controller::deviceNewPosition(double x, double y, double z, double a)
+void mk1Controller::deviceNewPosition(float x, float y, float z, float a)
 {
     if (!testAllowActions()) {
         return;
@@ -793,27 +793,27 @@ void mk1Controller::deviceNewPosition(double x, double y, double z, double a)
 
 
 
-double DeviceInfo::AxesX_PositionMM ()
+float DeviceInfo::AxesX_PositionMM ()
 {
-    return (double)(AxesX_PositionPulse / (double) AxesX_PulsePerMm);
+    return (float)(AxesX_PositionPulse / (float) AxesX_PulsePerMm);
 }
 
 
-double DeviceInfo::AxesY_PositionMM ()
+float DeviceInfo::AxesY_PositionMM ()
 {
-    return (double)(AxesY_PositionPulse / (double) AxesY_PulsePerMm);
+    return (float)(AxesY_PositionPulse / (float) AxesY_PulsePerMm);
 }
 
 
-double DeviceInfo::AxesZ_PositionMM ()
+float DeviceInfo::AxesZ_PositionMM ()
 {
-    return (double)(AxesZ_PositionPulse / (double) AxesZ_PulsePerMm);
+    return (float)(AxesZ_PositionPulse / (float) AxesZ_PulsePerMm);
 }
 
 
-double DeviceInfo::AxesA_PositionMM ()
+float DeviceInfo::AxesA_PositionMM ()
 {
-    return (double)(AxesA_PositionPulse / (double) AxesA_PulsePerMm);
+    return (float)(AxesA_PositionPulse / (float) AxesA_PulsePerMm);
 }
 
 //
@@ -822,22 +822,22 @@ double DeviceInfo::AxesA_PositionMM ()
 // параметр "axes" имя оси X,Y,Z
 // параметр "posMm" положение в мм
 // возвращаемый Количество импульсов
-int DeviceInfo::CalcPosPulse(QString axes, double posMm)
+int DeviceInfo::CalcPosPulse(QString axes, float posMm)
 {
     if (axes == "X") {
-        return (int)(posMm * (double)AxesX_PulsePerMm);
+        return (int)(posMm * (float)AxesX_PulsePerMm);
     }
 
     if (axes == "Y") {
-        return (int)(posMm * (double)AxesY_PulsePerMm);
+        return (int)(posMm * (float)AxesY_PulsePerMm);
     }
 
     if (axes == "Z") {
-        return (int)(posMm * (double)AxesZ_PulsePerMm);
+        return (int)(posMm * (float)AxesZ_PulsePerMm);
     }
 
     if (axes == "A") {
-        return (int)(posMm * (double)AxesA_PulsePerMm);
+        return (int)(posMm * (float)AxesA_PulsePerMm);
     }
 
     return 0;
@@ -1076,7 +1076,7 @@ void BinaryData::packC8(int x, int y, int z, int a, bool send)
 // Проверка длины инструмента, или прощупывание
 //
 //
-void BinaryData::packD2(int speed, double returnDistance, bool send)
+void BinaryData::packD2(int speed, float returnDistance, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1085,7 +1085,7 @@ void BinaryData::packD2(int speed, double returnDistance, bool send)
     int inewSpd = 0;
 
     if (speed != 0) {
-        double dnewSpd = (1800 / (double)speed) * 1000;
+        float dnewSpd = (1800 / (float)speed) * 1000;
         inewSpd = (int)dnewSpd;
     }
 
@@ -1099,7 +1099,7 @@ void BinaryData::packD2(int speed, double returnDistance, bool send)
     writeBuf[46] = 0x10;
 
     //
-    int inewReturn = (int)(returnDistance * (double)DeviceInfo::AxesZ_PulsePerMm);
+    int inewReturn = (int)(returnDistance * (float)DeviceInfo::AxesZ_PulsePerMm);
 
     //растояние возврата
     writeBuf[50] = (byte)(inewReturn);
@@ -1133,7 +1133,7 @@ void BinaryData::packBE(byte direction, int speed, bool send)
     int inewSpd = 0;
 
     if (speed != 0) {
-        double dnewSpd = (1800 / (double)speed) * 1000;
+        float dnewSpd = (1800 / (float)speed) * 1000;
         inewSpd = (int)dnewSpd;
     }
 
@@ -1198,7 +1198,7 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
     writeBuf[4] = 0x80; //TODO: непонятный байт
 
 
-    double dnewSpdX = (3600 / (double)speedLimitX) * 1000;
+    float dnewSpdX = (3600 / (float)speedLimitX) * 1000;
     int inewSpdX = (int)dnewSpdX;
 
     writeBuf[7] = (byte)(inewSpdX);
@@ -1206,7 +1206,7 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
     writeBuf[9] = (byte)(inewSpdX >> 16);
     writeBuf[10] = (byte)(inewSpdX >> 24);
 
-    double dnewSpdY = (3600 / (double)speedLimitY) * 1000;
+    float dnewSpdY = (3600 / (float)speedLimitY) * 1000;
     int inewSpdY = (int)dnewSpdY;
 
     writeBuf[11] = (byte)(inewSpdY);
@@ -1214,7 +1214,7 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
     writeBuf[13] = (byte)(inewSpdY >> 16);
     writeBuf[14] = (byte)(inewSpdY >> 24);
 
-    double dnewSpdZ = (3600 / (double)speedLimitZ) * 1000;
+    float dnewSpdZ = (3600 / (float)speedLimitZ) * 1000;
     int inewSpdZ = (int)dnewSpdZ;
 
     writeBuf[15] = (byte)(inewSpdZ);
@@ -1222,7 +1222,7 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
     writeBuf[17] = (byte)(inewSpdZ >> 16);
     writeBuf[18] = (byte)(inewSpdZ >> 24);
 
-    double dnewSpdA = (3600 / (double)speedLimitA) * 1000;
+    float dnewSpdA = (3600 / (float)speedLimitA) * 1000;
     int inewSpdA = (int)dnewSpdA;
 
     writeBuf[19] = (byte)(inewSpdA);
@@ -1302,7 +1302,7 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
     int inewSpd = 2328; //TODO: скорость по умолчанию
 
     if (_speed != 0) {
-        double dnewSpd = (1800 / (double)_speed) * 1000;
+        float dnewSpd = (1800 / (float)_speed) * 1000;
         inewSpd = (int)dnewSpd;
     }
 

@@ -90,7 +90,7 @@ class BinaryData
         static void packB5(bool spindelON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 0, bool send = true);
         static void packAA(bool send = true);
         static void packC8(int x, int y, int z, int a, bool send = true);
-        static void packD2(int speed, double returnDistance, bool send = true);
+        static void packD2(int speed, float returnDistance, bool send = true);
         static void packBE(byte direction, int speed, bool send = true);
         static void pack9E(byte value, bool send = true);
         static void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
@@ -162,17 +162,17 @@ class DeviceInfo
         static bool DEMO_DEVICE;
 
     public: // methods
-        static double AxesX_PositionMM();
-        static double AxesY_PositionMM();
-        static double AxesZ_PositionMM();
-        static double AxesA_PositionMM();
+        static float AxesX_PositionMM();
+        static float AxesY_PositionMM();
+        static float AxesZ_PositionMM();
+        static float AxesA_PositionMM();
         //
         // Вычисление положения в импульсах, при указании оси, и положения в миллиметрах
         //
         // параметр "axes">имя оси X,Y,Z
         // параметр "posMm">положение в мм
         // возвращаемый: Количество импульсов
-        static int CalcPosPulse(QString axes, double posMm);
+        static int CalcPosPulse(QString axes, float posMm);
 };
 
 
@@ -234,7 +234,7 @@ class mk1Controller : public QObject, public BinaryData
         void emergyStop();
         void stopManualMove();
         void deviceNewPosition(int x, int y, int z, int a = 0);
-        void deviceNewPosition(double x, double y, double z, double a = 0.0);
+        void deviceNewPosition(float x, float y, float z, float a = 0.0);
         void startManualMove(QString x, QString y, QString z, QString a, int speed);
 
         QString getDescription();

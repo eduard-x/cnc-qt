@@ -69,7 +69,7 @@ GCodeCommand::GCodeCommand()
 };
 
 
-// GCodeCommand::GCodeCommand(int _numberInstruct, bool _spindelON, double _X, double _Y, double _Z, double _A, int _speed, bool _workspeed, bool _changeInstrument, int _numberInstrument, bool _needPause, int _timeSeconds, double _diametr)
+// GCodeCommand::GCodeCommand(int _numberInstruct, bool _spindelON, float _X, float _Y, float _Z, float _A, int _speed, bool _workspeed, bool _changeInstrument, int _numberInstrument, bool _needPause, int _timeSeconds, float _diametr)
 // {
 //     X = _X;
 //     Y = _Y;
@@ -325,7 +325,7 @@ bool Reader::parserGCodeLine(const QString &inputL)
     Vec3 origin(0, 0, 0);
     Vec3 current_pos(0, 0, 0);
     bool b_absolute = true;
-    double coef = 1.0;
+    float coef = 1.0;
     QString line = inputL;
     GCodeCommand *tmpCommand = new GCodeCommand();
     bool res = true;
@@ -334,7 +334,7 @@ bool Reader::parserGCodeLine(const QString &inputL)
         case 'G':
             if (line.startsWith("G0 ") || line == "G0") {
                 Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
-                double E;
+                float E;
 
                 if (parseCoord(line, next_pos, E, coef) == false) {
                     res = false;
@@ -348,7 +348,7 @@ bool Reader::parserGCodeLine(const QString &inputL)
                 }
             } else if (line.startsWith("G1 ") || line == "G1") {
                 Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
-                double E(-1.0);
+                float E(-1.0);
 
                 if (parseCoord(line, next_pos, E, coef) == false) {
                     res = false;
@@ -371,23 +371,23 @@ bool Reader::parserGCodeLine(const QString &inputL)
                     cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                 }
             } else if (line.startsWith("G28 ") || line == "G28") {
-                Vec3 next_pos(std::numeric_limits<double>::infinity(),
-                              std::numeric_limits<double>::infinity(),
-                              std::numeric_limits<double>::infinity());
-                double E;
+                Vec3 next_pos(std::numeric_limits<float>::infinity(),
+                              std::numeric_limits<float>::infinity(),
+                              std::numeric_limits<float>::infinity());
+                float E;
 
                 if (parseCoord(line, next_pos, E, coef) == false) {
                     res = false;
                     break;
                 }
 
-                if (next_pos[0] == std::numeric_limits<double>::infinity()
-                        && next_pos[1] == std::numeric_limits<double>::infinity()
-                        && next_pos[2] == std::numeric_limits<double>::infinity()) {
+                if (next_pos[0] == std::numeric_limits<float>::infinity()
+                        && next_pos[1] == std::numeric_limits<float>::infinity()
+                        && next_pos[2] == std::numeric_limits<float>::infinity()) {
                     current_pos = origin = Vec3(0, 0, 0);
                 } else {
                     for(size_t i = 0 ; i < 3 ; ++i) {
-                        if (next_pos[i] != std::numeric_limits<double>::infinity()) {
+                        if (next_pos[i] != std::numeric_limits<float>::infinity()) {
                             current_pos[i] = 0;
                             origin[i] = 0;
                         }
@@ -403,7 +403,7 @@ bool Reader::parserGCodeLine(const QString &inputL)
                 b_absolute = false;
             } else if (line.startsWith("G92 ") || line == "G92") {
                 Vec3 next_pos(current_pos);
-                double E;
+                float E;
 
                 if (parseCoord(line, next_pos, E, coef) == false) {
                     res = false;
@@ -417,7 +417,7 @@ bool Reader::parserGCodeLine(const QString &inputL)
 
         case 'M':
             if (line.startsWith("M206 ") || line == "M206") {
-                double E;
+                float E;
 
                 if (parseCoord(line, origin, E, coef) == false) {
                     res = false;
@@ -666,7 +666,7 @@ bool Reader::readGCode(const QByteArray &gcode)
     Vec3 origin(0, 0, 0);
     Vec3 current_pos(0, 0, 0);
     bool b_absolute = true;
-    double coef = 1.0; // 1 or 24.5
+    float coef = 1.0; // 1 or 24.5
 
     GCodeCommand *tmpCommand = new GCodeCommand();
 
@@ -759,7 +759,7 @@ bool Reader::readGCode(const QByteArray &gcode)
             case 'G':
                 if (cmd == "G00") { // eilgang
                     Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
-                    double E;
+                    float E;
 
                     if (parseCoord(line, next_pos, E, coef) == false) {
                         decoded = false;
@@ -783,7 +783,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
                 if (cmd == "G01") {
                     Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
-                    double E(-1.0);
+                    float E(-1.0);
 
                     if (parseCoord(line, next_pos, E, coef) == false) {
                         decoded = false;
@@ -844,23 +844,23 @@ bool Reader::readGCode(const QByteArray &gcode)
                 }
 
                 if (cmd == "G28") {
-                    Vec3 next_pos(std::numeric_limits<double>::infinity(),
-                                  std::numeric_limits<double>::infinity(),
-                                  std::numeric_limits<double>::infinity());
-                    double E;
+                    Vec3 next_pos(std::numeric_limits<float>::infinity(),
+                                  std::numeric_limits<float>::infinity(),
+                                  std::numeric_limits<float>::infinity());
+                    float E;
 
                     if (parseCoord(line, next_pos, E, coef) == false) {
                         decoded = false;
                         break;
                     }
 
-                    if (next_pos[0] == std::numeric_limits<double>::infinity()
-                            && next_pos[1] == std::numeric_limits<double>::infinity()
-                            && next_pos[2] == std::numeric_limits<double>::infinity()) {
+                    if (next_pos[0] == std::numeric_limits<float>::infinity()
+                            && next_pos[1] == std::numeric_limits<float>::infinity()
+                            && next_pos[2] == std::numeric_limits<float>::infinity()) {
                         current_pos = origin = Vec3(0, 0, 0);
                     } else {
                         for(size_t i = 0 ; i < 3 ; ++i) {
-                            if (next_pos[i] != std::numeric_limits<double>::infinity()) {
+                            if (next_pos[i] != std::numeric_limits<float>::infinity()) {
                                 current_pos[i] = 0;
                                 origin[i] = 0;
                             }
@@ -892,7 +892,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
                 if (cmd == "G92") {
                     Vec3 next_pos(current_pos);
-                    double E;
+                    float E;
 
                     if (parseCoord(line, next_pos, E, coef) == false) {
                         decoded = false;
@@ -954,7 +954,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                 }
 
                 if (cmd == "M206") {
-                    double E;
+                    float E;
 
                     if (parseCoord(line, origin, E, coef) == false) {
                         decoded = false;
@@ -1002,17 +1002,17 @@ bool Reader::readGCode(const QByteArray &gcode)
         cached_color.push_back(Vec3f(1, 1, 1) * (float(i) / cached_lines.size()));
     }
 
-    //     std::pair<Vec3, Vec3> bbox(Vec3(std::numeric_limits<double>::infinity(),
-    //                                     std::numeric_limits<double>::infinity(),
-    //                                     std::numeric_limits<double>::infinity()),
-    //                                -Vec3(std::numeric_limits<double>::infinity(),
-    //                                      std::numeric_limits<double>::infinity(),
-    //                                      std::numeric_limits<double>::infinity()));
+    //     std::pair<Vec3, Vec3> bbox(Vec3(std::numeric_limits<float>::infinity(),
+    //                                     std::numeric_limits<float>::infinity(),
+    //                                     std::numeric_limits<float>::infinity()),
+    //                                -Vec3(std::numeric_limits<float>::infinity(),
+    //                                      std::numeric_limits<float>::infinity(),
+    //                                      std::numeric_limits<float>::infinity()));
     //
     //     for(const auto &p : cached_points) {
     //         for(size_t i = 0 ; i < 3 ; ++i) {
-    //             bbox.first[i] = std::min<double>(bbox.first[i], p[i]);
-    //             bbox.second[i] = std::max<double>(bbox.second[i], p[i]);
+    //             bbox.first[i] = std::min<float>(bbox.first[i], p[i]);
+    //             bbox.second[i] = std::max<float>(bbox.second[i], p[i]);
     //         }
     //     }
     unlock();
@@ -1022,7 +1022,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
 
 // if anything is detected, return true
-bool Reader::parseCoord(const QString &line, Vec3 &pos, double &E, const double coef, double *F)
+bool Reader::parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F)
 {
     const QStringList &chunks = line.toUpper().split(' ');
 
@@ -1510,7 +1510,7 @@ void Reader::readGBR( const QByteArray &arr)
                 int sstart = s.indexOf(",");
                 int sEnd = s.indexOf("*");
 
-                double sizeRound = s.mid(sstart + 1, sEnd - sstart - 1).replace(".", ",").toDouble();
+                float sizeRound = s.mid(sstart + 1, sEnd - sstart - 1).replace(".", ",").toDouble();
 
                 grb.typeSplines <<  (typeSpline) {
                     numb, C_circle, sizeRound
@@ -1522,8 +1522,8 @@ void Reader::readGBR( const QByteArray &arr)
                 int sstart2 = s.indexOf("X");
                 int sEnd = s.indexOf("*");
 
-                double sizeX = s.mid(sstart1 + 1, sstart2 - sstart1 - 1).replace(".", ",").toDouble();
-                double sizeY = s.mid(sstart2 + 1, sEnd - sstart2 - 1).replace(".", ",").toDouble();
+                float sizeX = s.mid(sstart1 + 1, sstart2 - sstart1 - 1).replace(".", ",").toDouble();
+                float sizeY = s.mid(sstart2 + 1, sEnd - sstart2 - 1).replace(".", ",").toDouble();
 
                 grb.typeSplines << (typeSpline) {
                     numb, R_rectangle, sizeX, sizeY
@@ -1535,8 +1535,8 @@ void Reader::readGBR( const QByteArray &arr)
                 int sstart2 = s.indexOf("X");
                 int sEnd = s.indexOf("*");
 
-                double sizeX = s.mid(sstart1 + 1, sstart2 - sstart1 - 1).replace(".", ",").toDouble();
-                double sizeY = s.mid(sstart2 + 1, sEnd - sstart2 - 1).replace(".", ",").toDouble();
+                float sizeX = s.mid(sstart1 + 1, sstart2 - sstart1 - 1).replace(".", ",").toDouble();
+                float sizeY = s.mid(sstart2 + 1, sEnd - sstart2 - 1).replace(".", ",").toDouble();
 
                 grb.typeSplines <<  (typeSpline) {
                     numb, O_obround, sizeX, sizeY
