@@ -1,15 +1,15 @@
 /****************************************************************************
- * Main developer:                                                          *
+ * Main developer, C# developing:                                           *
  * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * C# to Qt portation, developing                                           *
+ * C# to Qt portation, Linux developing                                     *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
- * ported from C# project CNC-controller-for-mk1                            *
+ * C# project CNC-controller-for-mk1                                        *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
  *                                                                          *
  * The Qt project                                                           *
@@ -29,9 +29,7 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-// #include <QtGui>
-// #include <QUrl>
-// #include <QPixmap>
+
 #include <QObject>
 #include <QRegExp>
 #include <QDebug>
@@ -88,7 +86,7 @@ GCodeCommand::GCodeCommand()
 // };
 
 
-//Конструктор на основе существующей команды
+// constructor based on existing command
 GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
 {
     X = _cmd->X;
@@ -110,7 +108,7 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
 
 
 //
-// Тип единицы измерения, мм или дюймы
+// units of messure, mm or inches
 //
 GerberData::GerberData()
 {
@@ -136,7 +134,7 @@ GerberData::GerberData()
 //
 // Вычисление размерности необходимого массива, для анализа
 //
-// парам: accuracy Коэфициент уменьшения размеров данных
+// accuracy: Коэфициент уменьшения размеров данных
 void GerberData::CalculateGatePoints(int _accuracy)
 {
     // немного уменьшим значения
@@ -926,7 +924,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     QString value1 = lst.at(1).mid(1);
 
                     QString property2 = lst.at(2).mid(0, 1);
-                    QString value2 = lst.at(2).mid(1).replace('.', ',');
+                    QString value2 = lst.at(2).mid(1).replace(fromDecimalPoint, toDecimalPoint);
 
                     if (property1 == "T" && property2 == "D") {
                         tmpCommand->changeInstrument = true;
@@ -1250,7 +1248,7 @@ void Reader::readDRL( const QByteArray &arr)
             int numInstrument = s.trimmed().mid(1, 2).toInt();
 
             int pos1 = s.indexOf('C');
-            float diametr = s.mid(pos1 + 1).replace(".", ",").toFloat();
+            float diametr = s.mid(pos1 + 1).replace(fromDecimalPoint, toDecimalPoint).toFloat();
 
             data << DataCollections(QList<Point>(), (Instrument) {
                 numInstrument, diametr
@@ -1471,14 +1469,13 @@ void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, 
 
 
 //
-// Анализ данных gerber
+// gerber reader
 //
 void Reader::readGBR( const QByteArray &arr)
 {
-    GerberData grb;// = new GerberData();
+    GerberData grb;
 
-    //region Загрузка данных из файла
-
+    //
     int numberSplineNow = -1;
     int X = 0;
     int Y = 0;
@@ -1510,7 +1507,7 @@ void Reader::readGBR( const QByteArray &arr)
                 int sstart = s.indexOf(",");
                 int sEnd = s.indexOf("*");
 
-                float sizeRound = s.mid(sstart + 1, sEnd - sstart - 1).replace(".", ",").toDouble();
+                float sizeRound = s.mid(sstart + 1, sEnd - sstart - 1).replace(fromDecimalPoint, toDecimalPoint).toDouble();
 
                 grb.typeSplines <<  (typeSpline) {
                     numb, C_circle, sizeRound
@@ -1522,8 +1519,8 @@ void Reader::readGBR( const QByteArray &arr)
                 int sstart2 = s.indexOf("X");
                 int sEnd = s.indexOf("*");
 
-                float sizeX = s.mid(sstart1 + 1, sstart2 - sstart1 - 1).replace(".", ",").toDouble();
-                float sizeY = s.mid(sstart2 + 1, sEnd - sstart2 - 1).replace(".", ",").toDouble();
+                float sizeX = s.mid(sstart1 + 1, sstart2 - sstart1 - 1).replace(fromDecimalPoint, toDecimalPoint).toDouble();
+                float sizeY = s.mid(sstart2 + 1, sEnd - sstart2 - 1).replace(fromDecimalPoint, toDecimalPoint).toDouble();
 
                 grb.typeSplines << (typeSpline) {
                     numb, R_rectangle, sizeX, sizeY
@@ -1535,8 +1532,8 @@ void Reader::readGBR( const QByteArray &arr)
                 int sstart2 = s.indexOf("X");
                 int sEnd = s.indexOf("*");
 
-                float sizeX = s.mid(sstart1 + 1, sstart2 - sstart1 - 1).replace(".", ",").toDouble();
-                float sizeY = s.mid(sstart2 + 1, sEnd - sstart2 - 1).replace(".", ",").toDouble();
+                float sizeX = s.mid(sstart1 + 1, sstart2 - sstart1 - 1).replace(fromDecimalPoint, toDecimalPoint).toDouble();
+                float sizeY = s.mid(sstart2 + 1, sEnd - sstart2 - 1).replace(fromDecimalPoint, toDecimalPoint).toDouble();
 
                 grb.typeSplines <<  (typeSpline) {
                     numb, O_obround, sizeX, sizeY
@@ -1575,6 +1572,8 @@ void Reader::readGBR( const QByteArray &arr)
             };
         }
 
+#if 0
+
         if (s.length() > 4 && s.trimmed().toUpper().mid(0, 5) == "%FSLA") {
             //параметры разбора чисел
             int pos1 = s.indexOf('X');
@@ -1587,6 +1586,7 @@ void Reader::readGBR( const QByteArray &arr)
             grb.countPdigY = s.mid(pos2 + 2, 1).toInt();
         }
 
+#endif
         //         s = fs.ReadLine();
     }
 

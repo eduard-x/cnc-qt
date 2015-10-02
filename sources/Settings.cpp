@@ -1,15 +1,15 @@
 /****************************************************************************
- * Main developer:                                                          *
+ * Main developer, C# developing:                                           *
  * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * C# to Qt portation, developing                                           *
+ * C# to Qt portation, Linux developing                                     *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
- * ported from C# project CNC-controller-for-mk1                            *
+ * C# project CNC-controller-for-mk1                                        *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
  *                                                                          *
  * The Qt project                                                           *
@@ -47,8 +47,6 @@ SettingsDialog::SettingsDialog(QWidget *p)
     setupUi(this);
 
     parent = static_cast<MainWindow*>(p);
-
-    //     _cnc = parent->cnc;
 
     setStyleSheet(parent->programStyleSheet);
 

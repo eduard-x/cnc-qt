@@ -1,15 +1,15 @@
 /****************************************************************************
- * Main developer:                                                          *
+ * Main developer, C# developing:                                           *
  * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * C# to Qt portation, developing                                           *
+ * C# to Qt portation, Linux developing                                     *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
- * ported from C# project CNC-controller-for-mk1                            *
+ * C# project CNC-controller-for-mk1                                        *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
  *                                                                          *
  * The Qt project                                                           *
@@ -34,11 +34,14 @@
 #define GEOMETRY_H
 
 
+#include "vec.h"
+
+
 struct dPoint {
-    float X;       // координата в мм
-    float Y;       // координата в мм
-    float Z;       // координата в мм
-    float A;       // угол в °, angle
+    float X;       // coord in mm
+    float Y;       // coord in mm
+    float Z;       // coord in mm
+    float A;       // angle in °
 };
 
 
@@ -48,6 +51,10 @@ class Geometry
         static dPoint GetZ(dPoint p1, dPoint p2, dPoint p3, dPoint p4, dPoint p5);
         static dPoint CalcPX(dPoint p1, dPoint p2, dPoint p0);
         static dPoint CalcPY(dPoint p1, dPoint p2, dPoint p0);
+
+        float CubicHermite (Vec4f &v , float t);
+        float BicubicHermitePatch(Vec4x4f &vv, float u, float v);
+        bool gernerateBicubicHermiteField();
 };
 
 

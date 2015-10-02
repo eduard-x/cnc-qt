@@ -1,15 +1,15 @@
 /****************************************************************************
- * Main developer:                                                          *
+ * Main developer, C# developing:                                           *
  * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * C# to Qt portation, developing                                           *
+ * C# to Qt portation, Linux developing                                     *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
- * ported from C# project CNC-controller-for-mk1                            *
+ * C# project CNC-controller-for-mk1                                        *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
  *                                                                          *
  * The Qt project                                                           *
@@ -35,6 +35,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QImage>
+#include <QVector>
 #include <QDateTime>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -49,7 +50,6 @@
 #include "includes/EditGCode.h"
 #include "includes/ManualControl.h"
 #include "includes/ScanSurface.h"
-// #include "includes/Translator.h"
 #include "includes/Settings3d.h"
 #include "includes/MainWindow.h"
 
@@ -137,8 +137,9 @@ int MessageBox::exec(void* p, const QString &title, const QString &text, int tic
     return ret;
 }
 
+
 // because of static
-EStatusTask  Task::StatusTask = Waiting;
+EStatusTask  Task::Status = Waiting;
 int Task::posCodeStart = -1;
 int Task::posCodeEnd = -1;
 
@@ -169,7 +170,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     fontSize = sysFont.pointSize();
 
-    userKeys = (QVector<uKeys>() << (uKeys) (uKeys) {
+    userKeys = (QVector<uKeys>() << (uKeys) {
         "UserAplus", Qt::Key_multiply
     } << (uKeys) {
         "UserAminus", Qt::Key_division
@@ -217,7 +218,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     addStatusWidgets();
 
-    // 1 Подключение событий от контроллера
+    //
     cnc = new mk1Controller();
     cnc->loadSettings();
 
@@ -913,7 +914,7 @@ void MainWindow::translateGUI()
 void MainWindow::onStartTask()
 {
     if (mainTaskTimer.isActive()) {
-        return;    //нельзя дальше, если таймер включен
+        return;    //timer is active, task is running
     }
 
     if (!cnc->isConnected()) {
@@ -922,7 +923,7 @@ void MainWindow::onStartTask()
     }
 
     if (GCodeList.count() == 0) {
-        // нет данных для выполнения
+        // no data
         MessageBox::exec(this, translate(_ERR), translate(_MSG_NO_DATA), QMessageBox::Critical);
         return;
     }
@@ -934,12 +935,12 @@ void MainWindow::onStartTask()
 
     QModelIndexList selected = selectionModel->selectedRows();
 
-    //если в списке команд не выбрана строчка, то спозиционируемся на первой
+    //if nothing was selected, from begin to end of list
     if (selected.count() == 0) {
         end = listGCodeWidget->rowCount();
     }
 
-    if (selected.count() == 1) { //выбрана всего одна строка, а значит для выполнения будет указан диапазон, от этой строки и до конца
+    if (selected.count() == 1) { //selected only one line
         QString msg = translate(_QUEST_START_FROMLINE);
         beg = selected.first().row();
 
@@ -952,7 +953,7 @@ void MainWindow::onStartTask()
         end = listGCodeWidget->rowCount();
     }
 
-    if (selected.count() > 1) { //выбран диапазон строк
+    if (selected.count() > 1) { //select lines range
         QString msg = translate(_QUEST_START_FROMTOLINE);
 
         beg = selected.first().row();
@@ -974,9 +975,9 @@ void MainWindow::onStartTask()
     QString s = "from :" + QString::number( Task::posCodeStart + 1 ) + " to: " + QString::number( Task::posCodeEnd + 1);
     statusSt->setText( s );
 
-    groupManualControl->setChecked( false ); // отключим реакцию на нажатие NUM-pad
+    groupManualControl->setChecked( false ); // disable manual control
 
-    Task::StatusTask = TaskStart;
+    Task::Status = Start;
 
     mainTaskTimer.start();
 
@@ -986,12 +987,12 @@ void MainWindow::onStartTask()
 
 void MainWindow::onPauseTask()
 {
-    if (Task::StatusTask == TaskStart) {
-        return;    //пока задание не запустилось, нет смысла ставить паузу
+    if (Task::Status == Start) {
+        return;    //if not started, do not set pause
     }
 
-    if (Task::StatusTask == TaskWorking || Task::StatusTask == TaskPaused) {
-        Task::StatusTask = (Task::StatusTask == TaskPaused) ? TaskWorking : TaskPaused;
+    if (Task::Status == Working || Task::Status == Paused) {
+        Task::Status = (Task::Status == Paused) ? Working : Paused;
     }
 
     refreshElementsForms();
@@ -1000,32 +1001,32 @@ void MainWindow::onPauseTask()
 
 void MainWindow::onStopTask()
 {
-    if (Task::StatusTask == Waiting) {
+    if (Task::Status == Waiting) {
         return;
     }
 
-    Task::StatusTask = TaskStop;
+    Task::Status = Stop;
     refreshElementsForms();
 }
 
 
-// rreturn value: false if timer to stop
+// return value: false if timer to stop
 bool MainWindow::runCommand()
 {
-    // скорость с главной формы
+    // Velocity from main form
     int userSpeedG1 = (int)numVeloSubmission->value();
     int userSpeedG0 = (int)numVeloMoving->value();
 
     //     qDebug() << "main timer" << GCodeList.count() << Task::posCodeNow;
-    if (Task::posCodeNow >= GCodeList.count()) {
+    if (Task::posCodeNow >= (GCodeList.count() - 1)) {
         //         mainTaskTimer.stop();
         return false;
     }
 
     GCodeCommand gcodeNow = GCodeList.at(Task::posCodeNow);
 
-    // TaskStart
-    if (Task::StatusTask == TaskStart) { // init of controller
+    // Start
+    if (Task::Status == Start) { // init of controller
         AddLog(translate(_START_TASK_AT) + QDateTime().currentDateTime().toString());
 
         int MaxSpeedX = 100;
@@ -1039,23 +1040,23 @@ bool MainWindow::runCommand()
 
         cnc->packC0();
 
-        //так-же спозиционируемся, над первой точкой по оси X и Y
-        //TODO: нужно ещё и поднять повыше шпиндель, а пока на 10 мм (продумать реализацию)
+        //moving to the first point axes X and Y
+        //TODO: spindle move higher, now 10 mm
         cnc->packCA(DeviceInfo::AxesX_PositionPulse, DeviceInfo::AxesY_PositionPulse, DeviceInfo::AxesZ_PositionPulse + DeviceInfo::CalcPosPulse("Z", 10), DeviceInfo::AxesA_PositionPulse, userSpeedG0, 0);
 
-        //TODO: И продумать реализацию к подходу к точке
+        //TODO: not implemented moving to point
         cnc->packCA(DeviceInfo::CalcPosPulse("X", gcodeNow.X), DeviceInfo::CalcPosPulse("Y", gcodeNow.Y), DeviceInfo::AxesZ_PositionPulse + DeviceInfo::CalcPosPulse("Z", 10), DeviceInfo::CalcPosPulse("A", gcodeNow.A), userSpeedG0, 0);
 
-        Task::StatusTask = TaskWorking;
+        Task::Status = Working;
         refreshElementsForms();
 
-        return true; //после запуска дальше код пропустим...
+        return true; //after start code
     }
 
-    // TaskStop
+    // Stop
 
-    if (Task::StatusTask == TaskStop) {
-        //TODO: добавить поднятие фрезы, возможное позиционирование в home
+    if (Task::Status == Stop) {
+        //TODO: move spindle up, possible moving to "home" position
 
         cnc->packFF();
 
@@ -1074,43 +1075,43 @@ bool MainWindow::runCommand()
         cnc->packFF();
 
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
-        Task::StatusTask = Waiting;
+        Task::Status = Waiting;
         //         mainTaskTimer.stop();
         return false;
     }
 
-    // TaskWorking
+    // Working
 
-    if (Task::StatusTask != TaskWorking) {
+    if (Task::Status != Working) {
         return false;
     }
 
-    //Все необходимые команды завершены, пора всё завершить
+    // the task is ready
     if (Task::posCodeNow > Task::posCodeEnd) {
-        Task::StatusTask = TaskStop;
+        Task::Status = Stop;
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
 
         //         mainTaskTimer.stop();
         return false;
     }
 
-    //TODO: добавить в параметр значение
+    //TODO: to add in parameter the value
     if (cnc->availableBufferSize() < 5) {
         return true;    // откажемся от посылки контроллеру, пока буфер не освободится
     }
 
 
-    //TODO: добавить в параметр и это значение
+    //TODO: to add in parameter the value
     if (Task::posCodeNow > (cnc->numberComleatedInstructions() + 3)) {
-        return true;    // Так-же не будем много посылать команд, т.е. далеко убегать
+        return true;    // не будем много посылать команд, т.е. далеко убегать
     }
 
-    //команда остановки G4 или M0
+    //command G4 or M0
     if (gcodeNow.needPause) {
-        if (gcodeNow.mSeconds == 0) { // M0 - команда ожидания от пользователя
-            Task::StatusTask = TaskPaused;
+        if (gcodeNow.mSeconds == 0) { // M0 - waiting command
+            Task::Status = Paused;
             refreshElementsForms();
-            //пауза до клика пользователя
+            //pause before user click
             //             QMessageBox.Show("Получена команда M0 для остановки! для дальнейшего выполнения нужно нажать на кнопку 'пауза'", "Пауза",
             //                              QMessageBoxButtons.OK, QMessageBoxIcon.Asterisk);
             MessageBox::exec(this, translate(_PAUSE), translate(_RECIEVED_M0), QMessageBox::Information);
@@ -1124,12 +1125,12 @@ bool MainWindow::runCommand()
         }
     }
 
-    //команда смены инструмента
+    //replace instrument
     if (gcodeNow.changeInstrument) {
-        Task::StatusTask = TaskPaused;
+        Task::Status = Paused;
         refreshElementsForms();
 
-        //пауза до клика пользователя
+        //pause before user click
         //         QMessageBox.Show("Активирована ПАУЗА! Установите инструмент №:" + gcodeNow.numberInstrument + " имеющий диаметр: " + gcodeNow.diametr + " мм. и нажмите для продолжения кнопку 'пауза'", "Пауза",
         //                          QMessageBoxButtons.OK, QMessageBoxIcon.Asterisk);
         QString msg = translate(_PAUSE_ACTIVATED);
@@ -1141,18 +1142,18 @@ bool MainWindow::runCommand()
     float pointZ = gcodeNow.Z;
     float pointA = gcodeNow.A;
 
-    //добавление смещения G-кода
+    //moving in G-code
     if (Correction) {
-        // применение пропорций
+        // proportion
         pointX *= koeffSizeX;
         pointY *= koeffSizeY;
 
-        //применение смещения
+        // move
         pointX += deltaX;
         pointY += deltaY;
         pointZ += deltaZ;
 
-        //применение матрицы поверхности детали
+        // surface matrix?
         if (deltaFeed) {
             pointZ += GetDeltaZ(pointX, pointY);
         }
@@ -1163,7 +1164,7 @@ bool MainWindow::runCommand()
     int posZ = DeviceInfo::CalcPosPulse("Z", pointZ);
     int posA = DeviceInfo::CalcPosPulse("A", pointA);
 
-    //TODO: доделать управление скоростью ручная/по программе
+    //TODO: additional velocity control manual/automatical
     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
 
     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
@@ -1195,7 +1196,7 @@ void MainWindow::onMainTaskTimer()
 
 // OTHER
 
-// вывод лога
+// log output
 void MainWindow::AddLog(QString _text)
 {
     if (_text == NULL) {
@@ -1206,10 +1207,10 @@ void MainWindow::AddLog(QString _text)
 }
 
 
-//разобраться о необходимости
+//
 void MainWindow::onStatus()
 {
-    // Вызовем очистку сообщения
+    // clean message
     statusSt->setText( "" );
 }
 
@@ -1270,7 +1271,7 @@ void MainWindow::moveToPoint(bool surfaceScan)
 }
 
 
-// движение в заданную точку
+// moving to the point
 void MainWindow::onRunToPoint()
 {
     if (!cnc->testAllowActions()) {
@@ -1281,7 +1282,7 @@ void MainWindow::onRunToPoint()
 }
 
 
-//ОТЛАДКА генератора ШИМ
+//DEBUGGING generator PWM
 void MainWindow::SendSignal()
 {
     BinaryData::TypeSignal tSign;
@@ -1312,7 +1313,7 @@ void MainWindow::onSendCommand()
 
 // void MainWindow::onLikePoint()
 // {
-//     //TODO: откроем окно со списком точек
+//     //TODO: open popup with list of points
 // }
 
 
@@ -1344,95 +1345,9 @@ void MainWindow::onGeneratorCode()
 
 
 
-// source:
-// http://blog.demofox.org/2015/08/09/cubic-hermite-rectangles/
-// http://blog.demofox.org/2015/08/08/cubic-hermite-interpolation/
-
-const Vec4f c_ControlPointsX[][4] = {
-    //     {
-    { 0.7, 0.8, 0.9, 0.3 },
-    { 0.2, 0.5, 0.4, 0.1 },
-    { 0.6, 0.3, 0.1, 0.4 },
-    { 0.8, 0.4, 0.2, 0.7 },
-    //     }
-};
-
-
-const Vec4f c_ControlPointsY[][4] = {
-    //     {
-    { 0.2f, 0.8f, 0.5f, 0.6f },
-    { 0.6f, 0.9f, 0.3f, 0.8f },
-    { 0.7f, 0.1f, 0.4f, 0.9f },
-    { 0.6f, 0.5f, 0.3f, 0.2f },
-    //     }
-};
-
-
-const Vec4f c_ControlPointsZ[][4] = {
-    //     {
-    { 0.6f, 0.5f, 0.3f, 0.2f },
-    { 0.7f, 0.1f, 0.9f, 0.5f },
-    { 0.8f, 0.4f, 0.2f, 0.7f },
-    { 0.6f, 0.3f, 0.1f, 0.4f },
-    //     }
-};
-
-
-// t is a value that goes from 0 to 1 to interpolate in a C1 continuous way across uniformly sampled data points.
-// when t is 0, this will return p[1].  When t is 1, this will return p[2].
-// p[0] and p[3] are used to calculate slopes at the edges.
-float MainWindow::CubicHermite(const Vec4f& p, float t)
-{
-    float a = -p[0] / 2.0f + (3.0f * p[1]) / 2.0f - (3.0f * p[2]) / 2.0f + p[3] / 2.0f;
-    float b = p[0] - (5.0f * p[1]) / 2.0f + 2.0f * p[2] - p[3] / 2.0f;
-    float c = -p[0] / 2.0f + p[2] / 2.0f;
-    float d = p[1];
-
-    return a * t * t * t + b * t * t + c * t + d;
-}
-
-
-float MainWindow::BicubicHermitePatch(const Vec4f& p, float u, float v)
-{
-    Vec4f uValues;
-    uValues[0] = CubicHermite(p[0], u);
-    uValues[1] = CubicHermite(p[1], u);
-    uValues[2] = CubicHermite(p[2], u);
-    uValues[3] = CubicHermite(p[2], u);
-    return CubicHermite(uValues, v);
-}
-
-
-bool MainWindow::gernerateBicubicHermiteField()
-{
-    // how many values to display on each axis. Limited by console resolution!
-    const int c_numValues = 4;
-
-    //     printf("Cubic Hermite rectangle:\n");
-    for (int i = 0; i < c_numValues; ++i) {
-        float iPercent = ((float)i) / ((float)(c_numValues - 1));
-
-        for (int j = 0; j < c_numValues; ++j) {
-            //             if (j == 0)
-            //                 printf("  ");
-            float jPercent = ((float)j) / ((float)(c_numValues - 1));
-            //             float valueX = BicubicHermitePatch(c_ControlPointsX, jPercent, iPercent);
-            //             float valueY = BicubicHermitePatch(c_ControlPointsY, jPercent, iPercent);
-            //             float valueZ = BicubicHermitePatch(c_ControlPointsZ, jPercent, iPercent);
-            //             printf("(%0.2f, %0.2f, %0.2f) ", valueX, valueY, valueZ);
-        }
-
-        //         printf("\n");
-    }
-
-    //     printf("\n");
-    return true;
-}
-
-
 float MainWindow::GetDeltaZ(float _x, float _y)
 {
-    //точка которую нужно отобразить
+    //point to calculate
     dPoint pResult = {_x, _y, 0.0, 0.0}; //new dobPoint(_x, _y, 0);
 
     int indexXmin = 0;
@@ -1471,14 +1386,14 @@ float MainWindow::GetDeltaZ(float _x, float _y)
 }
 
 
-//событие для ведения логов
+// slot for logging signal
 void MainWindow::onCncMessage(int n_msg)
 {
     textLog->append(QDateTime().currentDateTime().toString() + " - " + translate(n_msg));
 }
 
 
-// СОБЫТИЯ ОТ КОНТРОЛЛЕРА что получили новые данные
+// slot FROM COMTROLLER, new data
 void MainWindow::onCncNewData()
 {
     refreshElementsForms();
@@ -1552,7 +1467,7 @@ void  MainWindow::refreshElementsForms()
     actionStop->setEnabled( cncConnected);
     actionSpindle->setEnabled( cncConnected);
 
-    labelSpeed->setText( QString::number(cnc->spindelMoveSpeed()) + translate(_MM_MIN));
+    labelSpeed->setText( QString::number(cnc->spindleMoveSpeed()) + translate(_MM_MIN));
     //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(cnc->numberComleatedInstructions()));
 
     if (!cncConnected) {
@@ -1574,23 +1489,23 @@ void  MainWindow::refreshElementsForms()
         return;
     }
 
-    switch (Task::StatusTask) {
-        case TaskStart: {
+    switch (Task::Status) {
+        case Start: {
             statusLabel1->setText( translate(_START_TASK));
             break;
         }
 
-        case TaskPaused: {
+        case Paused: {
             statusLabel1->setText( translate(_PAUSE_TASK));
             break;
         }
 
-        case TaskStop: {
+        case Stop: {
             statusLabel1->setText( translate(_STOP_TASK));
             break;
         }
 
-        case TaskWorking: {
+        case Working: {
             statusLabel1->setText( translate(_RUN_TASK));
             break;
         }
@@ -1607,7 +1522,7 @@ void  MainWindow::refreshElementsForms()
 
 #if 0
 
-    if (cnc->isEstopOn()) {
+    if (cnc->isEmergencyStopOn()) {
         actionStop->setStyleSheet("" );
         QPalette palette = actionStop->palette();
         palette.setColor(actionStop->backgroundRole(), Qt::red);
@@ -1682,14 +1597,14 @@ void  MainWindow::refreshElementsForms()
 
     // end debug
 
-    // Кнопки запуска остановки заданий
+    // bttons start/stop/pause of task
     groupBoxExec->setEnabled( cncConnected);
 
     if (cncConnected) {
         if (mainTaskTimer.isActive()) {
             toolRun->setEnabled( false );
 
-            if (Task::StatusTask == TaskPaused) {
+            if (Task::Status == Paused) {
                 toolStop->setEnabled(false);
                 toolPause->setEnabled( true);
             } else {
@@ -1702,7 +1617,7 @@ void  MainWindow::refreshElementsForms()
             toolPause->setEnabled(false);
         }
 
-        if (Task::StatusTask == Waiting) {
+        if (Task::Status == Waiting) {
             toolResetCoorX->setEnabled( true );
             numPosX->setReadOnly( true );
 
@@ -1728,10 +1643,10 @@ void  MainWindow::refreshElementsForms()
             numAngleGrad->setReadOnly( false );
         }
 
-        if (Task::StatusTask == TaskWorking) {
+        if (Task::Status == Working) {
             statusProgress->setValue( cnc->numberComleatedInstructions());
             //listGkodeForUser.Rows[cnc->NumberComleatedInstructions].Selected = true;
-            //TODO: переделать алгоритм, иначе это изменение сбивает выделенный диапазон
+            //TODO: to overwork it, because of resetting of selected ragne
             //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;
         }
 
@@ -1754,9 +1669,8 @@ void MainWindow::onManualControlDialog()
 
 
 //
-// Перезаполнение данных
+// fill the table widget with data
 //
-// params: listCode"
 void MainWindow::fillListWidget(QStringList listCode)
 {
     listGCodeWidget->clear();
@@ -1765,8 +1679,6 @@ void MainWindow::fillListWidget(QStringList listCode)
     QStringList header = (QStringList() << translate(_COMMAND) << translate(_INFO) << translate(_STATE));
 
     listGCodeWidget->setHorizontalHeaderLabels(header);
-
-    int maxIndexLen = QString::number(listCode.count()).length(); //вычисление количества символов используемых для нумерации записей
 
     foreach (QString valueStr, listCode) {
         listGCodeWidget->insertRow( listGCodeWidget->rowCount() );
@@ -1848,9 +1760,9 @@ void MainWindow::onAbout()
 void MainWindow::onSpindel()
 {
     if (cnc->isSpindelOn()) {
-        cnc->spindelOFF();
+        cnc->spindleOFF();
     } else {
-        cnc->spindelON();
+        cnc->spindleON();
     }
 }
 
@@ -1874,8 +1786,7 @@ void MainWindow::Feed()
 
 void MainWindow::on3dSettings()
 {
-    //вызов 3Д формы
-    //покажем графические настройки
+    // 3d settings
     Settings3dDialog *dlg = new Settings3dDialog(this);
     dlg->exec();
 
@@ -1887,7 +1798,7 @@ void MainWindow::on3dSettings()
 
 void MainWindow::onScanSurface()
 {
-    //вызов формы сканирования
+    //scan surfcae
     Feed();
 }
 

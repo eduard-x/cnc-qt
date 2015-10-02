@@ -1,15 +1,15 @@
 /****************************************************************************
- * Main developer:                                                          *
+ * Main developer, C# developing:                                           *
  * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * C# to Qt portation, developing                                           *
+ * C# to Qt portation, Linux developing                                     *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
- * ported from C# project CNC-controller-for-mk1                            *
+ * C# project CNC-controller-for-mk1                                        *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
  *                                                                          *
  * The Qt project                                                           *
@@ -37,6 +37,7 @@
 #include <QString>
 
 using namespace std;
+
 /******************************************************************************
 ** mk1Controller
 */
@@ -64,8 +65,8 @@ bool DeviceInfo::AxesZ_LimitMin = false;
 bool DeviceInfo::AxesA_LimitMax = false;
 bool DeviceInfo::AxesA_LimitMin = false;
 
-int DeviceInfo::spindel_MoveSpeed = 0;
-bool DeviceInfo::spindel_Enable = false;
+int DeviceInfo::spindle_MoveSpeed = 0;
+bool DeviceInfo::spindle_Enable = false;
 
 bool DeviceInfo::Estop = false;
 
@@ -371,76 +372,6 @@ void mk1Controller::setDescription(const QString &c)
 }
 
 
-// for the popup window
-int mk1Controller::getConfiguration()
-{
-    //     char *data;
-    //     int index;
-
-    //     data = (char *)malloc(512);
-    //     memset(data,0,512);
-
-    //     index = desc.iiConfiguration;
-
-    struct libusb_config_descriptor *config;
-
-    //     libusb_get_string_descriptor_ascii(hDevice,index,data,512);
-    //     libusb_get_config_descriptor(dev, 0, &config);
-
-    struct libusb_endpoint_descriptor *epdesc;
-
-    //     qDebug() <<"Number of endpoints: "<<(int)desc.bNumConfigurations;
-    //     for(int k=0; k<(int)desc.bNumConfigurations; k++) {
-    //         epdesc = &desc.endpoint[k];
-    //         qDebug() <<"Descriptor Type: "<<(int)epdesc->bDescriptorType;
-    //         qDebug() <<"EP Address: "<<(int)epdesc->bEndpointAddress;
-    //     }
-
-    printf("numInterfaces: %d\n", config->bNumInterfaces);
-
-    //     for(int ii=0; iibNumInterfaces; ii++) {
-    // printf("ii=%d\n",ii);
-    //         inter = &config->interface[ii];
-    //         printf("Number of alternate settings: %d\n",
-    //                 inter->num_altsetting);
-    //         for(j=0; jnum_altsetting; j++) {
-    //             interdesc = &inter->altsetting[j];
-    //             printf("Interface Number: %d\n",
-    //                 interdesc->bInterfaceNumber);
-    //             printf("Number of endpoints: %d\n",
-    //                 interdesc->bNumEndpoints);
-    //             for(k=0; kbNumEndpoints; k++) {
-    //                 epdesc = &interdesc->endpoint[k];
-    //             printf("Descriptor Type: %d\n",
-    //                 epdesc->bDescriptorType);
-    //             printf("EP Address: 0x%X\n",
-    //                 epdesc->bEndpointAddress);
-    //             printf("Max packet size: %d\n",
-    //                 epdesc->wMaxPacketSize);
-    //             printf("interval: %d\n",
-    //                 epdesc->bInterval);
-    //                 }// end for k
-    //             }// end for j
-    // printf("go1\n");
-    //         }//end for ii
-
-    //     qDebug() << "Interface Descriptors: ";
-    //     qDebug() << "Number of Interfaces : " << desc.bNumInterfaces;
-    //     qDebug() << "Length :" << desc.bLength;
-    //     qDebug() << "Desc_Type :" << desc.bDescriptorType;
-    //     qDebug() << "Config_index :" << desc.bNumConfigurations;
-    //     qDebug() << "Total length :" << desc.bLength;
-    //     qDebug() << "Configuration Value  :" << desc.bConfigurationValue;
-    //     qDebug() << "Configuration Attributes :" << desc.bmAttributes;
-    //     qDebug() << "MaxPower(mA) :" << desc.MaxPower;
-
-    //     free(data);
-    //     data = NULL;
-    return 0;
-}
-
-
-
 void mk1Controller::readNewData()
 {
     qDebug() << "new data from usb";
@@ -493,7 +424,7 @@ void mk1Controller::handleHotplug()
 
 
 //
-// Загрузка настроек программы из файла
+// load settings
 //
 void mk1Controller::loadSettings()
 {
@@ -526,7 +457,7 @@ void mk1Controller::loadSettings()
 }
 
 //
-// Сохранение настроек в файл
+// save settings
 //
 void mk1Controller::saveSettings()
 {
@@ -537,10 +468,7 @@ void mk1Controller::saveSettings()
 }
 
 
-// Свойства для доступа извне к переменным
-//TODO: пересмотреть необходимость процедур
-//
-// Возвращает информацию о наличии связи
+// info about connection
 //
 bool mk1Controller::isConnected()
 {
@@ -548,15 +476,15 @@ bool mk1Controller::isConnected()
 }
 
 //
-// Скорость движения шпинделя
+// velocity of spindle
 //
-int mk1Controller::spindelMoveSpeed()
+int mk1Controller::spindleMoveSpeed()
 {
-    return DeviceInfo::spindel_MoveSpeed;
+    return DeviceInfo::spindle_MoveSpeed;
 }
 
 //
-// Номер выполняемой инструкции
+// current instruction number
 //
 long mk1Controller::numberComleatedInstructions()
 {
@@ -564,29 +492,27 @@ long mk1Controller::numberComleatedInstructions()
 }
 
 //
-// Свойство включен ли шпиндель
+// splindle is on?
 //
 bool mk1Controller::isSpindelOn()
 {
-    return DeviceInfo::spindel_Enable;
+    return DeviceInfo::spindle_Enable;
 }
 
 //
-// Свойство активированна ли аварийная остановка
+// was stopped because of emergency?
 //
-bool mk1Controller::isEstopOn()
+bool mk1Controller::isEmergencyStopOn()
 {
     return DeviceInfo::Estop;
 }
 
 //
-// Проверка наличия связи, и незанятости контроллера
+// check connection
 //
-// возвращаемый булево, возможно ли посылать контроллеру задачи
 bool mk1Controller::testAllowActions()
 {
     if (!isConnected()) {
-        //StringError = @"Отсутствует связь с контроллером!";
         return false;
     }
 
@@ -594,30 +520,21 @@ bool mk1Controller::testAllowActions()
 }
 
 //
-// Для проверки новых данных от контроллера
+// free buffer size
 //
-// public bool mk1Controller::AvailableNewData { get; set; }
-
-
-//
-// Размер свободного буфера
-//
-// ReSharper disable once UnusedMember.Global
 int mk1Controller::availableBufferSize()
 {
     return DeviceInfo::FreebuffSize;
 }
 
 
-// Поток выполнения задания
-
 //
-// Парсит полученные данные с контроллера
+// parse binary data
 //
 void mk1Controller::parseBinaryInfo()
 {
     DeviceInfo::FreebuffSize = readBuf[1];
-    DeviceInfo::spindel_MoveSpeed = (int)(((/*(readBuf[23] << 24) + (readBuf[22] << 16) +*/ (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
+    DeviceInfo::spindle_MoveSpeed = (int)(((/*(readBuf[23] << 24) + (readBuf[22] << 16) +*/ (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
 
     DeviceInfo::AxesX_PositionPulse = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
     DeviceInfo::AxesY_PositionPulse = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
@@ -636,7 +553,7 @@ void mk1Controller::parseBinaryInfo()
 
     byte bb19 = readBuf[19];
 
-    DeviceInfo::spindel_Enable = (bb19 & (1 << 0)) ? true : false;
+    DeviceInfo::spindle_Enable = (bb19 & (1 << 0)) ? true : false;
 
     byte bb14 = readBuf[14];
     DeviceInfo::Estop = (bb14 & (1 << 7)) ? true : false;
@@ -645,33 +562,31 @@ void mk1Controller::parseBinaryInfo()
 }
 
 
+// send number of message to main class
 void mk1Controller::ADDMessage(int num)
 {
-    //     if (Message != NULL) {
-    //         Message(this, new DeviceEventArgsMessage(s));
-    //     }
     emit Message(num);
 }
 
 
 //
-// Включение шпинделя
+// enable spindle
 //
-void mk1Controller::spindelON()
+void mk1Controller::spindleON()
 {
     packB5(true);
 }
 
 //
-// Выключение шпинделя
+// disable spindle
 //
-void mk1Controller::spindelOFF()
+void mk1Controller::spindleOFF()
 {
     packB5(false);
 }
 
 //
-// Посылка аварийной остановки
+// send emergency stop
 //
 void mk1Controller::emergyStop()
 {
@@ -679,17 +594,13 @@ void mk1Controller::emergyStop()
 }
 
 //
-// Запуск движения без остановки
+// manual moving
 //
-// параметр "x" Ось Х (доступные значения "+" "0" "-")
-// параметр "y" Ось Y (доступные значения "+" "0" "-")
-// параметр "z" Ось Z (доступные значения "+" "0" "-")
-// параметр "speed"
+// input qstring parameter is "+", "0" or "-"
+// speed: velocity
 void mk1Controller::startManualMove(QString x, QString y, QString z, QString a, int speed)
 {
     if (!isConnected()) {
-        //QStringError = "Для выключения шпинделя, нужно вначале установить связь с контроллером";
-        //return false;
         return;
     }
 
@@ -700,37 +611,37 @@ void mk1Controller::startManualMove(QString x, QString y, QString z, QString a, 
 
     byte axesDirection = 0x00; // = new SuperByte(0x00);
 
-    //поставим нужные биты
+    // set the bits
     if (x == "-") {
-        axesDirection |= (1 << 0); //.SetBit(0, true);
+        axesDirection |= (1 << 0);
     }
 
     if (x == "+") {
-        axesDirection |= (1 << 1); //.SetBit(1, true);
+        axesDirection |= (1 << 1);
     }
 
     if (y == "-") {
-        axesDirection |= (1 << 2); //.SetBit(2, true);
+        axesDirection |= (1 << 2);
     }
 
     if (y == "+") {
-        axesDirection |= (1 << 3); //.SetBit(3, true);
+        axesDirection |= (1 << 3);
     }
 
     if (z == "-") {
-        axesDirection |= (1 << 4); //.SetBit(4, true);
+        axesDirection |= (1 << 4);
     }
 
     if (z == "+") {
-        axesDirection |= (1 << 5); //.SetBit(5, true);
+        axesDirection |= (1 << 5);
     }
 
     if (a == "-") {
-        axesDirection |= (1 << 6); //.SetBit(6, true);
+        axesDirection |= (1 << 6);
     }
 
     if (a == "+") {
-        axesDirection |= (1 << 7); //.SetBit(7, true);
+        axesDirection |= (1 << 7);
     }
 
     //DataClear();
@@ -743,15 +654,14 @@ void mk1Controller::startManualMove(QString x, QString y, QString z, QString a, 
 void mk1Controller::stopManualMove()
 {
     if (!isConnected()) {
-        //QStringError = "Для выключения шпинделя, нужно вначале установить связь с контроллером";
-        //return false;
+        return;
     }
 
     //     QByteArray buff = BinaryData.packBE(0x00, 0);
 
     packBE(0x00, 0, false);
     setByte(22, 0x01);
-    //TODO: разобраться для чего, этот байт
+    //TODO: unknown
     //     buff[22] = 0x01;
 
     //DataClear();
@@ -761,11 +671,9 @@ void mk1Controller::stopManualMove()
 }
 
 //
-// Установка в контроллер, нового положения по осям
+// new position
 //
-// параметр "x" Положение в импульсах
-// параметр "y" Положение в импульсах
-// параметр "z" Положение в импульсах
+// input paramereters in pulses
 void mk1Controller::deviceNewPosition(int x, int y, int z, int a)
 {
     if (!testAllowActions()) {
@@ -776,12 +684,9 @@ void mk1Controller::deviceNewPosition(int x, int y, int z, int a)
 }
 
 //
-// Установка в контроллер, нового положения по осям в ммилиметрах
+// new position in mm
 //
-// параметр "x" в миллиметрах
-// параметр "y" в миллиметрах
-// параметр "z" в миллиметрах
-// ReSharper disable once UnusedMember.Global
+//  input paramereters in mm
 void mk1Controller::deviceNewPosition(float x, float y, float z, float a)
 {
     if (!testAllowActions()) {
@@ -817,11 +722,11 @@ float DeviceInfo::AxesA_PositionMM ()
 }
 
 //
-// Вычисление положения в импульсах, при указании оси, и положения в миллиметрах
+//calculation of position in pulses
 //
-// параметр "axes" имя оси X,Y,Z
-// параметр "posMm" положение в мм
-// возвращаемый Количество импульсов
+// axes: name
+// posMm po in mm
+// return num of pulses
 int DeviceInfo::CalcPosPulse(QString axes, float posMm)
 {
     if (axes == "X") {
@@ -849,9 +754,9 @@ byte BinaryData::readBuf[BUFFER_SIZE];
 byte BinaryData::writeBuf[BUFFER_SIZE];
 
 //
-// Данная команда пока непонятна....
+// command unknown....
 //
-// параметр "byte05"
+// param "byte05"
 //
 void BinaryData::packC0(byte byte05, bool send)
 {
@@ -893,13 +798,10 @@ void BinaryData::cleanBuf(byte *m)
 }
 
 
-//region Послания данных в контроллер
-
 //
-// Посылка в контроллер бинарных данных
+// send the data to controller
 //
-// параметр "data" Набор данных
-// параметр "checkBuffSize" Проверять ли размер доступного буффера контроллера
+// "checkBuffSize" check the buffer
 void BinaryData::sendBinaryData(bool checkBuffSize)
 {
     if (checkBuffSize) {
@@ -907,12 +809,8 @@ void BinaryData::sendBinaryData(bool checkBuffSize)
             //тут нужно зависнуть пока буфер не освободится
         }
 
-        //TODO: перед выполнением проверять буфер на занятость....
+        //TODO: check buffer....
     }
-
-    // ReSharper disable once SuggestVarOrType_BuiltInTypes
-    // ReSharper disable once RedundantAssignment
-    //     int bytesWritten = BUFFER_SIZE;
 
     if (!DeviceInfo::DEMO_DEVICE) {
         //         _error_code = _usb->write(rawData);//, 2000, bytesWritten);
@@ -931,19 +829,19 @@ void BinaryData::sendBinaryData(bool checkBuffSize)
         }
 
     } else {
-        //TODO: добавить посылку виртуальному
+        //TODO: send data to virtual
     }
 }
 
 //
-// Управление работой шпинделя
+// spindle commands
 //
-// параметр "spindelON" Вкл/Выключен
-// параметр "numShimChanel" номер канала 1,2, или 3
-// параметр "ts" Тип сигнала
-// параметр "SpeedShim" Значение определяющее форму сигнала
+// spindleON: on/off
+// numShimChanel chan number 1,2, or 3
+// ts signal type
+// SpeedShim signal form
 //
-void BinaryData::packB5(bool spindelON, int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
+void BinaryData::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -951,7 +849,7 @@ void BinaryData::packB5(bool spindelON, int numShimChanel, TypeSignal ts, int Sp
     writeBuf[4] = 0x80;
 
 
-    if (spindelON) {
+    if (spindleON) {
         writeBuf[5] = 0x02;
     } else {
         writeBuf[5] = 0x01;
@@ -971,7 +869,7 @@ void BinaryData::packB5(bool spindelON, int numShimChanel, TypeSignal ts, int Sp
         }
 
         default: {
-            writeBuf[8] = 0x00; //доступен только 2 и 3 канал, остальные не подходят....
+            writeBuf[8] = 0x00; //only with 2 and 3 channel....
             break;
         }
     }
@@ -1010,7 +908,7 @@ void BinaryData::packB5(bool spindelON, int numShimChanel, TypeSignal ts, int Sp
 }
 
 //
-// Аварийная остановка
+// emergency STOP
 //
 //
 void BinaryData::packAA(bool send)
@@ -1026,11 +924,7 @@ void BinaryData::packAA(bool send)
 }
 
 //
-// Установка в контроллер новых координат, без движения
-//
-// параметр "x"
-// параметр "y"
-// параметр "z"
+// set the coordinates without moving
 //
 void BinaryData::packC8(int x, int y, int z, int a, bool send)
 {
@@ -1043,25 +937,25 @@ void BinaryData::packC8(int x, int y, int z, int a, bool send)
 
     writeBuf[0] = 0xc8;
 
-    //сколько импульсов сделать
+    //num of pulses
     writeBuf[6] = (byte)(newPosX);
     writeBuf[7] = (byte)(newPosX >> 8);
     writeBuf[8] = (byte)(newPosX >> 16);
     writeBuf[9] = (byte)(newPosX >> 24);
 
-    //сколько импульсов сделать
+    //num of pulses
     writeBuf[10] = (byte)(newPosY);
     writeBuf[11] = (byte)(newPosY >> 8);
     writeBuf[12] = (byte)(newPosY >> 16);
     writeBuf[13] = (byte)(newPosY >> 24);
 
-    //сколько импульсов сделать
+    //num of pulses
     writeBuf[14] = (byte)(newPosZ);
     writeBuf[15] = (byte)(newPosZ >> 8);
     writeBuf[16] = (byte)(newPosZ >> 16);
     writeBuf[17] = (byte)(newPosZ >> 24);
 
-    //сколько импульсов сделать
+    //num of pulses
     writeBuf[18] = (byte)(newPosA);
     writeBuf[19] = (byte)(newPosA >> 8);
     writeBuf[20] = (byte)(newPosA >> 16);
@@ -1073,8 +967,7 @@ void BinaryData::packC8(int x, int y, int z, int a, bool send)
 }
 
 //
-// Проверка длины инструмента, или прощупывание
-//
+// check length of tool
 //
 void BinaryData::packD2(int speed, float returnDistance, bool send)
 {
@@ -1089,24 +982,24 @@ void BinaryData::packD2(int speed, float returnDistance, bool send)
         inewSpd = (int)dnewSpd;
     }
 
-    //скорость
+    //velocity
     writeBuf[43] = (byte)(inewSpd);
     writeBuf[44] = (byte)(inewSpd >> 8);
     writeBuf[45] = (byte)(inewSpd >> 16);
 
 
-    //х.з.
+    //unknown
     writeBuf[46] = 0x10;
 
     //
     int inewReturn = (int)(returnDistance * (float)DeviceInfo::AxesZ_PulsePerMm);
 
-    //растояние возврата
+    //return to position
     writeBuf[50] = (byte)(inewReturn);
     writeBuf[51] = (byte)(inewReturn >> 8);
     writeBuf[52] = (byte)(inewReturn >> 16);
 
-    //х.з.
+    //unknown
     writeBuf[55] = 0x12;
     writeBuf[56] = 0x7A;
 
@@ -1117,10 +1010,10 @@ void BinaryData::packD2(int speed, float returnDistance, bool send)
 
 
 //
-// Запуск движения без остановки (и остановка)
+// moving without stop (and stop)
 //
-// параметр "direction" Направление по осям в байте
-// параметр "speed" Скорость движения
+// direction axes
+// speed
 //
 void BinaryData::packBE(byte direction, int speed, bool send)
 {
@@ -1137,7 +1030,7 @@ void BinaryData::packBE(byte direction, int speed, bool send)
         inewSpd = (int)dnewSpd;
     }
 
-    //скорость
+    //velocity
     writeBuf[10] = (byte)(inewSpd);
     writeBuf[11] = (byte)(inewSpd >> 8);
     writeBuf[12] = (byte)(inewSpd >> 16);
@@ -1150,7 +1043,7 @@ void BinaryData::packBE(byte direction, int speed, bool send)
 
 
 ////
-//// используется временно для прощупывания
+//// using temporary for scanning
 ////
 ////
 //void  BinaryData::packCA()
@@ -1183,19 +1076,14 @@ void BinaryData::pack9E(byte value, bool send)
 }
 
 //
-// Установка ограничения скорости
-//
-// параметр "speedLimitX" Максимальная скорость по оси X
-// параметр "speedLimitY" Максимальная скорость по оси Y
-// параметр "speedLimitZ" Максимальная скорость по оси Z
-// параметр "speedLimitA" Максимальная скорость по оси A
+// set velocity limit
 //
 void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send)
 {
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xbf;
-    writeBuf[4] = 0x80; //TODO: непонятный байт
+    writeBuf[4] = 0x80; //TODO:unknown
 
 
     float dnewSpdX = (3600 / (float)speedLimitX) * 1000;
@@ -1236,7 +1124,7 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
 }
 
 //
-// НЕИЗВЕСТНАЯ КОМАНДА
+// UNKNOWN COMMAND
 //
 //
 // void BinaryData::packC0(bool send)
@@ -1247,14 +1135,8 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
 // }
 
 //
-// Движение в указанную точку
+// moving to the point
 //
-// параметр "_posX" положение X в импульсах
-// параметр "_posY" положение Y в импульсах
-// параметр "_posZ" положение Z в импульсах
-// параметр "_speed" скорость мм/минуту
-// параметр "_NumberInstruction" Номер данной инструкции
-// возвращаемый набор данных для посылки
 void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send)
 {
     int newPosX = _posX;
@@ -1267,51 +1149,51 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
 
     writeBuf[0] = 0xca;
 
-    //запись номера инструкции
+    //save the number instruction
     writeBuf[1] = (byte)(newInst);
     writeBuf[2] = (byte)(newInst >> 8);
     writeBuf[3] = (byte)(newInst >> 16);
     writeBuf[4] = (byte)(newInst >> 24);
 
-    writeBuf[5] = 0x39; //TODO: непонятный байт
+    writeBuf[5] = 0x39; //TODO: unnknown byte
 
-    //сколько импульсов сделать
+    //how many pulses
     writeBuf[6] = (byte)(newPosX);
     writeBuf[7] = (byte)(newPosX >> 8);
     writeBuf[8] = (byte)(newPosX >> 16);
     writeBuf[9] = (byte)(newPosX >> 24);
 
-    //сколько импульсов сделать
+    //how many pulses
     writeBuf[10] = (byte)(newPosY);
     writeBuf[11] = (byte)(newPosY >> 8);
     writeBuf[12] = (byte)(newPosY >> 16);
     writeBuf[13] = (byte)(newPosY >> 24);
 
-    //сколько импульсов сделать
+    //how many pulses
     writeBuf[14] = (byte)(newPosZ);
     writeBuf[15] = (byte)(newPosZ >> 8);
     writeBuf[16] = (byte)(newPosZ >> 16);
     writeBuf[17] = (byte)(newPosZ >> 24);
 
-    //сколько импульсов сделать
+    //how many pulses
     writeBuf[18] = (byte)(newPosA);
     writeBuf[19] = (byte)(newPosA >> 8);
     writeBuf[20] = (byte)(newPosA >> 16);
     writeBuf[21] = (byte)(newPosA >> 24);
 
-    int inewSpd = 2328; //TODO: скорость по умолчанию
+    int inewSpd = 2328; //TODO: default velocity
 
     if (_speed != 0) {
         float dnewSpd = (1800 / (float)_speed) * 1000;
         inewSpd = (int)dnewSpd;
     }
 
-    //скорость ось х
+    //axes xspeed
     writeBuf[43] = (byte)(inewSpd);
     writeBuf[44] = (byte)(inewSpd >> 8);
     writeBuf[45] = (byte)(inewSpd >> 16);
 
-    writeBuf[54] = 0x40;  //TODO: непонятный байт
+    writeBuf[54] = 0x40;  //TODO: unknown byte
 
     if (send == true) {
         sendBinaryData();
@@ -1319,7 +1201,7 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
 }
 
 //
-// Завершение выполнения всех операций
+// break of all operations
 //
 //
 void BinaryData::packFF(bool send)
@@ -1334,7 +1216,7 @@ void BinaryData::packFF(bool send)
 }
 
 //
-// НЕИЗВЕСТНАЯ КОМАНДА
+// UNKNOWN COMMAND
 //
 //
 void BinaryData::pack9D(bool send)

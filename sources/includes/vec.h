@@ -263,8 +263,8 @@ typedef Vec<double, 3>  Vec3;
 typedef Vec<unsigned char, 3>   Vec3ub;
 typedef Vec<double, 4>  Vec4d;
 typedef Vec<float, 4>   Vec4f;
-// typedef Vec<Vec4d, 4>  Vec4x4d;
-// typedef Vec<Vec4f, 4>  Vec4x4f;
+typedef Vec<Vec4d, 4>  Vec4x4d;
+typedef Vec<Vec4f, 4>  Vec4x4f;
 
 // typedef std::array<TFloat4, 4> TFloat4x4;
 

@@ -1,15 +1,15 @@
 /****************************************************************************
- * Main developer:                                                          *
+ * Main developer, C# developing:                                           *
  * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * C# to Qt portation, developing                                           *
+ * C# to Qt portation, Linux developing                                     *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
- * ported from C# project CNC-controller-for-mk1                            *
+ * C# project CNC-controller-for-mk1                                        *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
  *                                                                          *
  * The Qt project                                                           *
@@ -30,7 +30,6 @@
  ****************************************************************************/
 
 #include <QtGui>
-// #include <QUrl>
 
 #include "includes/mk1Controller.h"
 #include "includes/ScanSurface.h"
@@ -39,8 +38,6 @@
 /******************************************************************************
 ** ScanSurfaceDialog
 */
-
-
 ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     : QDialog(p)
 {
@@ -55,6 +52,10 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
 
     Scan = false;
 
+    QString n = QString::number(1.01);
+    toDecimalPoint = (n.indexOf(",") > 0) ? ',' : '.';
+    fromDecimalPoint = (toDecimalPoint == ',') ? '.' : ',';
+
     indexScanX = 0;
     indexScanY = 0;
     indexMaxScanX = 0;
@@ -65,7 +66,7 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     numSpeed->setValue(200);
     numReturn->setValue(400);
 
-    //TODO: загрузить данные из существующей матрицы
+    //TODO: loading data from the matrix
     surfaceArr = parent->surfaceMatrix;
 
     sizeY = surfaceArr.count();
@@ -329,7 +330,7 @@ void ScanSurfaceDialog::itemChanged( QTableWidgetItem * item)
 
     QString ss = dataGridView->item(y, x)->text();
     bool res;
-    float val = ss.replace(".", ",").toDouble(&res);
+    float val = ss.replace(fromDecimalPoint, toDecimalPoint).toDouble(&res);
 
     if (res == true) {
         surfaceArr[y][x].Z = val;
@@ -344,7 +345,7 @@ void ScanSurfaceDialog::onTestScan()
     }
 
     if (scanThread->isRunning()) {
-        return;    //не будем вклиниваться если что....
+        return;    //if already runs...
     }
 
     if (Scan) {
@@ -355,17 +356,17 @@ void ScanSurfaceDialog::onTestScan()
         return;
     }
 
-    parent->cnc->packC0(0x01);  //вкл
+    parent->cnc->packC0(0x01);  // on
 
-    parent->cnc->packD2((int)numSpeed->value(), (float)numReturn->value());      // + настройка отхода и скорости
+    parent->cnc->packD2((int)numSpeed->value(), (float)numReturn->value());      // settings of movement and velocity
 
-    parent->cnc->packC0(0x00); //выкл
+    parent->cnc->packC0(0x00); // off
 }
 
 
 void ScanSurfaceDialog::onScan()
 {
-    //TODO: Добавить возможность выборочного сканирования
+    //TODO: to add the selective scanning
     if (Scan) {
         Scan = false;
         pushButtonScan->setText(translate(_SCAN));
@@ -382,7 +383,7 @@ void ScanSurfaceDialog::onScan()
         }
 
         if (scanThread->isRunning()) {
-            return;    //пока ещё работает поток
+            return;    // if already runs
         }
 
         if (parent->cnc->isConnected() == false) {
@@ -424,15 +425,15 @@ ScanThread::ScanThread(QObject* p)
     setTerminationEnabled(true);
 }
 
-// Поток выполняющий сканирование
+// scan thread
 // TODO: при сканировании иногда заполняет сразу 2 ячейки в таблице?!?
 void ScanThread::run()
 {
-    if (cnc->spindelMoveSpeed() != 0) {
+    if (cnc->spindleMoveSpeed() != 0) {
         return;
     }
 
-    //координаты куда передвинуться
+    // coordinates for moving
     //float px = dataCode.Matrix[indexScanY].X[indexScanX].X;
     float px = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].X;
     //float pz = dataCode.Matrix[indexScanY].X[indexScanX].Z;
@@ -441,17 +442,17 @@ void ScanThread::run()
     float py = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Y;
     float pa = 0;//sParent->numPosA->value();
 
-    //спозиционируемся
+    // move to point
     cnc->packCA(DeviceInfo::CalcPosPulse("X", px), DeviceInfo::CalcPosPulse("Y", py), DeviceInfo::CalcPosPulse("Z", pz),  DeviceInfo::CalcPosPulse("A", pa), (int)sParent->numSpeed->value(), 0);
 
     sleep(100);
 
-    //опустим щуп
-    cnc->packC0(0x01);//вкл
+    // опустим щуп
+    cnc->packC0(0x01); // on
 
-    cnc->packD2((int)sParent->numSpeed->value(), 0);// + настройка отхода, и скорости
+    cnc->packD2((int)sParent->numSpeed->value(), 0);// settings of movement and velocity
 
-    cnc->packC0(0x00); //выкл
+    cnc->packC0(0x00); // off
 
     sleep(100);
 
@@ -460,19 +461,18 @@ void ScanThread::run()
         sleep(100);
     }
 
-
     sleep(300);
     //dataCode.Matrix[indexScanY].X[indexScanX].Z = DeviceInfo::AxesZ_PositionMM;
     sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (float)DeviceInfo::AxesZ_PositionMM();
 
-    cnc->packC0(0x01); //вкл
+    cnc->packC0(0x01); // on
 
-    cnc->packD2((int)sParent->numSpeed->value(), (float)sParent->numReturn->value()); // + настройка отхода, и скорости
+    cnc->packD2((int)sParent->numSpeed->value(), (float)sParent->numReturn->value()); // settings of movement and velocity
 
-    cnc->packC0(0x00);//выкл
+    cnc->packC0(0x00); // off
 
     sleep(100);
-    //спозиционируемся
+    // move to the point
     cnc->packCA(DeviceInfo::CalcPosPulse("X", px), DeviceInfo::CalcPosPulse("Y", py), DeviceInfo::CalcPosPulse("Z", pz),  DeviceInfo::CalcPosPulse("A", pa), (int)sParent->numSpeed->value(), 0);
 
     sleep(100);
@@ -524,46 +524,13 @@ void ScanSurfaceDialog::buttonMove()
     parent->surfaceMatrix = surfaceArr;
 
     parent->moveToPoint(true);
-
-#if 0
-    int speed = 200;
-
-    parent->cnc->pack9E(0x05);
-
-    parent->cnc->packBF(speed, speed, speed, speed);
-
-    parent->cnc->packC0();
-
-    int pulseX = DeviceInfo::CalcPosPulse("X", surfaceArr[selectedY][selectedX].X);
-    int pulseY = DeviceInfo::CalcPosPulse("Y", surfaceArr[selectedY][selectedX].Y);
-    int pulseZ = DeviceInfo::CalcPosPulse("Z", surfaceArr[selectedY][selectedX].Z);
-    int pulseA = DeviceInfo::CalcPosPulse("A", surfaceArr[selectedY][selectedX].A);
-
-    parent->cnc->packCA(pulseX, pulseY, pulseZ, pulseA, speed, 0);
-
-    parent->cnc->packFF();
-
-    parent->cnc->pack9D();
-
-    parent->cnc->pack9E(0x02);
-
-    parent->cnc->packFF();
-
-    parent->cnc->packFF();
-
-    parent->cnc->packFF();
-
-    parent->cnc->packFF();
-
-    parent->cnc->packFF();
-#endif
 }
+
 
 // set z
 void ScanSurfaceDialog::buttonSetZ()
 {
-    //узнаем координаты из таблицы, куда все поместить
-
+    // узнаем координаты из таблицы, куда все поместить
     if (selectedX == -1 || selectedY == -1) {
         return;
     }

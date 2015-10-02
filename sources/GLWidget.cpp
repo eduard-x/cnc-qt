@@ -1,15 +1,15 @@
 /****************************************************************************
- * Main developer:                                                          *
+ * Main developer, C# developing:                                           *
  * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * C# to Qt portation, developing                                           *
+ * C# to Qt portation, Linux developing                                     *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
- * ported from C# project CNC-controller-for-mk1                            *
+ * C# project CNC-controller-for-mk1                                        *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
  *                                                                          *
  * The Qt project                                                           *
@@ -153,23 +153,23 @@ void GLWidget::matrixReloaded()
             }
 
             pointGL p;
-            //координаты следующей точки
+            //coordinates of next point
             float pointX = vv.X;
             float pointY = vv.Y;
             float pointZ = vv.Z;
 
-            //добавление смещения G-кода
+            //moving in G-code
             if (parent->Correction) {
-                // применение пропорций
+                // proportions
                 pointX *= parent->koeffSizeX;
                 pointY *= parent->koeffSizeY;
 
-                //применение смещения
+                // offset
                 pointX += parent->deltaX;
                 pointY += parent->deltaY;
                 pointZ += parent->deltaZ;
 
-                //применение матрицы поверхности детали
+                // to use the scanned surface, z correcture
                 if (parent->deltaFeed) {
                     pointZ += parent->GetDeltaZ(pointX, pointY);
                 }
@@ -224,15 +224,15 @@ void GLWidget::initPreviewSettings()
 
 
 //
-// инициализация 3D просмотра
+// init of 3d viewing
 //
 void GLWidget::initializeGL()//Init3D()//*OK*
 {
     makeCurrent();
-    // активация проекционной матрицы
+    // activate projection matrix
     glMatrixMode(GL_PROJECTION);
 
-    // очистка матрицы
+    // clening
     glLoadIdentity();
 
     glScalef( 1, 1, -1 ); // negative z is top
@@ -248,14 +248,13 @@ void GLWidget::initializeGL()//Init3D()//*OK*
 void GLWidget::paintGL()
 {
     //     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     Draw();
 }
 
 
 void GLWidget::resizeGL(int width, int height)
 {
-    // установка размера отображения
+    // set the current size of view
     glViewport(0, 0, width, height);
 }
 
@@ -315,17 +314,17 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 #define GLSCALE 2000.0
 
 
-void GLWidget::Draw() // процедура отрисовки
+void GLWidget::Draw() // drawing, main function
 {
-    // подготовка вуализации
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // очистка буфера цвета и буфера глубины
-    glClearColor(0.5f, 0.5f, 0.5f, 1);                                 // устанавливает черный цвет фона
+    //
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clean color buffer and depth buff
+    glClearColor(0.5f, 0.5f, 0.5f, 1);                  // set gray color of background
 
-    glLoadIdentity();                                         // очищение текущей матрицы
+    glLoadIdentity();                                   // clean
 
-    glPushMatrix();                                           // помещаем состояние матрицы в стек матриц
+    glPushMatrix();                                     // push current matrix
 
-    /// перемещаем камеру для более хорошего обзора объекта
+    /// move eyes point for better view of object
     glTranslated(parent->PosX / GLSCALE, parent->PosY / GLSCALE, parent->PosZ / GLSCALE);
 
     ///угловое вращение
@@ -333,7 +332,7 @@ void GLWidget::Draw() // процедура отрисовки
     glRotated(parent->PosAngleY, 0, 1, 0);
     glRotated(parent->PosAngleZ, 0, 0, 1);
 
-    //TODO: в данном месте учесть пропорции области вывода, чтобы исключить растягивания,при маштабировании
+    //TODO: to implement the proportions if width or high will be changed
 
     //glScalef(preview_setting.posZoom / (p1*1000), preview_setting.posZoom / p2, preview_setting.posZoom / 1000.0);
 
@@ -358,39 +357,39 @@ void GLWidget::Draw() // процедура отрисовки
 
     glEnable(GL_LINE_SMOOTH);
 
-    // Отображение координатной оси
+    // axes
     if (parent->ShowAxes) {
         drawAxes();
     }
 
-    // Отображение координатной сетки
+    // coordinate grid
     if (parent->ShowGrid) {
         drawGrid();
     }
 
-    // Матрица поверхности, для корерктировки
+    //  the scanned surface
     if (parent->ShowSurface) {
         drawSurface();
     }
 
-    // Отображение инструмента
+    // draw the tool
     if (parent->ShowInstrument) {
         drawInstrument();
     }
 
     drawWorkField();
 
-    // Отображение границ рабочего поля
+    // draw the border
     if (parent->ShowGrate) {
         drawGrate();
     }
 
-    // Завершение отрисовки
+    // end of drawing
     glDisable(GL_LINE_SMOOTH);
 
-    // возвращаем состояние матрицы
+    //
     glPopMatrix();
-    // отрисовываем геометрию
+    //
     glFlush();
 }
 
@@ -401,23 +400,23 @@ void GLWidget::drawAxes()
 
     glEnableClientState(GL_VERTEX_ARRAY);
 
-    //ось x
+    // x
     glColor3f(0.0f, 1.0f, 0.0f);
     glVertexPointer(3, GL_INT, 0, xAxis);
-    glDrawArrays(GL_LINES, 0, 6); //рисуем массив линий
-    renderText(12.0, 0.0, 0.0, QString("X")); //координаты расположения текста
+    glDrawArrays(GL_LINES, 0, 6); // draw array of lines
+    renderText(12.0, 0.0, 0.0, QString("X")); //coordinates of text
 
-    //ось y
+    // y
     glColor3f(1.0F, 0, 0.0F);
     glVertexPointer(3, GL_INT, 0, yAxis);
     glDrawArrays(GL_LINES, 0, 6);
-    renderText(0.0, 12.0, 0.0, QString("Y")); //координаты расположения текста
+    renderText(0.0, 12.0, 0.0, QString("Y")); //coordinates of text
 
-    //ось z
+    // z
     glColor3f(0.0F, 0, 1.0F);
     glVertexPointer(3, GL_INT, 0, zAxis);
     glDrawArrays(GL_LINES, 0, 6);
-    renderText(0.0, 0.0, 12.0, QString("Z")); //координаты расположения текста
+    renderText(0.0, 0.0, 12.0, QString("Z")); //coordinates of text
 
     glDisableClientState(GL_VERTEX_ARRAY);
 }
@@ -447,7 +446,7 @@ void GLWidget::drawWorkField()
     glDrawArrays(GL_LINE_STRIP, 0, workNum);
 
     // select with 3.0 the current cut of object
-    if (Task::StatusTask == Waiting) {
+    if (Task::Status == Waiting) {
         int numSelectStart = Task::posCodeStart - 1;
         int numSelectStop = Task::posCodeEnd - 1;
         glLineWidth(3.0f);
@@ -507,14 +506,14 @@ void GLWidget::drawSurface()
         return;
     }
 
-    //отбразим точки матрицы
+    //points
     glColor3f(1.000f, 0.498f, 0.314f); // red
     glPointSize(10.0F);
     glBegin(GL_POINTS);
 
     for (int y = 0; y < maxY; y++) {
         for (int x = 0; x < maxX; x++) {
-            //рисуем точку
+            //point
             glVertex3d(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
         }
     }
@@ -590,7 +589,7 @@ void GLWidget::drawGrate()
 
     glColor3f(0.541f, 0.169f, 0.886f);
 
-    glBegin(GL_LINE_STRIP); //РИСОВАНИЕ ОБЫЧНОЙ ЛИНИИ
+    glBegin(GL_LINE_STRIP); //normal lines
 
     glVertex3d(parent->grateXmin, parent->grateYmin, 0);
     glVertex3d(parent->grateXmax, parent->grateYmin, 0);
@@ -619,7 +618,6 @@ void GLWidget::setXCoord(int x)
 {
     if (parent->PosX != x) {
         parent->PosX = x;
-        //     updateGL();
     }
 }
 
@@ -628,7 +626,6 @@ void GLWidget::setYCoord(int y)
 {
     if (parent->PosY != y) {
         parent->PosY = y;
-        //     updateGL();
     }
 }
 
@@ -641,7 +638,6 @@ void GLWidget::setXRotation(int angle)
     if (angle != parent->PosAngleX) {
         parent->PosAngleX = angle;
         emit xRotationChanged(angle);
-        //         updateGL();
     }
 }
 
@@ -653,7 +649,6 @@ void GLWidget::setYRotation(int angle)
     if (angle != parent->PosAngleY) {
         parent->PosAngleY = angle;
         emit yRotationChanged(angle);
-        //         updateGL();
     }
 }
 
@@ -665,7 +660,6 @@ void GLWidget::setZRotation(int angle)
     if (angle != parent->PosAngleZ) {
         parent->PosAngleZ = angle;
         emit zRotationChanged(angle);
-        //         updateGL();
     }
 }
 
@@ -757,7 +751,7 @@ void GLWidget::onDefaulPreview()
 
 void GLWidget::onRenderTimer()
 {
-    // обработка "тика" таймера - вызов функции отрисовки
+    // ??
     Draw();
 }
 

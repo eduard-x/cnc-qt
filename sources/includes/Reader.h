@@ -1,15 +1,15 @@
 /****************************************************************************
- * Main developer:                                                          *
+ * Main developer, C# developing:                                           *
  * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * C# to Qt portation, developing                                           *
+ * C# to Qt portation, Linux developing                                     *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
- * ported from C# project CNC-controller-for-mk1                            *
+ * C# project CNC-controller-for-mk1                                        *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
  *                                                                          *
  * The Qt project                                                           *
@@ -52,28 +52,21 @@
 class cTranslator;
 
 //
-// Инструкция для станка
+// g-code instruction
 //
 class GCodeCommand
 {
     public:
-        bool   changeInstrument; // если true - то необходима остановка, для смены инструмента
-        int    numberInstrument;  // собственно номер инструмента
+        bool   changeInstrument; // to change the tool
+        int    numberInstrument; // собственно номер tool
 
         bool   needPause;        // необходимость паузы
-        int    mSeconds;       // длительность паузы, если 0 - то ожидание от пользователя о продолжении
+        int    mSeconds;         // длительность паузы, если 0 - то ожидание от пользователя о продолжении
 
         //
-        // координата в мм
-        //
+        // coordinates in mm
         float X;
-        //
-        // координата в мм
-        //
         float Y;
-        //
-        // координата в мм
-        //
         float Z;
 
         //
@@ -81,32 +74,31 @@ class GCodeCommand
         float A;
 
         int    speed;       // скорость
-        bool   spindelON;  // вкл. шпинделя
-        int    numberInstruct;     // номер инструкции
+        bool   spindelON;  // spinle on
+        int    numberInstruct;     // g-code
         bool   workspeed; // true=G1 false=G0
-        float diametr; // диаметр инструмента
+        float diametr; // diameter of tool
 
         //
-        // Пустой конструктор
-        //
+        // null constructor
         GCodeCommand();
 
         //         GCodeCommand(int _numberInstruct, bool _spindelON, float _X, float _Y, float _Z, float _A, int _speed,
         //                      bool _workspeed, bool _changeInstrument = false, int _numberInstrument = 0,
         //                      bool _needPause = false, int _timeSeconds = 0, float _diametr = 0.0);
 
-        //Конструктор на основе существующей команды
+        // Конструктор на основе существующей команды
         GCodeCommand(GCodeCommand *_cmd);
 };
 
 
 //
-// Результат парсинга G-кода
+// result parsing of g-code
 //
 struct GCode_resultParse {
     //     QString FullStr; //
-    QString GoodStr; // для распознанных
-    QString BadStr;  //  для нераспознанных
+    QString GoodStr; // for decoded
+    QString BadStr;  // for unknown
 };
 
 
@@ -131,7 +123,7 @@ enum Apertures {
     P_polygon
 };
 
-//возможные типы данных
+// possible data types
 enum typeCollections {
     Points,
     Instruments,
@@ -154,7 +146,7 @@ struct typeSpline {
     //     }
 };
 
-//для работы с гербером
+// gerber point descriptor
 struct grbPoint {
     int X;
     int Y;
@@ -171,12 +163,12 @@ struct grbPoint {
 };
 
 
-//класс описания точки
+// point descriptor
 struct Point {
     float X;
     float Y;
-    bool visible; //включение отображения данных
-    int size; //размер линии
+    bool visible; //data to view
+    int size; //line size
 
     //     public Point(float _x, float _y, bool _visible = true, int _size = 1)
     //     {
@@ -187,7 +179,7 @@ struct Point {
     //     }
 };
 
-//класс описания инструмента
+// tool descriptor
 struct Instrument {
     int Number;
     float Diametr;
@@ -200,13 +192,11 @@ struct Instrument {
 };
 
 
-//Набор однотипных данных
+//
 class DataCollections
 {
         ///
-        /// Конструктор набора точек
-        ///
-        /// парам: _Points">Список точек
+        ///points
     public:
         DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument)
         {
@@ -225,33 +215,30 @@ class DataCollections
 
 
 ///
-/// Класс для хранения данных gerber файла
+/// class for gerber file
 ///
 class GerberData
 {
         ///
-        /// Тип единицы измерения, мм или дюймы
-        ///
+        /// messure units, mm or inches
     public:
         QString UnitsType;
 
         ///
-        /// Типы сплайнов
+        /// spline types
         ///
-        QList<typeSpline> typeSplines;// = new QList<typeSpline>();
+        QList<typeSpline> typeSplines;
 
         ///
-        /// Точки из файла
+        /// points from file
         ///
-        QList<grbPoint> points;// = new QList<grbPoint>();
+        QList<grbPoint> points;
 
-        //длина всего числа
+        // length of number
         int countDigitsX;
-        //длина всего числа
         int countDigitsY;
-        //длина дробной части
+        // length of digs after dec.point
         int countPdigX;
-        //длина дробной части
         int countPdigY;
 
 
@@ -261,10 +248,6 @@ class GerberData
         int Y_min;
         int Y_max;
 
-        ///
-        /// Вычисление размерности необходимого массива, для анализа
-        ///
-        /// парам: accuracy">Коэфициент уменьшения размеров данных
     public:
         GerberData();
         void CalculateGatePoints(int _accuracy);
@@ -277,7 +260,6 @@ class GerberData
 
 class Reader : public cTranslator
 {
-        //         Q_OBJECT
     public:
         Reader();
 
@@ -325,11 +307,11 @@ class Reader : public cTranslator
         QChar fromDecimalPoint;
         QChar toDecimalPoint;
         typeFileLoad TypeFile;// = typeFileLoad.None;
-        QStringList goodList; //массив только для распознаных!!! G-кодов
+        QStringList goodList; // only decoded G-code
         QStringList badList;
-        //         MainWindow* parent;
+
         mutable QMutex mutex;
 };
 
 
-#endif // ABOUT_H
+#endif // READER_H

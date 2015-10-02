@@ -1,15 +1,15 @@
 /****************************************************************************
- * Main developer:                                                          *
+ * Main developer, C# developing:                                           *
  * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * C# to Qt portation, developing                                           *
+ * C# to Qt portation, Linux developing                                     *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
- * ported from C# project CNC-controller-for-mk1                            *
+ * C# project CNC-controller-for-mk1                                        *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
  *                                                                          *
  * The Qt project                                                           *
@@ -76,7 +76,7 @@ class usbHotplugThread : public QThread
 
 
 
-// Класс для получиния бинарных данных
+// class for communication with device
 class BinaryData
 {
     public:
@@ -87,7 +87,7 @@ class BinaryData
         };
 
         static void packC0(byte byte05 = 0x0, bool send = true);
-        static void packB5(bool spindelON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 0, bool send = true);
+        static void packB5(bool spindleON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 0, bool send = true);
         static void packAA(bool send = true);
         static void packC8(int x, int y, int z, int a, bool send = true);
         static void packD2(int speed, float returnDistance, bool send = true);
@@ -107,35 +107,29 @@ class BinaryData
         static libusb_device_handle *handle;
         static libusb_device_descriptor desc;
 
-        // Сырые данные от контроллера
+        // raw data
         static byte writeBuf[BUFFER_SIZE];
         static byte readBuf[BUFFER_SIZE];
 };
 
 
-// Статусы работы с устройством
+// devise state
 enum EStatusDevice { Connect = 0, Disconnect };
 
 
 class DeviceInfo
 {
     public:
-        // Размер доступного буфера в контроллере
+        // current size of free buffer
         static short FreebuffSize;
 
-        // Номер выполненной инструкции
+        // number of current instuction
         static int NumberCompleatedInstruction;
 
-        // Текущее положение в импульсах
+        // current position, impulses
         static int AxesX_PositionPulse;
-
-        // Текущее положение в импульсах
         static int AxesY_PositionPulse;
-
-        // Текущее положение в импульсах
         static int AxesZ_PositionPulse;
-
-        // Текущее положение в импульсах
         static int AxesA_PositionPulse;
 
         static int AxesX_PulsePerMm;
@@ -143,7 +137,7 @@ class DeviceInfo
         static int AxesZ_PulsePerMm;
         static int AxesA_PulsePerMm;
 
-        //срабатывание сенсора
+        // limit sensors
         static bool AxesX_LimitMax;
         static bool AxesX_LimitMin;
         static bool AxesY_LimitMax;
@@ -153,12 +147,12 @@ class DeviceInfo
         static bool AxesA_LimitMax;
         static bool AxesA_LimitMin;
 
-        static int spindel_MoveSpeed;
-        static bool spindel_Enable;
+        static int spindle_MoveSpeed;
+        static bool spindle_Enable;
 
         static bool Estop;
 
-        // Использование виртуального контроллера
+        // for virtual controller
         static bool DEMO_DEVICE;
 
     public: // methods
@@ -166,12 +160,13 @@ class DeviceInfo
         static float AxesY_PositionMM();
         static float AxesZ_PositionMM();
         static float AxesA_PositionMM();
+
         //
-        // Вычисление положения в импульсах, при указании оси, и положения в миллиметрах
+        // calculation of pulse number
         //
-        // параметр "axes">имя оси X,Y,Z
-        // параметр "posMm">положение в мм
-        // возвращаемый: Количество импульсов
+        // axes: "X", "Y" , "Z" or "A"
+        // posMm: position in mm
+        // return: pulses number
         static int CalcPosPulse(QString axes, float posMm);
 };
 
@@ -188,13 +183,13 @@ class mk1Controller : public QObject, public BinaryData
         virtual ~mk1Controller();
 
     signals:
-        // Посылка строки описания (для ведения логов)
+        // for logging
         void Message (int num);
-        // Событие при успешном подключении к контроллеру
-        // Событие при отключении от контроллера, или разрыве связи с контроллером
+
+        // signal if connect/disconnect
         void hotplugSignal();
 
-        // Получены новые данные от контроллера
+        // new data from controller
         void newDataFromMK1Controller();
 
     public slots:
@@ -213,24 +208,22 @@ class mk1Controller : public QObject, public BinaryData
         static QString devDescriptor;
 
         //
-        // Поток для получения, посылки данных в контроллер
+        // thread for reading from controller
         usbReadThread *readThread;
 
-        QSettings *settingsFile; // Файл настроек программы
+        QSettings *settingsFile; // main settings file
 
         int _error_code;
 
         int product_id, vendor_id;//, class_id;
-        //         UsbEndpointReader _usbReader;
-        //         UsbEndpointWriter _usbWriter;
 
         bool availableNewData;
 
         QTimer hotplugTimer;
 
     public:
-        void spindelON();
-        void spindelOFF();
+        void spindleON();
+        void spindleOFF();
         void emergyStop();
         void stopManualMove();
         void deviceNewPosition(int x, int y, int z, int a = 0);
@@ -244,15 +237,15 @@ class mk1Controller : public QObject, public BinaryData
         void loadSettings();
         void saveSettings();
 
-        int  getConfiguration();
+        //         int  getConfiguration();
         bool testAllowActions();
 
-        bool isConnected(); // Возвращает информацию о наличии связи
-        int  spindelMoveSpeed(); // Скорость движения шпинделя
-        long numberComleatedInstructions(); // Номер выполняемой инструкцииConnected
-        bool isSpindelOn(); // Свойство включен ли шпиндель
-        bool isEstopOn(); // Свойство активированна ли аварийная остановка
-        int  availableBufferSize();// Размер свободного буфера
+        bool isConnected();
+        int  spindleMoveSpeed();
+        long numberComleatedInstructions();
+        bool isSpindelOn();
+        bool isEmergencyStopOn();
+        int  availableBufferSize();
 
     private:
         void parseBinaryInfo();
@@ -294,11 +287,11 @@ class usbReadThread : public QThread
                 }
 
                 if (buf[0] != 0x01) {
-                    continue; //пока получаем пакеты только с кодом 0х01
+                    continue; // we get only data with code 0х01
                 }
 
                 //                 if (buf[1] < 2){
-                //                     emit bufIsFree(); // здесь не выполнялось никогда.
+                //                     emit bufIsFree(); // this was never called
                 //                 }
 
                 if (memcmp(buf, p->readBuf, BUFFER_SIZE) != 0) { // quick compare

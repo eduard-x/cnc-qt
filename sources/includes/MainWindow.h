@@ -1,15 +1,15 @@
 /****************************************************************************
- * Main developer:                                                          *
+ * Main developer, C# developing:                                           *
  * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
- * C# to Qt portation, developing                                           *
+ * C# to Qt portation, Linux developing                                     *
  * Copyright (C) 2015 by Eduard Kalinowski                                  *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
- * ported from C# project CNC-controller-for-mk1                            *
+ * C# project CNC-controller-for-mk1                                        *
  * https://github.com/selenur/CNC-controller-for-mk1                        *
  *                                                                          *
  * The Qt project                                                           *
@@ -88,10 +88,6 @@ class MessageBox: public cTranslator
 };
 
 
-//
-// Виды статусов выполнения задания
-//
-enum EStatusTask { Waiting = 0, TaskStart, TaskWorking, TaskPaused, TaskStop };
 
 enum AxesFix { FixX = 0, FixY, FixZ };
 
@@ -99,45 +95,34 @@ enum AxesFix { FixX = 0, FixY, FixZ };
 enum KeyPad { NoManuaControl = -1, NumPad = 0, CursorPad, UserDefined };
 
 //
-// Класс для работы с заданием для контроллера
+// task state
+//
+enum EStatusTask { Waiting = 0, Start, Working, Paused, Stop };
+
+//
+// class for current state of controller
 //
 class Task
 {
-        //
-        // Сво-во для определения режима работы
-        //
     public:
-        static EStatusTask StatusTask;
-
-        ////
-        //// Номер строки с заданием для выполнения
-        ////
-        //static int indexLineTask = -1;
-
-        ////
-        //// Количество выделенных строк (если выделено более 1-й строки, то нужно выполнить задание только по этим строкам)
-        ////
-        //static int countSelectLineTask = 0;
-
-
+        static EStatusTask Status;
         //
-        // Начальная позиция для выполнения
-        //
+        // begin of task (line of g-code)
         static int posCodeStart;
         //
-        // Конечная позиция для выполнения
-        //
+        // end of task (line of g-code)
         static int posCodeEnd;
         //
-        // Текущая позиция выполнения
-        //
+        // current line
         static int posCodeNow;
 };
+
 
 struct uKeys {
     QString name;
     Qt::Key code;
 };
+
 
 class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 {
@@ -148,24 +133,20 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         ~MainWindow();
 
         float GetDeltaZ(float _x, float _y);
-        float CubicHermite(const Vec4f& p, float t);
-        float BicubicHermitePatch(const Vec4f& p, float u, float v);
-        bool gernerateBicubicHermiteField();
+
         void moveToPoint(bool surfaceScan = false);
 
     public:
-        // Набор готовых инструкций для станка
-
         mk1Controller *cnc;
 
-        QVector<QVector<dPoint> > surfaceMatrix; // dataCode
+        QVector<QVector<dPoint> > surfaceMatrix; // scanned points of surface
         int scanPosX;
         int scanPosY;
 
         QString programStyleSheet;
 
-        // Для использования, корректировки положения
-        // Необходимость применения корректировки данных
+        //
+        // for the correction possibility
         bool Correction;
         float deltaX;
         float deltaY;
@@ -175,9 +156,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         int  fixedAxes;
         bool deltaFeed;
 
-
-        QVector<uKeys> userKeys;
         // user defined control keys
+        QVector<uKeys> userKeys;
 
         //
         int veloManual;
@@ -185,7 +165,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         int currentKeyPad;
 
         GLWidget *scene3d; // OpenGL widget
-
 
         // 3d Settings
         bool ShowGrate;
@@ -298,13 +277,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         QLabel *statusLabel1;
         QProgressBar *statusProgress;
         QLabel *statusSt;
-        //         QLabel *statLabelNumInstr;
 
         QTimer  renderTimer;
         QVector<QAction*> actLangSelect;
-        //         QVector<QAction*> actFSizeSelect;
         QMenu *langMenu;
-        //         QAction* restAct;
         QActionGroup* langGroup;
         QFont sysFont;
         short fontSize;
