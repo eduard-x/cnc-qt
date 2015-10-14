@@ -17,12 +17,12 @@
 # be defined with the path to libusb_version.c.
 #
 # The following standard variables get defined:
-#  LIBUSB_1_FOUND:            true if LibUSB was found
-#  LIBUSB_1_HEADER_FILE:      the location of the C header file
-#  LIBUSB_1_INCLUDE_DIRS:     the directorys that contain headers
-#  LIBUSB_1_LIBRARIES:        the library files
-#  LIBUSB_1_VERSION           the detected libusb version
-#  LIBUSB_1_HAVE_GET_VERSION  True if libusb has libusb_get_version()
+#  LIBUSB_FOUND:            true if LibUSB was found
+#  LIBUSB_HEADER_FILE:      the location of the C header file
+#  LIBUSB_INCLUDE_DIRS:     the directorys that contain headers
+#  LIBUSB_LIBRARIES:        the library files
+#  LIBUSB_VERSION           the detected libusb version
+#  LIBUSB_HAVE_GET_VERSION  True if libusb has libusb_get_version()
 
 if(DEFINED __INCLUDED_BLADERF_FINDLIBUSB_CMAKE)
     return()
@@ -53,7 +53,7 @@ if(PKG_CONFIG_FOUND)
 endif(PKG_CONFIG_FOUND)
 
 if(PKGCONFIG_LIBUSB_FOUND)
-    set(LIBUSB_1_INCLUDE_DIRS ${PKGCONFIG_LIBUSB_1_INCLUDE_DIRS})
+    set(LIBUSB_INCLUDE_DIRS ${PKGCONFIG_LIBUSB_INCLUDE_DIRS})
     foreach(i ${PKGCONFIG_LIBUSB_LIBRARIES})
         string(REGEX MATCH "[^-]*" ibase "${i}")
         find_library(${ibase}_LIBRARY
@@ -61,7 +61,7 @@ if(PKGCONFIG_LIBUSB_FOUND)
             PATHS ${PKGCONFIG_LIBUSB_LIBRARY_DIRS}
            )
         if(${ibase}_LIBRARY)
-            list(APPEND LIBUSB_1_LIBRARIES ${${ibase}_LIBRARY})
+            list(APPEND LIBUSB_LIBRARIES ${${ibase}_LIBRARY})
         endif(${ibase}_LIBRARY)
         mark_as_advanced(${ibase}_LIBRARY)
     endforeach(i)
@@ -88,7 +88,7 @@ else(PKGCONFIG_LIBUSB_FOUND)
         set(LIBUSB_EXTRA_PATHS /usr /usr/local /opt/local)
     endif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
-    find_file(LIBUSB_1_HEADER_FILE
+    find_file(LIBUSB_HEADER_FILE
         NAMES
         libusb.h
         PATHS
@@ -97,8 +97,8 @@ else(PKGCONFIG_LIBUSB_FOUND)
         PATH_SUFFIXES
         include include/libusbx-1.0 include/libusb-1.0
        )
-    mark_as_advanced(LIBUSB_1_HEADER_FILE)
-    get_filename_component(LIBUSB_1_INCLUDE_DIRS "${LIBUSB_1_HEADER_FILE}" PATH)
+    mark_as_advanced(LIBUSB_HEADER_FILE)
+    get_filename_component(LIBUSB_INCLUDE_DIRS "${LIBUSB_HEADER_FILE}" PATH)
 
 
     find_library(usb_LIBRARY
@@ -112,35 +112,35 @@ else(PKGCONFIG_LIBUSB_FOUND)
        )
     mark_as_advanced(usb_LIBRARY)
     if(usb_LIBRARY)
-        set(LIBUSB_1_LIBRARIES ${usb_LIBRARY})
+        set(LIBUSB_LIBRARIES ${usb_LIBRARY})
     endif(usb_LIBRARY)
 
 endif(PKGCONFIG_LIBUSB_FOUND)
 
-if(LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
-    set(LIBUSB_1_FOUND true)
-endif(LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
+if(LIBUSB_INCLUDE_DIRS AND LIBUSB_LIBRARIES)
+    set(LIBUSB_FOUND true)
+endif(LIBUSB_INCLUDE_DIRS AND LIBUSB_LIBRARIES)
 
-if(LIBUSB_1_FOUND)
-    set(CMAKE_REQUIRED_INCLUDES "${LIBUSB_1_INCLUDE_DIRS}")
-    check_include_file("{LIBUSB_1_HEADER_FILE}" LIBUSB_1_FOUND)
-endif(LIBUSB_1_FOUND)
+if(LIBUSB_FOUND)
+    set(CMAKE_REQUIRED_INCLUDES "${LIBUSB_INCLUDE_DIRS}")
+    check_include_file("{LIBUSB_HEADER_FILE}" LIBUSB_FOUND)
+endif(LIBUSB_FOUND)
 
-if(LIBUSB_1_FOUND AND NOT CMAKE_CROSSCOMPILING)
+if(LIBUSB_FOUND AND NOT CMAKE_CROSSCOMPILING)
     if(LIBUSB_SKIP_VERSION_CHECK)
         message(STATUS "Skipping libusb version number check.")
-        unset(LIBUSB_1_VERSION)
+        unset(LIBUSB_VERSION)
     else()
         message(STATUS "Checking libusb version...")
 
         if(WIN32)
-            string(REPLACE ".lib" ".dll" LIBUSB_DLL "${LIBUSB_1_LIBRARIES}")
+            string(REPLACE ".lib" ".dll" LIBUSB_DLL "${LIBUSB_LIBRARIES}")
             try_run(LIBUSB_VERCHECK_RUN_RESULT
                     LIBUSB_VERCHECK_COMPILED
                     ${CMAKE_HELPERS_BINARY_DIR}
                     ${CMAKE_HELPERS_SOURCE_DIR}/libusb_version.c
-                    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${LIBUSB_1_INCLUDE_DIRS}"
-                    RUN_OUTPUT_VARIABLE LIBUSB_1_VERSION
+                    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${LIBUSB_INCLUDE_DIRS}"
+                    RUN_OUTPUT_VARIABLE LIBUSB_VERSION
                     ARGS "\"${LIBUSB_DLL}\""
             )
         else()
@@ -148,22 +148,22 @@ if(LIBUSB_1_FOUND AND NOT CMAKE_CROSSCOMPILING)
                     LIBUSB_VERCHECK_COMPILED
                     ${CMAKE_HELPERS_BINARY_DIR}
                     ${CMAKE_HELPERS_SOURCE_DIR}/libusb_version.c
-                    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${LIBUSB_1_INCLUDE_DIRS}" "-DLINK_LIBRARIES=${LIBUSB_1_LIBRARIES}"
-                    RUN_OUTPUT_VARIABLE LIBUSB_1_VERSION
+                    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${LIBUSB_INCLUDE_DIRS}" "-DLINK_LIBRARIES=${LIBUSB_LIBRARIES}"
+                    RUN_OUTPUT_VARIABLE LIBUSB_VERSION
             )
         endif()
 
 
         if (NOT LIBUSB_VERCHECK_COMPILED OR NOT LIBUSB_VERCHECK_RUN_RESULT EQUAL 0 )
-            message(STATUS "${LIBUSB_1_VERSION}")
-            set(LIBUSB_1_VERSION "0.0.0")
+            message(STATUS "${LIBUSB_VERSION}")
+            set(LIBUSB_VERSION "0.0.0")
             message(WARNING "\nFailed to compile (compiled=${LIBUSB_VERCHECK_COMPILED}) or run (retval=${LIBUSB_VERCHECK_RUN_RESULT}) libusb version check.\n"
                              "This may occur if libusb is earlier than v1.0.10.\n"
-                             "Setting LIBUSB_1_VERSION to ${LIBUSB_1_VERSION}.\n")
+                             "Setting LIBUSB_VERSION to ${LIBUSB_VERSION}.\n")
             return()
         endif()
 
-        message(STATUS "libusb version: ${LIBUSB_1_VERSION}")
+#        message(STATUS "libusb version: ${LIBUSB_VERSION}")
     endif()
-endif(LIBUSB_1_FOUND AND NOT CMAKE_CROSSCOMPILING)
+endif(LIBUSB_FOUND AND NOT CMAKE_CROSSCOMPILING)
 
