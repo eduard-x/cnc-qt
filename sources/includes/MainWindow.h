@@ -39,6 +39,7 @@
 #include <QCloseEvent>
 #include <QKeyEvent>
 
+#include <QProgressBar>
 #include <QScrollArea>
 #include <QImage>
 #include <QTimeLine>
@@ -46,16 +47,23 @@
 #include <deque>
 #include <utility>
 
+#include "../version.h"
 #include "vec.h"
+
+#if USE_OPENGL == true
 #include "GLWidget.h"
+#endif
+
 #include "Reader.h"
 #include "mk1Controller.h"
 #include "Geometry.h"
 #include "Translator.h"
 #include "ui_MainWindow.h"
 
-
+#if USE_OPENGL == true
 class GLWidget;
+#endif
+
 class mk1Controller;
 class cTranslator;
 class Reader;
@@ -163,9 +171,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         int veloManual;
 
         int currentKeyPad;
-
+#if USE_OPENGL == true
         GLWidget *scene3d; // OpenGL widget
-
+#endif
         // 3d Settings
         bool ShowGrate;
         float grateXmin;
