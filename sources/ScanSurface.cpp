@@ -499,7 +499,7 @@ void ScanThread::run()
 void ScanSurfaceDialog::onTimer1()
 {
     if ( selectedX == -1 && selectedY == -1) {
-        label10->setText(QString().sprintf("X: %4.2f Y: %4.2f", 0, 0));
+        label10->setText(QString().sprintf("X: %4.2f Y: %4.2f", 0.0, 0.0));
         return;
     }
 

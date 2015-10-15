@@ -27,6 +27,7 @@
 if(DEFINED __INCLUDED_BLADERF_FINDLIBUSB_CMAKE)
     return()
 endif()
+
 set(__INCLUDED_BLADERF_FINDLIBUSB_CMAKE TRUE)
 
 include(CheckLibraryExists)
@@ -50,7 +51,7 @@ endif()
 find_package(PkgConfig)
 if(PKG_CONFIG_FOUND)
     pkg_check_modules(PKGCONFIG_LIBUSB libusb-1.0 QUIET)
-endif(PKG_CONFIG_FOUND)
+endif()
 
 if(PKGCONFIG_LIBUSB_FOUND)
     set(LIBUSB_INCLUDE_DIRS ${PKGCONFIG_LIBUSB_INCLUDE_DIRS})
@@ -62,31 +63,30 @@ if(PKGCONFIG_LIBUSB_FOUND)
            )
         if(${ibase}_LIBRARY)
             list(APPEND LIBUSB_LIBRARIES ${${ibase}_LIBRARY})
-        endif(${ibase}_LIBRARY)
+        endif()
         mark_as_advanced(${ibase}_LIBRARY)
     endforeach(i)
-
-else(PKGCONFIG_LIBUSB_FOUND)
+else()
     if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
         # The libusbx binary distribution contains several libs.
         # Use the lib that got compiled with the same compiler.
         if(MSVC)
             if(CMAKE_CL_64)
                 set(LIBUSB_LIBRARY_PATH_SUFFIX MS64/dll)
-            else(CMAKE_CL_64)
+            else()
                 set(LIBUSB_LIBRARY_PATH_SUFFIX MS32/dll)
-            endif(CMAKE_CL_64)
+            endif()
         elseif(CMAKE_COMPILER_IS_GNUCC)
             if(CMAKE_SIZEOF_VOID_P EQUAL 8)
                 set(LIBUSB_LIBRARY_PATH_SUFFIX MinGW32/dll)
-            else(CMAKE_SIZEOF_VOID_P EQUAL 8)
+            else()
                 set(LIBUSB_LIBRARY_PATH_SUFFIX MinGW64/dll)
-            endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        endif(MSVC)
+            endif()
+        endif()
     else()
         set(LIBUSB_LIBRARY_PATH_SUFFIX lib)
         set(LIBUSB_EXTRA_PATHS /usr /usr/local /opt/local)
-    endif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    endif()
 
     find_file(LIBUSB_HEADER_FILE
         NAMES
@@ -113,18 +113,18 @@ else(PKGCONFIG_LIBUSB_FOUND)
     mark_as_advanced(usb_LIBRARY)
     if(usb_LIBRARY)
         set(LIBUSB_LIBRARIES ${usb_LIBRARY})
-    endif(usb_LIBRARY)
+    endif()
+endif()
 
-endif(PKGCONFIG_LIBUSB_FOUND)
 
 if(LIBUSB_INCLUDE_DIRS AND LIBUSB_LIBRARIES)
     set(LIBUSB_FOUND true)
-endif(LIBUSB_INCLUDE_DIRS AND LIBUSB_LIBRARIES)
+endif()
 
 if(LIBUSB_FOUND)
     set(CMAKE_REQUIRED_INCLUDES "${LIBUSB_INCLUDE_DIRS}")
     check_include_file("{LIBUSB_HEADER_FILE}" LIBUSB_FOUND)
-endif(LIBUSB_FOUND)
+endif()
 
 if(LIBUSB_FOUND AND NOT CMAKE_CROSSCOMPILING)
     if(LIBUSB_SKIP_VERSION_CHECK)
@@ -153,17 +153,14 @@ if(LIBUSB_FOUND AND NOT CMAKE_CROSSCOMPILING)
             )
         endif()
 
-
         if (NOT LIBUSB_VERCHECK_COMPILED OR NOT LIBUSB_VERCHECK_RUN_RESULT EQUAL 0 )
             message(STATUS "${LIBUSB_VERSION}")
             set(LIBUSB_VERSION "0.0.0")
             message(WARNING "\nFailed to compile (compiled=${LIBUSB_VERCHECK_COMPILED}) or run (retval=${LIBUSB_VERCHECK_RUN_RESULT}) libusb version check.\n"
-                             "This may occur if libusb is earlier than v1.0.10.\n"
+                             "This may occur if libusb is earlier than v1.0.16.\n"
                              "Setting LIBUSB_VERSION to ${LIBUSB_VERSION}.\n")
             return()
         endif()
-
-#        message(STATUS "libusb version: ${LIBUSB_VERSION}")
     endif()
-endif(LIBUSB_FOUND AND NOT CMAKE_CROSSCOMPILING)
+endif()
 

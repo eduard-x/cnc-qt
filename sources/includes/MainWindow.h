@@ -164,6 +164,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
         int  fixedAxes;
         bool deltaFeed;
 
+        bool enableOpenGL;
+
         // user defined control keys
         QVector<uKeys> userKeys;
 

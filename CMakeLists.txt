@@ -12,7 +12,7 @@ SET(USE_QT_VERSION 4)
 #enable or disable profiling info
 SET(USE_PROFILER false)
 
-#
+# to activate of OpenGL displaying and widgets set to "true"
 SET(USE_OPENGL true)
 
 IF(${USE_OPENGL})
@@ -49,7 +49,7 @@ INCLUDE(FindLibUSB-1.0)
 IF(NOT ${LIBUSB_VERSION} LESS "1.0.16")
   MESSAGE("-- LibUSB version ${LIBUSB_VERSION}")
 ELSE()
-  MESSAGE(FATAL_ERROR "-- LibUSB version ${LIBUSB_VERSION} too old")
+  MESSAGE(FATAL_ERROR "-- LibUSB version ${LIBUSB_VERSION} TOO OLD! Please Install this library newer as 1.0.16")
 ENDIF()
 
 # Set the CNC-Qt version
@@ -112,9 +112,9 @@ IF(${USE_PROFILER})
   SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
   # after execution of program: gprof ./build/cncqt 
   # and get the information from gprof.txt file
-  MESSAGE("Compile with profiling information")
+  MESSAGE("-- Compile with profiling information")
 ELSE()
-  MESSAGE("Compile without profiling information")
+  MESSAGE("-- Compile without profiling information")
 ENDIF()
 
 

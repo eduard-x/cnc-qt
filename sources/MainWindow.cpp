@@ -35,6 +35,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QImage>
+#include <QDebug>
 #include <QVector>
 #include <QDateTime>
 #include <QFileDialog>
@@ -42,7 +43,9 @@
 #include <QTextStream>
 #include <QToolButton>
 
+#if USE_OPENGL == true
 #include <QtOpenGL>
+#endif
 
 #include "includes/Settings.h"
 #include "includes/About.h"
@@ -50,7 +53,11 @@
 #include "includes/EditGCode.h"
 #include "includes/ManualControl.h"
 #include "includes/ScanSurface.h"
+
+#if USE_OPENGL == true
 #include "includes/Settings3d.h"
+#endif
+
 #include "includes/MainWindow.h"
 
 
@@ -163,6 +170,14 @@ MainWindow::MainWindow(QWidget *parent)
         currentAppDir.remove("/build" );
     }
 
+#if USE_OPENGL == false
+    enableOpenGL = false;
+#else
+    QString d = getenv( "DISPLAY" ); // linux machines only!
+
+    // to disable the OpenGL features, if over ssh
+    enableOpenGL = (d.indexOf(":0") == 0);
+#endif
     currentLang = "English";
 
     QFont sysFont = qApp->font();
@@ -223,14 +238,22 @@ MainWindow::MainWindow(QWidget *parent)
     cnc->loadSettings();
 
     // OpenGL area
+    if (enableOpenGL == true) {
+#if USE_OPENGL == true
+        scene3d = new GLWidget(this);
 
-    scene3d = new GLWidget(this);
+        scrollArea->setWidget(scene3d);
 
-    scrollArea->setWidget(scene3d);
-
-    OpenGL_preview->addWidget(scrollArea, 0, 0);
-
-    // OpenGL is placed in widget
+        OpenGL_preview->addWidget(scrollArea, 0, 0);
+#endif
+        // OpenGL is placed in widget
+    } else {
+#if USE_OPENGL == true
+        scene3d = 0;
+#endif
+        tabWidget->removeTab(1);
+        actionOpenGL->setEnabled(false);
+    }
 
     Correction = false;
     deltaX = 0;
@@ -373,27 +396,30 @@ void MainWindow::addConnections()
 
     mainTaskTimer.setInterval(20); // every 20 msec update
 
+    if (enableOpenGL == true) {
+#if USE_OPENGL == true
+        // 3d buttons
+        connect(posAngleXm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXm()));
+        connect(posAngleX, SIGNAL(clicked()), scene3d, SLOT(onPosAngleX())); // reset to 0
+        connect(scene3d, SIGNAL(xRotationChanged(int)), this, SLOT(getXRotation(int)));
+        connect(posAngleXp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXp()));
 
-    // 3d buttons
-    connect(posAngleXm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXm()));
-    connect(posAngleX, SIGNAL(clicked()), scene3d, SLOT(onPosAngleX())); // reset to 0
-    connect(scene3d, SIGNAL(xRotationChanged(int)), this, SLOT(getXRotation(int)));
-    connect(posAngleXp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXp()));
+        connect(posAngleYm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleYm()));
+        connect(posAngleY, SIGNAL(clicked()), scene3d, SLOT(onPosAngleY())); // reset to 0
+        connect(scene3d, SIGNAL(yRotationChanged(int)), this, SLOT(getYRotation(int)));
+        connect(posAngleYp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleYp()));
 
-    connect(posAngleYm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleYm()));
-    connect(posAngleY, SIGNAL(clicked()), scene3d, SLOT(onPosAngleY())); // reset to 0
-    connect(scene3d, SIGNAL(yRotationChanged(int)), this, SLOT(getYRotation(int)));
-    connect(posAngleYp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleYp()));
+        connect(posAngleZm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleZm()));
+        connect(posAngleZ, SIGNAL(clicked()), scene3d, SLOT(onPosAngleZ())); // reset to 0
+        connect(scene3d, SIGNAL(zRotationChanged(int)), this, SLOT(getZRotation(int)));
+        connect(posAngleZp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleZp()));
 
-    connect(posAngleZm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleZm()));
-    connect(posAngleZ, SIGNAL(clicked()), scene3d, SLOT(onPosAngleZ())); // reset to 0
-    connect(scene3d, SIGNAL(zRotationChanged(int)), this, SLOT(getZRotation(int)));
-    connect(posAngleZp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleZp()));
+        connect(scene3d, SIGNAL(scaleChanged(int)), this, SLOT(getScale(int)));
 
-    connect(scene3d, SIGNAL(scaleChanged(int)), this, SLOT(getScale(int)));
-
-    connect(pushDefaultPreview, SIGNAL(clicked()), scene3d, SLOT(onDefaulPreview()));
-    // end of 3d buttons
+        connect(pushDefaultPreview, SIGNAL(clicked()), scene3d, SLOT(onDefaulPreview()));
+        // end of 3d buttons
+#endif
+    }
 
     connect(radioFixX, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
     connect(radioFixY, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
@@ -863,10 +889,16 @@ void MainWindow::translateGUI()
     labelPWMVelo->setText(translate(_VELO_PWM));
     labelPWMCHan->setText(translate(_CHAN_PWM));
 
-    tabWidget->setTabText(0, translate(_DATA));
-    tabWidget->setTabText(1, translate(_3D_VIEW));
-    tabWidget->setTabText(2, translate(_ADDITIONAL));
-    tabWidget->setTabText(3, translate(_LOG));
+    if (enableOpenGL == true) {
+        tabWidget->setTabText(0, translate(_DATA));
+        tabWidget->setTabText(1, translate(_3D_VIEW));
+        tabWidget->setTabText(2, translate(_ADDITIONAL));
+        tabWidget->setTabText(3, translate(_LOG));
+    } else {
+        tabWidget->setTabText(0, translate(_DATA));
+        tabWidget->setTabText(1, translate(_ADDITIONAL));
+        tabWidget->setTabText(2, translate(_LOG));
+    }
 
     labelSubmission->setText(translate(_SUBMISSION));
     labelMoving->setText(translate(_MOVING));
@@ -1649,9 +1681,12 @@ void  MainWindow::refreshElementsForms()
             //TODO: to overwork it, because of resetting of selected ragne
             //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;
         }
-
-        scene3d->Draw();
-        scene3d->updateGL();
+#if USE_OPENGL == true
+        if (enableOpenGL == true) {
+            scene3d->Draw();
+            scene3d->updateGL();
+        }
+#endif
     } else {
         toolRun->setEnabled( cncConnected);
         toolPause->setEnabled( cncConnected);
@@ -1700,8 +1735,11 @@ void MainWindow::fillListWidget(QStringList listCode)
     tabWidget->setCurrentIndex(0);
 
     statusProgress->setRange(1, listGCodeWidget->rowCount() - 1);
-
-    scene3d->matrixReloaded();
+#if USE_OPENGL == true
+    if (enableOpenGL == true) {
+        scene3d->matrixReloaded();
+    }
+#endif
 }
 
 
@@ -1786,13 +1824,17 @@ void MainWindow::Feed()
 
 void MainWindow::on3dSettings()
 {
-    // 3d settings
-    Settings3dDialog *dlg = new Settings3dDialog(this);
-    dlg->exec();
+#if USE_OPENGL == true
+    if (enableOpenGL == true) {
+        // 3d settings
+        Settings3dDialog *dlg = new Settings3dDialog(this);
+        dlg->exec();
 
-    scene3d->updateGL();
+        scene3d->updateGL();
 
-    delete dlg;
+        delete dlg;
+    }
+#endif
 }
 
 
