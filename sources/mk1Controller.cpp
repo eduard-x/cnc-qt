@@ -260,6 +260,8 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
     readThread = 0;
 
+    bool devAlreadyConnected = false;
+    
     handle = libusb_open_device_with_vid_pid(NULL, vendor_id, product_id); //these are vendorID and productID I found for my usb device
 
     if(handle == NULL) {
@@ -287,7 +289,10 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
         }
 
 #endif
+	devAlreadyConnected = true;
 
+// 	libusb_close(handle);
+	
         int e = libusb_set_configuration (handle, 1);
 
         if(e != 0)  {
@@ -336,6 +341,21 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
             connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
             hotplugThread->start();
         }
+        
+        if (devAlreadyConnected == true){
+	    libusb_close(handle);
+	
+	    handle = libusb_open_device_with_vid_pid(NULL, vendor_id, product_id); //these are vendorID and productID I found for my usb device
+	    int e = libusb_set_configuration (handle, 1);
+
+	    if(e < 0) {
+		qDebug() << "Cannot Claim Interface";
+		libusb_close(handle);
+		handle = 0;
+	    } else    {
+		qDebug() << "Claimed Interface";
+	    }
+	}
     }
 
     settingsFile = new QSettings("CNCSoft", "CNC-Qt");

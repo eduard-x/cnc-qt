@@ -1676,7 +1676,7 @@ void  MainWindow::refreshElementsForms()
         }
 
         if (Task::Status == Working) {
-            statusProgress->setValue( cnc->numberComleatedInstructions());
+            statusProgress->setValue( cnc->numberComleatedInstructions() + 1);
             //listGkodeForUser.Rows[cnc->NumberComleatedInstructions].Selected = true;
             //TODO: to overwork it, because of resetting of selected ragne
             //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;

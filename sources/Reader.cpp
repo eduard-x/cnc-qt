@@ -206,7 +206,11 @@ void Reader::readFile(const QString &fileName)
     fromDecimalPoint = (toDecimalPoint == ',') ? '.' : ',';
 
     QFile file(fileName);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text) == false) {
+        return;
+    }
+
     qint64 sz = file.size();
 
     if (sz > 20e6) {
@@ -708,10 +712,10 @@ bool Reader::readGCode(const QByteArray &gcode)
         int pos = lineStream.indexOf(QRegExp("N(\\d+)"));
 
         if ( pos == 0) { // remove command number from lineStream
-            int posNotDigit = lineStream.indexOf(QRegExp("([A-Z])"));
+            int posNotDigit = lineStream.indexOf(QRegExp("([A-Z])"), pos + 1);
 
             if (posNotDigit > 0) {
-                lineStream = lineStream.mid(posNotDigit + 1);
+                lineStream = lineStream.mid(posNotDigit);
             }
         }
 
