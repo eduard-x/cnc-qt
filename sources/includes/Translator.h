@@ -179,7 +179,7 @@ enum TR_CONSTS {
     _RUN, // 125
     _CLEAN, // 126
     _PROG_RUNNING, // 127
-    _FROM_NUM, // 128
+    _CURRENT_LINE, // 128
     _G_CODE, // 129
     _YES, // 130
     _NO, // 131

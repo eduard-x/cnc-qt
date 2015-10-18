@@ -341,7 +341,7 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
         if (devAlreadyConnected == true) {
             if (handle != 0) {
-                libusb_release_interface(handle, 0);
+//                 libusb_release_interface(handle, 0);
                 libusb_close(handle);
             }
 

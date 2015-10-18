@@ -922,7 +922,7 @@ void MainWindow::translateGUI()
     labelMaxA->setText(translate(_MAX));
 
     //
-    labelRunFrom->setText(translate(_FROM_NUM));
+    labelRunFrom->setText(translate(_CURRENT_LINE));
     labelNumVelo->setText(translate(_VELO));
 
     menuFile->setTitle(translate(_FILE));
@@ -1119,7 +1119,7 @@ bool MainWindow::runCommand()
     }
 
     // the task is ready
-    if (Task::posCodeNow > Task::posCodeEnd) {
+    if (Task::posCodeNow >= Task::posCodeEnd +1) {
         Task::Status = Stop;
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
 
@@ -1202,7 +1202,7 @@ bool MainWindow::runCommand()
     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
 
     Task::posCodeNow++;
-    labelRunFrom->setText( translate(_FROM_NUM) + QString::number(Task::posCodeNow));
+    labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::posCodeNow+1));
 
     return true;
 }
