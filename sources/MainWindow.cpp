@@ -1681,11 +1681,14 @@ void  MainWindow::refreshElementsForms()
             //TODO: to overwork it, because of resetting of selected ragne
             //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;
         }
+
 #if USE_OPENGL == true
+
         if (enableOpenGL == true) {
             scene3d->Draw();
             scene3d->updateGL();
         }
+
 #endif
     } else {
         toolRun->setEnabled( cncConnected);
@@ -1736,9 +1739,11 @@ void MainWindow::fillListWidget(QStringList listCode)
 
     statusProgress->setRange(1, listGCodeWidget->rowCount() - 1);
 #if USE_OPENGL == true
+
     if (enableOpenGL == true) {
         scene3d->matrixReloaded();
     }
+
 #endif
 }
 
@@ -1825,6 +1830,7 @@ void MainWindow::Feed()
 void MainWindow::on3dSettings()
 {
 #if USE_OPENGL == true
+
     if (enableOpenGL == true) {
         // 3d settings
         Settings3dDialog *dlg = new Settings3dDialog(this);
@@ -1834,6 +1840,7 @@ void MainWindow::on3dSettings()
 
         delete dlg;
     }
+
 #endif
 }
 

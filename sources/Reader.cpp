@@ -214,7 +214,7 @@ void Reader::readFile(const QString &fileName)
     }
 
     const QByteArray arr = file.readAll();
-    QByteArray detectArray = arr.left(255); // first 255 bytes for format detection
+    QByteArray detectArray = arr.left(1024); // first 1024 bytes for format detection
 
     file.close();
 
@@ -688,7 +688,20 @@ bool Reader::readGCode(const QByteArray &gcode)
             }
         }
 
-        lineStream = lineStream.remove(' ');
+        int commentBeg = lineStream.indexOf('(');
+        int commentEnd = lineStream.indexOf(')');
+
+        while (lineStream.length() > 0 && commentBeg >= 0 && commentEnd >= 0) {
+            lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);
+            commentBeg = lineStream.indexOf('(');
+            commentEnd = lineStream.indexOf(')');
+        }
+
+        if (lineStream.length() == 0) {
+            continue;
+        }
+
+        //         lineStream = lineStream.remove(' ');
 
         lineStream = lineStream.replace(fromDecimalPoint, toDecimalPoint);
 
