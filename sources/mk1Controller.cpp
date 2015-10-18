@@ -87,17 +87,11 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
 {
 
     int rc;
-    QString descrStr;
+    //     QString descrStr;
+    //
+    //     //     struct libusb_device_descriptor desc;
 
-    //     struct libusb_device_descriptor desc;
-
-    rc = libusb_get_device_descriptor(dev, &mk1Controller::desc);
-
-    if (LIBUSB_SUCCESS != rc) {
-        qDebug() << "Error getting device descriptor";
-        mk1Controller::handle = 0;
-        return -1;
-    }
+    //     mk1Controller::getDeviceInfo(dev);
 
     qDebug() << "Device to attache" << mk1Controller::handle;
 
@@ -117,6 +111,8 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
         return -1;
     }
 
+    mk1Controller::getDeviceInfo();
+#if 0
     // get device descriptor
     descrStr = QString().sprintf("VendorID: 0x%x ProductID: 0x%x\n\n", mk1Controller::desc.idVendor,  mk1Controller::desc.idProduct);
     descrStr += QString().sprintf("Number of possible configurations: %d\n", mk1Controller::desc.bNumConfigurations);
@@ -161,7 +157,7 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
 
     mk1Controller::setDescription(descrStr);
     // end of get device descriptor
-
+#endif
 #ifdef __linux__
 
     if(libusb_kernel_driver_active(mk1Controller::handle, 0) == 1) {
@@ -261,7 +257,7 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     readThread = 0;
 
     bool devAlreadyConnected = false;
-    
+
     handle = libusb_open_device_with_vid_pid(NULL, vendor_id, product_id); //these are vendorID and productID I found for my usb device
 
     if(handle == NULL) {
@@ -289,10 +285,9 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
         }
 
 #endif
-	devAlreadyConnected = true;
 
-// 	libusb_close(handle);
-	
+        //  libusb_close(handle);
+
         int e = libusb_set_configuration (handle, 1);
 
         if(e != 0)  {
@@ -313,6 +308,8 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
         } else    {
             qDebug() << "Claimed Interface";
         }
+
+        devAlreadyConnected = true;
     }
 
     if (!libusb_has_capability (LIBUSB_CAP_HAS_HOTPLUG)) {
@@ -341,26 +338,114 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
             connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
             hotplugThread->start();
         }
-        
-        if (devAlreadyConnected == true){
-	    libusb_close(handle);
-	
-	    handle = libusb_open_device_with_vid_pid(NULL, vendor_id, product_id); //these are vendorID and productID I found for my usb device
-	    int e = libusb_set_configuration (handle, 1);
 
-	    if(e < 0) {
-		qDebug() << "Cannot Claim Interface";
-		libusb_close(handle);
-		handle = 0;
-	    } else    {
-		qDebug() << "Claimed Interface";
-	    }
-	}
+        if (devAlreadyConnected == true) {
+            if (handle != 0) {
+                libusb_release_interface(handle, 0);
+                libusb_close(handle);
+            }
+
+            handle = libusb_open_device_with_vid_pid(NULL, vendor_id, product_id); //these are vendorID and productID I found for my usb device
+            int e = libusb_set_configuration (handle, 1);
+
+            if(e < 0) {
+                qDebug() << "Cannot Claim Interface";
+                libusb_close(handle);
+                handle = 0;
+            } else    {
+                qDebug() << "Claimed Interface";
+            }
+
+            getDeviceInfo();
+        }
     }
 
     settingsFile = new QSettings("CNCSoft", "CNC-Qt");
 }
 
+
+int mk1Controller::getDeviceInfo()
+{
+    int rc;
+    QString descrStr;
+
+    libusb_device *dev = libusb_get_device(handle);
+
+    rc = libusb_get_device_descriptor(dev, &desc);
+
+    if (LIBUSB_SUCCESS != rc) {
+        qDebug() << "Error getting device descriptor";
+        handle = 0;
+        return -1;
+    }
+
+    //     qDebug() << "Device to attache" << handle;
+
+    //     qDebug() << QString("Device attached: %1:%2").arg(desc.idVendor).arg(desc.idProduct);
+
+    //     if (handle) {
+    //         libusb_close (handle);
+    //         handle = 0;
+    //         return -1;
+    //     }
+    //
+    //     rc = libusb_open (dev, &handle);
+    //
+    //     if (LIBUSB_SUCCESS != rc) {
+    //         qDebug() << "Error opening device";
+    //         handle = 0;
+    //         return -1;
+    //     }
+
+    //     QString descrStr;
+
+    // get device descriptor
+    descrStr = QString().sprintf("VendorID: 0x%x ProductID: 0x%x\n\n", desc.idVendor,  desc.idProduct);
+    descrStr += QString().sprintf("Number of possible configurations: %d\n", desc.bNumConfigurations);
+    descrStr += QString().sprintf("Device Class: %d\n\n", desc.bDeviceClass);
+
+    libusb_config_descriptor *config;
+    libusb_get_config_descriptor(dev, 0, &config);
+    descrStr += QString().sprintf("Interfaces: %d\n\n", config->bNumInterfaces);
+    const libusb_interface *inter;
+    const libusb_interface_descriptor *interdesc;
+    const libusb_endpoint_descriptor *epdesc;
+
+    for(int i = 0; i < (int)config->bNumInterfaces; i++) {
+        inter = &config->interface[i];
+        descrStr += QString().sprintf("Number of alternate settings: %d", inter->num_altsetting);
+
+        for(int j = 0; j < inter->num_altsetting; j++) {
+            interdesc = &inter->altsetting[j];
+            descrStr += QString().sprintf("\nInterface Number: %d\n", interdesc->bInterfaceNumber);
+            descrStr += QString().sprintf("Number of endpoints: %d\n", interdesc->bNumEndpoints);
+            descrStr += QString().sprintf("Alternate Setting: %d\n", interdesc->bAlternateSetting);
+            descrStr += QString().sprintf("Interface Class: %d\n", interdesc->bInterfaceClass);
+            descrStr += QString().sprintf("Interface SubClass: %d\n", interdesc->bInterfaceSubClass);
+            descrStr += QString().sprintf("Interface: %d\n", interdesc->iInterface);
+
+            for(int k = 0; k < (int)interdesc->bNumEndpoints; k++) {
+                epdesc = &interdesc->endpoint[k];
+                descrStr += QString().sprintf("\nDescriptor Type: %d\n", epdesc->bDescriptorType);
+                descrStr += QString().sprintf("Endpoint Address: %d\n", epdesc->bEndpointAddress);
+                descrStr += QString().sprintf("Attributes: %d\n", epdesc->bmAttributes);
+                descrStr += QString().sprintf("MaxPacketSize: %d\n", epdesc->wMaxPacketSize);
+                descrStr += QString().sprintf("Interval: %d\n", epdesc->bInterval);
+                descrStr += QString().sprintf("Refresh: %d\n", epdesc->bRefresh);
+                descrStr += QString().sprintf("SynchAddress: %d\n", epdesc->bSynchAddress);
+            }
+        }
+    }
+
+    //     qDebug() << descrStr;
+
+    libusb_free_config_descriptor(config);
+
+    devDescriptor = descrStr;
+    //     setDescription(descrStr);
+    // end of get device descriptor
+    return 0;
+}
 
 mk1Controller::~mk1Controller()
 {

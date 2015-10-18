@@ -233,6 +233,7 @@ class mk1Controller : public QObject, public BinaryData
         QString getDescription();
         static void setDescription(const QString &s);
         static void resetDescription();
+        static int getDeviceInfo();
 
         void loadSettings();
         void saveSettings();
