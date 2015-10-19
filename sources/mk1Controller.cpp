@@ -341,7 +341,7 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
         if (devAlreadyConnected == true) {
             if (handle != 0) {
-//                 libusb_release_interface(handle, 0);
+                //                 libusb_release_interface(handle, 0);
                 libusb_close(handle);
             }
 
@@ -1308,7 +1308,6 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
 //
 // break of all operations
 //
-//
 void BinaryData::packFF(bool send)
 {
     cleanBuf(writeBuf);
@@ -1322,7 +1321,6 @@ void BinaryData::packFF(bool send)
 
 //
 // UNKNOWN COMMAND
-//
 //
 void BinaryData::pack9D(bool send)
 {

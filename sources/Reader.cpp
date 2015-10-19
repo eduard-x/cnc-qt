@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015 by Eduard Kalinowski                                  *
+ * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -193,12 +193,12 @@ void Reader::SaveFile()
 }
 
 
-void Reader::readFile(const QString &fileName)
+bool Reader::readFile(const QString &fileName)
 {
     int pointPos = fileName.lastIndexOf(".");
 
     if (pointPos == -1) { // error
-        return;
+        return false;
     }
 
     QString n = QString::number(1.01);
@@ -208,13 +208,13 @@ void Reader::readFile(const QString &fileName)
     QFile file(fileName);
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text) == false) {
-        return;
+        return false;
     }
 
     qint64 sz = file.size();
 
     if (sz > 20e6) {
-        return;
+        return false;
     }
 
     const QByteArray arr = file.readAll();
@@ -226,56 +226,58 @@ void Reader::readFile(const QString &fileName)
 
     if ((detectArray.indexOf("G90") >= 0) || (detectArray.indexOf("G91") >= 0)) { // G-Code program detect
         TypeFile == GCODE;
-        readGCode(arr);
-        return;
+        return readGCode(arr);
+        //         return;
     }
 
     if ( detectArray.indexOf("IN1;") >= 0 ) { // plotter format
         TypeFile = PLT;
-        readPLT(arr);
-        return;
+        return readPLT(arr);
+        //         return;
     }
 
     if ( detectArray.indexOf("<svg") >= 0 ) { // svg
         TypeFile = SVG;
-        readSVG(arr);
-        return;
+        return readSVG(arr);
+        //         return;
     }
 
     if ( detectArray.indexOf("") >= 0 ) { // eps
         TypeFile = EPS;
-        readEPS(arr);
-        return;
+        return readEPS(arr);
+        //         return;
     }
 
     if ( detectArray.indexOf("") >= 0 ) { // polylines
         TypeFile = DXF;
-        readDXF(arr);
-        return;
+        return readDXF(arr);
+        //         return;
     }
 
     if ( detectArray.indexOf("") >= 0 ) { // excellon
         TypeFile = DRL;
-        readDRL(arr);
-        return;
+        return readDRL(arr);
+        //         return;
     }
 
     if ((detectArray.indexOf("G04 ") >= 0) && (detectArray.indexOf("%MOMM*%") > 0 || detectArray.indexOf("%MOIN*%") > 0) ) { // extended gerber
         TypeFile = GBR;
-        readGBR(arr);
-        return;
+        return readGBR(arr);
+        //         return;
     }
 
     if (TypeFile == None) { // error
         // qmessagebox
     }
+
+    return false;
 }
 
 
 //
 // Вызов диалога пользователя для выбора файла, и посылка данных в процедуру: LoadDataFromText(QStringList lines)
 //
-void Reader::OpenFile(const QString &fileName)
+bool Reader::OpenFile(QString &fileName)
 {
     QString name;
 
@@ -283,16 +285,17 @@ void Reader::OpenFile(const QString &fileName)
         name = QFileDialog::getOpenFileName ( 0, translate(_LOAD_FROM_FILE), QDir::homePath() );//File.ReadAllLines(openFileDialog.FileName);
 
         if (name.length() == 0) {
-            return;
+            return false;
         }
     } else {
         name = fileName;
     }
 
     if (name.length() > 0) {
-        readFile(name);
+        return readFile(name);
     }
 
+    return false;
 #if 0
     QStringList sData;
     QFile file(name);
@@ -1115,7 +1118,7 @@ bool Reader::parseCoord(const QString &line, Vec3 &pos, float &E, const float co
 }
 
 
-void Reader::readPLT( const QByteArray &arr )
+bool Reader::readPLT( const QByteArray &arr )
 {
     QList<Point> points;// = new QList<Point>();
 
@@ -1217,27 +1220,30 @@ void Reader::readPLT( const QByteArray &arr )
     //     qDebug() << "загружено!!!!!!!!";
     //     fs = null;
 
-
+    return true;
 
 }
 
 
-void Reader::readSVG( const QByteArray &arr)
+bool Reader::readSVG( const QByteArray &arr)
 {
+    return true;
 }
 
 
-void Reader::readEPS( const QByteArray &arr)
+bool Reader::readEPS( const QByteArray &arr)
 {
+    return true;
 }
 
 
-void Reader::readDXF( const QByteArray &arr)
+bool Reader::readDXF( const QByteArray &arr)
 {
+    return true;
 }
 
 
-void Reader::readDRL( const QByteArray &arr)
+bool Reader::readDRL( const QByteArray &arr)
 {
     data.clear();
 
@@ -1318,7 +1324,7 @@ void Reader::readDRL( const QByteArray &arr)
     //int index = 0;
     //int indexList = -1;
 
-
+    return true;
 
 }
 
@@ -1488,7 +1494,7 @@ void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, 
 //
 // gerber reader
 //
-void Reader::readGBR( const QByteArray &arr)
+bool Reader::readGBR( const QByteArray &arr)
 {
     GerberData grb;
 
@@ -1736,6 +1742,7 @@ void Reader::readGBR( const QByteArray &arr)
 #endif
     qDebug() << "Готово!";
 
+    return true;
     //     arrayPoint = null;
 
     //System.Diagnostics.Process proc = System.Diagnostics.Process.Start("mspaint.exe", "d:\sample.bmp"); //Запускаем блокнот

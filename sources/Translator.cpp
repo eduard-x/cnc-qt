@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015 by Eduard Kalinowski                                  *
+ * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -53,7 +53,7 @@ QString cTranslator::engText[] = {
     "Second connection is not possible, until the current is interrupted!",
     "End of connection to controller!", // 10
     "Error",
-    "Before exit from program, please disconnect from CNC!",
+    "Before exit from program, please end the task!",
     "No connection to controller!",
     "No data for execution!",
     "Start execution of program",
@@ -188,8 +188,8 @@ QString cTranslator::engText[] = {
     "Data",
     "Log",
     "3D View",
-    "Submission",
-    "Movement",
+    "Working",
+    "Rapid",
     "Device hotplugged",
     "Device detached",
     "Warning",

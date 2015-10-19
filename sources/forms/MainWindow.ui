@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>974</width>
-    <height>714</height>
+    <width>996</width>
+    <height>740</height>
    </rect>
   </property>
   <property name="iconSize">
@@ -466,7 +466,7 @@
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tab1">
             <attribute name="title">
@@ -864,8 +864,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>743</width>
-                    <height>442</height>
+                    <width>770</width>
+                    <height>447</height>
                    </rect>
                   </property>
                  </widget>
@@ -1482,6 +1482,19 @@
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
+             <widget class="QLabel" name="labelTask">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QLabel" name="labelRunFrom">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -1573,8 +1586,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>974</width>
-     <height>22</height>
+     <width>996</width>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

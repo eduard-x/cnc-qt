@@ -266,14 +266,14 @@ class Reader : public cTranslator
         void BresenhamLine(QVector<QVector<byte> > &p, int x0, int y0, int x1, int y1, typeSpline _Splane);
         void BresenhamCircle(QVector<QVector<byte> > &p,  int x0, int y0, int radius, byte setvalue = 4, bool needFill = false);
 
-        void readFile( const QString &fileName);
+        bool readFile( const QString &fileName);
 
         //         void loadGCode(const QString &filename);
 
 
         //         void loadGCodeFromText(QStringList lines);
         //         bool parserGCodeLine(const QString &value);
-        void OpenFile(const QString &name = "");
+        bool OpenFile(QString &name);
         void SaveFile();
         QStringList getGoodList();
         QStringList getBadList();
@@ -293,12 +293,12 @@ class Reader : public cTranslator
         void Swap(int &p1, int &p2);
         bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
         bool readGCode( const QByteArray &gcode );
-        void readGBR( const QByteArray &gcode );
-        void readDRL( const QByteArray &gcode );
-        void readDXF( const QByteArray &gcode );
-        void readSVG( const QByteArray &gcode );
-        void readEPS( const QByteArray &gcode );
-        void readPLT( const QByteArray &gcode );
+        bool readGBR( const QByteArray &gcode );
+        bool readDRL( const QByteArray &gcode );
+        bool readDXF( const QByteArray &gcode );
+        bool readSVG( const QByteArray &gcode );
+        bool readEPS( const QByteArray &gcode );
+        bool readPLT( const QByteArray &gcode );
         void lock() const;
         void unlock() const;
         //         GCode_resultParse parseStringGCode(const QString &value);

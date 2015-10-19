@@ -447,8 +447,8 @@ void GLWidget::drawWorkField()
 
     // select with 3.0 the current cut of object
     if (Task::Status == Waiting) {
-        int numSelectStart = Task::posCodeStart - 1;
-        int numSelectStop = Task::posCodeEnd - 1;
+        int numSelectStart = Task::posCodeStart;
+        int numSelectStop = Task::posCodeEnd;
         glLineWidth(3.0f);
         glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelectStart]);
         glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelectStart]);

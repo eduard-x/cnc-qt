@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015 by Eduard Kalinowski                                  *
+ * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -146,10 +146,9 @@ int MessageBox::exec(void* p, const QString &title, const QString &text, int tic
 
 
 // because of static
-EStatusTask  Task::Status = Waiting;
+EStatusTask  Task::Status = Stop;
 int Task::posCodeStart = -1;
 int Task::posCodeEnd = -1;
-
 int Task::posCodeNow = -1;
 
 
@@ -246,11 +245,21 @@ MainWindow::MainWindow(QWidget *parent)
 
         OpenGL_preview->addWidget(scrollArea, 0, 0);
 #endif
+        QPalette palette = statusLabel2->palette();
+        //  palette.setColor(statusLabel2->backgroundRole(), Qt::yellow);
+        palette.setColor(statusLabel2->foregroundRole(), Qt::green);
+        statusLabel2->setPalette(palette);
+        statusLabel2->setText( "OpenGL enabled" );
         // OpenGL is placed in widget
     } else {
 #if USE_OPENGL == true
         scene3d = 0;
 #endif
+        QPalette palette = statusLabel2->palette();
+        //  palette.setColor(statusLabel2->backgroundRole(), Qt::yellow);
+        palette.setColor(statusLabel2->foregroundRole(), Qt::red);
+        statusLabel2->setPalette(palette);
+        statusLabel2->setText( "OpenGL disabled" );
         tabWidget->removeTab(1);
         actionOpenGL->setEnabled(false);
     }
@@ -818,7 +827,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent* ce)
 {
-    if (cnc->isConnected()) {
+    if (Task::Status != Stop) {
         MessageBox::exec(this, translate(_WARN), translate(_MSG_FOR_DISABLE), QMessageBox::Critical);
         ce->ignore();
         return;
@@ -835,6 +844,8 @@ void MainWindow::closeEvent(QCloseEvent* ce)
     disconnect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 
     writeGUISettings();
+    
+    delete cnc;
 
     ce->accept();
 
@@ -844,7 +855,7 @@ void MainWindow::closeEvent(QCloseEvent* ce)
 
 void MainWindow::onExit()
 {
-    if (cnc->isConnected()) {
+    if (Task::Status != Stop) {
         MessageBox::exec(this, translate(_WARN), translate(_MSG_FOR_DISABLE), QMessageBox::Critical);
         return;
     }
@@ -853,11 +864,15 @@ void MainWindow::onExit()
         //         ce->ignore();
         return;
     }
+    
+    delete cnc;
 
     disconnect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 
     writeGUISettings();
 
+    delete cnc;
+    
     QCoreApplication::quit();
 }
 
@@ -969,7 +984,7 @@ void MainWindow::onStartTask()
 
     //if nothing was selected, from begin to end of list
     if (selected.count() == 0) {
-        end = listGCodeWidget->rowCount();
+        end = listGCodeWidget->rowCount() - 1;
     }
 
     if (selected.count() == 1) { //selected only one line
@@ -982,16 +997,16 @@ void MainWindow::onStartTask()
             return;
         }
 
-        end = listGCodeWidget->rowCount();
+        end = listGCodeWidget->rowCount() - 1;
     }
 
     if (selected.count() > 1) { //select lines range
         QString msg = translate(_QUEST_START_FROMTOLINE);
 
         beg = selected.first().row();
-        end = selected.count() + beg;
+        end = selected.count() + beg - 1;
         int dlgr =  MessageBox::exec(this, translate(_START_PROG),  msg.arg(QString::number(beg + 1 ))
-                                     .arg(QString::number(end)), QMessageBox::Question);
+                                     .arg(QString::number(end + 1)), QMessageBox::Question);
 
         if (dlgr == QMessageBox::Cancel) {
             return;
@@ -1000,12 +1015,11 @@ void MainWindow::onStartTask()
 
     //установим границы выполнения
     Task::posCodeStart = beg;
-    Task::posCodeEnd = end - 1;
+    Task::posCodeEnd = end;
     Task::posCodeNow = Task::posCodeStart;
 
-    //     qDebug() << "start " << Task::posCodeStart << Task::posCodeEnd;
     QString s = "from :" + QString::number( Task::posCodeStart + 1 ) + " to: " + QString::number( Task::posCodeEnd + 1);
-    statusSt->setText( s );
+    labelTask->setText( s );
 
     groupManualControl->setChecked( false ); // disable manual control
 
@@ -1049,9 +1063,12 @@ bool MainWindow::runCommand()
     int userSpeedG1 = (int)numVeloSubmission->value();
     int userSpeedG0 = (int)numVeloMoving->value();
 
-    //     qDebug() << "main timer" << GCodeList.count() << Task::posCodeNow;
-    if (Task::posCodeNow >= (GCodeList.count() - 1)) {
-        //         mainTaskTimer.stop();
+    if (Task::posCodeNow > Task::posCodeEnd) {
+        Task::Status = Stop;
+        AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
+
+        refreshElementsForms();
+        //
         return false;
     }
 
@@ -1080,6 +1097,7 @@ bool MainWindow::runCommand()
         cnc->packCA(DeviceInfo::CalcPosPulse("X", gcodeNow.X), DeviceInfo::CalcPosPulse("Y", gcodeNow.Y), DeviceInfo::AxesZ_PositionPulse + DeviceInfo::CalcPosPulse("Z", 10), DeviceInfo::CalcPosPulse("A", gcodeNow.A), userSpeedG0, 0);
 
         Task::Status = Working;
+
         refreshElementsForms();
 
         return true; //after start code
@@ -1098,34 +1116,39 @@ bool MainWindow::runCommand()
 
         cnc->packFF();
 
-        cnc->packFF();
-
-        cnc->packFF();
-
-        cnc->packFF();
-
-        cnc->packFF();
+        //         cnc->packFF();
+        //
+        //         cnc->packFF();
+        //
+        //         cnc->packFF();
+        //
+        //         cnc->packFF();
 
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
         Task::Status = Waiting;
         //         mainTaskTimer.stop();
+
+        refreshElementsForms();
+
         return false;
     }
 
     // Working
 
     if (Task::Status != Working) {
+        refreshElementsForms();
+
         return false;
     }
 
     // the task is ready
-    if (Task::posCodeNow >= Task::posCodeEnd +1) {
-        Task::Status = Stop;
-        AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
-
-        //         mainTaskTimer.stop();
-        return false;
-    }
+    //     if (Task::posCodeNow > Task::posCodeEnd) {
+    //         Task::Status = Stop;
+    //         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
+    //
+    //         //         mainTaskTimer.stop();
+    //         return false;
+    //     }
 
     //TODO: to add in parameter the value
     if (cnc->availableBufferSize() < 5) {
@@ -1142,19 +1165,22 @@ bool MainWindow::runCommand()
     if (gcodeNow.needPause) {
         if (gcodeNow.mSeconds == 0) { // M0 - waiting command
             Task::Status = Paused;
-            refreshElementsForms();
+
+
             //pause before user click
             //             QMessageBox.Show("Получена команда M0 для остановки! для дальнейшего выполнения нужно нажать на кнопку 'пауза'", "Пауза",
             //                              QMessageBoxButtons.OK, QMessageBoxIcon.Asterisk);
             MessageBox::exec(this, translate(_PAUSE), translate(_RECIEVED_M0), QMessageBox::Information);
         } else {
             QString msg = translate(_PAUSE_G4);
-            statusSt->setText( msg.arg(QString::number(gcodeNow.mSeconds)));
+            statusLabel2->setText( msg.arg(QString::number(gcodeNow.mSeconds)));
 
             QThread().wait(gcodeNow.mSeconds); // пауза в мсек.
 
-            statusSt->setText( "" );
+            statusLabel2->setText( "" );
         }
+
+        refreshElementsForms();
     }
 
     //replace instrument
@@ -1202,7 +1228,9 @@ bool MainWindow::runCommand()
     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
 
     Task::posCodeNow++;
-    labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::posCodeNow+1));
+    labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::posCodeNow + 1));
+
+    refreshElementsForms();
 
     return true;
 }
@@ -1243,7 +1271,7 @@ void MainWindow::AddLog(QString _text)
 void MainWindow::onStatus()
 {
     // clean message
-    statusSt->setText( "" );
+    statusLabel2->setText( "" );
 }
 
 
@@ -1293,13 +1321,13 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
     cnc->packFF();
 
-    cnc->packFF();
-
-    cnc->packFF();
-
-    cnc->packFF();
-
-    cnc->packFF();
+    //     cnc->packFF();
+    //
+    //     cnc->packFF();
+    //
+    //     cnc->packFF();
+    //
+    //     cnc->packFF();
 }
 
 
@@ -1362,10 +1390,10 @@ void MainWindow::addStatusWidgets()
     statusProgress->setFixedHeight(17);
     statusbar->addWidget(statusProgress);
 
-    statusSt = new QLabel();
-    statusSt->setFixedWidth(250);
-    statusSt->setFixedHeight(17);
-    statusbar->addPermanentWidget(statusSt);
+    statusLabel2 = new QLabel();
+    statusLabel2->setFixedWidth(250);
+    statusLabel2->setFixedHeight(17);
+    statusbar->addPermanentWidget(statusLabel2);
 }
 
 
@@ -1474,22 +1502,25 @@ void  MainWindow::refreshElementsForms()
 {
     bool cncConnected = cnc->isConnected();
 
+
+#if 0
     if (cncConnected) {
         //         actionConnectDisconnect->setIcon( QIcon(":/images/connect.png"));
         //         actionConnectDisconnect->setText( translate(_DISCONNECT_FROM_DEV) );
-        QPalette palette = statusSt->palette();
-        //  palette.setColor(statusSt->backgroundRole(), Qt::yellow);
-        palette.setColor(statusSt->foregroundRole(), Qt::green);
-        statusSt->setPalette(palette);
-        //         statusSt->setPalette(Qt::green);
+        QPalette palette = labelTask->palette();
+//          palette.setColor(labelTask->backgroundRole(), Qt::yellow);
+        palette.setColor(labelTask->foregroundRole(), Qt::green);
+        labelTask->setPalette(palette);
+//                 labelTask->setPalette(Qt::green);
     } else {
         //         actionConnectDisconnect->setIcon( QIcon(":/images/disconnect.png"));
         //         actionConnectDisconnect->setText( translate(_CONNECT_TO_DEV));
-        QPalette palette = statusSt->palette();
-        //  palette.setColor(statusSt->backgroundRole(), Qt::yellow);
-        palette.setColor(statusSt->foregroundRole(), Qt::red);
-        statusSt->setPalette(palette);
+        QPalette palette = labelTask->palette();
+        //  palette.setColor(labelTask->backgroundRole(), Qt::yellow);
+        palette.setColor(labelTask->foregroundRole(), Qt::red);
+        labelTask->setPalette(palette);
     }
+#endif
 
     groupPosition->setEnabled( cncConnected);
     //     groupManualControl->setEnabled( cncConnected);
@@ -1633,6 +1664,8 @@ void  MainWindow::refreshElementsForms()
     groupBoxExec->setEnabled( cncConnected);
 
     if (cncConnected) {
+#if 0
+
         if (mainTaskTimer.isActive()) {
             toolRun->setEnabled( false );
 
@@ -1648,6 +1681,8 @@ void  MainWindow::refreshElementsForms()
             toolStop->setEnabled(false);
             toolPause->setEnabled(false);
         }
+
+#endif
 
         if (Task::Status == Waiting) {
             toolResetCoorX->setEnabled( true );
@@ -1680,6 +1715,21 @@ void  MainWindow::refreshElementsForms()
             //listGkodeForUser.Rows[cnc->NumberComleatedInstructions].Selected = true;
             //TODO: to overwork it, because of resetting of selected ragne
             //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;
+            toolRun->setEnabled( false );
+            toolStop->setEnabled( true);
+            toolPause->setEnabled( true );
+        }
+
+        if (Task::Status == Stop) {
+            toolRun->setEnabled(true);
+            toolStop->setEnabled(false);
+            toolPause->setEnabled(false);
+        }
+
+        if (Task::Status == Paused) {
+            toolRun->setEnabled( false );
+            toolStop->setEnabled(false);
+            toolPause->setEnabled( true);
         }
 
 #if USE_OPENGL == true
@@ -1738,6 +1788,8 @@ void MainWindow::fillListWidget(QStringList listCode)
     tabWidget->setCurrentIndex(0);
 
     statusProgress->setRange(1, listGCodeWidget->rowCount() - 1);
+    statusProgress->setValue(1);
+
 #if USE_OPENGL == true
 
     if (enableOpenGL == true) {
@@ -1756,7 +1808,14 @@ void MainWindow::onSaveFile()
 
 void MainWindow::onOpenFile()
 {
-    OpenFile();
+    QString nm;
+
+    statusProgress->setValue(1);
+
+    if (OpenFile(nm) == false) {
+        AddLog("File loading error: " + nm );
+        return;
+    }
 
     QStringList l = getGoodList();
     fillListWidget(l);
@@ -1768,7 +1827,7 @@ void MainWindow::onOpenFile()
             AddLog(s);
         }
     } else {
-        AddLog("File loaded" );
+        AddLog("File loaded: " + nm );
     }
 }
 
