@@ -1503,7 +1503,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Run from:</string>
+               <string>Line:</string>
               </property>
              </widget>
             </item>
@@ -1565,7 +1565,7 @@
               </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>398</width>
+                <width>40</width>
                 <height>20</height>
                </size>
               </property>

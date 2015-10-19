@@ -202,6 +202,8 @@ MainWindow::MainWindow(QWidget *parent)
         "UserXminus", Qt::Key_Left
     });
 
+    labelTask->setText("");
+    
     readGUISettings();
 
     setWindowIcon(QIcon(QPixmap(":/images/icon.png")));
@@ -1020,6 +1022,8 @@ void MainWindow::onStartTask()
 
     QString s = "from :" + QString::number( Task::posCodeStart + 1 ) + " to: " + QString::number( Task::posCodeEnd + 1);
     labelTask->setText( s );
+    
+    statusProgress->setRange(Task::posCodeStart+1, Task::posCodeEnd+1);
 
     groupManualControl->setChecked( false ); // disable manual control
 
