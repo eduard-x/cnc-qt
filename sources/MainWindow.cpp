@@ -866,8 +866,6 @@ void MainWindow::onExit()
         //         ce->ignore();
         return;
     }
-    
-    delete cnc;
 
     disconnect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 
