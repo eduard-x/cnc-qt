@@ -193,7 +193,7 @@ QString cTranslator::engText[] = {
     "Device hotplugged",
     "Device detached",
     "Warning",
-    "Do you really want to close the program?",
+    "Do you really want to close the program?", // 150
     "For manual controlling used cursor control\n\n'Left'\t\t -X\'Right'\t\t +X\n" \
     "'Up'\t\t +Y\n'Down'\t\t -Y\n'Del'\t\t -A\n'PgDn'\t\t +A\n" \
     "'End'\t\t -Z\n'Home'\t\t +Z",
@@ -202,6 +202,9 @@ QString cTranslator::engText[] = {
     "To set user defined keys push the direction button and after this push the key on you keyboard",
     "Algorithmus Z",
     "Grid, mm",
+    "enabled",
+    "disadbled",
+    "From %1 to %2", // 159
     ""
 };
 

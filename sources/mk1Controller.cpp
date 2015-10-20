@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015 by Eduard Kalinowski                                  *
+ * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -112,52 +112,7 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
     }
 
     mk1Controller::getDeviceInfo();
-#if 0
-    // get device descriptor
-    descrStr = QString().sprintf("VendorID: 0x%x ProductID: 0x%x\n\n", mk1Controller::desc.idVendor,  mk1Controller::desc.idProduct);
-    descrStr += QString().sprintf("Number of possible configurations: %d\n", mk1Controller::desc.bNumConfigurations);
-    descrStr += QString().sprintf("Device Class: %d\n\n", mk1Controller::desc.bDeviceClass);
-
-    libusb_config_descriptor *config;
-    libusb_get_config_descriptor(dev, 0, &config);
-    descrStr += QString().sprintf("Interfaces: %d\n\n", config->bNumInterfaces);
-    const libusb_interface *inter;
-    const libusb_interface_descriptor *interdesc;
-    const libusb_endpoint_descriptor *epdesc;
-
-    for(int i = 0; i < (int)config->bNumInterfaces; i++) {
-        inter = &config->interface[i];
-        descrStr += QString().sprintf("Number of alternate settings: %d", inter->num_altsetting);
-
-        for(int j = 0; j < inter->num_altsetting; j++) {
-            interdesc = &inter->altsetting[j];
-            descrStr += QString().sprintf("\nInterface Number: %d\n", interdesc->bInterfaceNumber);
-            descrStr += QString().sprintf("Number of endpoints: %d\n", interdesc->bNumEndpoints);
-            descrStr += QString().sprintf("Alternate Setting: %d\n", interdesc->bAlternateSetting);
-            descrStr += QString().sprintf("Interface Class: %d\n", interdesc->bInterfaceClass);
-            descrStr += QString().sprintf("Interface SubClass: %d\n", interdesc->bInterfaceSubClass);
-            descrStr += QString().sprintf("Interface: %d\n", interdesc->iInterface);
-
-            for(int k = 0; k < (int)interdesc->bNumEndpoints; k++) {
-                epdesc = &interdesc->endpoint[k];
-                descrStr += QString().sprintf("\nDescriptor Type: %d\n", epdesc->bDescriptorType);
-                descrStr += QString().sprintf("Endpoint Address: %d\n", epdesc->bEndpointAddress);
-                descrStr += QString().sprintf("Attributes: %d\n", epdesc->bmAttributes);
-                descrStr += QString().sprintf("MaxPacketSize: %d\n", epdesc->wMaxPacketSize);
-                descrStr += QString().sprintf("Interval: %d\n", epdesc->bInterval);
-                descrStr += QString().sprintf("Refresh: %d\n", epdesc->bRefresh);
-                descrStr += QString().sprintf("SynchAddress: %d\n", epdesc->bSynchAddress);
-            }
-        }
-    }
-
-    //     qDebug() << descrStr;
-
-    libusb_free_config_descriptor(config);
-
-    mk1Controller::setDescription(descrStr);
-    // end of get device descriptor
-#endif
+    
 #ifdef __linux__
 
     if(libusb_kernel_driver_active(mk1Controller::handle, 0) == 1) {
@@ -591,7 +546,7 @@ int mk1Controller::spindleMoveSpeed()
 //
 // current instruction number
 //
-long mk1Controller::numberComleatedInstructions()
+long mk1Controller::numberCompleatedInstructions()
 {
     return DeviceInfo::NumberCompleatedInstruction;
 }

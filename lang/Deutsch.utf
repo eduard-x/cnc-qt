@@ -164,3 +164,10 @@ t150=Möchten Sie das Programm verlassen?
 t151=Für die Steuerung werden folgende Tasten verwendet (ControlPad)\n\n'Left'\t\t -X\n'Right'\t\t +X\n'Up'\t\t +Y\n'Down'\t\t -Y\n'Del'\t\t -A\n'PgDn'\t\t +A\n'End'\t\t -Z\n'Home'\t\t +Z
 t152=Taste
 t153=Taste betätigen
+t154=To set user defined keys push the direction button and after this push the key on you keyboard
+t155=Algorithmus Z
+t156=Netz, mm
+t157=eingeschaltet
+t158=ausgeschaltet
+t159=Von %1 bis %2
+

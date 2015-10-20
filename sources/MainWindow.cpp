@@ -251,7 +251,7 @@ MainWindow::MainWindow(QWidget *parent)
         //  palette.setColor(statusLabel2->backgroundRole(), Qt::yellow);
         palette.setColor(statusLabel2->foregroundRole(), Qt::green);
         statusLabel2->setPalette(palette);
-        statusLabel2->setText( "OpenGL enabled" );
+        statusLabel2->setText( "OpenGL " + translate(_ENABLED));
         // OpenGL is placed in widget
     } else {
 #if USE_OPENGL == true
@@ -261,7 +261,7 @@ MainWindow::MainWindow(QWidget *parent)
         //  palette.setColor(statusLabel2->backgroundRole(), Qt::yellow);
         palette.setColor(statusLabel2->foregroundRole(), Qt::red);
         statusLabel2->setPalette(palette);
-        statusLabel2->setText( "OpenGL disabled" );
+        statusLabel2->setText( "OpenGL " + translate(_DISABLED) );
         tabWidget->removeTab(1);
         actionOpenGL->setEnabled(false);
     }
@@ -316,10 +316,11 @@ MainWindow::MainWindow(QWidget *parent)
             } else {
                 AddLog("File loaded" );
             }
-
-            //             scene3d->matrixReloaded();
         }
     }
+    
+    statusProgress->setRange(0, 100);
+    statusProgress->setValue(0);
 
     translateGUI();
 
@@ -458,7 +459,6 @@ void MainWindow::onDeviceInfo()
 
 void MainWindow::onChangeFix(bool checked)
 {
-
     QRadioButton* b  = static_cast<QRadioButton*>(sender());
 
     disconnect(radioFixX, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
@@ -542,7 +542,7 @@ bool MainWindow::readLangDir()
 
         QString iconName;
 
-        if (fLang.open(QIODevice::ReadOnly)) {      //wird eingelesen
+        if (fLang.open(QIODevice::ReadOnly)) {      //load
             QTextStream stream(&fLang);
             stream.setCodec("UTF-8" );
             QString line, nm;
@@ -1013,15 +1013,15 @@ void MainWindow::onStartTask()
         }
     }
 
-    //установим границы выполнения
+    // set task ranges
     Task::posCodeStart = beg;
     Task::posCodeEnd = end;
     Task::posCodeNow = Task::posCodeStart;
 
-    QString s = "from :" + QString::number( Task::posCodeStart + 1 ) + " to: " + QString::number( Task::posCodeEnd + 1);
+    QString s = translate(_FROM_TO).arg( Task::posCodeStart + 1).arg( Task::posCodeEnd + 1);
     labelTask->setText( s );
     
-    statusProgress->setRange(Task::posCodeStart+1, Task::posCodeEnd+1);
+    statusProgress->setRange(Task::posCodeStart, Task::posCodeEnd);
 
     groupManualControl->setChecked( false ); // disable manual control
 
@@ -1154,13 +1154,13 @@ bool MainWindow::runCommand()
 
     //TODO: to add in parameter the value
     if (cnc->availableBufferSize() < 5) {
-        return true;    // откажемся от посылки контроллеру, пока буфер не освободится
+        return true;    // nothing before buffer clean 
     }
 
 
     //TODO: to add in parameter the value
-    if (Task::posCodeNow > (cnc->numberComleatedInstructions() + 3)) {
-        return true;    // не будем много посылать команд, т.е. далеко убегать
+    if (Task::posCodeNow > (cnc->numberCompleatedInstructions() + 3)) {
+        return true;    // don't send more than 3 commands
     }
 
     //command G4 or M0
@@ -1168,16 +1168,13 @@ bool MainWindow::runCommand()
         if (gcodeNow.mSeconds == 0) { // M0 - waiting command
             Task::Status = Paused;
 
-
             //pause before user click
-            //             QMessageBox.Show("Получена команда M0 для остановки! для дальнейшего выполнения нужно нажать на кнопку 'пауза'", "Пауза",
-            //                              QMessageBoxButtons.OK, QMessageBoxIcon.Asterisk);
             MessageBox::exec(this, translate(_PAUSE), translate(_RECIEVED_M0), QMessageBox::Information);
         } else {
             QString msg = translate(_PAUSE_G4);
             statusLabel2->setText( msg.arg(QString::number(gcodeNow.mSeconds)));
 
-            QThread().wait(gcodeNow.mSeconds); // пауза в мсек.
+            QThread().wait(gcodeNow.mSeconds); // pause in msec
 
             statusLabel2->setText( "" );
         }
@@ -1191,8 +1188,6 @@ bool MainWindow::runCommand()
         refreshElementsForms();
 
         //pause before user click
-        //         QMessageBox.Show("Активирована ПАУЗА! Установите инструмент №:" + gcodeNow.numberInstrument + " имеющий диаметр: " + gcodeNow.diametr + " мм. и нажмите для продолжения кнопку 'пауза'", "Пауза",
-        //                          QMessageBoxButtons.OK, QMessageBoxIcon.Asterisk);
         QString msg = translate(_PAUSE_ACTIVATED);
         MessageBox::exec(this, translate(_PAUSE), msg.arg(QString::number(gcodeNow.numberInstrument)).arg(QString::number(gcodeNow.diametr)), QMessageBox::Information);
     }
@@ -1478,8 +1473,6 @@ void MainWindow::onCncNewData()
             grateYmax = DeviceInfo::AxesY_PositionMM();
         }
     }
-
-    //     qDebug() << "onCncNewData";
 }
 
 
@@ -1504,36 +1497,16 @@ void  MainWindow::refreshElementsForms()
 {
     bool cncConnected = cnc->isConnected();
 
-
-#if 0
-    if (cncConnected) {
-        //         actionConnectDisconnect->setIcon( QIcon(":/images/connect.png"));
-        //         actionConnectDisconnect->setText( translate(_DISCONNECT_FROM_DEV) );
-        QPalette palette = labelTask->palette();
-//          palette.setColor(labelTask->backgroundRole(), Qt::yellow);
-        palette.setColor(labelTask->foregroundRole(), Qt::green);
-        labelTask->setPalette(palette);
-//                 labelTask->setPalette(Qt::green);
-    } else {
-        //         actionConnectDisconnect->setIcon( QIcon(":/images/disconnect.png"));
-        //         actionConnectDisconnect->setText( translate(_CONNECT_TO_DEV));
-        QPalette palette = labelTask->palette();
-        //  palette.setColor(labelTask->backgroundRole(), Qt::yellow);
-        palette.setColor(labelTask->foregroundRole(), Qt::red);
-        labelTask->setPalette(palette);
-    }
-#endif
-
     groupPosition->setEnabled( cncConnected);
-    //     groupManualControl->setEnabled( cncConnected);
-    groupManualControl->setEnabled(true);
+    groupManualControl->setEnabled( cncConnected);
+    
     // set groupVelocity too?
 
     actionStop->setEnabled( cncConnected);
     actionSpindle->setEnabled( cncConnected);
 
     labelSpeed->setText( QString::number(cnc->spindleMoveSpeed()) + translate(_MM_MIN));
-    //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(cnc->numberComleatedInstructions()));
+    //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(cnc->numberCompleatedInstructions()));
 
     if (!cncConnected) {
         QPixmap grayPix = QPixmap(":/images/ball_gray.png");
@@ -1713,7 +1686,7 @@ void  MainWindow::refreshElementsForms()
         }
 
         if (Task::Status == Working) {
-            statusProgress->setValue( cnc->numberComleatedInstructions() + 1);
+            statusProgress->setValue( cnc->numberCompleatedInstructions());
             //listGkodeForUser.Rows[cnc->NumberComleatedInstructions].Selected = true;
             //TODO: to overwork it, because of resetting of selected ragne
             //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;
@@ -1789,8 +1762,8 @@ void MainWindow::fillListWidget(QStringList listCode)
 
     tabWidget->setCurrentIndex(0);
 
-    statusProgress->setRange(1, listGCodeWidget->rowCount() - 1);
-    statusProgress->setValue(1);
+    statusProgress->setRange(0, listGCodeWidget->rowCount());
+    statusProgress->setValue(0);
 
 #if USE_OPENGL == true
 
@@ -1812,7 +1785,7 @@ void MainWindow::onOpenFile()
 {
     QString nm;
 
-    statusProgress->setValue(1);
+    statusProgress->setValue(0);
 
     if (OpenFile(nm) == false) {
         AddLog("File loading error: " + nm );

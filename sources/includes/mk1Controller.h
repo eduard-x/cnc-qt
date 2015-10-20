@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015 by Eduard Kalinowski                                  *
+ * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -243,7 +243,7 @@ class mk1Controller : public QObject, public BinaryData
 
         bool isConnected();
         int  spindleMoveSpeed();
-        long numberComleatedInstructions();
+        long numberCompleatedInstructions();
         bool isSpindelOn();
         bool isEmergencyStopOn();
         int  availableBufferSize();

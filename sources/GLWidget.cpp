@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2015 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015 by Eduard Kalinowski                                  *
+ * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -454,7 +454,7 @@ void GLWidget::drawWorkField()
         glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelectStart]);
         glDrawArrays(GL_LINE_STRIP, 0, numSelectStop - numSelectStart - 1);
     } else {
-        int numSelect = parent->cnc->numberComleatedInstructions() - 1;
+        int numSelect = parent->cnc->numberCompleatedInstructions() - 1;
         glLineWidth(3.0f);
         glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
         glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect]);
