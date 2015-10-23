@@ -87,7 +87,7 @@ GLWidget::GLWidget(QWidget *p)
     parent = (MainWindow*)p;
 
     workNum = 0;
-    
+
     QString glStr = QString().sprintf("%s %s %s %s", (char*)glGetString(GL_VENDOR), (char*)glGetString(GL_RENDERER), (char*)glGetString(GL_VERSION), (char*)glGetString(GL_EXTENSIONS));
 
     qDebug() << glStr;
@@ -310,7 +310,7 @@ void GLWidget::Draw() // drawing, main function
 {
     //
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clean color buffer and depth buff
-    glClearColor(0.75f, 0.75f, 0.75f, 1);                  // set gray color of background
+    glClearColor(0.45f, 0.45f, 0.45f, 1);                  // set gray color of background
 
     glLoadIdentity();                                   // clean
 
@@ -466,7 +466,7 @@ void GLWidget::drawGrid()
 {
     if (parent->ShowLines) {
         glLineWidth(0.1f);
-        glColor3f(0.0, 0.0, 0.0);
+        glColor3f(0.99, 0.99, 0.99);
 
         glBegin(GL_LINES);
 
@@ -486,7 +486,7 @@ void GLWidget::drawGrid()
     if (parent->ShowPoints) {
         glPointSize(1.0f);
         //         glLineWidth(0.3f);
-        glColor3f(0.0, 0.0, 0.0); // white
+        glColor3f(0.99, 0.99, 0.99); // white
 
         glBegin(GL_POINTS);
 
@@ -497,7 +497,7 @@ void GLWidget::drawGrid()
                 glVertex3d(x, y, 0);
             }
         }
-        
+
         glEnd();
     }
 }

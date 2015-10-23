@@ -180,8 +180,8 @@ Reader::Reader()
 // {
 //     mutex.lock();
 // }
-// 
-// 
+//
+//
 // void Reader::unlock() const
 // {
 //     mutex.unlock();
@@ -651,10 +651,10 @@ void Reader::loadGCode(const QString &filename)
 // read and parse into GCodeCommand list and OpenGL list
 bool Reader::readGCode(const QByteArray &gcode)
 {
-//     QMutexLocker mLock(&mutex);
+    //     QMutexLocker mLock(&mutex);
     GCodeList.clear();
 
-//     lock();
+    //     lock();
 
     cached_lines.clear();
     cached_points.clear();
@@ -663,7 +663,7 @@ bool Reader::readGCode(const QByteArray &gcode)
     goodList.clear();
     badList.clear();
 
-//     unlock();
+    //     unlock();
 
     QTextStream stream(gcode);
     stream.setLocale(QLocale("C"));
@@ -1033,7 +1033,7 @@ bool Reader::readGCode(const QByteArray &gcode)
     //             bbox.second[i] = std::max<float>(bbox.second[i], p[i]);
     //         }
     //     }
-//     unlock();
+    //     unlock();
 
     return true;
 }

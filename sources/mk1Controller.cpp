@@ -112,7 +112,7 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
     }
 
     mk1Controller::getDeviceInfo();
-    
+
 #ifdef __linux__
 
     if(libusb_kernel_driver_active(mk1Controller::handle, 0) == 1) {
