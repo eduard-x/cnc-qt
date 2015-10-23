@@ -299,8 +299,8 @@ class Reader : public cTranslator
         bool readSVG( const QByteArray &gcode );
         bool readEPS( const QByteArray &gcode );
         bool readPLT( const QByteArray &gcode );
-        void lock() const;
-        void unlock() const;
+//         void lock() const;
+//         void unlock() const;
         //         GCode_resultParse parseStringGCode(const QString &value);
 
     private:
@@ -310,7 +310,7 @@ class Reader : public cTranslator
         QStringList goodList; // only decoded G-code
         QStringList badList;
 
-        mutable QMutex mutex;
+//         mutable QMutex mutex;
 };
 
 

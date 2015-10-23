@@ -87,7 +87,10 @@ GLWidget::GLWidget(QWidget *p)
     parent = (MainWindow*)p;
 
     workNum = 0;
+    
+    QString glStr = QString().sprintf("%s %s %s %s", (char*)glGetString(GL_VENDOR), (char*)glGetString(GL_RENDERER), (char*)glGetString(GL_VERSION), (char*)glGetString(GL_EXTENSIONS));
 
+    qDebug() << glStr;
     initPreviewSettings();
 }
 
@@ -204,17 +207,6 @@ void GLWidget::initPreviewSettings()
     parent->PosAngleZ = 180;
     parent->PosZoom = 25;
 
-    parent->ShowInstrument = true;
-    parent->ShowGrid = false;
-    parent->ShowSurface = false;
-    parent->ShowAxes = true;
-
-    parent->GridXstart = 0;
-    parent->GridXend = 100;
-    parent->GridYstart = 0;
-    parent->GridYend = 100;
-    parent->GrigStep = 10;
-
     emit xRotationChanged(parent->PosAngleX);
     emit yRotationChanged(parent->PosAngleY);
     emit zRotationChanged(parent->PosAngleZ);
@@ -318,7 +310,7 @@ void GLWidget::Draw() // drawing, main function
 {
     //
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clean color buffer and depth buff
-    glClearColor(0.5f, 0.5f, 0.5f, 1);                  // set gray color of background
+    glClearColor(0.75f, 0.75f, 0.75f, 1);                  // set gray color of background
 
     glLoadIdentity();                                   // clean
 
@@ -413,7 +405,7 @@ void GLWidget::drawAxes()
     renderText(0.0, 12.0, 0.0, QString("Y")); //coordinates of text
 
     // z
-    glColor3f(0.0F, 0, 1.0F);
+    glColor3f(0.0F, 1.0, 1.0F);
     glVertexPointer(3, GL_INT, 0, zAxis);
     glDrawArrays(GL_LINES, 0, 6);
     renderText(0.0, 0.0, 12.0, QString("Z")); //coordinates of text
@@ -472,22 +464,42 @@ void GLWidget::drawWorkField()
 
 void GLWidget::drawGrid()
 {
-    glLineWidth(0.1f);
-    glColor3f(0, 0, 0.5F);
+    if (parent->ShowLines) {
+        glLineWidth(0.1f);
+        glColor3f(0.0, 0.0, 0.0);
 
-    glBegin(GL_LINES);
+        glBegin(GL_LINES);
 
-    for (int gX = parent->GridXstart; gX < parent->GridXend + 1; gX += parent->GrigStep) {
-        glVertex3d(gX, parent->GridYstart, 0);
-        glVertex3d(gX, parent->GridYend, 0);
+        for (int gX = parent->GridXstart; gX < parent->GridXend + 1; gX += parent->GrigStep) {
+            glVertex3d(gX, parent->GridYstart, 0);
+            glVertex3d(gX, parent->GridYend, 0);
+        }
+
+        for (int gY = parent->GridYstart; gY < parent->GridYend + 1; gY += parent->GrigStep) {
+            glVertex3d(parent->GridXstart, gY, 0);
+            glVertex3d(parent->GridXend, gY, 0);
+        }
+
+        glEnd();
     }
 
-    for (int gY = parent->GridYstart; gY < parent->GridYend + 1; gY += parent->GrigStep) {
-        glVertex3d(parent->GridXstart, gY, 0);
-        glVertex3d(parent->GridXend, gY, 0);
-    }
+    if (parent->ShowPoints) {
+        glPointSize(1.0f);
+        //         glLineWidth(0.3f);
+        glColor3f(0.0, 0.0, 0.0); // white
 
-    glEnd();
+        glBegin(GL_POINTS);
+
+
+        for (int y = parent->GridYstart; y <  parent->GridYend + 1; y += parent->GrigStep) {
+            for (int x = parent->GridXstart; x < parent->GridXend + 1; x += parent->GrigStep) {
+                //point
+                glVertex3d(x, y, 0);
+            }
+        }
+        
+        glEnd();
+    }
 }
 
 

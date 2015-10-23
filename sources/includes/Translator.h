@@ -211,6 +211,8 @@ enum TR_CONSTS {
     _ENABLED, // 157
     _DISABLED, // 158
     _FROM_TO, // 159
+    _DISPLAY_LINES, // 160
+    _DISPLAY_POINTS, // 161
     _NULL
 };
 

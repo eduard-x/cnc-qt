@@ -132,7 +132,7 @@ struct uKeys {
 };
 
 
-class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
+class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 {
         Q_OBJECT
 
@@ -189,6 +189,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow,  public Reader
 
         bool ShowInstrument;
         bool ShowGrid;
+        bool ShowLines;
+        bool ShowPoints;
         bool ShowSurface;
         bool ShowAxes;
 

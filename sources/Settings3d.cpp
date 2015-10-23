@@ -54,6 +54,9 @@ Settings3dDialog::Settings3dDialog(QWidget *p)
 
     connect(pushButton, SIGNAL(clicked()), this, SLOT(onSave()));
 
+    radioButtonLines->setChecked(parent->ShowLines);
+    radioButtonPoints->setChecked(parent->ShowPoints);
+
     checkBoxInstr->setChecked(parent->ShowInstrument);
     groupBoxGrid->setChecked(parent->ShowGrid);
     checkBoxSurface->setChecked(parent->ShowSurface);
@@ -83,6 +86,8 @@ void Settings3dDialog::translateDialog()
     setWindowTitle(translate(_SETTINGS3D_TITLE));
 
     groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
+    radioButtonLines->setText(translate(_DISPLAY_LINES));
+    radioButtonPoints->setText(translate(_DISPLAY_POINTS));
     labelBeg->setText(translate(_BEGIN));
     labelEnd->setText(translate(_END));
 
@@ -92,7 +97,7 @@ void Settings3dDialog::translateDialog()
 
     groupBoxShowRang->setTitle(translate(_DISPLAY_RANG));
 
-    labelStep->setText(translate(_DISPLAY_SPINDLE));
+    labelStep->setText(translate(_STEP));
     labelMin->setText(translate(_MINIMUM));
     labelMax->setText(translate(_MAXIMUM));
 }
@@ -113,6 +118,8 @@ void Settings3dDialog::onSave()
     parent->GridYend = spinBoxEndY->value();
 
     parent->ShowGrate = groupBoxShowRang->isChecked();
+    parent->ShowLines = radioButtonLines->isChecked();
+    parent->ShowPoints = radioButtonPoints->isChecked();
     parent->grateXmin = spinBoxMinX->value();
     parent->grateXmax = spinBoxMaxX->value();
     parent->grateYmin = spinBoxMinY->value();

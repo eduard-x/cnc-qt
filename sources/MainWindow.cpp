@@ -203,7 +203,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     labelTask->setText("");
-    
+
     readGUISettings();
 
     setWindowIcon(QIcon(QPixmap(":/images/icon.png")));
@@ -318,7 +318,7 @@ MainWindow::MainWindow(QWidget *parent)
             }
         }
     }
-    
+
     statusProgress->setRange(0, 100);
     statusProgress->setValue(0);
 
@@ -674,6 +674,24 @@ void MainWindow::writeGUISettings()
     //         s->setValue("LASDIR" + QString::number(i), (*iDir));
     //     }
 
+    // opengl settings
+    s->setValue("ShowLines", ShowLines);
+    s->setValue("ShowPoints", ShowPoints);
+
+    s->setValue("ShowInstrument", ShowInstrument);
+    s->setValue("ShowGrid", ShowGrid);
+    s->setValue("ShowSurface", ShowSurface);
+    s->setValue("ShowAxes", ShowAxes);
+
+    s->setValue("GrigStep", GrigStep);
+
+    s->setValue("GridXstart", GridXstart);
+    s->setValue("GridXend", GridXend);
+    s->setValue("GridYstart", GridYstart);
+    s->setValue("GridYend", GridYend);
+
+    s->setValue("ShowGrate", ShowGrate); // grenzen
+
     s->sync();
 }
 
@@ -759,6 +777,24 @@ void MainWindow::readGUISettings()
             langDir = "";
         }
     }
+
+    // opengl settings
+    ShowLines = s->value("ShowLines", false).toBool();
+    ShowPoints = s->value("ShowPoints", true).toBool();
+
+    ShowInstrument = s->value("ShowInstrument", true).toBool();
+    ShowGrid = s->value("ShowGrid", true).toBool();
+    ShowSurface = s->value("ShowSurface", false).toBool();
+    ShowAxes = s->value("ShowAxes", false).toBool();
+
+    GrigStep = s->value("GrigStep", 10).toInt();
+
+    GridXstart = s->value("GridXstart", 0).toInt();
+    GridXend = s->value("GridXend", 100).toInt();
+    GridYstart = s->value("GridYstart", 0).toInt();
+    GridYend = s->value("GridYend", 100).toInt();
+
+    ShowGrate = s->value("ShowGrate", true).toBool(); // grenzen
 }
 
 
@@ -846,7 +882,7 @@ void MainWindow::closeEvent(QCloseEvent* ce)
     disconnect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 
     writeGUISettings();
-    
+
     delete cnc;
 
     ce->accept();
@@ -872,7 +908,7 @@ void MainWindow::onExit()
     writeGUISettings();
 
     delete cnc;
-    
+
     QCoreApplication::quit();
 }
 
@@ -1020,7 +1056,7 @@ void MainWindow::onStartTask()
 
     QString s = translate(_FROM_TO).arg( Task::posCodeStart + 1).arg( Task::posCodeEnd + 1);
     labelTask->setText( s );
-    
+
     statusProgress->setRange(Task::posCodeStart, Task::posCodeEnd);
 
     groupManualControl->setChecked( false ); // disable manual control
@@ -1154,7 +1190,7 @@ bool MainWindow::runCommand()
 
     //TODO: to add in parameter the value
     if (cnc->availableBufferSize() < 5) {
-        return true;    // nothing before buffer clean 
+        return true;    // nothing before buffer clean
     }
 
 
@@ -1499,7 +1535,7 @@ void  MainWindow::refreshElementsForms()
 
     groupPosition->setEnabled( cncConnected);
     groupManualControl->setEnabled( cncConnected);
-    
+
     // set groupVelocity too?
 
     actionStop->setEnabled( cncConnected);
