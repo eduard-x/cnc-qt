@@ -205,8 +205,8 @@ QString cTranslator::engText[] = {
     "enabled",
     "disadbled",
     "From %1 to %2", // 159
-    "Show line grid", // 160
-    "Show point grid", // 161
+    "Show lines grid", // 160
+    "Show points grid", // 161
     ""
 };
 

@@ -10,6 +10,7 @@ IF(${QT_USE_QTOPENGL})
                  ${CMAKE_CURRENT_SOURCE_DIR}/Geometry.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/GLWidget.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/EditGCode.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/CuttingCalc.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/ManualControl.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
@@ -23,6 +24,7 @@ ELSE()
                  ${CMAKE_CURRENT_SOURCE_DIR}/About.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Geometry.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/EditGCode.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/CuttingCalc.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/ManualControl.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
@@ -42,6 +44,7 @@ IF(${QT_USE_QTOPENGL})
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Settings3d.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/GLWidget.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/EditGCode.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/CuttingCalc.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/MainWindow.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/ManualControl.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/ScanSurface.h
@@ -55,6 +58,7 @@ ELSE()
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/vec.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Geometry.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/EditGCode.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/CuttingCalc.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/MainWindow.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/ManualControl.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/ScanSurface.h
@@ -68,6 +72,7 @@ IF(${QT_USE_QTOPENGL})
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/Settings.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/Settings3d.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/EditGCode.ui
+                ${CMAKE_CURRENT_SOURCE_DIR}/forms/CuttingCalc.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/MainWindow.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/ManualControl.ui 
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/ScanSurface.ui
@@ -76,6 +81,7 @@ ELSE()
   SET(MAIN_FORMS  ${CMAKE_CURRENT_SOURCE_DIR}/forms/About.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/Settings.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/EditGCode.ui
+                ${CMAKE_CURRENT_SOURCE_DIR}/forms/CuttingCalc.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/MainWindow.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/ManualControl.ui 
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/ScanSurface.ui
