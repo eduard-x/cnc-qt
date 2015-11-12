@@ -213,6 +213,22 @@ enum TR_CONSTS {
     _FROM_TO, // 159
     _DISPLAY_LINES, // 160
     _DISPLAY_POINTS, // 161
+    _CALC_TITLE, // 162
+    _UNITS, // 163
+    _MATERIAL, // 164
+    _TOOL, // 165
+    _CUTTING_SPEED, // 166
+    _DIAMETER, // 167
+    _FLUTES, // 168
+    _MAX_DEPTH, // 169
+    _RANGES, // 170
+    _RANGE, // 171
+    _SPINDLE_SPEED, // 172
+    _CHIPLOAD, // 173
+    _FEED_RATE, // 174
+    _MATERIAL_LIST, // 175
+    _MESSURE_UNIT, // 176
+    _FEED_INFO, // 177
     _NULL
 };
 

@@ -204,9 +204,25 @@ QString cTranslator::engText[] = {
     "Grid, mm",
     "enabled",
     "disadbled",
-    "From %1 to %2", // 159
+    "From %1 to %2",
     "Show lines grid", // 160
-    "Show points grid", // 161
+    "Show points grid",
+    "Feed calculation",
+    "mm\ninch",
+    "Material",
+    "Tool",
+    "Cutting speed",
+    "Diameter",
+    "Flutes",
+    "Maximal depth",
+    "Ranges", // 170
+    "Range",
+    "Spindle speed",
+    "Chip load",
+    "Feed rate",
+    "Hard wood\nSoft wood\nPlywood\nMDF\nAcrylic\nPhenolic\nFiberglass\nHard plastic\nSoft plastic\nBronze\nAluminium\nCopper", // material list
+    "Mesure unit:",
+    "Feed information",
     ""
 };
 

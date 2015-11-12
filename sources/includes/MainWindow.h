@@ -54,6 +54,7 @@
 #include "GLWidget.h"
 #endif
 
+// #include "CuttingCalc.h"
 #include "Reader.h"
 #include "mk1Controller.h"
 #include "Geometry.h"
@@ -96,6 +97,21 @@ class MessageBox: public cTranslator
 };
 
 
+
+enum MATERIAL {
+    HARDWOOD,
+    SOFTWOOD,
+    PLYWOOD,
+    MDF,
+    ACRYLIC,
+    PHENOLIC, // PERTINAX, paper
+    FIBERGLASS,
+    HARDPLASTIC,
+    SOFTPLASTIC,
+    BRONZE,
+    ALUMINIUM,
+    COPPER
+};
 
 enum AxesFix { FixX = 0, FixY, FixZ };
 
@@ -182,6 +198,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         float grateXmax;
         float grateYmin;
         float grateYmax;
+
+        MATERIAL cuttedMaterial;
 
         int PosX, PosY, PosZ;
         int PosAngleX, PosAngleY, PosAngleZ;

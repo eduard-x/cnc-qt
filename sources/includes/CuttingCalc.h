@@ -33,12 +33,25 @@
 #ifndef CUTTINGCALC_H
 #define CUTTINGCALC_H
 
+#include <QVector>
+#include <QString>
 
 #include "MainWindow.h"
 #include "ui_CuttingCalc.h"
 
 
-class MainWindow;
+
+// material feed
+// MPM = SFM / 3.281
+struct materialFeed {
+    MATERIAL m;
+    float minFeedXY;
+    float maxFeedXY;
+    float minFeedZ;
+    float maxFeedZ;
+};
+
+// class MainWindow;
 
 
 class CuttingCalc : public QDialog, public Ui::CuttingCalcDialog,  public cTranslator
@@ -50,11 +63,17 @@ class CuttingCalc : public QDialog, public Ui::CuttingCalcDialog,  public cTrans
     private slots:
         void onSaveChange();
         void checkedChanged(int state);
+        void changeUnit(int n);
+        void changeParameters(void);
+        void changeMaterial(int i);
 
     private:
         void translateDialog();
+        static materialFeed materialList[];
+
     private:
         MainWindow* parent;
+        float unitScaling;
 };
 
 
