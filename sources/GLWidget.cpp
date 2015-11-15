@@ -31,6 +31,7 @@
 
 #include <QtGui/QImage>
 #include <QtOpenGL>
+#include <QGLFormat>
 #include <QGLWidget>
 
 #include <deque>
@@ -88,7 +89,22 @@ GLWidget::GLWidget(QWidget *p)
 
     workNum = 0;
 
-    QString glStr = QString().sprintf("%s %s %s %s", (char*)glGetString(GL_VENDOR), (char*)glGetString(GL_RENDERER), (char*)glGetString(GL_VERSION), (char*)glGetString(GL_EXTENSIONS));
+    initializeGL();
+
+    fps = 0;
+
+    QTimer* fpsTimer = new QTimer();
+    QObject::connect(fpsTimer, SIGNAL(timeout()), this, SLOT(showFPS()));
+    fpsTimer->start(1000);
+
+    //     glTimer = new QTimer();
+    //     QObject::connect(glTimer, SIGNAL(timeout()), this, SLOT(processing()));
+    //     glTimer->start( 20 );
+    //
+
+    QGLFormat::OpenGLVersionFlags f = QGLFormat::openGLVersionFlags();
+    qDebug() << "GL enabled" << QGLFormat::hasOpenGL() << "flags:" << f;
+    QString glStr = QString().sprintf("%s %s %s", (char*)glGetString(GL_VENDOR), (char*)glGetString(GL_RENDERER), (char*)glGetString(GL_VERSION));
 
     qDebug() << glStr;
     initPreviewSettings();
@@ -117,6 +133,20 @@ void GLWidget::surfaceReloaded()
             *(coordArray + i) = p;
         }
     }
+}
+
+
+void GLWidget::showFPS()
+{
+    qDebug() << "fps" << fps;
+    fps = 0;
+}
+
+
+void GLWidget::processing()
+{
+    paintGL();
+    fps++;
 }
 
 
@@ -241,6 +271,7 @@ void GLWidget::paintGL()
 {
     //     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     Draw();
+    fps++;
 }
 
 

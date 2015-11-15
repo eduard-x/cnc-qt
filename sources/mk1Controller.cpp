@@ -315,7 +315,7 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
         }
     }
 
-    settingsFile = new QSettings("CNCSoft", "CNC-Qt");
+    settingsFile = new QSettings("KarboSoft", "CNC-Qt");
 }
 
 

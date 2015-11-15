@@ -61,10 +61,10 @@ class CuttingCalc : public QDialog, public Ui::CuttingCalcDialog,  public cTrans
         CuttingCalc(QWidget *parent = 0);
 
     private slots:
-        void onSaveChange();
         void checkedChanged(int state);
         void changeUnit(int n);
         void changeParameters(void);
+        void onSave();
         void changeMaterial(int i);
 
     private:
@@ -73,7 +73,7 @@ class CuttingCalc : public QDialog, public Ui::CuttingCalcDialog,  public cTrans
 
     private:
         MainWindow* parent;
-        float unitScaling;
+        float scaling;
 };
 
 

@@ -132,6 +132,8 @@ class GLWidget : public QGLWidget
 
     private slots:
         //         void repaintView();
+        void showFPS(void);
+        void processing(void);
 
 
     private:
@@ -145,6 +147,10 @@ class GLWidget : public QGLWidget
         pointGL *coordArray; //
         colorGL *colorArray; //
         int workNum;
+
+        QTimer *glTimer;
+
+        float fps;
 
         QPoint lastPos;
 };

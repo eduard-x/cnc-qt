@@ -179,7 +179,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         float koeffSizeY;
         int  fixedAxes;
         bool deltaFeed;
-
+        bool unitMm;
         bool enableOpenGL;
 
         // user defined control keys
@@ -239,6 +239,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onDeviceInfo();
 
         void onSettings();
+        void onCalcVelocity();
         void onLogClear();
 
         void onSpindel();

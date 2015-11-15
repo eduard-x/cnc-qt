@@ -50,6 +50,7 @@
 #include "includes/Settings.h"
 #include "includes/About.h"
 #include "includes/Reader.h"
+#include "includes/CuttingCalc.h"
 #include "includes/EditGCode.h"
 #include "includes/ManualControl.h"
 #include "includes/ScanSurface.h"
@@ -366,6 +367,8 @@ void MainWindow::addConnections()
     connect(actionOpenGL, SIGNAL(triggered()), this, SLOT(on3dSettings()));
     connect(actionProgram, SIGNAL(triggered()), this, SLOT(onSettings()));
 
+    connect(toolCalcVelocity, SIGNAL(clicked()), this, SLOT(onCalcVelocity()));
+
     //     connect(actionConnect, SIGNAL(triggered()), this, SLOT(onConnect()));
     //     connect(actionDisconnect, SIGNAL(triggered()), this, SLOT(onDisconnect()));
     //     connect(actionConnectDisconnect, SIGNAL(triggered()), this, SLOT(onConnDisconnect()));
@@ -641,7 +644,7 @@ QString MainWindow::getLocaleString()
 void MainWindow::writeGUISettings()
 {
     QSettings* s;
-    s = new QSettings(QSettings::UserScope, "CNCSoft", "CNC-Qt" );
+    s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
     s->setValue("pos", pos());
     s->setValue("size", size());
     //     s->setValue("WorkDir", currentWorkDir);
@@ -650,6 +653,9 @@ void MainWindow::writeGUISettings()
     s->setValue("VelocitySubmission", numVeloSubmission->value());
     s->setValue("VelocityMoving", numVeloMoving->value());
     s->setValue("VelocityManual", numVeloManual->value());
+
+    s->setValue("UnitMM", unitMm);
+    s->setValue("CuttedMaterial", cuttedMaterial);
 
     for(int i = 0; i < userKeys.count(); ++i) {
         s->setValue(userKeys.at(i).name, (quint32)userKeys.at(i).code);
@@ -699,7 +705,7 @@ void MainWindow::writeGUISettings()
 void MainWindow::readGUISettings()
 {
     QSettings* s;
-    s = new QSettings(QSettings::UserScope, "CNCSoft", "CNC-Qt" );
+    s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
     QPoint pos = s->value("pos", QPoint(200, 200)).toPoint();
     QSize size = s->value("size", QSize(840, 640)).toSize();
     resize(size);
@@ -710,6 +716,9 @@ void MainWindow::readGUISettings()
     veloMoving = s->value("VelocityMoving", 500).toInt();
     veloManual = s->value("VelocityManual", 400).toInt();
     currentKeyPad = s->value("KeyControl", -1).toInt();
+
+    unitMm = s->value("UnitMM", 1.0).toBool();
+    cuttedMaterial = (MATERIAL)s->value("CuttedMaterial", 0).toInt();
 
     for(int i = 0; i < userKeys.count(); ++i) {
         userKeys[i].code = (Qt::Key)s->value(userKeys.at(i).name, (quint32)userKeys.at(i).code).toUInt();
@@ -928,6 +937,16 @@ void MainWindow::translateGUI()
     groupVelocity->setTitle(translate(_VELOCITY));
 
     toolRunMoving->setText(translate(_RUN));
+    
+    QStringList m = translate(_MATERIAL_LIST).split("\n");
+    if (m.count() > 0){
+        if (cuttedMaterial < m.count()){
+            labelMaterial->setText(m.at(cuttedMaterial));
+        }
+        else{
+            labelMaterial->setText(m.at(0));
+        }
+    }
 
     pushClean->setText(translate(_CLEAN));
     pushSendSignal->setText(translate(_GEN_SIGNAL));
@@ -1839,6 +1858,17 @@ void MainWindow::onOpenFile()
         }
     } else {
         AddLog("File loaded: " + nm );
+    }
+}
+
+
+void MainWindow::onCalcVelocity()
+{
+    CuttingCalc *setfrm = new CuttingCalc(this);
+    int dlgResult = setfrm->exec();
+
+    if (dlgResult == QMessageBox::Ok) {
+        //         cnc->saveSettings();
     }
 }
 

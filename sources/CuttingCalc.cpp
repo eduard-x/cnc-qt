@@ -83,9 +83,10 @@ CuttingCalc::CuttingCalc(QWidget *p)
 
     setStyleSheet(parent->programStyleSheet);
 
-    unitScaling = 1.0; // for meter calculations
-
     doubleSpinFeedRate->setReadOnly(true);
+
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
     connect(comboMaterial, SIGNAL(activated(int)), this, SLOT(changeMaterial(int)));
 
@@ -100,9 +101,19 @@ CuttingCalc::CuttingCalc(QWidget *p)
 
     translateDialog();
 
+    emit changeUnit( (parent->unitMm == true)?0:1);
+
     emit changeMaterial(parent->cuttedMaterial);
 
     adjustSize();
+}
+
+
+void CuttingCalc::onSave()
+{
+    parent->unitMm = (scaling == 1.0);
+
+    emit accept();
 }
 
 
@@ -113,15 +124,17 @@ void CuttingCalc::changeParameters(void)
 
 void CuttingCalc::changeMaterial(int n)
 {
+    
+    emit changeParameters();
 }
 
 
 void CuttingCalc::changeUnit(int n)
 {
-    if (n == 0) { //meter
-        unitScaling = 1.0;
+    if (n == 0) { // mm
+        scaling = 1.0;
     } else { // inch
-        unitScaling = 2.54;
+        scaling = 25.4;
     }
 }
 
@@ -164,20 +177,4 @@ void CuttingCalc::checkedChanged( int state)
     //     groupResize->setEnabled(check);
 }
 
-
-void CuttingCalc::onSaveChange()
-{
-    //     if (checkCorrecture->isChecked()) {
-    //         parent->deltaX = doubleSpinOffsetX->value();
-    //         parent->deltaY = doubleSpinOffsetY->value();
-    //         parent->deltaZ = doubleSpinOffsetZ->value();
-    //
-    //         parent->deltaFeed = checkBoxZ->isChecked();
-    //
-    //         parent->koeffSizeX = doubleSpinResizeX->value();
-    //         parent->koeffSizeY = doubleSpinResizeY->value();
-    //     }
-
-    emit accept();
-}
 
