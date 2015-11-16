@@ -417,6 +417,7 @@ void MainWindow::addConnections()
         connect(posAngleXm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXm()));
         connect(posAngleX, SIGNAL(clicked()), scene3d, SLOT(onPosAngleX())); // reset to 0
         connect(scene3d, SIGNAL(xRotationChanged(int)), this, SLOT(getXRotation(int)));
+        connect(scene3d, SIGNAL(fpsChanged(int)), this, SLOT(getFPS(int)));
         connect(posAngleXp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXp()));
 
         connect(posAngleYm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleYm()));
@@ -650,11 +651,15 @@ void MainWindow::writeGUISettings()
     //     s->setValue("WorkDir", currentWorkDir);
     s->setValue("LANGUAGE", currentLang);
 
-    s->setValue("VelocitySubmission", numVeloSubmission->value());
+    s->setValue("VelocityCutting", numVeloSubmission->value());
     s->setValue("VelocityMoving", numVeloMoving->value());
     s->setValue("VelocityManual", numVeloManual->value());
 
     s->setValue("UnitMM", unitMm);
+    s->setValue("ToolDiameter", toolDiameter);
+    s->setValue("ToolFlutes", toolFlutes);
+    s->setValue("ToolRPM", toolRPM);
+
     s->setValue("CuttedMaterial", cuttedMaterial);
 
     for(int i = 0; i < userKeys.count(); ++i) {
@@ -711,14 +716,21 @@ void MainWindow::readGUISettings()
     resize(size);
     move(pos);
 
+    accelerationCutting = s->value("AccelerationCutting", 15).toInt();
+    minVelo = s->value("MinVelocity", 20).toInt();
+    maxVelo = s->value("MaxVelocity", 400).toInt();
 
-    veloSubmission = s->value("VelocitySubmission", 200).toInt();
+    veloCutting = s->value("VelocityCutting", 200).toInt();
     veloMoving = s->value("VelocityMoving", 500).toInt();
     veloManual = s->value("VelocityManual", 400).toInt();
     currentKeyPad = s->value("KeyControl", -1).toInt();
 
     unitMm = s->value("UnitMM", 1.0).toBool();
     cuttedMaterial = (MATERIAL)s->value("CuttedMaterial", 0).toInt();
+
+    toolDiameter = s->value("ToolDiameter", 3.0).toFloat();
+    toolFlutes = s->value("ToolFlutes", 2).toInt();
+    toolRPM = s->value("ToolRPM", 10000).toInt();
 
     for(int i = 0; i < userKeys.count(); ++i) {
         userKeys[i].code = (Qt::Key)s->value(userKeys.at(i).name, (quint32)userKeys.at(i).code).toUInt();
@@ -727,7 +739,7 @@ void MainWindow::readGUISettings()
     groupManualControl->setChecked(currentKeyPad != -1);
 
 
-    numVeloSubmission->setValue(veloSubmission);
+    numVeloSubmission->setValue(veloCutting);
     numVeloMoving->setValue(veloMoving);
     numVeloManual->setValue(veloManual);
 
@@ -838,6 +850,12 @@ void MainWindow::getZRotation(int z)
 }
 
 
+void MainWindow::getFPS(int f)
+{
+    statusLabel2->setText( "OpenGL, FPS: " + QString::number(f));
+}
+
+
 void MainWindow::getXRotation(int x)
 {
     xAngle = x;
@@ -937,13 +955,13 @@ void MainWindow::translateGUI()
     groupVelocity->setTitle(translate(_VELOCITY));
 
     toolRunMoving->setText(translate(_RUN));
-    
+
     QStringList m = translate(_MATERIAL_LIST).split("\n");
-    if (m.count() > 0){
-        if (cuttedMaterial < m.count()){
+
+    if (m.count() > 0) {
+        if (cuttedMaterial < m.count()) {
             labelMaterial->setText(m.at(cuttedMaterial));
-        }
-        else{
+        } else {
             labelMaterial->setText(m.at(0));
         }
     }
@@ -1867,8 +1885,19 @@ void MainWindow::onCalcVelocity()
     CuttingCalc *setfrm = new CuttingCalc(this);
     int dlgResult = setfrm->exec();
 
-    if (dlgResult == QMessageBox::Ok) {
-        //         cnc->saveSettings();
+    if (dlgResult == QMessageBox::Accepted) {
+        writeGUISettings();
+        QStringList m = translate(_MATERIAL_LIST).split("\n");
+
+        if (m.count() > 0) {
+            if (cuttedMaterial < m.count()) {
+                labelMaterial->setText(m.at(cuttedMaterial));
+            } else {
+                labelMaterial->setText(m.at(0));
+            }
+        }
+
+        numVeloSubmission->setValue(veloCutting);
     }
 }
 

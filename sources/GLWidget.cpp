@@ -44,8 +44,6 @@
 
 #include <math.h>
 
-#define PI 3.14159265358979323846
-
 
 GLint GLWidget::xAxis[][3] = {
     {0, 0, 0}, {10, 0, 0}, {10, 0, 0},
@@ -138,7 +136,8 @@ void GLWidget::surfaceReloaded()
 
 void GLWidget::showFPS()
 {
-    qDebug() << "fps" << fps;
+    emit fpsChanged(fps);
+
     fps = 0;
 }
 

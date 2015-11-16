@@ -97,6 +97,7 @@ class MessageBox: public cTranslator
 };
 
 
+#define PI 3.14159265358979323846
 
 enum MATERIAL {
     HARDWOOD,
@@ -105,7 +106,7 @@ enum MATERIAL {
     MDF,
     ACRYLIC,
     PHENOLIC, // PERTINAX, paper
-    FIBERGLASS,
+    FIBERGLASS, // same as polyacril
     HARDPLASTIC,
     SOFTPLASTIC,
     BRONZE,
@@ -182,6 +183,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         bool unitMm;
         bool enableOpenGL;
 
+        int veloCutting;
+        //         bool scale;
+
         // user defined control keys
         QVector<uKeys> userKeys;
 
@@ -200,6 +204,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         float grateYmax;
 
         MATERIAL cuttedMaterial;
+        float toolDiameter;
+        int toolFlutes;
+        int toolRPM;
 
         int PosX, PosY, PosZ;
         int PosAngleX, PosAngleY, PosAngleZ;
@@ -276,6 +283,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void getZRotation(int z);
         void getYRotation(int y);
         void getXRotation(int x);
+        void getFPS(int fps);
         void getScale(int s);
 
     private:
@@ -321,7 +329,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         QString helpDir;
         QString currentLang;
 
-        int veloSubmission;
+        int accelerationCutting;
+        int minVelo;
+        int maxVelo;
         int veloMoving;
 
         int xAngle, yAngle, zAngle;

@@ -58,20 +58,56 @@
 // data for 3mm diameter
 // z feed is the 1/3 from xy feed
 //
-materialFeed CuttingCalc::materialList[] = {
-    {HARDWOOD,    150.0, 350.0},
-    {SOFTWOOD, 300.0, 500.0},
-    {PLYWOOD, 300.0, 400.0},
-    {MDF, 0.1, 0.18},
-    {ACRYLIC,     0.003, 0.005},
-    {PHENOLIC,    0.004, 0.005},
-    {FIBERGLASS,  0.003, 0.005},
-    {HARDPLASTIC, 150.0, 300.0},
-    {SOFTPLASTIC, 300.0, 400.0},
-    {BRONZE,     100.0, 120.0},
-    {ALUMINIUM,    80.0, 100.0},
-    {COPPER,     24.0, 45.0}
-};
+QVector<materialFeed> CuttingCalc::materialList = (QVector<materialFeed>()
+        << (materialFeed)
+{
+    HARDWOOD,    60.0, 150.0, 10000, 0.035
+}
+        << (materialFeed)
+{
+    SOFTWOOD,    80.0, 250.0, 10000, 0.04
+}
+        << (materialFeed)
+{
+    PLYWOOD,     80.0, 250.0, 10000, 0.04
+}
+        << (materialFeed)
+{
+    MDF,         80.0, 250.0, 10000, 0.04
+}
+        << (materialFeed)
+{
+    ACRYLIC,     100.0, 150.0, 10000, 0.035
+}
+        << (materialFeed)
+{
+    PHENOLIC,    100.0, 200.0, 10000, 0.035
+}
+        << (materialFeed)
+{
+    FIBERGLASS,  100.0, 150.0, 10000, 0.035
+} // polyacril
+        << (materialFeed)
+{
+    HARDPLASTIC, 150.0, 350.0, 10000, 0.035
+}
+        << (materialFeed)
+{
+    SOFTPLASTIC, 200.0, 400.0, 10000, 0.04
+}
+        << (materialFeed)
+{
+    BRONZE,      30.0, 60.0, 10000, 0.0085
+}
+        << (materialFeed)
+{
+    ALUMINIUM,   70.0, 100.0, 10000, 0.01
+}
+        << (materialFeed)
+{
+    COPPER,      50.0, 100.0, 10000, 0.008
+}
+                                                  );
 
 
 CuttingCalc::CuttingCalc(QWidget *p)
@@ -91,19 +127,19 @@ CuttingCalc::CuttingCalc(QWidget *p)
     connect(comboMaterial, SIGNAL(activated(int)), this, SLOT(changeMaterial(int)));
 
     connect(doubleSpinDiameter, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
-    connect(doubleSpinFlutes, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
+    connect(doubleSpinFlutes, SIGNAL(valueChanged(int)), this, SLOT(changeParameters(void)));
     connect(doubleSpinXY, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
     connect(doubleSpinZ, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
-    connect(doubleSpinSpindleSpeed, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
+    connect(doubleSpinSpindleSpeed, SIGNAL(valueChanged(int)), this, SLOT(changeParameters(void)));
     connect(doubleSpinChipLoad, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
 
     connect(comboUnit, SIGNAL(activated(int)), this, SLOT(changeUnit(int)));
 
     translateDialog();
 
-    emit changeUnit( (parent->unitMm == true)?0:1);
+    emit changeUnit( (parent->unitMm == true) ? 0 : 1);
 
-    emit changeMaterial(parent->cuttedMaterial);
+    emit changeMaterial((int)parent->cuttedMaterial);
 
     adjustSize();
 }
@@ -112,6 +148,13 @@ CuttingCalc::CuttingCalc(QWidget *p)
 void CuttingCalc::onSave()
 {
     parent->unitMm = (scaling == 1.0);
+    parent->toolDiameter = doubleSpinDiameter->value();
+    parent->toolFlutes = doubleSpinFlutes->value();
+    parent->toolRPM = doubleSpinSpindleSpeed->value();
+
+    parent->veloCutting = v;
+
+    parent->cuttedMaterial = current;
 
     emit accept();
 }
@@ -119,23 +162,111 @@ void CuttingCalc::onSave()
 
 void CuttingCalc::changeParameters(void)
 {
+    QObject* s = sender();
+
+    if (s == doubleSpinXY) {
+        disconnect(doubleSpinZ, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
+        doubleSpinZ->setValue(doubleSpinXY->value() / 3.0);
+        connect(doubleSpinZ, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
+    }
+
+    if (s == doubleSpinZ) {
+        disconnect(doubleSpinXY, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
+        doubleSpinXY->setValue(doubleSpinZ->value() * 3.0);
+        connect(doubleSpinXY, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
+    }
+
+    //     float rpm;
+    z = doubleSpinFlutes->value();
+    v = doubleSpinXY->value();
+    d = doubleSpinDiameter->value();
+    rpm = 1000.0 * v / (PI * d);
+
+    if (rpm > materialList.at(current).maxRPM) {
+        rpm = materialList.at(current).maxRPM;
+    }
+
+    if (s == doubleSpinDiameter) {
+        disconnect(doubleSpinChipLoad, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
+        fz = d * materialList.at(current).kfz;
+        doubleSpinChipLoad->setValue(d * materialList.at(current).kfz);
+        connect(doubleSpinChipLoad, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
+    }
+
+    disconnect(doubleSpinSpindleSpeed, SIGNAL(valueChanged(int)), this, SLOT(changeParameters(void)));
+    doubleSpinSpindleSpeed->setValue(rpm);
+    connect(doubleSpinSpindleSpeed, SIGNAL(valueChanged(int)), this, SLOT(changeParameters(void)));
+
+    feed = fz * rpm * z;
+
+    doubleSpinFeedRate->setValue(feed);
 }
 
 
 void CuttingCalc::changeMaterial(int n)
 {
-    
-    emit changeParameters();
+    if (n >= materialList.size()) {
+        return;
+    }
+
+    current = (MATERIAL)n;
+
+    disconnect(comboMaterial, SIGNAL(activated(int)), this, SLOT(changeMaterial(int)));
+
+    QString unit;
+    float minFeedXY = materialList.at(n).minFeedXY;
+    float maxFeedXY = materialList.at(n).maxFeedXY;
+
+    if (scaling == 1.0) {
+        unit = QString().sprintf(": %4.1f - %4.1f m/min", minFeedXY, maxFeedXY);
+    } else {
+        minFeedXY = materialList.at(n).minFeedXY / 3.28084;
+        maxFeedXY = materialList.at(n).maxFeedXY / 3.28084;
+        unit = QString().sprintf(": %4.1f - %4.1f feet/min", minFeedXY, maxFeedXY);
+    }
+
+    labelCuttingRange->setText(translate(_RANGES) + unit);
+
+    float m = (materialList.at(n).maxFeedXY + materialList.at(n).minFeedXY) / 2.0;
+
+    doubleSpinXY->setMinimum(minFeedXY);
+    doubleSpinXY->setMaximum(maxFeedXY);
+    doubleSpinXY->setValue(m);
+
+    doubleSpinZ->setMinimum(minFeedXY / 3.0);
+    doubleSpinZ->setMaximum(maxFeedXY / 3.0);
+    doubleSpinZ->setValue(m / 3.0);
+
+    comboMaterial->setCurrentIndex(current);
+
+    connect(comboMaterial, SIGNAL(activated(int)), this, SLOT(changeMaterial(int)));
 }
 
 
 void CuttingCalc::changeUnit(int n)
 {
+    QString unit;
+
     if (n == 0) { // mm
         scaling = 1.0;
+        unit = QString().sprintf(": %4.1f - %4.1f m/min", materialList.at(n).minFeedXY, materialList.at(n).maxFeedXY);
     } else { // inch
         scaling = 25.4;
+        unit = QString().sprintf(": %4.1f - %4.1f feet/min", (materialList.at(n).minFeedXY / 3.28084), (materialList.at(n).maxFeedXY / 3.28084));
     }
+
+    labelCuttingRange->setText(translate(_RANGES) + unit);
+
+    if (parent->toolDiameter == 0) {
+        parent->toolDiameter = 3.0;
+    }
+
+    if (scaling != 0.0) {
+        doubleSpinDiameter->setValue(parent->toolDiameter / scaling);
+    }
+
+    doubleSpinFlutes->setValue(parent->toolFlutes);
+    doubleSpinSpindleSpeed->setValue(parent->toolRPM);
 }
 
 
@@ -169,12 +300,5 @@ void CuttingCalc::translateDialog()
     comboMaterial->addItems(m);
 }
 
-
-void CuttingCalc::checkedChanged( int state)
-{
-    //     bool check = checkCorrecture->isChecked();
-    //     groupOffset->setEnabled(check);
-    //     groupResize->setEnabled(check);
-}
 
 

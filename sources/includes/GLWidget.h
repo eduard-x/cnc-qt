@@ -113,6 +113,7 @@ class GLWidget : public QGLWidget
         void setXCoord(int x);
 
     signals:
+        void fpsChanged(int val);
         void xRotationChanged(int angle);
         void yRotationChanged(int angle);
         void zRotationChanged(int angle);

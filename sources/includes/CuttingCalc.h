@@ -47,11 +47,10 @@ struct materialFeed {
     MATERIAL m;
     float minFeedXY;
     float maxFeedXY;
-    float minFeedZ;
-    float maxFeedZ;
+    int maxRPM;
+    float kfz; // koeff fz for diameter
 };
 
-// class MainWindow;
 
 
 class CuttingCalc : public QDialog, public Ui::CuttingCalcDialog,  public cTranslator
@@ -61,7 +60,6 @@ class CuttingCalc : public QDialog, public Ui::CuttingCalcDialog,  public cTrans
         CuttingCalc(QWidget *parent = 0);
 
     private slots:
-        void checkedChanged(int state);
         void changeUnit(int n);
         void changeParameters(void);
         void onSave();
@@ -69,11 +67,18 @@ class CuttingCalc : public QDialog, public Ui::CuttingCalcDialog,  public cTrans
 
     private:
         void translateDialog();
-        static materialFeed materialList[];
+        static QVector<materialFeed> materialList;
 
     private:
         MainWindow* parent;
         float scaling;
+        float v;
+        float d;
+        int rpm;
+        float feed;
+        float fz;
+        int z;
+        MATERIAL current;
 };
 
 

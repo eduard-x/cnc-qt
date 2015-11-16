@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>646</width>
-    <height>524</height>
+    <height>528</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,16 +43,6 @@
        <widget class="QLabel" name="labelSpendleSpeed">
         <property name="text">
          <string>Spindle speed</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QDoubleSpinBox" name="doubleSpinSpindleSpeed">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>35</height>
-         </size>
         </property>
        </widget>
       </item>
@@ -109,6 +99,28 @@
           <height>35</height>
          </size>
         </property>
+        <property name="maximum">
+         <double>999.899999999999977</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="doubleSpinSpindleSpeed">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>30000</number>
+        </property>
+        <property name="singleStep">
+         <number>100</number>
+        </property>
        </widget>
       </item>
      </layout>
@@ -126,6 +138,12 @@
    </item>
    <item row="2" column="0" colspan="2">
     <widget class="QGroupBox" name="groupMaterial">
+     <property name="minimumSize">
+      <size>
+       <width>310</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="title">
       <string>Material</string>
      </property>
@@ -226,6 +244,12 @@
    </item>
    <item row="2" column="2" colspan="2">
     <widget class="QGroupBox" name="groupTool">
+     <property name="minimumSize">
+      <size>
+       <width>310</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="title">
       <string>Tool</string>
      </property>
@@ -273,6 +297,12 @@
             <width>100</width>
             <height>35</height>
            </size>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
           </property>
          </widget>
         </item>
