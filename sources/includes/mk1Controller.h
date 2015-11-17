@@ -89,6 +89,7 @@ class BinaryData
         static void packC0(byte byte05 = 0x0, bool send = true);
         static void packB5(bool spindleON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 0, bool send = true);
         static void packAA(bool send = true);
+        static void packA0(float accelx, float accely, float accelz, float accela, bool send = true);
         static void packC8(int x, int y, int z, int a, bool send = true);
         static void packD2(int speed, float returnDistance, bool send = true);
         static void packBE(byte direction, int speed, bool send = true);
@@ -146,12 +147,12 @@ class DeviceInfo
         static float AxesY_EndVelo;
         static float AxesZ_EndVelo;
         static float AxesA_EndVelo;
-        
+
         static float AxesX_Acceleration;
         static float AxesY_Acceleration;
         static float AxesZ_Acceleration;
         static float AxesA_Acceleration;
-        
+
         // limit sensors
         static bool AxesX_LimitMax;
         static bool AxesX_LimitMin;
@@ -161,7 +162,7 @@ class DeviceInfo
         static bool AxesZ_LimitMin;
         static bool AxesA_LimitMax;
         static bool AxesA_LimitMin;
-        
+
         // speed settings
 
         static int spindle_MoveSpeed;
