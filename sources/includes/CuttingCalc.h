@@ -52,7 +52,6 @@ struct materialFeed {
 };
 
 
-
 class CuttingCalc : public QDialog, public Ui::CuttingCalcDialog,  public cTranslator
 {
         Q_OBJECT

@@ -56,6 +56,21 @@ int DeviceInfo::AxesY_PulsePerMm = 400;
 int DeviceInfo::AxesZ_PulsePerMm = 400;
 int DeviceInfo::AxesA_PulsePerMm = 400;
 
+float DeviceInfo::AxesX_StartVelo = 0;
+float DeviceInfo::AxesY_StartVelo = 0;
+float DeviceInfo::AxesZ_StartVelo = 0;
+float DeviceInfo::AxesA_StartVelo = 0;
+
+float DeviceInfo::AxesX_EndVelo = 400;
+float DeviceInfo::AxesY_EndVelo = 400;
+float DeviceInfo::AxesZ_EndVelo = 400;
+float DeviceInfo::AxesA_EndVelo = 400;
+
+float DeviceInfo::AxesX_Acceleration = 15;
+float DeviceInfo::AxesY_Acceleration = 15;
+float DeviceInfo::AxesZ_Acceleration = 15;
+float DeviceInfo::AxesA_Acceleration = 15;
+
 bool DeviceInfo::AxesX_LimitMax = false;
 bool DeviceInfo::AxesX_LimitMin = false;
 bool DeviceInfo::AxesY_LimitMax = false;
@@ -514,6 +529,78 @@ void mk1Controller::loadSettings()
     if (res == true) {
         DeviceInfo::AxesA_PulsePerMm = i;
     }
+    
+    float f = settingsFile->value("AccelX", 15).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesX_Acceleration = f;
+    }
+
+    f = settingsFile->value("AccelY", 15).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesY_Acceleration = f;
+    }
+
+    f = settingsFile->value("AccelZ", 15).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesZ_Acceleration = f;
+    }
+
+    f = settingsFile->value("AccelA", 15).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesA_Acceleration = f;
+    }
+    
+     f = settingsFile->value("StartVeloX", 0).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesX_StartVelo = f;
+    }
+
+    f = settingsFile->value("StartVeloY", 0).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesY_StartVelo = f;
+    }
+
+    f = settingsFile->value("StartVeloZ", 0).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesZ_StartVelo = f;
+    }
+
+    f = settingsFile->value("StartVeloA", 0).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesA_StartVelo = f;
+    }
+    
+     f = settingsFile->value("EndVeloX", 400).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesX_EndVelo = f;
+    }
+
+    f = settingsFile->value("EndVeloY", 400).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesY_EndVelo = f;
+    }
+
+    f = settingsFile->value("EndVeloZ", 400).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesZ_EndVelo = f;
+    }
+
+    f = settingsFile->value("EndVeloA", 400).toFloat( &res);
+
+    if (res == true) {
+        DeviceInfo::AxesA_EndVelo = f;
+    }
 }
 
 //
@@ -525,6 +612,21 @@ void mk1Controller::saveSettings()
     settingsFile->setValue("pulseY", DeviceInfo::AxesY_PulsePerMm);
     settingsFile->setValue("pulseZ", DeviceInfo::AxesZ_PulsePerMm);
     settingsFile->setValue("pulseA", DeviceInfo::AxesA_PulsePerMm);
+    
+    settingsFile->setValue("AccelX", DeviceInfo::AxesX_Acceleration);
+    settingsFile->setValue("AccelY", DeviceInfo::AxesY_Acceleration);
+    settingsFile->setValue("AccelZ", DeviceInfo::AxesZ_Acceleration);
+    settingsFile->setValue("AccelA", DeviceInfo::AxesA_Acceleration);
+    
+    settingsFile->setValue("StartVeloX", DeviceInfo::AxesX_StartVelo);
+    settingsFile->setValue("StartVeloY", DeviceInfo::AxesY_StartVelo);
+    settingsFile->setValue("StartVeloZ", DeviceInfo::AxesZ_StartVelo);
+    settingsFile->setValue("StartVeloA", DeviceInfo::AxesA_StartVelo);
+    
+    settingsFile->setValue("EndVeloX", DeviceInfo::AxesX_EndVelo);
+    settingsFile->setValue("EndVeloY", DeviceInfo::AxesY_EndVelo);
+    settingsFile->setValue("EndVeloZ", DeviceInfo::AxesZ_EndVelo);
+    settingsFile->setValue("EndVeloA", DeviceInfo::AxesA_EndVelo);
 }
 
 

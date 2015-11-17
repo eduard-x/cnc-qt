@@ -153,8 +153,6 @@ int Task::posCodeEnd = -1;
 int Task::posCodeNow = -1;
 
 
-
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), Reader ()
 {
@@ -250,7 +248,7 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
         QPalette palette = statusLabel2->palette();
         //  palette.setColor(statusLabel2->backgroundRole(), Qt::yellow);
-        palette.setColor(statusLabel2->foregroundRole(), Qt::green);
+        palette.setColor(statusLabel2->foregroundRole(), Qt::darkBlue);
         statusLabel2->setPalette(palette);
         statusLabel2->setText( "OpenGL " + translate(_ENABLED));
         // OpenGL is placed in widget
@@ -281,8 +279,6 @@ MainWindow::MainWindow(QWidget *parent)
     scale = 1;
 
     addConnections();
-
-
 
     if (getLangTable() == false) {
         MessageBox::exec(this, translate(_ERR),

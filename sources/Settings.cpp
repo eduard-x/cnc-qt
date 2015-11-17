@@ -56,7 +56,23 @@ SettingsDialog::SettingsDialog(QWidget *p)
     numPulseX->setValue(DeviceInfo::AxesX_PulsePerMm);
     numPulseY->setValue(DeviceInfo::AxesY_PulsePerMm);
     numPulseZ->setValue(DeviceInfo::AxesZ_PulsePerMm);
+    numPulseA->setValue(DeviceInfo::AxesA_PulsePerMm);
 
+    doubleSpinStartX->setValue(DeviceInfo::AxesX_StartVelo);
+    doubleSpinStartY->setValue(DeviceInfo::AxesY_StartVelo);
+    doubleSpinStartZ->setValue(DeviceInfo::AxesZ_StartVelo);
+    doubleSpinStartA->setValue(DeviceInfo::AxesA_StartVelo);
+
+    doubleSpinEndX->setValue(DeviceInfo::AxesX_EndVelo);
+    doubleSpinEndY->setValue(DeviceInfo::AxesY_EndVelo);
+    doubleSpinEndZ->setValue(DeviceInfo::AxesZ_EndVelo);
+    doubleSpinEndA->setValue(DeviceInfo::AxesA_EndVelo);
+
+    doubleSpinAccelX->setValue(DeviceInfo::AxesX_Acceleration);
+    doubleSpinAccelY->setValue(DeviceInfo::AxesY_Acceleration);
+    doubleSpinAccelZ->setValue(DeviceInfo::AxesZ_Acceleration);
+    doubleSpinAccelA->setValue(DeviceInfo::AxesA_Acceleration);
+    
     checkBoxDemoController->setChecked(DeviceInfo::DEMO_DEVICE);
 
     translateDialog();
@@ -79,6 +95,23 @@ void SettingsDialog::onSave()
     DeviceInfo::AxesX_PulsePerMm = numPulseX->value();
     DeviceInfo::AxesY_PulsePerMm = numPulseY->value();
     DeviceInfo::AxesZ_PulsePerMm = numPulseZ->value();
+    DeviceInfo::AxesA_PulsePerMm = numPulseA->value();
+    
+    DeviceInfo::AxesX_StartVelo = doubleSpinStartX->value();
+    DeviceInfo::AxesY_StartVelo = doubleSpinStartY->value();
+    DeviceInfo::AxesZ_StartVelo = doubleSpinStartZ->value();
+    DeviceInfo::AxesA_StartVelo = doubleSpinStartA->value();
+    
+    DeviceInfo::AxesX_EndVelo = doubleSpinEndX->value();
+    DeviceInfo::AxesY_EndVelo = doubleSpinEndY->value();
+    DeviceInfo::AxesZ_EndVelo = doubleSpinEndZ->value();
+    DeviceInfo::AxesA_EndVelo = doubleSpinEndA->value();
+    
+    DeviceInfo::AxesX_Acceleration = doubleSpinAccelX->value();
+    DeviceInfo::AxesY_Acceleration = doubleSpinAccelY->value();
+    DeviceInfo::AxesZ_Acceleration = doubleSpinAccelZ->value();
+    DeviceInfo::AxesA_Acceleration = doubleSpinAccelA->value();
+    
     DeviceInfo::DEMO_DEVICE      = checkBoxDemoController->isChecked();
 
     accept();

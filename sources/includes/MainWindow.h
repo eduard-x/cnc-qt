@@ -149,6 +149,14 @@ struct uKeys {
 };
 
 
+struct speedSettings {
+    float startSpeed;
+    float endSpeed;
+    float acceler;
+    int   stepsPerMm;
+};
+
+
 class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 {
         Q_OBJECT
@@ -188,6 +196,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 
         // user defined control keys
         QVector<uKeys> userKeys;
+        QVector<speedSettings> veloSettings[4];
 
         //
         int veloManual;

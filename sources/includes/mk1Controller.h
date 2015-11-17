@@ -137,6 +137,21 @@ class DeviceInfo
         static int AxesZ_PulsePerMm;
         static int AxesA_PulsePerMm;
 
+        static float AxesX_StartVelo;
+        static float AxesY_StartVelo;
+        static float AxesZ_StartVelo;
+        static float AxesA_StartVelo;
+
+        static float AxesX_EndVelo;
+        static float AxesY_EndVelo;
+        static float AxesZ_EndVelo;
+        static float AxesA_EndVelo;
+        
+        static float AxesX_Acceleration;
+        static float AxesY_Acceleration;
+        static float AxesZ_Acceleration;
+        static float AxesA_Acceleration;
+        
         // limit sensors
         static bool AxesX_LimitMax;
         static bool AxesX_LimitMin;
@@ -146,6 +161,8 @@ class DeviceInfo
         static bool AxesZ_LimitMin;
         static bool AxesA_LimitMax;
         static bool AxesA_LimitMin;
+        
+        // speed settings
 
         static int spindle_MoveSpeed;
         static bool spindle_Enable;
