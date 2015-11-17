@@ -613,6 +613,7 @@ void mk1Controller::saveSettings()
     settingsFile->setValue("pulseZ", DeviceInfo::AxesZ_PulsePerMm);
     settingsFile->setValue("pulseA", DeviceInfo::AxesA_PulsePerMm);
     
+    pack9F(DeviceInfo::AxesX_PulsePerMm, DeviceInfo::AxesY_PulsePerMm, DeviceInfo::AxesZ_PulsePerMm, DeviceInfo::AxesA_PulsePerMm);
 
     settingsFile->setValue("AccelX", DeviceInfo::AxesX_Acceleration);
     settingsFile->setValue("AccelY", DeviceInfo::AxesY_Acceleration);
@@ -1385,6 +1386,38 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
 //     buf[0] = 0xc0;
 // }
 
+void BinaryData::pack9F(int _impX, int _impY, int _impZ, int _impA, bool send)
+{
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0x9f;
+    writeBuf[4] = 0x80; //TODO:unknown
+    writeBuf[5] = 0xb1; 
+    
+    writeBuf[6] = (byte)(_impX);
+    writeBuf[7] = (byte)(_impX >> 8);
+    writeBuf[8] = (byte)(_impX >> 16);
+    writeBuf[9] = (byte)(_impX >> 24);
+    
+    writeBuf[10] = (byte)(_impY);
+    writeBuf[11] = (byte)(_impY >> 8);
+    writeBuf[12] = (byte)(_impY >> 16);
+    writeBuf[13] = (byte)(_impY >> 24);
+    
+    writeBuf[14] = (byte)(_impZ);
+    writeBuf[15] = (byte)(_impZ >> 8);
+    writeBuf[16] = (byte)(_impZ >> 16);
+    writeBuf[17] = (byte)(_impZ >> 24);
+    
+    writeBuf[18] = (byte)(_impA);
+    writeBuf[19] = (byte)(_impA >> 8);
+    writeBuf[20] = (byte)(_impA >> 16);
+    writeBuf[21] = (byte)(_impA >> 24);
+    
+    if (send == true) {
+        sendBinaryData();
+    }
+}
 //
 // moving to the point
 //
