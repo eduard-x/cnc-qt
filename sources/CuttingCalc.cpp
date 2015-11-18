@@ -58,56 +58,47 @@
 // data for 3mm diameter
 // z feed is the 1/3 from xy feed
 //
-QVector<materialFeed> CuttingCalc::materialList = (QVector<materialFeed>()
-        << (materialFeed)
+
+void CuttingCalc::initMaterialList()
 {
-    HARDWOOD,    60.0, 150.0, 10000, 0.035
+    materialList = (QVector<materialFeed>()
+    << (materialFeed) {
+        HARDWOOD,    60.0, 150.0, 10000, 0.035
+    }
+    << (materialFeed) {
+        SOFTWOOD,    80.0, 250.0, 10000, 0.04
+    }
+    << (materialFeed) {
+        PLYWOOD,     80.0, 250.0, 10000, 0.04
+    }
+    << (materialFeed) {
+        MDF,         80.0, 250.0, 10000, 0.04
+    }
+    << (materialFeed) {
+        ACRYLIC,     100.0, 150.0, 10000, 0.035
+    }
+    << (materialFeed) {
+        PHENOLIC,    100.0, 200.0, 10000, 0.035
+    }
+    << (materialFeed) {
+        FIBERGLASS,  100.0, 150.0, 10000, 0.035
+    } // polyacril
+    << (materialFeed) {
+        HARDPLASTIC, 150.0, 350.0, 10000, 0.035
+    }
+    << (materialFeed) {
+        SOFTPLASTIC, 200.0, 400.0, 10000, 0.04
+    }
+    << (materialFeed) {
+        BRONZE,      30.0, 60.0, 10000, 0.0085
+    }
+    << (materialFeed) {
+        ALUMINIUM,   70.0, 100.0, 10000, 0.01
+    }
+    << (materialFeed) {
+        COPPER,      50.0, 100.0, 10000, 0.008
+    });
 }
-        << (materialFeed)
-{
-    SOFTWOOD,    80.0, 250.0, 10000, 0.04
-}
-        << (materialFeed)
-{
-    PLYWOOD,     80.0, 250.0, 10000, 0.04
-}
-        << (materialFeed)
-{
-    MDF,         80.0, 250.0, 10000, 0.04
-}
-        << (materialFeed)
-{
-    ACRYLIC,     100.0, 150.0, 10000, 0.035
-}
-        << (materialFeed)
-{
-    PHENOLIC,    100.0, 200.0, 10000, 0.035
-}
-        << (materialFeed)
-{
-    FIBERGLASS,  100.0, 150.0, 10000, 0.035
-} // polyacril
-        << (materialFeed)
-{
-    HARDPLASTIC, 150.0, 350.0, 10000, 0.035
-}
-        << (materialFeed)
-{
-    SOFTPLASTIC, 200.0, 400.0, 10000, 0.04
-}
-        << (materialFeed)
-{
-    BRONZE,      30.0, 60.0, 10000, 0.0085
-}
-        << (materialFeed)
-{
-    ALUMINIUM,   70.0, 100.0, 10000, 0.01
-}
-        << (materialFeed)
-{
-    COPPER,      50.0, 100.0, 10000, 0.008
-}
-                                                  );
 
 
 CuttingCalc::CuttingCalc(QWidget *p)
@@ -118,6 +109,8 @@ CuttingCalc::CuttingCalc(QWidget *p)
     parent = static_cast<MainWindow*>(p);
 
     setStyleSheet(parent->programStyleSheet);
+
+    initMaterialList();
 
     doubleSpinFeedRate->setReadOnly(true);
 

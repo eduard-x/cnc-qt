@@ -612,15 +612,19 @@ void mk1Controller::saveSettings()
     settingsFile->setValue("pulseY", DeviceInfo::AxesY_PulsePerMm);
     settingsFile->setValue("pulseZ", DeviceInfo::AxesZ_PulsePerMm);
     settingsFile->setValue("pulseA", DeviceInfo::AxesA_PulsePerMm);
-    
-    pack9F(DeviceInfo::AxesX_PulsePerMm, DeviceInfo::AxesY_PulsePerMm, DeviceInfo::AxesZ_PulsePerMm, DeviceInfo::AxesA_PulsePerMm);
+
+    if (handle) {
+        pack9F(DeviceInfo::AxesX_PulsePerMm, DeviceInfo::AxesY_PulsePerMm, DeviceInfo::AxesZ_PulsePerMm, DeviceInfo::AxesA_PulsePerMm);
+    }
 
     settingsFile->setValue("AccelX", DeviceInfo::AxesX_Acceleration);
     settingsFile->setValue("AccelY", DeviceInfo::AxesY_Acceleration);
     settingsFile->setValue("AccelZ", DeviceInfo::AxesZ_Acceleration);
     settingsFile->setValue("AccelA", DeviceInfo::AxesA_Acceleration);
-    
-    packA0(DeviceInfo::AxesX_Acceleration, DeviceInfo::AxesY_Acceleration, DeviceInfo::AxesZ_Acceleration, DeviceInfo::AxesA_Acceleration);
+
+    if (handle) {
+        packA0(DeviceInfo::AxesX_Acceleration, DeviceInfo::AxesY_Acceleration, DeviceInfo::AxesZ_Acceleration, DeviceInfo::AxesA_Acceleration);
+    }
 
     settingsFile->setValue("StartVeloX", DeviceInfo::AxesX_StartVelo);
     settingsFile->setValue("StartVeloY", DeviceInfo::AxesY_StartVelo);
@@ -631,8 +635,10 @@ void mk1Controller::saveSettings()
     settingsFile->setValue("EndVeloY", DeviceInfo::AxesY_EndVelo);
     settingsFile->setValue("EndVeloZ", DeviceInfo::AxesZ_EndVelo);
     settingsFile->setValue("EndVeloA", DeviceInfo::AxesA_EndVelo);
-    
-    packBF(DeviceInfo::AxesX_EndVelo, DeviceInfo::AxesY_EndVelo, DeviceInfo::AxesZ_EndVelo, DeviceInfo::AxesA_EndVelo);
+
+    if (handle) {
+        packBF(DeviceInfo::AxesX_EndVelo, DeviceInfo::AxesY_EndVelo, DeviceInfo::AxesZ_EndVelo, DeviceInfo::AxesA_EndVelo);
+    }
 }
 
 
@@ -959,7 +965,6 @@ byte BinaryData::getByte(short offset)
 }
 
 
-
 void BinaryData::cleanBuf(byte *m)
 {
     memset(m, 0x0, BUFFER_SIZE);
@@ -1102,7 +1107,7 @@ void BinaryData::packA0(float accelx, float accely, float accelz, float accela, 
 
     writeBuf[5] = 0x12;
 
-    int AccelX = 0;
+    int AccelX = 811200;
 
     if (accelx > 0) {
         AccelX = 811200 / sqrt(accelx);
@@ -1113,7 +1118,7 @@ void BinaryData::packA0(float accelx, float accely, float accelz, float accela, 
     writeBuf[8] = (byte)(AccelX >> 16);
     writeBuf[9] = (byte)(AccelX >> 24);
 
-    int AccelY = 0;
+    int AccelY = 811200;
 
     if (accely > 0) {
         AccelY = 811200 / sqrt(accely);
@@ -1124,7 +1129,7 @@ void BinaryData::packA0(float accelx, float accely, float accelz, float accela, 
     writeBuf[12] = (byte)(AccelY >> 16);
     writeBuf[13] = (byte)(AccelY >> 24);
 
-    int AccelZ = 0;
+    int AccelZ = 811200;
 
     if (accelz > 0) {
         AccelZ = 811200 / sqrt(accelz);
@@ -1145,6 +1150,14 @@ void BinaryData::packA0(float accelx, float accely, float accelz, float accela, 
     writeBuf[19] = (byte)(AccelA >> 8);
     writeBuf[20] = (byte)(AccelA >> 16);
     writeBuf[21] = (byte)(AccelA >> 24);
+
+    writeBuf[42] = 0x60;// unknown byte
+    writeBuf[43] = 0x09;// unknown byte
+
+    writeBuf[46] = 0x08;// unknown byte
+
+    writeBuf[57] = 0xff;// unknown byte
+    writeBuf[58] = 0x01;// unknown byte
 
     if (send == true) {
         sendBinaryData();
@@ -1189,6 +1202,71 @@ void BinaryData::packC8(int x, int y, int z, int a, bool send)
     writeBuf[19] = (byte)(newPosA >> 8);
     writeBuf[20] = (byte)(newPosA >> 16);
     writeBuf[21] = (byte)(newPosA >> 24);
+
+    if (send == true) {
+        sendBinaryData();
+    }
+}
+
+
+// unknown settings
+void BinaryData::packD3( bool send )
+{
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0xd3;
+
+    if (send == true) {
+        sendBinaryData();
+    }
+}
+
+
+// unknown settings
+void BinaryData::packAB( bool send )
+{
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0xab;
+
+    if (send == true) {
+        sendBinaryData();
+    }
+}
+
+
+// unknown settings
+void BinaryData::packA1( bool send )
+{
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0xa1;
+
+    if (send == true) {
+        sendBinaryData();
+    }
+}
+
+
+// unknown settings
+void BinaryData::packB6( bool send )
+{
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0xb6;
+
+    if (send == true) {
+        sendBinaryData();
+    }
+}
+
+
+// unknown settings
+void BinaryData::packC2( bool send )
+{
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0xc2;
 
     if (send == true) {
         sendBinaryData();
@@ -1314,13 +1392,12 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
     writeBuf[0] = 0xbf;
     writeBuf[4] = 0x80; //TODO:unknown
 
-    float dnewSpdX;
-    if (speedLimitX != 0){
+    float dnewSpdX  = 3600;
+
+    if (speedLimitX != 0) {
         dnewSpdX = (3600 / (float)speedLimitX) * 1000;
     }
-    else{
-        dnewSpdX = 3600;
-    }
+
     int inewSpdX = (int)dnewSpdX;
 
     writeBuf[7] = (byte)(inewSpdX);
@@ -1328,13 +1405,12 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
     writeBuf[9] = (byte)(inewSpdX >> 16);
     writeBuf[10] = (byte)(inewSpdX >> 24);
 
-    float dnewSpdY;
-    if (speedLimitY != 0){
-       dnewSpdY = (3600 / (float)speedLimitY) * 1000;
+    float dnewSpdY = 3600;
+
+    if (speedLimitY != 0) {
+        dnewSpdY = (3600 / (float)speedLimitY) * 1000;
     }
-    else{
-        dnewSpdY = 3600;
-    }
+
     int inewSpdY = (int)dnewSpdY;
 
     writeBuf[11] = (byte)(inewSpdY);
@@ -1342,13 +1418,12 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
     writeBuf[13] = (byte)(inewSpdY >> 16);
     writeBuf[14] = (byte)(inewSpdY >> 24);
 
-    float dnewSpdZ;
-    if (speedLimitZ != 0){
+    float dnewSpdZ = 3600;
+
+    if (speedLimitZ != 0) {
         dnewSpdZ = (3600 / (float)speedLimitZ) * 1000;
     }
-    else{
-        dnewSpdZ = 3600;
-    }
+
     int inewSpdZ = (int)dnewSpdZ;
 
     writeBuf[15] = (byte)(inewSpdZ);
@@ -1356,13 +1431,12 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
     writeBuf[17] = (byte)(inewSpdZ >> 16);
     writeBuf[18] = (byte)(inewSpdZ >> 24);
 
-    float dnewSpdA;
-    if (speedLimitA != 0){
+    float dnewSpdA = 3600;
+
+    if (speedLimitA != 0) {
         dnewSpdA = (3600 / (float)speedLimitA) * 1000;
     }
-    else{
-        dnewSpdA = 3600;
-    }
+
     int inewSpdA = (int)dnewSpdA;
 
     writeBuf[19] = (byte)(inewSpdA);
@@ -1392,28 +1466,28 @@ void BinaryData::pack9F(int _impX, int _impY, int _impZ, int _impA, bool send)
 
     writeBuf[0] = 0x9f;
     writeBuf[4] = 0x80; //TODO:unknown
-    writeBuf[5] = 0xb1; 
-    
+    writeBuf[5] = 0xb1;
+
     writeBuf[6] = (byte)(_impX);
     writeBuf[7] = (byte)(_impX >> 8);
     writeBuf[8] = (byte)(_impX >> 16);
     writeBuf[9] = (byte)(_impX >> 24);
-    
+
     writeBuf[10] = (byte)(_impY);
     writeBuf[11] = (byte)(_impY >> 8);
     writeBuf[12] = (byte)(_impY >> 16);
     writeBuf[13] = (byte)(_impY >> 24);
-    
+
     writeBuf[14] = (byte)(_impZ);
     writeBuf[15] = (byte)(_impZ >> 8);
     writeBuf[16] = (byte)(_impZ >> 16);
     writeBuf[17] = (byte)(_impZ >> 24);
-    
+
     writeBuf[18] = (byte)(_impA);
     writeBuf[19] = (byte)(_impA >> 8);
     writeBuf[20] = (byte)(_impA >> 16);
     writeBuf[21] = (byte)(_impA >> 24);
-    
+
     if (send == true) {
         sendBinaryData();
     }

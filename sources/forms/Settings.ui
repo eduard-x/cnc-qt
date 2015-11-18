@@ -77,6 +77,9 @@
                 <height>0</height>
                </size>
               </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
               <property name="maximum">
                <number>2000</number>
               </property>
@@ -90,6 +93,9 @@
                 <height>0</height>
                </size>
               </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
               <property name="maximum">
                <number>2000</number>
               </property>
@@ -102,6 +108,9 @@
                 <width>100</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="minimum">
+               <number>1</number>
               </property>
               <property name="maximum">
                <number>2000</number>
@@ -143,6 +152,9 @@
             </item>
             <item row="3" column="3">
              <widget class="QSpinBox" name="numPulseA">
+              <property name="minimum">
+               <number>1</number>
+              </property>
               <property name="maximum">
                <number>2000</number>
               </property>
@@ -253,6 +265,9 @@
          </item>
          <item row="1" column="2">
           <widget class="QDoubleSpinBox" name="doubleSpinEndX">
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
            <property name="maximum">
             <double>999.990000000000009</double>
            </property>
@@ -260,6 +275,9 @@
          </item>
          <item row="1" column="3">
           <widget class="QDoubleSpinBox" name="doubleSpinAccelX">
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
            <property name="maximum">
             <double>299.990000000000009</double>
            </property>
@@ -284,6 +302,9 @@
          </item>
          <item row="2" column="2">
           <widget class="QDoubleSpinBox" name="doubleSpinEndY">
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
            <property name="maximum">
             <double>999.990000000000009</double>
            </property>
@@ -291,6 +312,9 @@
          </item>
          <item row="2" column="3">
           <widget class="QDoubleSpinBox" name="doubleSpinAccelY">
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
            <property name="maximum">
             <double>299.990000000000009</double>
            </property>
@@ -315,6 +339,9 @@
          </item>
          <item row="3" column="2">
           <widget class="QDoubleSpinBox" name="doubleSpinEndZ">
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
            <property name="maximum">
             <double>999.990000000000009</double>
            </property>
@@ -322,6 +349,9 @@
          </item>
          <item row="3" column="3">
           <widget class="QDoubleSpinBox" name="doubleSpinAccelZ">
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
            <property name="maximum">
             <double>299.990000000000009</double>
            </property>
@@ -346,6 +376,9 @@
          </item>
          <item row="4" column="2">
           <widget class="QDoubleSpinBox" name="doubleSpinEndA">
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
            <property name="maximum">
             <double>999.990000000000009</double>
            </property>
@@ -353,6 +386,9 @@
          </item>
          <item row="4" column="3">
           <widget class="QDoubleSpinBox" name="doubleSpinAccelA">
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
            <property name="maximum">
             <double>299.990000000000009</double>
            </property>

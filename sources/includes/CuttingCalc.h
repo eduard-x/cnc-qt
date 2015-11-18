@@ -58,6 +58,9 @@ class CuttingCalc : public QDialog, public Ui::CuttingCalcDialog,  public cTrans
     public:
         CuttingCalc(QWidget *parent = 0);
 
+    private:
+        void initMaterialList();
+
     private slots:
         void changeUnit(int n);
         void changeParameters(void);
@@ -66,7 +69,7 @@ class CuttingCalc : public QDialog, public Ui::CuttingCalcDialog,  public cTrans
 
     private:
         void translateDialog();
-        static QVector<materialFeed> materialList;
+        QVector<materialFeed> materialList;
 
     private:
         MainWindow* parent;

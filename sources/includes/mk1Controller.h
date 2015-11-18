@@ -90,7 +90,12 @@ class BinaryData
         static void packB5(bool spindleON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 0, bool send = true);
         static void packAA(bool send = true);
         static void packA0(float accelx, float accely, float accelz, float accela, bool send = true);
+        static void packA1( bool send = true);
         static void packC8(int x, int y, int z, int a, bool send = true);
+        static void packD3( bool send = true);
+        static void packC2( bool send = true);
+        static void packB6( bool send = true);
+        static void packAB( bool send = true);
         static void packD2(int speed, float returnDistance, bool send = true);
         static void packBE(byte direction, int speed, bool send = true);
         static void pack9E(byte value, bool send = true);
