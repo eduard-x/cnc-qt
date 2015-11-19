@@ -85,9 +85,9 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
 
     translateDialog();
 
-    startOffsetX->setValue(DeviceInfo::AxesX_PositionMM());
-    startOffsetY->setValue(DeviceInfo::AxesY_PositionMM());
-    startOffsetZ->setValue(DeviceInfo::AxesZ_PositionMM());
+    startOffsetX->setValue(parent->cnc->AxesX_PositionMM());
+    startOffsetY->setValue(parent->cnc->AxesY_PositionMM());
+    startOffsetZ->setValue(parent->cnc->AxesZ_PositionMM());
 
 
     connect(pushOk, SIGNAL(clicked()), this, SLOT(onSave()));
@@ -443,7 +443,7 @@ void ScanThread::run()
     float pa = 0;//sParent->numPosA->value();
 
     // move to point
-    cnc->packCA(DeviceInfo::CalcPosPulse("X", px), DeviceInfo::CalcPosPulse("Y", py), DeviceInfo::CalcPosPulse("Z", pz),  DeviceInfo::CalcPosPulse("A", pa), (int)sParent->numSpeed->value(), 0);
+    cnc->packCA(parent->cnc->CalcPosPulse("X", px), parent->cnc->CalcPosPulse("Y", py), parent->cnc->CalcPosPulse("Z", pz),  parent->cnc->CalcPosPulse("A", pa), (int)sParent->numSpeed->value(), 0);
 
     sleep(100);
 
@@ -456,14 +456,14 @@ void ScanThread::run()
 
     sleep(100);
 
-    while (!DeviceInfo::AxesZ_LimitMax) {
-        //dataCode.Matrix[indexScanY].X[indexScanX].Z = DeviceInfo::AxesZ_PositionMM() - numReturn->value();
+    while (!parent->cnc->AxesZ_LimitMax) {
+        //dataCode.Matrix[indexScanY].X[indexScanX].Z = parent->cnc->AxesZ_PositionMM() - numReturn->value();
         sleep(100);
     }
 
     sleep(300);
-    //dataCode.Matrix[indexScanY].X[indexScanX].Z = DeviceInfo::AxesZ_PositionMM;
-    sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (float)DeviceInfo::AxesZ_PositionMM();
+    //dataCode.Matrix[indexScanY].X[indexScanX].Z = parent->cnc->AxesZ_PositionMM;
+    sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (float)parent->cnc->AxesZ_PositionMM();
 
     cnc->packC0(0x01); // on
 
@@ -473,7 +473,7 @@ void ScanThread::run()
 
     sleep(100);
     // move to the point
-    cnc->packCA(DeviceInfo::CalcPosPulse("X", px), DeviceInfo::CalcPosPulse("Y", py), DeviceInfo::CalcPosPulse("Z", pz),  DeviceInfo::CalcPosPulse("A", pa), (int)sParent->numSpeed->value(), 0);
+    cnc->packCA(parent->cnc->CalcPosPulse("X", px), parent->cnc->CalcPosPulse("Y", py), parent->cnc->CalcPosPulse("Z", pz),  parent->cnc->CalcPosPulse("A", pa), (int)sParent->numSpeed->value(), 0);
 
     sleep(100);
 
@@ -535,7 +535,7 @@ void ScanSurfaceDialog::buttonSetZ()
         return;
     }
 
-    surfaceArr[selectedY][selectedX].Z = DeviceInfo::AxesZ_PositionMM();
+    surfaceArr[selectedY][selectedX].Z = parent->cnc->AxesZ_PositionMM();
     dataGridView->item(selectedY, selectedX)->setText( QString().sprintf("Z %4.2f", surfaceArr[selectedY][selectedX].Z));
 
 }

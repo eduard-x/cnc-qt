@@ -43,49 +43,49 @@ using namespace std;
 */
 
 
-short DeviceInfo::FreebuffSize = 0;
+short mk1Settings::FreebuffSize = 0;
 
-int DeviceInfo::NumberCompleatedInstruction = 0;
-int DeviceInfo::AxesX_PositionPulse = 0;
-int DeviceInfo::AxesY_PositionPulse = 0;
-int DeviceInfo::AxesZ_PositionPulse = 0;
-int DeviceInfo::AxesA_PositionPulse = 0;
+int mk1Settings::NumberCompleatedInstruction = 0;
+int mk1Settings::AxesX_PositionPulse = 0;
+int mk1Settings::AxesY_PositionPulse = 0;
+int mk1Settings::AxesZ_PositionPulse = 0;
+int mk1Settings::AxesA_PositionPulse = 0;
 
-int DeviceInfo::AxesX_PulsePerMm = 400;
-int DeviceInfo::AxesY_PulsePerMm = 400;
-int DeviceInfo::AxesZ_PulsePerMm = 400;
-int DeviceInfo::AxesA_PulsePerMm = 400;
+int mk1Settings::AxesX_PulsePerMm = 400;
+int mk1Settings::AxesY_PulsePerMm = 400;
+int mk1Settings::AxesZ_PulsePerMm = 400;
+int mk1Settings::AxesA_PulsePerMm = 400;
 
-float DeviceInfo::AxesX_StartVelo = 0;
-float DeviceInfo::AxesY_StartVelo = 0;
-float DeviceInfo::AxesZ_StartVelo = 0;
-float DeviceInfo::AxesA_StartVelo = 0;
+float mk1Settings::AxesX_StartVelo = 0;
+float mk1Settings::AxesY_StartVelo = 0;
+float mk1Settings::AxesZ_StartVelo = 0;
+float mk1Settings::AxesA_StartVelo = 0;
 
-float DeviceInfo::AxesX_EndVelo = 400;
-float DeviceInfo::AxesY_EndVelo = 400;
-float DeviceInfo::AxesZ_EndVelo = 400;
-float DeviceInfo::AxesA_EndVelo = 400;
+float mk1Settings::AxesX_EndVelo = 400;
+float mk1Settings::AxesY_EndVelo = 400;
+float mk1Settings::AxesZ_EndVelo = 400;
+float mk1Settings::AxesA_EndVelo = 400;
 
-float DeviceInfo::AxesX_Acceleration = 15;
-float DeviceInfo::AxesY_Acceleration = 15;
-float DeviceInfo::AxesZ_Acceleration = 15;
-float DeviceInfo::AxesA_Acceleration = 15;
+float mk1Settings::AxesX_Acceleration = 15;
+float mk1Settings::AxesY_Acceleration = 15;
+float mk1Settings::AxesZ_Acceleration = 15;
+float mk1Settings::AxesA_Acceleration = 15;
 
-bool DeviceInfo::AxesX_LimitMax = false;
-bool DeviceInfo::AxesX_LimitMin = false;
-bool DeviceInfo::AxesY_LimitMax = false;
-bool DeviceInfo::AxesY_LimitMin = false;
-bool DeviceInfo::AxesZ_LimitMax = false;
-bool DeviceInfo::AxesZ_LimitMin = false;
-bool DeviceInfo::AxesA_LimitMax = false;
-bool DeviceInfo::AxesA_LimitMin = false;
+bool mk1Settings::AxesX_LimitMax = false;
+bool mk1Settings::AxesX_LimitMin = false;
+bool mk1Settings::AxesY_LimitMax = false;
+bool mk1Settings::AxesY_LimitMin = false;
+bool mk1Settings::AxesZ_LimitMax = false;
+bool mk1Settings::AxesZ_LimitMin = false;
+bool mk1Settings::AxesA_LimitMax = false;
+bool mk1Settings::AxesA_LimitMin = false;
 
-int DeviceInfo::spindle_MoveSpeed = 0;
-bool DeviceInfo::spindle_Enable = false;
+int mk1Settings::spindle_MoveSpeed = 0;
+bool mk1Settings::spindle_Enable = false;
 
-bool DeviceInfo::Estop = false;
+bool mk1Settings::Estop = false;
 
-bool DeviceInfo::DEMO_DEVICE = false;
+bool mk1Settings::DEMO_DEVICE = false;
 
 
 // static
@@ -506,101 +506,105 @@ void mk1Controller::loadSettings()
     bool res;
     int i;
 
-    i = settingsFile->value("pulseX", 400).toInt( &res);
+    settingsFile->beginGroup("mk1");
+
+    i = settingsFile->value("PulseX", 400).toInt( &res);
 
     if (res == true) {
-        DeviceInfo::AxesX_PulsePerMm = i;
+        AxesX_PulsePerMm = i;
     }
 
-    i = settingsFile->value("pulseY", 400).toInt( &res);
+    i = settingsFile->value("PulseY", 400).toInt( &res);
 
     if (res == true) {
-        DeviceInfo::AxesY_PulsePerMm = i;
+        AxesY_PulsePerMm = i;
     }
 
-    i = settingsFile->value("pulseZ", 400).toInt( &res);
+    i = settingsFile->value("PulseZ", 400).toInt( &res);
 
     if (res == true) {
-        DeviceInfo::AxesZ_PulsePerMm = i;
+        AxesZ_PulsePerMm = i;
     }
 
-    i = settingsFile->value("pulseA", 400).toInt( &res);
+    i = settingsFile->value("PulseA", 400).toInt( &res);
 
     if (res == true) {
-        DeviceInfo::AxesA_PulsePerMm = i;
+        AxesA_PulsePerMm = i;
     }
 
     float f = settingsFile->value("AccelX", 15).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesX_Acceleration = f;
+        AxesX_Acceleration = f;
     }
 
     f = settingsFile->value("AccelY", 15).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesY_Acceleration = f;
+        AxesY_Acceleration = f;
     }
 
     f = settingsFile->value("AccelZ", 15).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesZ_Acceleration = f;
+        AxesZ_Acceleration = f;
     }
 
     f = settingsFile->value("AccelA", 15).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesA_Acceleration = f;
+        AxesA_Acceleration = f;
     }
 
     f = settingsFile->value("StartVeloX", 0).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesX_StartVelo = f;
+        AxesX_StartVelo = f;
     }
 
     f = settingsFile->value("StartVeloY", 0).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesY_StartVelo = f;
+        AxesY_StartVelo = f;
     }
 
     f = settingsFile->value("StartVeloZ", 0).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesZ_StartVelo = f;
+        AxesZ_StartVelo = f;
     }
 
     f = settingsFile->value("StartVeloA", 0).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesA_StartVelo = f;
+        AxesA_StartVelo = f;
     }
 
     f = settingsFile->value("EndVeloX", 400).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesX_EndVelo = f;
+        AxesX_EndVelo = f;
     }
 
     f = settingsFile->value("EndVeloY", 400).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesY_EndVelo = f;
+        AxesY_EndVelo = f;
     }
 
     f = settingsFile->value("EndVeloZ", 400).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesZ_EndVelo = f;
+        AxesZ_EndVelo = f;
     }
 
     f = settingsFile->value("EndVeloA", 400).toFloat( &res);
 
     if (res == true) {
-        DeviceInfo::AxesA_EndVelo = f;
+        AxesA_EndVelo = f;
     }
+
+    settingsFile->endGroup();
 }
 
 //
@@ -608,37 +612,35 @@ void mk1Controller::loadSettings()
 //
 void mk1Controller::saveSettings()
 {
-    settingsFile->setValue("pulseX", DeviceInfo::AxesX_PulsePerMm);
-    settingsFile->setValue("pulseY", DeviceInfo::AxesY_PulsePerMm);
-    settingsFile->setValue("pulseZ", DeviceInfo::AxesZ_PulsePerMm);
-    settingsFile->setValue("pulseA", DeviceInfo::AxesA_PulsePerMm);
+    settingsFile->beginGroup("mk1");
 
-    if (handle) {
-        pack9F(DeviceInfo::AxesX_PulsePerMm, DeviceInfo::AxesY_PulsePerMm, DeviceInfo::AxesZ_PulsePerMm, DeviceInfo::AxesA_PulsePerMm);
-    }
+    settingsFile->setValue("PulseX", AxesX_PulsePerMm);
+    settingsFile->setValue("PulseY", AxesY_PulsePerMm);
+    settingsFile->setValue("PulseZ", AxesZ_PulsePerMm);
+    settingsFile->setValue("PulseA", AxesA_PulsePerMm);
 
-    settingsFile->setValue("AccelX", DeviceInfo::AxesX_Acceleration);
-    settingsFile->setValue("AccelY", DeviceInfo::AxesY_Acceleration);
-    settingsFile->setValue("AccelZ", DeviceInfo::AxesZ_Acceleration);
-    settingsFile->setValue("AccelA", DeviceInfo::AxesA_Acceleration);
+    pack9F(AxesX_PulsePerMm, AxesY_PulsePerMm, AxesZ_PulsePerMm, AxesA_PulsePerMm);
 
-    if (handle) {
-        packA0(DeviceInfo::AxesX_Acceleration, DeviceInfo::AxesY_Acceleration, DeviceInfo::AxesZ_Acceleration, DeviceInfo::AxesA_Acceleration);
-    }
+    settingsFile->setValue("AccelX", AxesX_Acceleration);
+    settingsFile->setValue("AccelY", AxesY_Acceleration);
+    settingsFile->setValue("AccelZ", AxesZ_Acceleration);
+    settingsFile->setValue("AccelA", AxesA_Acceleration);
 
-    settingsFile->setValue("StartVeloX", DeviceInfo::AxesX_StartVelo);
-    settingsFile->setValue("StartVeloY", DeviceInfo::AxesY_StartVelo);
-    settingsFile->setValue("StartVeloZ", DeviceInfo::AxesZ_StartVelo);
-    settingsFile->setValue("StartVeloA", DeviceInfo::AxesA_StartVelo);
+    packA0(AxesX_Acceleration, AxesY_Acceleration, AxesZ_Acceleration, AxesA_Acceleration);
 
-    settingsFile->setValue("EndVeloX", DeviceInfo::AxesX_EndVelo);
-    settingsFile->setValue("EndVeloY", DeviceInfo::AxesY_EndVelo);
-    settingsFile->setValue("EndVeloZ", DeviceInfo::AxesZ_EndVelo);
-    settingsFile->setValue("EndVeloA", DeviceInfo::AxesA_EndVelo);
+    settingsFile->setValue("StartVeloX", AxesX_StartVelo);
+    settingsFile->setValue("StartVeloY", AxesY_StartVelo);
+    settingsFile->setValue("StartVeloZ", AxesZ_StartVelo);
+    settingsFile->setValue("StartVeloA", AxesA_StartVelo);
 
-    if (handle) {
-        packBF(DeviceInfo::AxesX_EndVelo, DeviceInfo::AxesY_EndVelo, DeviceInfo::AxesZ_EndVelo, DeviceInfo::AxesA_EndVelo);
-    }
+    settingsFile->setValue("EndVeloX", AxesX_EndVelo);
+    settingsFile->setValue("EndVeloY", AxesY_EndVelo);
+    settingsFile->setValue("EndVeloZ", AxesZ_EndVelo);
+    settingsFile->setValue("EndVeloA", AxesA_EndVelo);
+
+    packBF(AxesX_EndVelo, AxesY_EndVelo, AxesZ_EndVelo, AxesA_EndVelo);
+
+    settingsFile->endGroup();
 }
 
 
@@ -654,7 +656,7 @@ bool mk1Controller::isConnected()
 //
 int mk1Controller::spindleMoveSpeed()
 {
-    return DeviceInfo::spindle_MoveSpeed;
+    return spindle_MoveSpeed;
 }
 
 //
@@ -662,7 +664,7 @@ int mk1Controller::spindleMoveSpeed()
 //
 long mk1Controller::numberCompleatedInstructions()
 {
-    return DeviceInfo::NumberCompleatedInstruction;
+    return NumberCompleatedInstruction;
 }
 
 //
@@ -670,7 +672,7 @@ long mk1Controller::numberCompleatedInstructions()
 //
 bool mk1Controller::isSpindelOn()
 {
-    return DeviceInfo::spindle_Enable;
+    return spindle_Enable;
 }
 
 //
@@ -678,7 +680,7 @@ bool mk1Controller::isSpindelOn()
 //
 bool mk1Controller::isEmergencyStopOn()
 {
-    return DeviceInfo::Estop;
+    return Estop;
 }
 
 //
@@ -698,7 +700,7 @@ bool mk1Controller::testAllowActions()
 //
 int mk1Controller::availableBufferSize()
 {
-    return DeviceInfo::FreebuffSize;
+    return FreebuffSize;
 }
 
 
@@ -707,30 +709,30 @@ int mk1Controller::availableBufferSize()
 //
 void mk1Controller::parseBinaryInfo()
 {
-    DeviceInfo::FreebuffSize = readBuf[1];
-    DeviceInfo::spindle_MoveSpeed = (int)(((/*(readBuf[23] << 24) + (readBuf[22] << 16) +*/ (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
+    FreebuffSize = readBuf[1];
+    spindle_MoveSpeed = (int)(((/*(readBuf[23] << 24) + (readBuf[22] << 16) +*/ (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
 
-    DeviceInfo::AxesX_PositionPulse = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
-    DeviceInfo::AxesY_PositionPulse = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
-    DeviceInfo::AxesZ_PositionPulse = ((readBuf[35] << 24) + (readBuf[34] << 16) + (readBuf[33] << 8) + (readBuf[32]));
+    AxesX_PositionPulse = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
+    AxesY_PositionPulse = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
+    AxesZ_PositionPulse = ((readBuf[35] << 24) + (readBuf[34] << 16) + (readBuf[33] << 8) + (readBuf[32]));
 
-    DeviceInfo::AxesX_LimitMax = (readBuf[15] & (1 << 0)) != 0;
-    DeviceInfo::AxesX_LimitMin = (readBuf[15] & (1 << 1)) != 0;
-    DeviceInfo::AxesY_LimitMax = (readBuf[15] & (1 << 2)) != 0;
-    DeviceInfo::AxesY_LimitMin = (readBuf[15] & (1 << 3)) != 0;
-    DeviceInfo::AxesZ_LimitMax = (readBuf[15] & (1 << 4)) != 0;
-    DeviceInfo::AxesZ_LimitMin = (readBuf[15] & (1 << 5)) != 0;
-    DeviceInfo::AxesA_LimitMax = (readBuf[15] & (1 << 6)) != 0;
-    DeviceInfo::AxesA_LimitMin = (readBuf[15] & (1 << 7)) != 0;
+    AxesX_LimitMax = (readBuf[15] & (1 << 0)) != 0;
+    AxesX_LimitMin = (readBuf[15] & (1 << 1)) != 0;
+    AxesY_LimitMax = (readBuf[15] & (1 << 2)) != 0;
+    AxesY_LimitMin = (readBuf[15] & (1 << 3)) != 0;
+    AxesZ_LimitMax = (readBuf[15] & (1 << 4)) != 0;
+    AxesZ_LimitMin = (readBuf[15] & (1 << 5)) != 0;
+    AxesA_LimitMax = (readBuf[15] & (1 << 6)) != 0;
+    AxesA_LimitMin = (readBuf[15] & (1 << 7)) != 0;
 
-    DeviceInfo::NumberCompleatedInstruction = ((readBuf[9] << 24) + (readBuf[8] << 16) + (readBuf[7] << 8) + (readBuf[6]));
+    NumberCompleatedInstruction = ((readBuf[9] << 24) + (readBuf[8] << 16) + (readBuf[7] << 8) + (readBuf[6]));
 
     byte bb19 = readBuf[19];
 
-    DeviceInfo::spindle_Enable = (bb19 & (1 << 0)) ? true : false;
+    spindle_Enable = (bb19 & (1 << 0)) ? true : false;
 
     byte bb14 = readBuf[14];
-    DeviceInfo::Estop = (bb14 & (1 << 7)) ? true : false;
+    Estop = (bb14 & (1 << 7)) ? true : false;
 
     emit newDataFromMK1Controller();
 }
@@ -867,30 +869,29 @@ void mk1Controller::deviceNewPosition(float x, float y, float z, float a)
         return;
     }
 
-    packC8(DeviceInfo::CalcPosPulse("X", x), DeviceInfo::CalcPosPulse("Y", y), DeviceInfo::CalcPosPulse("Z", z), DeviceInfo::CalcPosPulse("A", a));
+    packC8(CalcPosPulse("X", x), CalcPosPulse("Y", y), CalcPosPulse("Z", z), CalcPosPulse("A", a));
 }
 
 
-
-float DeviceInfo::AxesX_PositionMM ()
+float mk1Settings::AxesX_PositionMM ()
 {
     return (float)(AxesX_PositionPulse / (float) AxesX_PulsePerMm);
 }
 
 
-float DeviceInfo::AxesY_PositionMM ()
+float mk1Settings::AxesY_PositionMM ()
 {
     return (float)(AxesY_PositionPulse / (float) AxesY_PulsePerMm);
 }
 
 
-float DeviceInfo::AxesZ_PositionMM ()
+float mk1Settings::AxesZ_PositionMM ()
 {
     return (float)(AxesZ_PositionPulse / (float) AxesZ_PulsePerMm);
 }
 
 
-float DeviceInfo::AxesA_PositionMM ()
+float mk1Settings::AxesA_PositionMM ()
 {
     return (float)(AxesA_PositionPulse / (float) AxesA_PulsePerMm);
 }
@@ -901,7 +902,7 @@ float DeviceInfo::AxesA_PositionMM ()
 // axes: name
 // posMm po in mm
 // return num of pulses
-int DeviceInfo::CalcPosPulse(QString axes, float posMm)
+int mk1Settings::CalcPosPulse(QString axes, float posMm)
 {
     if (axes == "X") {
         return (int)(posMm * (float)AxesX_PulsePerMm);
@@ -978,14 +979,14 @@ void BinaryData::cleanBuf(byte *m)
 void BinaryData::sendBinaryData(bool checkBuffSize)
 {
     if (checkBuffSize) {
-        if (DeviceInfo::FreebuffSize < 2) {
+        if (FreebuffSize < 2) {
             //тут нужно зависнуть пока буфер не освободится
         }
 
         //TODO: check buffer....
     }
 
-    if (!DeviceInfo::DEMO_DEVICE) {
+    if (!DEMO_DEVICE) {
         //         _error_code = _usb->write(rawData);//, 2000, bytesWritten);
         if (handle != 0) {
             int transferred = 0;
@@ -1299,7 +1300,7 @@ void BinaryData::packD2(int speed, float returnDistance, bool send)
     writeBuf[46] = 0x10;
 
     //
-    int inewReturn = (int)(returnDistance * (float)DeviceInfo::AxesZ_PulsePerMm);
+    int inewReturn = (int)(returnDistance * (float)AxesZ_PulsePerMm);
 
     //return to position
     writeBuf[50] = (byte)(inewReturn);

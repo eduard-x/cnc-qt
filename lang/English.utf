@@ -188,3 +188,6 @@ t174=Feed rate
 t175=Hard wood\nSoft wood\nPlywood\nMDF\nAcrylic\nPhenolic\nFiberglass\nHard plastic\nSoft plastic\nBronze\nAluminium\nCopper
 t176=Mesure unit:
 t177=Attention! All values are approximate. These values can vary depending on the material and on the type of tool.
+t178=Start velocity
+t179=End velocity
+t180=Acceleration

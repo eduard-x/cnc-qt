@@ -53,27 +53,27 @@ SettingsDialog::SettingsDialog(QWidget *p)
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    numPulseX->setValue(DeviceInfo::AxesX_PulsePerMm);
-    numPulseY->setValue(DeviceInfo::AxesY_PulsePerMm);
-    numPulseZ->setValue(DeviceInfo::AxesZ_PulsePerMm);
-    numPulseA->setValue(DeviceInfo::AxesA_PulsePerMm);
+    numPulseX->setValue(parent->cnc->AxesX_PulsePerMm);
+    numPulseY->setValue(parent->cnc->AxesY_PulsePerMm);
+    numPulseZ->setValue(parent->cnc->AxesZ_PulsePerMm);
+    numPulseA->setValue(parent->cnc->AxesA_PulsePerMm);
 
-    doubleSpinStartX->setValue(DeviceInfo::AxesX_StartVelo);
-    doubleSpinStartY->setValue(DeviceInfo::AxesY_StartVelo);
-    doubleSpinStartZ->setValue(DeviceInfo::AxesZ_StartVelo);
-    doubleSpinStartA->setValue(DeviceInfo::AxesA_StartVelo);
+    doubleSpinStartX->setValue(parent->cnc->AxesX_StartVelo);
+    doubleSpinStartY->setValue(parent->cnc->AxesY_StartVelo);
+    doubleSpinStartZ->setValue(parent->cnc->AxesZ_StartVelo);
+    doubleSpinStartA->setValue(parent->cnc->AxesA_StartVelo);
 
-    doubleSpinEndX->setValue(DeviceInfo::AxesX_EndVelo);
-    doubleSpinEndY->setValue(DeviceInfo::AxesY_EndVelo);
-    doubleSpinEndZ->setValue(DeviceInfo::AxesZ_EndVelo);
-    doubleSpinEndA->setValue(DeviceInfo::AxesA_EndVelo);
+    doubleSpinEndX->setValue(parent->cnc->AxesX_EndVelo);
+    doubleSpinEndY->setValue(parent->cnc->AxesY_EndVelo);
+    doubleSpinEndZ->setValue(parent->cnc->AxesZ_EndVelo);
+    doubleSpinEndA->setValue(parent->cnc->AxesA_EndVelo);
 
-    doubleSpinAccelX->setValue(DeviceInfo::AxesX_Acceleration);
-    doubleSpinAccelY->setValue(DeviceInfo::AxesY_Acceleration);
-    doubleSpinAccelZ->setValue(DeviceInfo::AxesZ_Acceleration);
-    doubleSpinAccelA->setValue(DeviceInfo::AxesA_Acceleration);
+    doubleSpinAccelX->setValue(parent->cnc->AxesX_Acceleration);
+    doubleSpinAccelY->setValue(parent->cnc->AxesY_Acceleration);
+    doubleSpinAccelZ->setValue(parent->cnc->AxesZ_Acceleration);
+    doubleSpinAccelA->setValue(parent->cnc->AxesA_Acceleration);
 
-    checkBoxDemoController->setChecked(DeviceInfo::DEMO_DEVICE);
+    checkBoxDemoController->setChecked(parent->cnc->DEMO_DEVICE);
 
     translateDialog();
 
@@ -84,35 +84,46 @@ SettingsDialog::SettingsDialog(QWidget *p)
 void SettingsDialog::translateDialog()
 {
     setWindowTitle(translate(_SETTINGS_TITLE));
-    groupBox1->setTitle(translate(_PULSES_PER_MM));
+    groupBoxImpulses->setTitle(translate(_PULSES_PER_MM));
     checkBoxDemoController->setText(translate(_DEV_SIMULATION));
     labelInfo->setText(translate(_DEV_SIM_HELP));
+
+    labelStart->setText(translate(_STARTVELO));
+    labelEnd->setText(translate(_ENDVELO));
+    labelAcceleration->setText(translate(_ACCELERATION));
+
+    QList<QAbstractButton*> l = buttonBox->buttons();
+    QStringList strl = (QStringList() << translate(_OK) << translate(_CANCEL));
+
+    for(int i = 0; i < l.count(); i++) {
+        l[i]->setText(strl.at(i));
+    }
 }
 
 
 void SettingsDialog::onSave()
 {
-    DeviceInfo::AxesX_PulsePerMm = numPulseX->value();
-    DeviceInfo::AxesY_PulsePerMm = numPulseY->value();
-    DeviceInfo::AxesZ_PulsePerMm = numPulseZ->value();
-    DeviceInfo::AxesA_PulsePerMm = numPulseA->value();
+    parent->cnc->AxesX_PulsePerMm = numPulseX->value();
+    parent->cnc->AxesY_PulsePerMm = numPulseY->value();
+    parent->cnc->AxesZ_PulsePerMm = numPulseZ->value();
+    parent->cnc->AxesA_PulsePerMm = numPulseA->value();
 
-    DeviceInfo::AxesX_StartVelo = doubleSpinStartX->value();
-    DeviceInfo::AxesY_StartVelo = doubleSpinStartY->value();
-    DeviceInfo::AxesZ_StartVelo = doubleSpinStartZ->value();
-    DeviceInfo::AxesA_StartVelo = doubleSpinStartA->value();
+    parent->cnc->AxesX_StartVelo = doubleSpinStartX->value();
+    parent->cnc->AxesY_StartVelo = doubleSpinStartY->value();
+    parent->cnc->AxesZ_StartVelo = doubleSpinStartZ->value();
+    parent->cnc->AxesA_StartVelo = doubleSpinStartA->value();
 
-    DeviceInfo::AxesX_EndVelo = doubleSpinEndX->value();
-    DeviceInfo::AxesY_EndVelo = doubleSpinEndY->value();
-    DeviceInfo::AxesZ_EndVelo = doubleSpinEndZ->value();
-    DeviceInfo::AxesA_EndVelo = doubleSpinEndA->value();
+    parent->cnc->AxesX_EndVelo = doubleSpinEndX->value();
+    parent->cnc->AxesY_EndVelo = doubleSpinEndY->value();
+    parent->cnc->AxesZ_EndVelo = doubleSpinEndZ->value();
+    parent->cnc->AxesA_EndVelo = doubleSpinEndA->value();
 
-    DeviceInfo::AxesX_Acceleration = doubleSpinAccelX->value();
-    DeviceInfo::AxesY_Acceleration = doubleSpinAccelY->value();
-    DeviceInfo::AxesZ_Acceleration = doubleSpinAccelZ->value();
-    DeviceInfo::AxesA_Acceleration = doubleSpinAccelA->value();
+    parent->cnc->AxesX_Acceleration = doubleSpinAccelX->value();
+    parent->cnc->AxesY_Acceleration = doubleSpinAccelY->value();
+    parent->cnc->AxesZ_Acceleration = doubleSpinAccelZ->value();
+    parent->cnc->AxesA_Acceleration = doubleSpinAccelA->value();
 
-    DeviceInfo::DEMO_DEVICE      = checkBoxDemoController->isChecked();
+    parent->cnc->DEMO_DEVICE  = checkBoxDemoController->isChecked();
 
     accept();
 }

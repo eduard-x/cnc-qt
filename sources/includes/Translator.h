@@ -229,6 +229,9 @@ enum TR_CONSTS {
     _MATERIAL_LIST, // 175
     _MESSURE_UNIT, // 176
     _FEED_INFO, // 177
+    _STARTVELO, // 178
+    _ENDVELO, // 179
+    _ACCELERATION, // 180
     _NULL
 };
 

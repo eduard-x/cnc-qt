@@ -223,6 +223,9 @@ QString cTranslator::engText[] = {
     "Hard wood\nSoft wood\nPlywood\nMDF\nAcrylic\nPhenolic\nFiberglass\nHard plastic\nSoft plastic\nBronze\nAluminium\nCopper", // material list
     "Mesure unit:",
     "Feed information",
+    "Start velocity",
+    "End velocity",
+    "Acceleration",
     ""
 };
 
@@ -237,8 +240,6 @@ bool cTranslator::loadTranslation(const QString fname)
     if (!langFile.open(QIODevice::ReadOnly)) {
         return false;
     }
-
-    //     qDebug() << fname;
 
     QTextStream stream(&langFile);
     stream.setCodec("UTF-8");
@@ -262,6 +263,13 @@ bool cTranslator::loadTranslation(const QString fname)
 
     while (!stream.atEnd()) {
         llEng = stream.readLine();
+
+        if (llEng == "LANGUAGE_CHARSET") {
+            llEng = stream.readLine();
+            stream.setCodec(llEng.toLatin1());
+            continue;
+        }
+
         llEng = convertString(llEng);
 
         if (llEng.indexOf(QRegExp("t[0-9]{3}=")) == 0) {
@@ -343,10 +351,6 @@ QString cTranslator::convertString(const QString &s)
     if (res.length() == 0) {
         return res;
     }
-
-    //     if (res.indexOf("winhttrack") >= 0) {
-    //         res.replace("winhttrack", "httraqt");
-    //     }
 
     if (res.indexOf("C:/") >= 0) {
         res.replace("C:/", "%HOME%/");

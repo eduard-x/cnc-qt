@@ -25,7 +25,7 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0" rowspan="2" colspan="2">
-        <widget class="QGroupBox" name="groupBox1">
+        <widget class="QGroupBox" name="groupBoxImpulses">
          <property name="title">
           <string>Impulses per mm</string>
          </property>
@@ -73,8 +73,14 @@
              <widget class="QSpinBox" name="numPulseX">
               <property name="minimumSize">
                <size>
+                <width>75</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
                 <width>100</width>
-                <height>0</height>
+                <height>35</height>
                </size>
               </property>
               <property name="minimum">
@@ -89,8 +95,14 @@
              <widget class="QSpinBox" name="numPulseY">
               <property name="minimumSize">
                <size>
+                <width>75</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
                 <width>100</width>
-                <height>0</height>
+                <height>35</height>
                </size>
               </property>
               <property name="minimum">
@@ -105,8 +117,14 @@
              <widget class="QSpinBox" name="numPulseZ">
               <property name="minimumSize">
                <size>
+                <width>75</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
                 <width>100</width>
-                <height>0</height>
+                <height>35</height>
                </size>
               </property>
               <property name="minimum">
@@ -152,6 +170,18 @@
             </item>
             <item row="3" column="3">
              <widget class="QSpinBox" name="numPulseA">
+              <property name="minimumSize">
+               <size>
+                <width>75</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>35</height>
+               </size>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -258,6 +288,21 @@
          </item>
          <item row="1" column="1">
           <widget class="QDoubleSpinBox" name="doubleSpinStartX">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="maximum">
             <double>999.990000000000009</double>
            </property>
@@ -265,6 +310,21 @@
          </item>
          <item row="1" column="2">
           <widget class="QDoubleSpinBox" name="doubleSpinEndX">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="minimum">
             <double>1.000000000000000</double>
            </property>
@@ -275,6 +335,21 @@
          </item>
          <item row="1" column="3">
           <widget class="QDoubleSpinBox" name="doubleSpinAccelX">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="minimum">
             <double>1.000000000000000</double>
            </property>
@@ -295,6 +370,21 @@
          </item>
          <item row="2" column="1">
           <widget class="QDoubleSpinBox" name="doubleSpinStartY">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="maximum">
             <double>999.990000000000009</double>
            </property>
@@ -302,6 +392,21 @@
          </item>
          <item row="2" column="2">
           <widget class="QDoubleSpinBox" name="doubleSpinEndY">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="minimum">
             <double>1.000000000000000</double>
            </property>
@@ -312,6 +417,21 @@
          </item>
          <item row="2" column="3">
           <widget class="QDoubleSpinBox" name="doubleSpinAccelY">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="minimum">
             <double>1.000000000000000</double>
            </property>
@@ -332,6 +452,21 @@
          </item>
          <item row="3" column="1">
           <widget class="QDoubleSpinBox" name="doubleSpinStartZ">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="maximum">
             <double>999.990000000000009</double>
            </property>
@@ -339,6 +474,21 @@
          </item>
          <item row="3" column="2">
           <widget class="QDoubleSpinBox" name="doubleSpinEndZ">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="minimum">
             <double>1.000000000000000</double>
            </property>
@@ -349,6 +499,21 @@
          </item>
          <item row="3" column="3">
           <widget class="QDoubleSpinBox" name="doubleSpinAccelZ">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="minimum">
             <double>1.000000000000000</double>
            </property>
@@ -369,6 +534,21 @@
          </item>
          <item row="4" column="1">
           <widget class="QDoubleSpinBox" name="doubleSpinStartA">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="maximum">
             <double>999.990000000000009</double>
            </property>
@@ -376,6 +556,21 @@
          </item>
          <item row="4" column="2">
           <widget class="QDoubleSpinBox" name="doubleSpinEndA">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="minimum">
             <double>1.000000000000000</double>
            </property>
@@ -386,6 +581,21 @@
          </item>
          <item row="4" column="3">
           <widget class="QDoubleSpinBox" name="doubleSpinAccelA">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
            <property name="minimum">
             <double>1.000000000000000</double>
            </property>

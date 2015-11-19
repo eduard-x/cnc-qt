@@ -188,3 +188,6 @@ t174=Vorschub
 t175=Hartholz\nWeichholz\nSperrholz\nMDF\nPolyacrylat\nHartpapier\nGlasfaser\Hartplastik\nWeichplastik\nBronze\nAluminium\nKupfer
 t176=Maßeinheit:
 t177=Achtung! Alle Werte sind ungefähr. Sie können sich abhänging von Material und Werkzeug variieren.
+t178=Anfangsgeschwindigkeit
+t179=Endschwindigkeit
+t180=Beschleunigung
