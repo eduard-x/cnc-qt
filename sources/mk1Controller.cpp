@@ -846,6 +846,7 @@ void mk1Controller::stopManualMove()
     //Task_Start();
 }
 
+
 //
 // new position
 //
@@ -858,6 +859,7 @@ void mk1Controller::deviceNewPosition(int x, int y, int z, int a)
 
     packC8(x, y, z, a);
 }
+
 
 //
 // new position in mm
@@ -928,22 +930,6 @@ int mk1Settings::CalcPosPulse(QString axes, float posMm)
 byte BinaryData::readBuf[BUFFER_SIZE];
 byte BinaryData::writeBuf[BUFFER_SIZE];
 
-//
-// command unknown....
-//
-// param "byte05"
-//
-void BinaryData::packC0(byte byte05, bool send)
-{
-    cleanBuf(writeBuf);
-
-    writeBuf[0] = 0xC0;
-    writeBuf[5] = byte05;
-
-    if (send == true) {
-        sendBinaryData();
-    }
-}
 
 
 void BinaryData::setByte(short offset, byte data)
@@ -1007,90 +993,63 @@ void BinaryData::sendBinaryData(bool checkBuffSize)
     }
 }
 
+
+
 //
-// spindle commands
+// UNKNOWN COMMAND
 //
-// spindleON: on/off
-// numShimChanel chan number 1,2, or 3
-// ts signal type
-// SpeedShim signal form
-//
-void BinaryData::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
+void BinaryData::pack9D(bool send)
 {
     cleanBuf(writeBuf);
 
-    writeBuf[0] = 0xb5;
-    writeBuf[4] = 0x80;
-
-
-    if (spindleON) {
-        writeBuf[5] = 0x02;
-    } else {
-        writeBuf[5] = 0x01;
-    }
-
-    writeBuf[6] = 0x01; //х.з.
-
-    switch (numShimChanel) {
-        case 2: {
-            writeBuf[8] = 0x02;
-            break;
-        }
-
-        case 3: {
-            writeBuf[8] = 0x03;
-            break;
-        }
-
-        default: {
-            writeBuf[8] = 0x00; //only with 2 and 3 channel....
-            break;
-        }
-    }
-
-
-    switch (ts) {
-        case Hz: { // TypeSignal.Hz: {
-            writeBuf[9] = 0x01;
-            break;
-        }
-
-        case  RC: { //TypeSignal.RC: {
-            writeBuf[9] = 0x02;
-            break;
-        }
-
-        default: {
-            writeBuf[9] = 0x00;
-            break;
-        }
-    }
-
-    int itmp = SpeedShim;
-    writeBuf[10] = (byte)(itmp);
-    writeBuf[11] = (byte)(itmp >> 8);
-    writeBuf[12] = (byte)(itmp >> 16);
-
+    writeBuf[0] = 0x9d;
 
     if (send == true) {
         sendBinaryData();
     }
-
-    //writeBuf[10] = 0xff;
-    //writeBuf[11] = 0xff;
-    //writeBuf[12] = 0x04;
 }
 
-//
-// emergency STOP
-//
-//
-void BinaryData::packAA(bool send)
+
+void BinaryData::pack9E(byte value, bool send)
 {
     cleanBuf(writeBuf);
 
-    writeBuf[0] = 0xaa;
-    writeBuf[4] = 0x80;
+    writeBuf[0] = 0x9e;
+    writeBuf[5] = value;
+
+    if (send == true) {
+        sendBinaryData();
+    }
+}
+
+
+void BinaryData::pack9F(int _impX, int _impY, int _impZ, int _impA, bool send)
+{
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0x9f;
+    writeBuf[4] = 0x80; //TODO:unknown
+    writeBuf[5] = 0xb1;
+
+    writeBuf[6] = (byte)(_impX);
+    writeBuf[7] = (byte)(_impX >> 8);
+    writeBuf[8] = (byte)(_impX >> 16);
+    writeBuf[9] = (byte)(_impX >> 24);
+
+    writeBuf[10] = (byte)(_impY);
+    writeBuf[11] = (byte)(_impY >> 8);
+    writeBuf[12] = (byte)(_impY >> 16);
+    writeBuf[13] = (byte)(_impY >> 24);
+
+    writeBuf[14] = (byte)(_impZ);
+    writeBuf[15] = (byte)(_impZ >> 8);
+    writeBuf[16] = (byte)(_impZ >> 16);
+    writeBuf[17] = (byte)(_impZ >> 24);
+
+    writeBuf[18] = (byte)(_impA);
+    writeBuf[19] = (byte)(_impA >> 8);
+    writeBuf[20] = (byte)(_impA >> 16);
+    writeBuf[21] = (byte)(_impA >> 24);
 
     if (send == true) {
         sendBinaryData();
@@ -1166,43 +1125,12 @@ void BinaryData::packA0(float accelx, float accely, float accelz, float accela, 
 }
 
 
-//
-// set the coordinates without moving
-//
-void BinaryData::packC8(int x, int y, int z, int a, bool send)
+// unknown settings
+void BinaryData::packA1( bool send )
 {
-    int newPosX = x;
-    int newPosY = y;
-    int newPosZ = z;
-    int newPosA = a;
-
     cleanBuf(writeBuf);
 
-    writeBuf[0] = 0xc8;
-
-    //num of pulses
-    writeBuf[6] = (byte)(newPosX);
-    writeBuf[7] = (byte)(newPosX >> 8);
-    writeBuf[8] = (byte)(newPosX >> 16);
-    writeBuf[9] = (byte)(newPosX >> 24);
-
-    //num of pulses
-    writeBuf[10] = (byte)(newPosY);
-    writeBuf[11] = (byte)(newPosY >> 8);
-    writeBuf[12] = (byte)(newPosY >> 16);
-    writeBuf[13] = (byte)(newPosY >> 24);
-
-    //num of pulses
-    writeBuf[14] = (byte)(newPosZ);
-    writeBuf[15] = (byte)(newPosZ >> 8);
-    writeBuf[16] = (byte)(newPosZ >> 16);
-    writeBuf[17] = (byte)(newPosZ >> 24);
-
-    //num of pulses
-    writeBuf[18] = (byte)(newPosA);
-    writeBuf[19] = (byte)(newPosA >> 8);
-    writeBuf[20] = (byte)(newPosA >> 16);
-    writeBuf[21] = (byte)(newPosA >> 24);
+    writeBuf[0] = 0xa1;
 
     if (send == true) {
         sendBinaryData();
@@ -1210,12 +1138,17 @@ void BinaryData::packC8(int x, int y, int z, int a, bool send)
 }
 
 
-// unknown settings
-void BinaryData::packD3( bool send )
+
+//
+// emergency STOP
+//
+//
+void BinaryData::packAA(bool send)
 {
     cleanBuf(writeBuf);
 
-    writeBuf[0] = 0xd3;
+    writeBuf[0] = 0xaa;
+    writeBuf[4] = 0x80;
 
     if (send == true) {
         sendBinaryData();
@@ -1236,16 +1169,78 @@ void BinaryData::packAB( bool send )
 }
 
 
-// unknown settings
-void BinaryData::packA1( bool send )
+//
+// spindle commands
+//
+// spindleON: on/off
+// numShimChanel chan number 1,2, or 3
+// ts signal type
+// SpeedShim signal form
+//
+void BinaryData::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
 {
     cleanBuf(writeBuf);
 
-    writeBuf[0] = 0xa1;
+    writeBuf[0] = 0xb5;
+    writeBuf[4] = 0x80;
+
+
+    if (spindleON) {
+        writeBuf[5] = 0x02;
+    } else {
+        writeBuf[5] = 0x01;
+    }
+
+    writeBuf[6] = 0x01; //х.з.
+
+    switch (numShimChanel) {
+        case 2: {
+            writeBuf[8] = 0x02;
+            break;
+        }
+
+        case 3: {
+            writeBuf[8] = 0x03;
+            break;
+        }
+
+        default: {
+            writeBuf[8] = 0x00; //only with 2 and 3 channel....
+            break;
+        }
+    }
+
+
+    switch (ts) {
+        case Hz: { // TypeSignal.Hz: {
+            writeBuf[9] = 0x01;
+            break;
+        }
+
+        case  RC: { //TypeSignal.RC: {
+            writeBuf[9] = 0x02;
+            break;
+        }
+
+        default: {
+            writeBuf[9] = 0x00;
+            break;
+        }
+    }
+
+    int itmp = SpeedShim;
+    writeBuf[10] = (byte)(itmp);
+    writeBuf[11] = (byte)(itmp >> 8);
+    writeBuf[12] = (byte)(itmp >> 16);
+
 
     if (send == true) {
         sendBinaryData();
     }
+
+    //writeBuf[10] = 0xff;
+    //writeBuf[11] = 0xff;
+    //writeBuf[12] = 0x04;
 }
 
 
@@ -1255,61 +1250,6 @@ void BinaryData::packB6( bool send )
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xb6;
-
-    if (send == true) {
-        sendBinaryData();
-    }
-}
-
-
-// unknown settings
-void BinaryData::packC2( bool send )
-{
-    cleanBuf(writeBuf);
-
-    writeBuf[0] = 0xc2;
-
-    if (send == true) {
-        sendBinaryData();
-    }
-}
-
-//
-// check length of tool
-//
-void BinaryData::packD2(int speed, float returnDistance, bool send)
-{
-    cleanBuf(writeBuf);
-
-    writeBuf[0] = 0xd2;
-
-    int inewSpd = 0;
-
-    if (speed != 0) {
-        float dnewSpd = (1800 / (float)speed) * 1000;
-        inewSpd = (int)dnewSpd;
-    }
-
-    //velocity
-    writeBuf[43] = (byte)(inewSpd);
-    writeBuf[44] = (byte)(inewSpd >> 8);
-    writeBuf[45] = (byte)(inewSpd >> 16);
-
-
-    //unknown
-    writeBuf[46] = 0x10;
-
-    //
-    int inewReturn = (int)(returnDistance * (float)AxesZ_PulsePerMm);
-
-    //return to position
-    writeBuf[50] = (byte)(inewReturn);
-    writeBuf[51] = (byte)(inewReturn >> 8);
-    writeBuf[52] = (byte)(inewReturn >> 16);
-
-    //unknown
-    writeBuf[55] = 0x12;
-    writeBuf[56] = 0x7A;
 
     if (send == true) {
         sendBinaryData();
@@ -1349,39 +1289,6 @@ void BinaryData::packBE(byte direction, int speed, bool send)
 }
 
 
-
-////
-//// using temporary for scanning
-////
-////
-//void  BinaryData::packCA()
-//{
-//  cleanBuf(writeBuf);
-
-//    writeBuf[0] = 0xca;
-
-//    writeBuf[5] = 0xB9;
-//    writeBuf[14] = 0xD0;
-//    writeBuf[15] = 0x07;
-//    writeBuf[43] = 0x10;
-//    writeBuf[44] = 0x0E;
-
-//    return buf;
-//}
-
-
-
-void BinaryData::pack9E(byte value, bool send)
-{
-    cleanBuf(writeBuf);
-
-    writeBuf[0] = 0x9e;
-    writeBuf[5] = value;
-
-    if (send == true) {
-        sendBinaryData();
-    }
-}
 
 //
 // set velocity limit
@@ -1451,48 +1358,82 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
 }
 
 //
-// UNKNOWN COMMAND
+// command unknown....
 //
+// param "byte05"
 //
-// void BinaryData::packC0(bool send)
-// {
-//     cleanBuf();
-//
-//     buf[0] = 0xc0;
-// }
-
-void BinaryData::pack9F(int _impX, int _impY, int _impZ, int _impA, bool send)
+void BinaryData::packC0(byte byte05, bool send)
 {
     cleanBuf(writeBuf);
 
-    writeBuf[0] = 0x9f;
-    writeBuf[4] = 0x80; //TODO:unknown
-    writeBuf[5] = 0xb1;
-
-    writeBuf[6] = (byte)(_impX);
-    writeBuf[7] = (byte)(_impX >> 8);
-    writeBuf[8] = (byte)(_impX >> 16);
-    writeBuf[9] = (byte)(_impX >> 24);
-
-    writeBuf[10] = (byte)(_impY);
-    writeBuf[11] = (byte)(_impY >> 8);
-    writeBuf[12] = (byte)(_impY >> 16);
-    writeBuf[13] = (byte)(_impY >> 24);
-
-    writeBuf[14] = (byte)(_impZ);
-    writeBuf[15] = (byte)(_impZ >> 8);
-    writeBuf[16] = (byte)(_impZ >> 16);
-    writeBuf[17] = (byte)(_impZ >> 24);
-
-    writeBuf[18] = (byte)(_impA);
-    writeBuf[19] = (byte)(_impA >> 8);
-    writeBuf[20] = (byte)(_impA >> 16);
-    writeBuf[21] = (byte)(_impA >> 24);
+    writeBuf[0] = 0xC0;
+    writeBuf[5] = byte05;
 
     if (send == true) {
         sendBinaryData();
     }
 }
+
+
+
+// unknown settings
+void BinaryData::packC2( bool send )
+{
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0xc2;
+
+    if (send == true) {
+        sendBinaryData();
+    }
+}
+
+
+//
+// set the coordinates without moving
+//
+void BinaryData::packC8(int x, int y, int z, int a, bool send)
+{
+    int newPosX = x;
+    int newPosY = y;
+    int newPosZ = z;
+    int newPosA = a;
+
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0xc8;
+
+    //num of pulses
+    writeBuf[6] = (byte)(newPosX);
+    writeBuf[7] = (byte)(newPosX >> 8);
+    writeBuf[8] = (byte)(newPosX >> 16);
+    writeBuf[9] = (byte)(newPosX >> 24);
+
+    //num of pulses
+    writeBuf[10] = (byte)(newPosY);
+    writeBuf[11] = (byte)(newPosY >> 8);
+    writeBuf[12] = (byte)(newPosY >> 16);
+    writeBuf[13] = (byte)(newPosY >> 24);
+
+    //num of pulses
+    writeBuf[14] = (byte)(newPosZ);
+    writeBuf[15] = (byte)(newPosZ >> 8);
+    writeBuf[16] = (byte)(newPosZ >> 16);
+    writeBuf[17] = (byte)(newPosZ >> 24);
+
+    //num of pulses
+    writeBuf[18] = (byte)(newPosA);
+    writeBuf[19] = (byte)(newPosA >> 8);
+    writeBuf[20] = (byte)(newPosA >> 16);
+    writeBuf[21] = (byte)(newPosA >> 24);
+
+    if (send == true) {
+        sendBinaryData();
+    }
+}
+
+
+
 //
 // moving to the point
 //
@@ -1559,6 +1500,65 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
     }
 }
 
+
+//
+// check length of tool
+//
+void BinaryData::packD2(int speed, float returnDistance, bool send)
+{
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0xd2;
+
+    int inewSpd = 0;
+
+    if (speed != 0) {
+        float dnewSpd = (1800 / (float)speed) * 1000;
+        inewSpd = (int)dnewSpd;
+    }
+
+    //velocity
+    writeBuf[43] = (byte)(inewSpd);
+    writeBuf[44] = (byte)(inewSpd >> 8);
+    writeBuf[45] = (byte)(inewSpd >> 16);
+
+
+    //unknown
+    writeBuf[46] = 0x10;
+
+    //
+    int inewReturn = (int)(returnDistance * (float)AxesZ_PulsePerMm);
+
+    //return to position
+    writeBuf[50] = (byte)(inewReturn);
+    writeBuf[51] = (byte)(inewReturn >> 8);
+    writeBuf[52] = (byte)(inewReturn >> 16);
+
+    //unknown
+    writeBuf[55] = 0x12;
+    writeBuf[56] = 0x7A;
+
+    if (send == true) {
+        sendBinaryData();
+    }
+}
+
+
+
+// unknown settings
+void BinaryData::packD3( bool send )
+{
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0xd3;
+
+    if (send == true) {
+        sendBinaryData();
+    }
+}
+
+
+
 //
 // break of all operations
 //
@@ -1572,29 +1572,5 @@ void BinaryData::packFF(bool send)
         sendBinaryData();
     }
 }
-
-//
-// UNKNOWN COMMAND
-//
-void BinaryData::pack9D(bool send)
-{
-    cleanBuf(writeBuf);
-
-    writeBuf[0] = 0x9d;
-
-    if (send == true) {
-        sendBinaryData();
-    }
-}
-
-//void BinaryData::GetPack07()
-//{
-//
-// cleanBuf();
-//    writeBuf[0] = 0x9e;
-//    writeBuf[5] = 0x02;
-
-//    return buf;
-//}
 
 
