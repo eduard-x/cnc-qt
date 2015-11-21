@@ -449,7 +449,7 @@ void mk1Controller::setDescription(const QString &c)
 
 void mk1Controller::readNewData()
 {
-    qDebug() << "new data from usb";
+//     qDebug() << "new data from usb";
     parseBinaryInfo();
 }
 
@@ -615,7 +615,7 @@ void mk1Controller::saveSettings()
     packD3();
     packAB();
 
-    qDebug() << "save mk1 settings";
+//     qDebug() << "save mk1 settings";
     
     settingsFile->beginGroup("mk1");
   
@@ -990,8 +990,8 @@ void BinaryData::sendBinaryData(bool checkBuffSize)
             int e = libusb_bulk_transfer(handle, BULK_ENDPOINT_IN, writeBuf, BUFFER_SIZE, &transferred, 30); // timeout 30 msecons
 
             if(e == 0 && transferred == BUFFER_SIZE) {
-                qDebug() << "Write successful!";
-                qDebug() << "Sent " << transferred << " bytes ";
+//                 qDebug() << "Write successful!";
+//                 qDebug() << "Sent " << transferred << " bytes ";
             } else {
                 qDebug() << "Error in write! e = " << e << " and transferred = " << transferred;
             }
