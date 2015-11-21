@@ -55,21 +55,21 @@ int mk1Settings::AxesX_PulsePerMm = 400;
 int mk1Settings::AxesY_PulsePerMm = 400;
 int mk1Settings::AxesZ_PulsePerMm = 400;
 int mk1Settings::AxesA_PulsePerMm = 400;
-
-float mk1Settings::AxesX_StartVelo = 0;
-float mk1Settings::AxesY_StartVelo = 0;
-float mk1Settings::AxesZ_StartVelo = 0;
-float mk1Settings::AxesA_StartVelo = 0;
-
-float mk1Settings::AxesX_EndVelo = 400;
-float mk1Settings::AxesY_EndVelo = 400;
-float mk1Settings::AxesZ_EndVelo = 400;
-float mk1Settings::AxesA_EndVelo = 400;
-
-float mk1Settings::AxesX_Acceleration = 15;
-float mk1Settings::AxesY_Acceleration = 15;
-float mk1Settings::AxesZ_Acceleration = 15;
-float mk1Settings::AxesA_Acceleration = 15;
+// 
+// float mk1Settings::AxesX_StartVelo = 0;
+// float mk1Settings::AxesY_StartVelo = 0;
+// float mk1Settings::AxesZ_StartVelo = 0;
+// float mk1Settings::AxesA_StartVelo = 0;
+// 
+// float mk1Settings::AxesX_EndVelo = 400;
+// float mk1Settings::AxesY_EndVelo = 400;
+// float mk1Settings::AxesZ_EndVelo = 400;
+// float mk1Settings::AxesA_EndVelo = 400;
+// 
+// float mk1Settings::AxesX_Acceleration = 15;
+// float mk1Settings::AxesY_Acceleration = 15;
+// float mk1Settings::AxesZ_Acceleration = 15;
+// float mk1Settings::AxesA_Acceleration = 15;
 
 bool mk1Settings::AxesX_LimitMax = false;
 bool mk1Settings::AxesX_LimitMin = false;
@@ -615,6 +615,8 @@ void mk1Controller::saveSettings()
     packD3();
     packAB();
 
+    qDebug() << "save mk1 settings";
+    
     settingsFile->beginGroup("mk1");
   
     settingsFile->setValue("PulseX", AxesX_PulsePerMm);
@@ -644,7 +646,10 @@ void mk1Controller::saveSettings()
     packBF(AxesX_EndVelo, AxesY_EndVelo, AxesZ_EndVelo, AxesA_EndVelo);
 
     settingsFile->endGroup();
+    
+    settingsFile->sync();
         
+    packC2();
     pack9D();
     pack9E(0x00);
 }
@@ -1140,6 +1145,10 @@ void BinaryData::packA1( bool send )
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xa1;
+    
+    writeBuf[4] = 0x80;
+    
+    writeBuf[48] = 0xff;
 
     if (send == true) {
         sendBinaryData();
@@ -1394,6 +1403,9 @@ void BinaryData::packC2( bool send )
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xc2;
+    
+    writeBuf[4] = 0x80;
+    writeBuf[5] = 0x03;
 
     if (send == true) {
         sendBinaryData();

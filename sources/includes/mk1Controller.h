@@ -97,20 +97,20 @@ class mk1Settings
         static int AxesZ_PulsePerMm;
         static int AxesA_PulsePerMm;
 
-        static float AxesX_StartVelo;
-        static float AxesY_StartVelo;
-        static float AxesZ_StartVelo;
-        static float AxesA_StartVelo;
+        float AxesX_StartVelo;
+        float AxesY_StartVelo;
+        float AxesZ_StartVelo;
+        float AxesA_StartVelo;
 
-        static float AxesX_EndVelo;
-        static float AxesY_EndVelo;
-        static float AxesZ_EndVelo;
-        static float AxesA_EndVelo;
+        float AxesX_EndVelo;
+        float AxesY_EndVelo;
+        float AxesZ_EndVelo;
+        float AxesA_EndVelo;
 
-        static float AxesX_Acceleration;
-        static float AxesY_Acceleration;
-        static float AxesZ_Acceleration;
-        static float AxesA_Acceleration;
+        float AxesX_Acceleration;
+        float AxesY_Acceleration;
+        float AxesZ_Acceleration;
+        float AxesA_Acceleration;
 
         // limit sensors
         static bool AxesX_LimitMax;
