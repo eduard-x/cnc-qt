@@ -611,9 +611,12 @@ void mk1Controller::loadSettings()
 // save settings
 //
 void mk1Controller::saveSettings()
-{
-    settingsFile->beginGroup("mk1");
+{  
+    packD3();
+    packAB();
 
+    settingsFile->beginGroup("mk1");
+  
     settingsFile->setValue("PulseX", AxesX_PulsePerMm);
     settingsFile->setValue("PulseY", AxesY_PulsePerMm);
     settingsFile->setValue("PulseZ", AxesZ_PulsePerMm);
@@ -641,6 +644,9 @@ void mk1Controller::saveSettings()
     packBF(AxesX_EndVelo, AxesY_EndVelo, AxesZ_EndVelo, AxesA_EndVelo);
 
     settingsFile->endGroup();
+        
+    pack9D();
+    pack9E(0x00);
 }
 
 
@@ -1003,6 +1009,9 @@ void BinaryData::pack9D(bool send)
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0x9d;
+    
+    writeBuf[4] = 0x80;
+    writeBuf[5] = 0x01;
 
     if (send == true) {
         sendBinaryData();
@@ -1162,6 +1171,8 @@ void BinaryData::packAB( bool send )
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xab;
+    
+    writeBuf[4] = 0x80;
 
     if (send == true) {
         sendBinaryData();
@@ -1357,6 +1368,7 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
     }
 }
 
+
 //
 // command unknown....
 //
@@ -1431,7 +1443,6 @@ void BinaryData::packC8(int x, int y, int z, int a, bool send)
         sendBinaryData();
     }
 }
-
 
 
 //
@@ -1551,6 +1562,7 @@ void BinaryData::packD3( bool send )
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xd3;
+    writeBuf[5] = 0x01;
 
     if (send == true) {
         sendBinaryData();
