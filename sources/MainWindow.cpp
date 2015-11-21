@@ -1904,7 +1904,7 @@ void MainWindow::onSettings()
     SettingsDialog *setfrm = new SettingsDialog(this);
     int dlgResult = setfrm->exec();
 
-    if (dlgResult == QMessageBox::Ok) {
+    if (dlgResult == QMessageBox::Accepted) {
         cnc->saveSettings();
     }
 }
