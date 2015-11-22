@@ -878,8 +878,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>400</width>
-                    <height>300</height>
+                    <width>776</width>
+                    <height>486</height>
                    </rect>
                   </property>
                  </widget>
@@ -919,88 +919,58 @@
                </property>
                <layout class="QGridLayout" name="gridLayout_7">
                 <item row="0" column="0">
-                 <widget class="QCheckBox" name="checkB15B0">
+                 <widget class="QLabel" name="labelB15B7">
                   <property name="text">
                    <string/>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>10</width>
-                    <height>16</height>
-                   </size>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QCheckBox" name="checkB15B1">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="2">
-                 <widget class="QCheckBox" name="checkB15B2">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="3">
-                 <widget class="QCheckBox" name="checkB15B3">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="4">
-                 <widget class="QCheckBox" name="checkB15B4">
+                 <widget class="QLabel" name="labelB15B3">
                   <property name="text">
                    <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="5">
-                 <widget class="QCheckBox" name="checkB15B5">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="6">
-                 <widget class="QCheckBox" name="checkB15B6">
+                 <widget class="QLabel" name="labelB15B1">
                   <property name="text">
                    <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="7">
-                 <widget class="QCheckBox" name="checkB15B7">
+                 <widget class="QLabel" name="labelB15B0">
                   <property name="text">
                    <string/>
                   </property>
-                  <property name="checkable">
-                   <bool>false</bool>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="labelB15B5">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="labelB15B6">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QLabel" name="labelB15B4">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="5">
+                 <widget class="QLabel" name="labelB15B2">
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -1031,89 +1001,59 @@
                 <string>Byte 14 (coolant)</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_15">
-                <item row="0" column="5">
-                 <widget class="QCheckBox" name="checkB14B5">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="6">
-                 <widget class="QCheckBox" name="checkB14B6">
+                 <widget class="QLabel" name="labelB14B1">
                   <property name="text">
                    <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="7">
-                 <widget class="QCheckBox" name="checkB14B7">
+                <item row="0" column="5">
+                 <widget class="QLabel" name="labelB14B2">
                   <property name="text">
                    <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="0">
-                 <widget class="QCheckBox" name="checkB14B0">
+                 <widget class="QLabel" name="labelB14B7">
                   <property name="text">
                    <string/>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>16</width>
-                    <height>16</height>
-                   </size>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QCheckBox" name="checkB14B1">
+                 <widget class="QLabel" name="labelB14B6">
                   <property name="text">
                    <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="2">
-                 <widget class="QCheckBox" name="checkB14B2">
+                 <widget class="QLabel" name="labelB14B5">
                   <property name="text">
                    <string/>
                   </property>
-                  <property name="checkable">
-                   <bool>false</bool>
+                 </widget>
+                </item>
+                <item row="0" column="7">
+                 <widget class="QLabel" name="labelB14B0">
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="3">
-                 <widget class="QCheckBox" name="checkB14B3">
+                 <widget class="QLabel" name="labelB14B4">
                   <property name="text">
                    <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="4">
-                 <widget class="QCheckBox" name="checkB14B4">
+                 <widget class="QLabel" name="labelB14B3">
                   <property name="text">
                    <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -1363,88 +1303,58 @@
                </property>
                <layout class="QGridLayout" name="gridLayout_10">
                 <item row="0" column="0">
-                 <widget class="QCheckBox" name="checkB19B0">
+                 <widget class="QLabel" name="labelB19B7">
                   <property name="text">
                    <string/>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>10</width>
-                    <height>16</height>
-                   </size>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QCheckBox" name="checkB19B1">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="2">
-                 <widget class="QCheckBox" name="checkB19B2">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="3">
-                 <widget class="QCheckBox" name="checkB19B3">
+                 <widget class="QLabel" name="labelB19B4">
                   <property name="text">
                    <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="4">
-                 <widget class="QCheckBox" name="checkB19B4">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="5">
-                 <widget class="QCheckBox" name="checkB19B5">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="6">
-                 <widget class="QCheckBox" name="checkB19B6">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="7">
-                 <widget class="QCheckBox" name="checkB19B7">
+                 <widget class="QLabel" name="labelB19B0">
                   <property name="text">
                    <string/>
                   </property>
-                  <property name="checkable">
-                   <bool>false</bool>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="labelB19B6">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="6">
+                 <widget class="QLabel" name="labelB19B1">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="4">
+                 <widget class="QLabel" name="labelB19B3">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="labelB19B5">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="5">
+                 <widget class="QLabel" name="labelB19B2">
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>

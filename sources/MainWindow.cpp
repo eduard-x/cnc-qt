@@ -1671,36 +1671,36 @@ void  MainWindow::refreshElementsForms()
 
     //DEBUG:
     byte bb14 = cnc->getByte(14);
-    checkB14B0->setChecked( bb14 & (1 << 0));
-    checkB14B1->setChecked( bb14 & (1 << 1));
-    checkB14B2->setChecked( bb14 & (1 << 2));
-    checkB14B3->setChecked( bb14 & (1 << 3));
-    checkB14B4->setChecked( bb14 & (1 << 4));
-    checkB14B5->setChecked( bb14 & (1 << 5));
-    checkB14B6->setChecked( bb14 & (1 << 6));
-    checkB14B7->setChecked( bb14 & (1 << 7));
+    labelB14B0->setPixmap( bb14 & (1 << 0) ? redPix : greenPix );
+    labelB14B1->setPixmap( bb14 & (1 << 1) ? redPix : greenPix );
+    labelB14B2->setPixmap( bb14 & (1 << 2) ? redPix : greenPix );
+    labelB14B3->setPixmap( bb14 & (1 << 3) ? redPix : greenPix );
+    labelB14B4->setPixmap( bb14 & (1 << 4) ? redPix : greenPix );
+    labelB14B5->setPixmap( bb14 & (1 << 5) ? redPix : greenPix );
+    labelB14B6->setPixmap( bb14 & (1 << 6) ? redPix : greenPix );
+    labelB14B7->setPixmap( bb14 & (1 << 7) ? redPix : greenPix );
 
 
     byte bb15 = cnc->getByte(15);
-    checkB15B0->setChecked( bb15 & (1 << 0));
-    checkB15B1->setChecked( bb15 & (1 << 1));
-    checkB15B2->setChecked( bb15 & (1 << 2));
-    checkB15B3->setChecked( bb15 & (1 << 3));
-    checkB15B4->setChecked( bb15 & (1 << 4));
-    checkB15B5->setChecked( bb15 & (1 << 5));
-    checkB15B6->setChecked( bb15 & (1 << 6));
-    checkB15B7->setChecked( bb15 & (1 << 7));
+    labelB15B0->setPixmap( bb15 & (1 << 0) ? redPix : greenPix );
+    labelB15B1->setPixmap( bb15 & (1 << 1) ? redPix : greenPix );
+    labelB15B2->setPixmap( bb15 & (1 << 2) ? redPix : greenPix );
+    labelB15B3->setPixmap( bb15 & (1 << 3) ? redPix : greenPix );
+    labelB15B4->setPixmap( bb15 & (1 << 4) ? redPix : greenPix );
+    labelB15B5->setPixmap( bb15 & (1 << 5) ? redPix : greenPix );
+    labelB15B6->setPixmap( bb15 & (1 << 6) ? redPix : greenPix );
+    labelB15B7->setPixmap( bb15 & (1 << 7) ? redPix : greenPix );
 
 
     byte bb19 = cnc->getByte(19);
-    checkB19B0->setChecked( bb19 & (1 << 0));
-    checkB19B1->setChecked( bb19 & (1 << 1));
-    checkB19B2->setChecked( bb19 & (1 << 2));
-    checkB19B3->setChecked( bb19 & (1 << 3));
-    checkB19B4->setChecked( bb19 & (1 << 4));
-    checkB19B5->setChecked( bb19 & (1 << 5));
-    checkB19B6->setChecked( bb19 & (1 << 6));
-    checkB19B7->setChecked( bb19 & (1 << 7));
+    labelB19B0->setPixmap( bb19 & (1 << 0) ? redPix : greenPix );
+    labelB19B1->setPixmap( bb19 & (1 << 1) ? redPix : greenPix );
+    labelB19B2->setPixmap( bb19 & (1 << 2) ? redPix : greenPix );
+    labelB19B3->setPixmap( bb19 & (1 << 3) ? redPix : greenPix );
+    labelB19B4->setPixmap( bb19 & (1 << 4) ? redPix : greenPix );
+    labelB19B5->setPixmap( bb19 & (1 << 5) ? redPix : greenPix );
+    labelB19B6->setPixmap( bb19 & (1 << 6) ? redPix : greenPix );
+    labelB19B7->setPixmap( bb19 & (1 << 7) ? redPix : greenPix );
 
     // end debug
 
