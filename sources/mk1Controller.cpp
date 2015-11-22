@@ -55,17 +55,17 @@ int mk1Settings::AxesX_PulsePerMm = 400;
 int mk1Settings::AxesY_PulsePerMm = 400;
 int mk1Settings::AxesZ_PulsePerMm = 400;
 int mk1Settings::AxesA_PulsePerMm = 400;
-// 
+//
 // float mk1Settings::AxesX_StartVelo = 0;
 // float mk1Settings::AxesY_StartVelo = 0;
 // float mk1Settings::AxesZ_StartVelo = 0;
 // float mk1Settings::AxesA_StartVelo = 0;
-// 
+//
 // float mk1Settings::AxesX_EndVelo = 400;
 // float mk1Settings::AxesY_EndVelo = 400;
 // float mk1Settings::AxesZ_EndVelo = 400;
 // float mk1Settings::AxesA_EndVelo = 400;
-// 
+//
 // float mk1Settings::AxesX_Acceleration = 15;
 // float mk1Settings::AxesY_Acceleration = 15;
 // float mk1Settings::AxesZ_Acceleration = 15;
@@ -449,7 +449,7 @@ void mk1Controller::setDescription(const QString &c)
 
 void mk1Controller::readNewData()
 {
-//     qDebug() << "new data from usb";
+    //     qDebug() << "new data from usb";
     parseBinaryInfo();
 }
 
@@ -611,14 +611,14 @@ void mk1Controller::loadSettings()
 // save settings
 //
 void mk1Controller::saveSettings()
-{  
+{
     packD3();
     packAB();
 
-//     qDebug() << "save mk1 settings";
-    
+    //     qDebug() << "save mk1 settings";
+
     settingsFile->beginGroup("mk1");
-  
+
     settingsFile->setValue("PulseX", AxesX_PulsePerMm);
     settingsFile->setValue("PulseY", AxesY_PulsePerMm);
     settingsFile->setValue("PulseZ", AxesZ_PulsePerMm);
@@ -646,12 +646,12 @@ void mk1Controller::saveSettings()
     packBF(AxesX_EndVelo, AxesY_EndVelo, AxesZ_EndVelo, AxesA_EndVelo);
 
     settingsFile->endGroup();
-    
+
     settingsFile->sync();
-        
+
     packC2();
     pack9D();
-    pack9E(0x00);
+    //     pack9E(0x00);
 }
 
 
@@ -990,8 +990,8 @@ void BinaryData::sendBinaryData(bool checkBuffSize)
             int e = libusb_bulk_transfer(handle, BULK_ENDPOINT_IN, writeBuf, BUFFER_SIZE, &transferred, 30); // timeout 30 msecons
 
             if(e == 0 && transferred == BUFFER_SIZE) {
-//                 qDebug() << "Write successful!";
-//                 qDebug() << "Sent " << transferred << " bytes ";
+                //                 qDebug() << "Write successful!";
+                //                 qDebug() << "Sent " << transferred << " bytes ";
             } else {
                 qDebug() << "Error in write! e = " << e << " and transferred = " << transferred;
             }
@@ -1005,7 +1005,6 @@ void BinaryData::sendBinaryData(bool checkBuffSize)
 }
 
 
-
 //
 // UNKNOWN COMMAND
 //
@@ -1014,7 +1013,7 @@ void BinaryData::pack9D(bool send)
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0x9d;
-    
+
     writeBuf[4] = 0x80;
     writeBuf[5] = 0x01;
 
@@ -1037,6 +1036,8 @@ void BinaryData::pack9E(byte value, bool send)
 }
 
 
+// settings
+// impulses per mm
 void BinaryData::pack9F(int _impX, int _impY, int _impZ, int _impA, bool send)
 {
     cleanBuf(writeBuf);
@@ -1145,9 +1146,9 @@ void BinaryData::packA1( bool send )
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xa1;
-    
+
     writeBuf[4] = 0x80;
-    
+
     writeBuf[48] = 0xff;
 
     if (send == true) {
@@ -1155,11 +1156,8 @@ void BinaryData::packA1( bool send )
     }
 }
 
-
-
 //
 // emergency STOP
-//
 //
 void BinaryData::packAA(bool send)
 {
@@ -1180,7 +1178,7 @@ void BinaryData::packAB( bool send )
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xab;
-    
+
     writeBuf[4] = 0x80;
 
     if (send == true) {
@@ -1403,7 +1401,7 @@ void BinaryData::packC2( bool send )
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xc2;
-    
+
     writeBuf[4] = 0x80;
     writeBuf[5] = 0x03;
 
