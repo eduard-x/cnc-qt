@@ -44,7 +44,7 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     setupUi(this);
 
     parent = static_cast<MainWindow*>(p);
-    
+
     cnc = parent->cnc;
 
     setStyleSheet(parent->programStyleSheet);

@@ -671,7 +671,7 @@ void mk1Controller::saveSettings()
     settingsFile->setValue("AccelZ", (double)coord[Z].acceleration);
     settingsFile->setValue("AccelA", (double)coord[A].acceleration);
 
-    packA0(coord[X].acceleration, coord[Y].acceleration, coord[Z].acceleration, coord[A].acceleration);
+    packA0(/*coord[X].acceleration, coord[Y].acceleration, coord[Z].acceleration, coord[A].acceleration*/);
 
     settingsFile->setValue("StartVeloX", (double)coord[X].minVelo);
     settingsFile->setValue("StartVeloY", (double)coord[Y].minVelo);
@@ -922,62 +922,9 @@ void mk1Controller::deviceNewPosition(float x, float y, float z, float a)
         return;
     }
 
-    packC8(coord[X].posPulse(x), coord[Y].posPulse( y), coord[Z].posPulse( z), coord[A].posPulse( a));
+    packC8(coord[X].posPulse(x), coord[Y].posPulse(y), coord[Z].posPulse(z), coord[A].posPulse(a));
 }
 
-#if 0
-float mk1Settings::PositionXmm ()
-{
-    return (float)(PositionPulseX / (float) PulsePerMmX);
-}
-
-
-float mk1Settings::PositionYmm ()
-{
-    return (float)(PositionPulseY / (float) PulsePerMmY);
-}
-
-
-float mk1Settings::PositionZmm ()
-{
-    return (float)(PositionPulseZ / (float) PulsePerMmZ);
-}
-
-
-float mk1Settings::PositionAmm ()
-{
-    return (float)(PositionPulseA / (float) PulsePerMmA);
-}
-#endif
-
-//
-//calculation of position in pulses
-//
-// axes: name
-// posMm po in mm
-// return num of pulses
-#if 0
-int mk1Settings::CalcPosPulse(QString axes, float posMm)
-{
-    if (axes == "X") {
-        return (int)(posMm * (float)PulsePerMmX);
-    }
-
-    if (axes == "Y") {
-        return (int)(posMm * (float)PulsePerMmY);
-    }
-
-    if (axes == "Z") {
-        return (int)(posMm * (float)PulsePerMmZ);
-    }
-
-    if (axes == "A") {
-        return (int)(posMm * (float)PulsePerMmA);
-    }
-
-    return 0;
-}
-#endif
 
 // You MUST declare it, because of static field
 byte BinaryData::readBuf[BUFFER_SIZE];
@@ -1115,7 +1062,7 @@ void BinaryData::pack9F(int _impX, int _impY, int _impZ, int _impA, bool send)
 
 
 // acceleration settings
-void BinaryData::packA0(float accelx, float accely, float accelz, float accela, bool send)
+void BinaryData::packA0(/*float accelx, float accely, float accelz, float accela, int stepsMm, */bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1124,10 +1071,10 @@ void BinaryData::packA0(float accelx, float accely, float accelz, float accela, 
 
     writeBuf[5] = 0x12;
 
-    int AccelX = 811200;
+    int AccelX = 4056;
 
-    if (accelx > 0) {
-        AccelX = 811200 / sqrt(accelx);
+    if (coord[X].acceleration > 0) {
+        AccelX = 4056 * coord[X].pulsePerMm / sqrt(coord[X].acceleration);
     }
 
     writeBuf[6] = (byte)(AccelX);
@@ -1135,10 +1082,10 @@ void BinaryData::packA0(float accelx, float accely, float accelz, float accela, 
     writeBuf[8] = (byte)(AccelX >> 16);
     writeBuf[9] = (byte)(AccelX >> 24);
 
-    int AccelY = 811200;
+    int AccelY = 4056;
 
-    if (accely > 0) {
-        AccelY = 811200 / sqrt(accely);
+    if (coord[Y].acceleration > 0) {
+        AccelY = 4056 * coord[Y].pulsePerMm / sqrt(coord[Y].acceleration);
     }
 
     writeBuf[10] = (byte)(AccelY);
@@ -1146,10 +1093,10 @@ void BinaryData::packA0(float accelx, float accely, float accelz, float accela, 
     writeBuf[12] = (byte)(AccelY >> 16);
     writeBuf[13] = (byte)(AccelY >> 24);
 
-    int AccelZ = 811200;
+    int AccelZ = 4056;
 
-    if (accelz > 0) {
-        AccelZ = 811200 / sqrt(accelz);
+    if (coord[Z].acceleration > 0) {
+        AccelZ = 4056 * coord[Z].pulsePerMm / sqrt(coord[Z].acceleration);
     }
 
     writeBuf[14] = (byte)(AccelZ);
@@ -1159,8 +1106,8 @@ void BinaryData::packA0(float accelx, float accely, float accelz, float accela, 
 
     int AccelA = 0;
 
-    if (accela > 0) {
-        AccelA = 811200 / sqrt(accela);
+    if (coord[A].acceleration > 0) {
+        AccelA = 4056 * coord[A].pulsePerMm / sqrt(coord[A].acceleration);
     }
 
     writeBuf[18] = (byte)(AccelA);

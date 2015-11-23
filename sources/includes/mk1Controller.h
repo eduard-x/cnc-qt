@@ -83,7 +83,7 @@ class axis
     public:
         axis(); // constructor
         float posMm();
-int posPulse(float posMm);
+        int posPulse(float posMm);
 
     public:
         float minVelo;
@@ -171,7 +171,7 @@ class mk1Settings
         // axes: "X", "Y" , "Z" or "A"
         // posMm: position in mm
         // return: pulses number
-//         static int CalcPosPulse(QString axes, float posMm);
+        //         static int CalcPosPulse(QString axes, float posMm);
 };
 
 
@@ -185,29 +185,30 @@ class BinaryData : public mk1Settings
             RC
         };
 
-        static void packC0(byte byte05 = 0x0, bool send = true);
-        static void packB5(bool spindleON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 0, bool send = true);
-        static void packAA(bool send = true);
-        static void packA0(float accelx, float accely, float accelz, float accela, bool send = true);
-        static void packA1( bool send = true);
-        static void packC8(int x, int y, int z, int a, bool send = true);
-        static void packD3( bool send = true);
-        static void packC2( bool send = true);
-        static void packB6( bool send = true);
-        static void packAB( bool send = true);
-        static void packD2(int speed, float returnDistance, float PulsePerMmZ, bool send = true);
-        static void packBE(byte direction, int speed, bool send = true);
-        static void pack9E(byte value, bool send = true);
-        static void pack9F(int impX, int impY, int impZ, int impA, bool send = true);
-        static void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
-        static void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send = true);
-        static void packFF(bool send = true);
-        static void pack9D(bool send = true);
 
-        static void setByte(short offset, byte data);
-        static byte getByte(short offset);
-        static void cleanBuf(byte *m);
-        static void sendBinaryData(bool checkBuffSize = true);
+        void packC0(byte byte05 = 0x0, bool send = true);
+        void packB5(bool spindleON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 0, bool send = true);
+        void packAA(bool send = true);
+        void packA0(/*float accelx, float accely, float accelz, float accela, int stepsMm,*/ bool send = true);
+        void packA1( bool send = true);
+        void packC8(int x, int y, int z, int a, bool send = true);
+        void packD3( bool send = true);
+        void packC2( bool send = true);
+        void packB6( bool send = true);
+        void packAB( bool send = true);
+        void packD2(int speed, float returnDistance, float PulsePerMmZ, bool send = true);
+        void packBE(byte direction, int speed, bool send = true);
+        void pack9E(byte value, bool send = true);
+        void pack9F(int impX, int impY, int impZ, int impA, bool send = true);
+        void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
+        void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send = true);
+        void packFF(bool send = true);
+        void pack9D(bool send = true);
+
+        void setByte(short offset, byte data);
+        byte getByte(short offset);
+        void cleanBuf(byte *m);
+        void sendBinaryData(bool checkBuffSize = true);
 
     public:
         static libusb_device_handle *handle;
