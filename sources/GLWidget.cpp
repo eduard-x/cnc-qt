@@ -602,9 +602,9 @@ void GLWidget::drawSurface()
 void GLWidget::drawInstrument()
 {
     //нарисуем курсор
-    float startX = parent->cnc->AxesX_PositionMM();
-    float startY = parent->cnc->AxesY_PositionMM();
-    float startZ = parent->cnc->AxesZ_PositionMM();
+    float startX = parent->cnc->coord[X].posMm();
+    float startY = parent->cnc->coord[Y].posMm();
+    float startZ = parent->cnc->coord[Z].posMm();
 
     glPushMatrix();
 

@@ -75,6 +75,30 @@ class usbHotplugThread : public QThread
 };
 
 
+enum AxisNames { X = 0, Y, Z, A, B, C, U, V, W };
+
+
+class axis
+{
+    public:
+        axis(); // constructor
+        float posMm();
+int posPulse(float posMm);
+
+    public:
+        float minVelo;
+        float maxVelo;
+        float acceleration;
+        int   pulsePerMm;
+        float actualPosmm;
+        int   actualPosPulses;
+        bool  invert;
+        bool  limitMax;
+        bool  limitMin;
+        float maxPos;
+        float minPos;
+        bool  wrong;
+};
 
 
 class mk1Settings
@@ -86,42 +110,45 @@ class mk1Settings
         // number of current instuction
         static int NumberCompleatedInstruction;
 
+        axis coord[4]; // array of 4 axis for mk1
+        //         QVector<axis> mk2[9]; // array of 9 axis for mk2
+#if 0
         // current position, impulses
-        static int AxesX_PositionPulse;
-        static int AxesY_PositionPulse;
-        static int AxesZ_PositionPulse;
-        static int AxesA_PositionPulse;
+        static int PositionPulseX;
+        static int PositionPulseY;
+        static int PositionPulseZ;
+        static int PositionPulseA;
 
-        static int AxesX_PulsePerMm;
-        static int AxesY_PulsePerMm;
-        static int AxesZ_PulsePerMm;
-        static int AxesA_PulsePerMm;
+        static int PulsePerMmX;
+        static int PulsePerMmY;
+        static int PulsePerMmZ;
+        static int PulsePerMmA;
 
-        float AxesX_StartVelo;
-        float AxesY_StartVelo;
-        float AxesZ_StartVelo;
-        float AxesA_StartVelo;
+        float StartVeloX;
+        float StartVeloY;
+        float StartVeloZ;
+        float StartVeloA;
 
-        float AxesX_EndVelo;
-        float AxesY_EndVelo;
-        float AxesZ_EndVelo;
-        float AxesA_EndVelo;
+        float EndVeloX;
+        float EndVeloY;
+        float EndVeloZ;
+        float EndVeloA;
 
-        float AxesX_Acceleration;
-        float AxesY_Acceleration;
-        float AxesZ_Acceleration;
-        float AxesA_Acceleration;
+        float AccelerationX;
+        float AccelerationY;
+        float AccelerationZ;
+        float AccelerationA;
 
         // limit sensors
-        static bool AxesX_LimitMax;
-        static bool AxesX_LimitMin;
-        static bool AxesY_LimitMax;
-        static bool AxesY_LimitMin;
-        static bool AxesZ_LimitMax;
-        static bool AxesZ_LimitMin;
-        static bool AxesA_LimitMax;
-        static bool AxesA_LimitMin;
-
+        static bool LimitMaxX;
+        static bool LimitMinX;
+        static bool LimitMaxY;
+        static bool LimitMinY;
+        static bool LimitMaxZ;
+        static bool LimitMinZ;
+        static bool LimitMaxA;
+        static bool LimitMinA;
+#endif
         // speed settings
 
         static int spindle_MoveSpeed;
@@ -133,10 +160,10 @@ class mk1Settings
         static bool DEMO_DEVICE;
 
     public: // methods
-        static float AxesX_PositionMM();
-        static float AxesY_PositionMM();
-        static float AxesZ_PositionMM();
-        static float AxesA_PositionMM();
+        //         static float PositionXmm();
+        //         static float PositionYmm();
+        //         static float PositionZmm();
+        //         static float PositionAmm();
 
         //
         // calculation of pulse number
@@ -144,7 +171,7 @@ class mk1Settings
         // axes: "X", "Y" , "Z" or "A"
         // posMm: position in mm
         // return: pulses number
-        static int CalcPosPulse(QString axes, float posMm);
+//         static int CalcPosPulse(QString axes, float posMm);
 };
 
 
@@ -168,7 +195,7 @@ class BinaryData : public mk1Settings
         static void packC2( bool send = true);
         static void packB6( bool send = true);
         static void packAB( bool send = true);
-        static void packD2(int speed, float returnDistance, bool send = true);
+        static void packD2(int speed, float returnDistance, float PulsePerMmZ, bool send = true);
         static void packBE(byte direction, int speed, bool send = true);
         static void pack9E(byte value, bool send = true);
         static void pack9F(int impX, int impY, int impZ, int impA, bool send = true);

@@ -80,6 +80,7 @@ class ScanSurfaceDialog : public QDialog, public Ui::ScanSurfaceDialog,  public 
 
     public:
         MainWindow* parent;
+        mk1Controller* cnc;
 
         int selectedX;
         int selectedY;

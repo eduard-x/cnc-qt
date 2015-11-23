@@ -53,25 +53,25 @@ SettingsDialog::SettingsDialog(QWidget *p)
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    numPulseX->setValue(parent->cnc->AxesX_PulsePerMm);
-    numPulseY->setValue(parent->cnc->AxesY_PulsePerMm);
-    numPulseZ->setValue(parent->cnc->AxesZ_PulsePerMm);
-    numPulseA->setValue(parent->cnc->AxesA_PulsePerMm);
+    numPulseX->setValue(parent->cnc->coord[X].pulsePerMm);
+    numPulseY->setValue(parent->cnc->coord[Y].pulsePerMm);
+    numPulseZ->setValue(parent->cnc->coord[Z].pulsePerMm);
+    numPulseA->setValue(parent->cnc->coord[A].pulsePerMm);
 
-    doubleSpinStartX->setValue(parent->cnc->AxesX_StartVelo);
-    doubleSpinStartY->setValue(parent->cnc->AxesY_StartVelo);
-    doubleSpinStartZ->setValue(parent->cnc->AxesZ_StartVelo);
-    doubleSpinStartA->setValue(parent->cnc->AxesA_StartVelo);
+    doubleSpinStartX->setValue(parent->cnc->coord[X].minVelo);
+    doubleSpinStartY->setValue(parent->cnc->coord[Y].minVelo);
+    doubleSpinStartZ->setValue(parent->cnc->coord[Z].minVelo);
+    doubleSpinStartA->setValue(parent->cnc->coord[A].minVelo);
 
-    doubleSpinEndX->setValue(parent->cnc->AxesX_EndVelo);
-    doubleSpinEndY->setValue(parent->cnc->AxesY_EndVelo);
-    doubleSpinEndZ->setValue(parent->cnc->AxesZ_EndVelo);
-    doubleSpinEndA->setValue(parent->cnc->AxesA_EndVelo);
+    doubleSpinEndX->setValue(parent->cnc->coord[X].maxVelo);
+    doubleSpinEndY->setValue(parent->cnc->coord[Y].maxVelo);
+    doubleSpinEndZ->setValue(parent->cnc->coord[Z].maxVelo);
+    doubleSpinEndA->setValue(parent->cnc->coord[A].maxVelo);
 
-    doubleSpinAccelX->setValue(parent->cnc->AxesX_Acceleration);
-    doubleSpinAccelY->setValue(parent->cnc->AxesY_Acceleration);
-    doubleSpinAccelZ->setValue(parent->cnc->AxesZ_Acceleration);
-    doubleSpinAccelA->setValue(parent->cnc->AxesA_Acceleration);
+    doubleSpinAccelX->setValue(parent->cnc->coord[X].acceleration);
+    doubleSpinAccelY->setValue(parent->cnc->coord[Y].acceleration);
+    doubleSpinAccelZ->setValue(parent->cnc->coord[Z].acceleration);
+    doubleSpinAccelA->setValue(parent->cnc->coord[A].acceleration);
 
     checkBoxDemoController->setChecked(parent->cnc->DEMO_DEVICE);
 
@@ -103,25 +103,25 @@ void SettingsDialog::translateDialog()
 
 void SettingsDialog::onSave()
 {
-    parent->cnc->AxesX_PulsePerMm = numPulseX->value();
-    parent->cnc->AxesY_PulsePerMm = numPulseY->value();
-    parent->cnc->AxesZ_PulsePerMm = numPulseZ->value();
-    parent->cnc->AxesA_PulsePerMm = numPulseA->value();
+    parent->cnc->coord[X].pulsePerMm = numPulseX->value();
+    parent->cnc->coord[Y].pulsePerMm = numPulseY->value();
+    parent->cnc->coord[Z].pulsePerMm = numPulseZ->value();
+    parent->cnc->coord[A].pulsePerMm = numPulseA->value();
 
-    parent->cnc->AxesX_StartVelo = doubleSpinStartX->value();
-    parent->cnc->AxesY_StartVelo = doubleSpinStartY->value();
-    parent->cnc->AxesZ_StartVelo = doubleSpinStartZ->value();
-    parent->cnc->AxesA_StartVelo = doubleSpinStartA->value();
+    parent->cnc->coord[X].minVelo = doubleSpinStartX->value();
+    parent->cnc->coord[Y].minVelo = doubleSpinStartY->value();
+    parent->cnc->coord[Z].minVelo = doubleSpinStartZ->value();
+    parent->cnc->coord[A].minVelo = doubleSpinStartA->value();
 
-    parent->cnc->AxesX_EndVelo = doubleSpinEndX->value();
-    parent->cnc->AxesY_EndVelo = doubleSpinEndY->value();
-    parent->cnc->AxesZ_EndVelo = doubleSpinEndZ->value();
-    parent->cnc->AxesA_EndVelo = doubleSpinEndA->value();
+    parent->cnc->coord[X].maxVelo = doubleSpinEndX->value();
+    parent->cnc->coord[Y].maxVelo = doubleSpinEndY->value();
+    parent->cnc->coord[Z].maxVelo = doubleSpinEndZ->value();
+    parent->cnc->coord[A].maxVelo = doubleSpinEndA->value();
 
-    parent->cnc->AxesX_Acceleration = doubleSpinAccelX->value();
-    parent->cnc->AxesY_Acceleration = doubleSpinAccelY->value();
-    parent->cnc->AxesZ_Acceleration = doubleSpinAccelZ->value();
-    parent->cnc->AxesA_Acceleration = doubleSpinAccelA->value();
+    parent->cnc->coord[X].acceleration = doubleSpinAccelX->value();
+    parent->cnc->coord[Y].acceleration = doubleSpinAccelY->value();
+    parent->cnc->coord[Z].acceleration = doubleSpinAccelZ->value();
+    parent->cnc->coord[A].acceleration = doubleSpinAccelA->value();
 
     parent->cnc->DEMO_DEVICE  = checkBoxDemoController->isChecked();
 

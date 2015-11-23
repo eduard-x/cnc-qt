@@ -1162,10 +1162,10 @@ bool MainWindow::runCommand()
 
         //moving to the first point axes X and Y
         //TODO: spindle move higher, now 10 mm
-        cnc->packCA(cnc->AxesX_PositionPulse, cnc->AxesY_PositionPulse, cnc->AxesZ_PositionPulse + cnc->CalcPosPulse("Z", 10), cnc->AxesA_PositionPulse, userSpeedG0, 0);
+        cnc->packCA(cnc->coord[X].actualPosPulses, cnc->coord[Y].actualPosPulses, cnc->coord[Z].actualPosPulses + cnc->coord[Z].posPulse( 10), cnc->coord[A].actualPosPulses, userSpeedG0, 0);
 
         //TODO: not implemented moving to point
-        cnc->packCA(cnc->CalcPosPulse("X", gcodeNow.X), cnc->CalcPosPulse("Y", gcodeNow.Y), cnc->AxesZ_PositionPulse + cnc->CalcPosPulse("Z", 10), cnc->CalcPosPulse("A", gcodeNow.A), userSpeedG0, 0);
+        cnc->packCA(cnc->coord[X].posPulse( gcodeNow.X), cnc->coord[Y].posPulse(gcodeNow.Y), cnc->coord[Z].actualPosPulses + cnc->coord[Z].posPulse( 10), cnc->coord[A].posPulse( gcodeNow.A), userSpeedG0, 0);
 
         Task::Status = Working;
 
@@ -1283,10 +1283,10 @@ bool MainWindow::runCommand()
         }
     }
 
-    int posX = cnc->CalcPosPulse("X", pointX);
-    int posY = cnc->CalcPosPulse("Y", pointY);
-    int posZ = cnc->CalcPosPulse("Z", pointZ);
-    int posA = cnc->CalcPosPulse("A", pointA);
+    int posX = cnc->coord[X].posPulse( pointX);
+    int posY = cnc->coord[Y].posPulse( pointY);
+    int posZ = cnc->coord[Z].posPulse( pointZ);
+    int posA = cnc->coord[A].posPulse( pointA);
 
     //TODO: additional velocity control manual/automatical
     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
@@ -1357,17 +1357,17 @@ void MainWindow::moveToPoint(bool surfaceScan)
             return;
         }
 
-        posX = cnc->CalcPosPulse("X", surfaceMatrix[scanPosY][scanPosX].X);
-        posY = cnc->CalcPosPulse("Y", surfaceMatrix[scanPosY][scanPosX].Y);
-        posZ = cnc->CalcPosPulse("Z", surfaceMatrix[scanPosY][scanPosX].Z);
-        posA = cnc->CalcPosPulse("A", surfaceMatrix[scanPosY][scanPosX].A);
+        posX = cnc->coord[X].posPulse( surfaceMatrix[scanPosY][scanPosX].X);
+        posY = cnc->coord[Y].posPulse( surfaceMatrix[scanPosY][scanPosX].Y);
+        posZ = cnc->coord[Z].posPulse( surfaceMatrix[scanPosY][scanPosX].Z);
+        posA = cnc->coord[A].posPulse( surfaceMatrix[scanPosY][scanPosX].A);
     } else {
         speed = spinMoveVelo->value();
 
-        posX = cnc->CalcPosPulse("X", doubleSpinMoveX->value());
-        posY = cnc->CalcPosPulse("Y", doubleSpinMoveY->value());
-        posZ = cnc->CalcPosPulse("Z", doubleSpinMoveZ->value());
-        posA = cnc->CalcPosPulse("A", numAngleGrad->value());
+        posX = cnc->coord[X].posPulse( doubleSpinMoveX->value());
+        posY = cnc->coord[Y].posPulse( doubleSpinMoveY->value());
+        posZ = cnc->coord[Z].posPulse( doubleSpinMoveZ->value());
+        posA = cnc->coord[A].posPulse( numAngleGrad->value());
     }
 
     cnc->pack9E(0x05);
@@ -1526,20 +1526,20 @@ void MainWindow::onCncNewData()
 
     //сдвинем границы
     if (ShowGrate) {
-        if (cnc->AxesX_PositionMM() < grateXmin) {
-            grateXmin = cnc->AxesX_PositionMM();
+        if (cnc->coord[X].posMm() < grateXmin) {
+            grateXmin = cnc->coord[X].posMm();
         }
 
-        if (cnc->AxesX_PositionMM() > grateXmax) {
-            grateXmax = cnc->AxesX_PositionMM();
+        if (cnc->coord[X].posMm() > grateXmax) {
+            grateXmax = cnc->coord[X].posMm();
         }
 
-        if (cnc->AxesY_PositionMM() < grateYmin) {
-            grateYmin = cnc->AxesY_PositionMM();
+        if (cnc->coord[Y].posMm() < grateYmin) {
+            grateYmin = cnc->coord[Y].posMm();
         }
 
-        if (cnc->AxesY_PositionMM() > grateYmax) {
-            grateYmax = cnc->AxesY_PositionMM();
+        if (cnc->coord[Y].posMm() > grateYmax) {
+            grateYmax = cnc->coord[Y].posMm();
         }
     }
 }
@@ -1623,9 +1623,9 @@ void  MainWindow::refreshElementsForms()
         }
     }
 
-    numPosX->setValue( cnc->AxesX_PositionMM());
-    numPosY->setValue( cnc->AxesY_PositionMM());
-    numPosZ->setValue( cnc->AxesZ_PositionMM());
+    numPosX->setValue( cnc->coord[X].posMm());
+    numPosY->setValue( cnc->coord[Y].posMm());
+    numPosZ->setValue( cnc->coord[Z].posMm());
 
 #if 0
 
@@ -1658,14 +1658,14 @@ void  MainWindow::refreshElementsForms()
     QPixmap greenPix = QPixmap(":/images/ball_green.png");
     QPixmap redPix = QPixmap(":/images/ball_red.png");
 
-    maxXLED->setPixmap( cnc->AxesX_LimitMax ? redPix : greenPix );
-    minXLED->setPixmap( cnc->AxesX_LimitMin ? redPix : greenPix );
-    maxYLED->setPixmap( cnc->AxesY_LimitMax ? redPix : greenPix );
-    minYLED->setPixmap( cnc->AxesY_LimitMin ? redPix : greenPix );
-    maxZLED->setPixmap( cnc->AxesZ_LimitMax ? redPix : greenPix );
-    minZLED->setPixmap( cnc->AxesZ_LimitMin ? redPix : greenPix );
-    maxALED->setPixmap( cnc->AxesA_LimitMax ? redPix : greenPix );
-    minALED->setPixmap( cnc->AxesA_LimitMin ? redPix : greenPix );
+    maxXLED->setPixmap( cnc->coord[X].limitMax ? redPix : greenPix );
+    minXLED->setPixmap( cnc->coord[X].limitMin ? redPix : greenPix );
+    maxYLED->setPixmap( cnc->coord[Y].limitMax ? redPix : greenPix );
+    minYLED->setPixmap( cnc->coord[Y].limitMin ? redPix : greenPix );
+    maxZLED->setPixmap( cnc->coord[Z].limitMax ? redPix : greenPix );
+    minZLED->setPixmap( cnc->coord[Z].limitMin ? redPix : greenPix );
+    maxALED->setPixmap( cnc->coord[A].limitMax ? redPix : greenPix );
+    minALED->setPixmap( cnc->coord[A].limitMin ? redPix : greenPix );
 
     //***************
 
@@ -1994,21 +1994,21 @@ void MainWindow::onEditGCode(int row, int col)
 
 void MainWindow::onButtonXtoZero()
 {
-    cnc->deviceNewPosition(0, cnc->AxesY_PositionPulse, cnc->AxesZ_PositionPulse);
+    cnc->deviceNewPosition(0, cnc->coord[Y].actualPosPulses, cnc->coord[Z].actualPosPulses);
     numPosX->setValue(0.0);
 }
 
 
 void MainWindow::onButtonYtoZero()
 {
-    cnc->deviceNewPosition(cnc->AxesX_PositionPulse, 0, cnc->AxesZ_PositionPulse);
+    cnc->deviceNewPosition(cnc->coord[X].actualPosPulses, 0, cnc->coord[Z].actualPosPulses);
     numPosY->setValue(0.0);
 }
 
 
 void MainWindow::onButtonZtoZero()
 {
-    cnc->deviceNewPosition(cnc->AxesX_PositionPulse, cnc->AxesY_PositionPulse, 0);
+    cnc->deviceNewPosition(cnc->coord[X].actualPosPulses, cnc->coord[Y].actualPosPulses, 0);
     numPosZ->setValue(0.0);
 }
 

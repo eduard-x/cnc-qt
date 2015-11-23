@@ -44,6 +44,8 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
     setupUi(this);
 
     parent = static_cast<MainWindow*>(p);
+    
+    cnc = parent->cnc;
 
     setStyleSheet(parent->programStyleSheet);
 
@@ -85,9 +87,9 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
 
     translateDialog();
 
-    startOffsetX->setValue(parent->cnc->AxesX_PositionMM());
-    startOffsetY->setValue(parent->cnc->AxesY_PositionMM());
-    startOffsetZ->setValue(parent->cnc->AxesZ_PositionMM());
+    startOffsetX->setValue(cnc->coord[X].posMm());
+    startOffsetY->setValue(cnc->coord[Y].posMm());
+    startOffsetZ->setValue(cnc->coord[Z].posMm());
 
 
     connect(pushOk, SIGNAL(clicked()), this, SLOT(onSave()));
@@ -352,15 +354,15 @@ void ScanSurfaceDialog::onTestScan()
         return;
     }
 
-    if (parent->cnc->isConnected() == false) {
+    if (cnc->isConnected() == false) {
         return;
     }
 
-    parent->cnc->packC0(0x01);  // on
+    cnc->packC0(0x01);  // on
 
-    parent->cnc->packD2((int)numSpeed->value(), (float)numReturn->value());      // settings of movement and velocity
+    cnc->packD2((int)numSpeed->value(), (float)numReturn->value(), cnc->coord[Z].pulsePerMm);      // settings of movement and velocity
 
-    parent->cnc->packC0(0x00); // off
+    cnc->packC0(0x00); // off
 }
 
 
@@ -386,7 +388,7 @@ void ScanSurfaceDialog::onScan()
             return;    // if already runs
         }
 
-        if (parent->cnc->isConnected() == false) {
+        if (cnc->isConnected() == false) {
             return;
         }
 
@@ -443,37 +445,37 @@ void ScanThread::run()
     float pa = 0;//sParent->numPosA->value();
 
     // move to point
-    cnc->packCA(parent->cnc->CalcPosPulse("X", px), parent->cnc->CalcPosPulse("Y", py), parent->cnc->CalcPosPulse("Z", pz),  parent->cnc->CalcPosPulse("A", pa), (int)sParent->numSpeed->value(), 0);
+    cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse( pa), (int)sParent->numSpeed->value(), 0);
 
     sleep(100);
 
     // опустим щуп
     cnc->packC0(0x01); // on
 
-    cnc->packD2((int)sParent->numSpeed->value(), 0);// settings of movement and velocity
+    cnc->packD2((int)sParent->numSpeed->value(), 0, cnc->coord[Z].pulsePerMm);// settings of movement and velocity
 
     cnc->packC0(0x00); // off
 
     sleep(100);
 
-    while (!parent->cnc->AxesZ_LimitMax) {
-        //dataCode.Matrix[indexScanY].X[indexScanX].Z = parent->cnc->AxesZ_PositionMM() - numReturn->value();
+    while (!cnc->coord[Z].limitMax) {
+        //dataCode.Matrix[indexScanY].X[indexScanX].Z = cnc->PositionZmm() - numReturn->value();
         sleep(100);
     }
 
     sleep(300);
-    //dataCode.Matrix[indexScanY].X[indexScanX].Z = parent->cnc->AxesZ_PositionMM;
-    sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (float)parent->cnc->AxesZ_PositionMM();
+    //dataCode.Matrix[indexScanY].X[indexScanX].Z = cnc->PositionZmm;
+    sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (float)cnc->coord[Z].posMm();
 
     cnc->packC0(0x01); // on
 
-    cnc->packD2((int)sParent->numSpeed->value(), (float)sParent->numReturn->value()); // settings of movement and velocity
+    cnc->packD2((int)sParent->numSpeed->value(), (float)sParent->numReturn->value(), cnc->coord[Z].pulsePerMm); // settings of movement and velocity
 
     cnc->packC0(0x00); // off
 
     sleep(100);
     // move to the point
-    cnc->packCA(parent->cnc->CalcPosPulse("X", px), parent->cnc->CalcPosPulse("Y", py), parent->cnc->CalcPosPulse("Z", pz),  parent->cnc->CalcPosPulse("A", pa), (int)sParent->numSpeed->value(), 0);
+    cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse(pa), (int)sParent->numSpeed->value(), 0);
 
     sleep(100);
 
@@ -510,7 +512,7 @@ void ScanSurfaceDialog::onTimer1()
 // move to the point
 void ScanSurfaceDialog::buttonMove()
 {
-    if (!parent->cnc->testAllowActions()) {
+    if (!cnc->testAllowActions()) {
         return;
     }
 
@@ -535,7 +537,7 @@ void ScanSurfaceDialog::buttonSetZ()
         return;
     }
 
-    surfaceArr[selectedY][selectedX].Z = parent->cnc->AxesZ_PositionMM();
+    surfaceArr[selectedY][selectedX].Z = cnc->coord[Z].posMm();
     dataGridView->item(selectedY, selectedX)->setText( QString().sprintf("Z %4.2f", surfaceArr[selectedY][selectedX].Z));
 
 }
@@ -545,20 +547,20 @@ void ScanSurfaceDialog::buttonSetZ()
 void ScanSurfaceDialog::buttonPlusZDown()
 {
     //     button6.BackColor = Color.DarkGreen;
-    parent->cnc->startManualMove("0", "0", "+", "0", 100);
+    cnc->startManualMove("0", "0", "+", "0", 100);
 }
 
 
 void ScanSurfaceDialog::buttonStop()
 {
     //     button6.BackColor = Color.FromName("Control");
-    parent->cnc->stopManualMove();
+    cnc->stopManualMove();
 }
 
 // z-
 void ScanSurfaceDialog::buttonMinusZDown()
 {
     //     button5.BackColor = Color.DarkGreen;
-    parent->cnc->startManualMove("0", "0", "-", "0", 100);
+    cnc->startManualMove("0", "0", "-", "0", 100);
 }
 

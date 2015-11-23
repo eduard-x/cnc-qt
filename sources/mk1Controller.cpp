@@ -46,39 +46,64 @@ using namespace std;
 short mk1Settings::FreebuffSize = 0;
 
 int mk1Settings::NumberCompleatedInstruction = 0;
-int mk1Settings::AxesX_PositionPulse = 0;
-int mk1Settings::AxesY_PositionPulse = 0;
-int mk1Settings::AxesZ_PositionPulse = 0;
-int mk1Settings::AxesA_PositionPulse = 0;
 
-int mk1Settings::AxesX_PulsePerMm = 400;
-int mk1Settings::AxesY_PulsePerMm = 400;
-int mk1Settings::AxesZ_PulsePerMm = 400;
-int mk1Settings::AxesA_PulsePerMm = 400;
-//
-// float mk1Settings::AxesX_StartVelo = 0;
-// float mk1Settings::AxesY_StartVelo = 0;
-// float mk1Settings::AxesZ_StartVelo = 0;
-// float mk1Settings::AxesA_StartVelo = 0;
-//
-// float mk1Settings::AxesX_EndVelo = 400;
-// float mk1Settings::AxesY_EndVelo = 400;
-// float mk1Settings::AxesZ_EndVelo = 400;
-// float mk1Settings::AxesA_EndVelo = 400;
-//
-// float mk1Settings::AxesX_Acceleration = 15;
-// float mk1Settings::AxesY_Acceleration = 15;
-// float mk1Settings::AxesZ_Acceleration = 15;
-// float mk1Settings::AxesA_Acceleration = 15;
 
-bool mk1Settings::AxesX_LimitMax = false;
-bool mk1Settings::AxesX_LimitMin = false;
-bool mk1Settings::AxesY_LimitMax = false;
-bool mk1Settings::AxesY_LimitMin = false;
-bool mk1Settings::AxesZ_LimitMax = false;
-bool mk1Settings::AxesZ_LimitMin = false;
-bool mk1Settings::AxesA_LimitMax = false;
-bool mk1Settings::AxesA_LimitMin = false;
+axis::axis()
+{
+    acceleration = 15.0;
+    limitMax = false;
+    limitMin = false;
+    pulsePerMm = 400;
+    actualPosPulses = 0;
+    wrong = false;
+}
+
+
+float axis::posMm()
+{
+    return (float)(actualPosPulses / (float) pulsePerMm);
+}
+
+
+int axis::posPulse(float posMm)
+{
+    return (int)(posMm * (float)pulsePerMm);
+}
+
+
+// int mk1Settings::PositionPulseX = 0;
+// int mk1Settings::PositionPulseY = 0;
+// int mk1Settings::PositionPulseZ = 0;
+// int mk1Settings::PositionPulseA = 0;
+//
+// int mk1Settings::PulsePerMmX = 400;
+// int mk1Settings::PulsePerMmY = 400;
+// int mk1Settings::PulsePerMmZ = 400;
+// int mk1Settings::PulsePerMmA = 400;
+//
+// float mk1Settings::StartVelo = 0;
+// float mk1Settings::StartVelo = 0;
+// float mk1Settings::StartVelo = 0;
+// float mk1Settings::StartVelo = 0;
+//
+// float mk1Settings::EndVelo = 400;
+// float mk1Settings::EndVelo = 400;
+// float mk1Settings::EndVelo = 400;
+// float mk1Settings::EndVelo = 400;
+//
+// float mk1Settings::Acceleration = 15;
+// float mk1Settings::Acceleration = 15;
+// float mk1Settings::Acceleration = 15;
+// float mk1Settings::Acceleration = 15;
+
+// bool mk1Settings::LimitMaxX = false;
+// bool mk1Settings::LimitMinX = false;
+// bool mk1Settings::LimitMaxY = false;
+// bool mk1Settings::LimitMinY = false;
+// bool mk1Settings::LimitMaxZ = false;
+// bool mk1Settings::LimitMinZ = false;
+// bool mk1Settings::LimitMaxA = false;
+// bool mk1Settings::LimitMinA = false;
 
 int mk1Settings::spindle_MoveSpeed = 0;
 bool mk1Settings::spindle_Enable = false;
@@ -199,7 +224,6 @@ static int LIBUSB_CALL hotplug_callback_detach(libusb_context *ctx, libusb_devic
 
     return 0;
 }
-
 
 
 mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
@@ -511,97 +535,113 @@ void mk1Controller::loadSettings()
     i = settingsFile->value("PulseX", 400).toInt( &res);
 
     if (res == true) {
-        AxesX_PulsePerMm = i;
+        coord[X].pulsePerMm = i;
+        //         PulsePerMmX = i;
     }
 
     i = settingsFile->value("PulseY", 400).toInt( &res);
 
     if (res == true) {
-        AxesY_PulsePerMm = i;
+        coord[Y].pulsePerMm = i;
+        //         PulsePerMmY = i;
     }
 
     i = settingsFile->value("PulseZ", 400).toInt( &res);
 
     if (res == true) {
-        AxesZ_PulsePerMm = i;
+        coord[Z].pulsePerMm = i;
+        //         PulsePerMmZ = i;
     }
 
     i = settingsFile->value("PulseA", 400).toInt( &res);
 
     if (res == true) {
-        AxesA_PulsePerMm = i;
+        coord[A].pulsePerMm = i;
+        //         PulsePerMmA = i;
     }
 
     float f = settingsFile->value("AccelX", 15).toFloat( &res);
 
     if (res == true) {
-        AxesX_Acceleration = f;
+        coord[X].acceleration = f;
+        //         AccelerationX = f;
     }
 
     f = settingsFile->value("AccelY", 15).toFloat( &res);
 
     if (res == true) {
-        AxesY_Acceleration = f;
+        coord[Y].acceleration = f;
+        //         AccelerationY = f;
     }
 
     f = settingsFile->value("AccelZ", 15).toFloat( &res);
 
     if (res == true) {
-        AxesZ_Acceleration = f;
+        coord[Z].acceleration = f;
+        //         AccelerationZ = f;
     }
 
     f = settingsFile->value("AccelA", 15).toFloat( &res);
 
     if (res == true) {
-        AxesA_Acceleration = f;
+        coord[A].acceleration = f;
+        //         AccelerationA = f;
     }
 
     f = settingsFile->value("StartVeloX", 0).toFloat( &res);
 
     if (res == true) {
-        AxesX_StartVelo = f;
+        coord[X].minVelo = f;
+        //         StartVeloX = f;
     }
 
     f = settingsFile->value("StartVeloY", 0).toFloat( &res);
 
     if (res == true) {
-        AxesY_StartVelo = f;
+        coord[Y].minVelo = f;
+        //         StartVeloY = f;
     }
 
     f = settingsFile->value("StartVeloZ", 0).toFloat( &res);
 
     if (res == true) {
-        AxesZ_StartVelo = f;
+        coord[Z].minVelo = f;
+        //         StartVeloZ = f;
     }
 
     f = settingsFile->value("StartVeloA", 0).toFloat( &res);
 
     if (res == true) {
-        AxesA_StartVelo = f;
+        coord[A].minVelo = f;
+        //         StartVeloA = f;
     }
 
     f = settingsFile->value("EndVeloX", 400).toFloat( &res);
 
     if (res == true) {
-        AxesX_EndVelo = f;
+        coord[X].maxVelo = f;
+        //         EndVeloX = f;
     }
 
     f = settingsFile->value("EndVeloY", 400).toFloat( &res);
 
     if (res == true) {
-        AxesY_EndVelo = f;
+        coord[Y].maxVelo = f;
+        //         EndVeloY = f;
     }
 
     f = settingsFile->value("EndVeloZ", 400).toFloat( &res);
 
     if (res == true) {
-        AxesZ_EndVelo = f;
+        coord[Z].maxVelo = f;
+        //         EndVeloZ = f;
     }
 
     f = settingsFile->value("EndVeloA", 400).toFloat( &res);
 
     if (res == true) {
-        AxesA_EndVelo = f;
+        coord[A].maxVelo = f;
+        //         EndVeloA = f;
     }
 
     settingsFile->endGroup();
@@ -619,31 +659,31 @@ void mk1Controller::saveSettings()
 
     settingsFile->beginGroup("mk1");
 
-    settingsFile->setValue("PulseX", AxesX_PulsePerMm);
-    settingsFile->setValue("PulseY", AxesY_PulsePerMm);
-    settingsFile->setValue("PulseZ", AxesZ_PulsePerMm);
-    settingsFile->setValue("PulseA", AxesA_PulsePerMm);
+    settingsFile->setValue("PulseX", coord[X].pulsePerMm);
+    settingsFile->setValue("PulseY", coord[Y].pulsePerMm);
+    settingsFile->setValue("PulseZ", coord[Z].pulsePerMm);
+    settingsFile->setValue("PulseA", coord[A].pulsePerMm);
 
-    pack9F(AxesX_PulsePerMm, AxesY_PulsePerMm, AxesZ_PulsePerMm, AxesA_PulsePerMm);
+    pack9F(coord[X].pulsePerMm, coord[Y].pulsePerMm, coord[Z].pulsePerMm, coord[A].pulsePerMm);
 
-    settingsFile->setValue("AccelX", AxesX_Acceleration);
-    settingsFile->setValue("AccelY", AxesY_Acceleration);
-    settingsFile->setValue("AccelZ", AxesZ_Acceleration);
-    settingsFile->setValue("AccelA", AxesA_Acceleration);
+    settingsFile->setValue("AccelX", (double)coord[X].acceleration);
+    settingsFile->setValue("AccelY", (double)coord[Y].acceleration);
+    settingsFile->setValue("AccelZ", (double)coord[Z].acceleration);
+    settingsFile->setValue("AccelA", (double)coord[A].acceleration);
 
-    packA0(AxesX_Acceleration, AxesY_Acceleration, AxesZ_Acceleration, AxesA_Acceleration);
+    packA0(coord[X].acceleration, coord[Y].acceleration, coord[Z].acceleration, coord[A].acceleration);
 
-    settingsFile->setValue("StartVeloX", AxesX_StartVelo);
-    settingsFile->setValue("StartVeloY", AxesY_StartVelo);
-    settingsFile->setValue("StartVeloZ", AxesZ_StartVelo);
-    settingsFile->setValue("StartVeloA", AxesA_StartVelo);
+    settingsFile->setValue("StartVeloX", (double)coord[X].minVelo);
+    settingsFile->setValue("StartVeloY", (double)coord[Y].minVelo);
+    settingsFile->setValue("StartVeloZ", (double)coord[Z].minVelo);
+    settingsFile->setValue("StartVeloA", (double)coord[A].minVelo);
 
-    settingsFile->setValue("EndVeloX", AxesX_EndVelo);
-    settingsFile->setValue("EndVeloY", AxesY_EndVelo);
-    settingsFile->setValue("EndVeloZ", AxesZ_EndVelo);
-    settingsFile->setValue("EndVeloA", AxesA_EndVelo);
+    settingsFile->setValue("EndVeloX", (double)coord[X].maxVelo);
+    settingsFile->setValue("EndVeloY", (double)coord[Y].maxVelo);
+    settingsFile->setValue("EndVeloZ", (double)coord[Z].maxVelo);
+    settingsFile->setValue("EndVeloA", (double)coord[A].maxVelo);
 
-    packBF(AxesX_EndVelo, AxesY_EndVelo, AxesZ_EndVelo, AxesA_EndVelo);
+    packBF(coord[X].maxVelo, coord[Y].maxVelo, coord[Z].maxVelo, coord[A].maxVelo);
 
     settingsFile->endGroup();
 
@@ -723,18 +763,18 @@ void mk1Controller::parseBinaryInfo()
     FreebuffSize = readBuf[1];
     spindle_MoveSpeed = (int)(((/*(readBuf[23] << 24) + (readBuf[22] << 16) +*/ (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
 
-    AxesX_PositionPulse = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
-    AxesY_PositionPulse = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
-    AxesZ_PositionPulse = ((readBuf[35] << 24) + (readBuf[34] << 16) + (readBuf[33] << 8) + (readBuf[32]));
+    coord[X].actualPosPulses = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
+    coord[Y].actualPosPulses = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
+    coord[Z].actualPosPulses = ((readBuf[35] << 24) + (readBuf[34] << 16) + (readBuf[33] << 8) + (readBuf[32]));
 
-    AxesX_LimitMax = (readBuf[15] & (1 << 0)) != 0;
-    AxesX_LimitMin = (readBuf[15] & (1 << 1)) != 0;
-    AxesY_LimitMax = (readBuf[15] & (1 << 2)) != 0;
-    AxesY_LimitMin = (readBuf[15] & (1 << 3)) != 0;
-    AxesZ_LimitMax = (readBuf[15] & (1 << 4)) != 0;
-    AxesZ_LimitMin = (readBuf[15] & (1 << 5)) != 0;
-    AxesA_LimitMax = (readBuf[15] & (1 << 6)) != 0;
-    AxesA_LimitMin = (readBuf[15] & (1 << 7)) != 0;
+    coord[X].limitMax = (readBuf[15] & (1 << 0)) != 0;
+    coord[X].limitMax = (readBuf[15] & (1 << 1)) != 0;
+    coord[Y].limitMax = (readBuf[15] & (1 << 2)) != 0;
+    coord[Y].limitMax = (readBuf[15] & (1 << 3)) != 0;
+    coord[Z].limitMax = (readBuf[15] & (1 << 4)) != 0;
+    coord[Z].limitMax = (readBuf[15] & (1 << 5)) != 0;
+    coord[A].limitMax = (readBuf[15] & (1 << 6)) != 0;
+    coord[A].limitMax = (readBuf[15] & (1 << 7)) != 0;
 
     NumberCompleatedInstruction = ((readBuf[9] << 24) + (readBuf[8] << 16) + (readBuf[7] << 8) + (readBuf[6]));
 
@@ -882,32 +922,33 @@ void mk1Controller::deviceNewPosition(float x, float y, float z, float a)
         return;
     }
 
-    packC8(CalcPosPulse("X", x), CalcPosPulse("Y", y), CalcPosPulse("Z", z), CalcPosPulse("A", a));
+    packC8(coord[X].posPulse(x), coord[Y].posPulse( y), coord[Z].posPulse( z), coord[A].posPulse( a));
 }
 
-
-float mk1Settings::AxesX_PositionMM ()
+#if 0
+float mk1Settings::PositionXmm ()
 {
-    return (float)(AxesX_PositionPulse / (float) AxesX_PulsePerMm);
+    return (float)(PositionPulseX / (float) PulsePerMmX);
 }
 
 
-float mk1Settings::AxesY_PositionMM ()
+float mk1Settings::PositionYmm ()
 {
-    return (float)(AxesY_PositionPulse / (float) AxesY_PulsePerMm);
+    return (float)(PositionPulseY / (float) PulsePerMmY);
 }
 
 
-float mk1Settings::AxesZ_PositionMM ()
+float mk1Settings::PositionZmm ()
 {
-    return (float)(AxesZ_PositionPulse / (float) AxesZ_PulsePerMm);
+    return (float)(PositionPulseZ / (float) PulsePerMmZ);
 }
 
 
-float mk1Settings::AxesA_PositionMM ()
+float mk1Settings::PositionAmm ()
 {
-    return (float)(AxesA_PositionPulse / (float) AxesA_PulsePerMm);
+    return (float)(PositionPulseA / (float) PulsePerMmA);
 }
+#endif
 
 //
 //calculation of position in pulses
@@ -915,27 +956,28 @@ float mk1Settings::AxesA_PositionMM ()
 // axes: name
 // posMm po in mm
 // return num of pulses
+#if 0
 int mk1Settings::CalcPosPulse(QString axes, float posMm)
 {
     if (axes == "X") {
-        return (int)(posMm * (float)AxesX_PulsePerMm);
+        return (int)(posMm * (float)PulsePerMmX);
     }
 
     if (axes == "Y") {
-        return (int)(posMm * (float)AxesY_PulsePerMm);
+        return (int)(posMm * (float)PulsePerMmY);
     }
 
     if (axes == "Z") {
-        return (int)(posMm * (float)AxesZ_PulsePerMm);
+        return (int)(posMm * (float)PulsePerMmZ);
     }
 
     if (axes == "A") {
-        return (int)(posMm * (float)AxesA_PulsePerMm);
+        return (int)(posMm * (float)PulsePerMmA);
     }
 
     return 0;
 }
-
+#endif
 
 // You MUST declare it, because of static field
 byte BinaryData::readBuf[BUFFER_SIZE];
@@ -1525,7 +1567,7 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
 //
 // check length of tool
 //
-void BinaryData::packD2(int speed, float returnDistance, bool send)
+void BinaryData::packD2(int speed, float returnDistance, float PulsePerMmZ, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1548,7 +1590,7 @@ void BinaryData::packD2(int speed, float returnDistance, bool send)
     writeBuf[46] = 0x10;
 
     //
-    int inewReturn = (int)(returnDistance * (float)AxesZ_PulsePerMm);
+    int inewReturn = (int)(returnDistance * (float)PulsePerMmZ);
 
     //return to position
     writeBuf[50] = (byte)(inewReturn);
