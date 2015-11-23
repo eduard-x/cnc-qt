@@ -234,6 +234,8 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     product_id = 0x2130;
 
     handle = NULL;
+    
+    coordList << "X" << "Y" << "Z" << "A";
 
     devConnected = false;
 
@@ -528,120 +530,41 @@ void mk1Controller::handleHotplug()
 void mk1Controller::loadSettings()
 {
     bool res;
-    int i;
+//     int i;
 
     settingsFile->beginGroup("mk1");
+    
+    for (int c= 0; c < coordList.count(); c++){
+        int i = settingsFile->value("Pulse"+coordList.at(c), 400).toInt( &res);
 
-    i = settingsFile->value("PulseX", 400).toInt( &res);
-
-    if (res == true) {
-        coord[X].pulsePerMm = i;
-        //         PulsePerMmX = i;
+        if (res == true) {
+            coord[c].pulsePerMm = i;
+        }
     }
 
-    i = settingsFile->value("PulseY", 400).toInt( &res);
+   
+    for (int c= 0; c < coordList.count(); c++){
+        float f = settingsFile->value("Accel"+coordList.at(c), 15).toFloat( &res);
 
-    if (res == true) {
-        coord[Y].pulsePerMm = i;
-        //         PulsePerMmY = i;
+        if (res == true) {
+            coord[c].acceleration = f;
+        }
     }
 
-    i = settingsFile->value("PulseZ", 400).toInt( &res);
+    for (int c= 0; c < coordList.count(); c++){
+        float f = settingsFile->value("StartVelo"+coordList.at(c), 0).toFloat( &res);
 
-    if (res == true) {
-        coord[Z].pulsePerMm = i;
-        //         PulsePerMmZ = i;
+        if (res == true) {
+            coord[c].minVelo = f;
+        }
     }
+    
+    for (int c= 0; c < coordList.count(); c++){
+        float f = settingsFile->value("EndVelo"+coordList.at(c), 400).toFloat( &res);
 
-    i = settingsFile->value("PulseA", 400).toInt( &res);
-
-    if (res == true) {
-        coord[A].pulsePerMm = i;
-        //         PulsePerMmA = i;
-    }
-
-    float f = settingsFile->value("AccelX", 15).toFloat( &res);
-
-    if (res == true) {
-        coord[X].acceleration = f;
-        //         AccelerationX = f;
-    }
-
-    f = settingsFile->value("AccelY", 15).toFloat( &res);
-
-    if (res == true) {
-        coord[Y].acceleration = f;
-        //         AccelerationY = f;
-    }
-
-    f = settingsFile->value("AccelZ", 15).toFloat( &res);
-
-    if (res == true) {
-        coord[Z].acceleration = f;
-        //         AccelerationZ = f;
-    }
-
-    f = settingsFile->value("AccelA", 15).toFloat( &res);
-
-    if (res == true) {
-        coord[A].acceleration = f;
-        //         AccelerationA = f;
-    }
-
-    f = settingsFile->value("StartVeloX", 0).toFloat( &res);
-
-    if (res == true) {
-        coord[X].minVelo = f;
-        //         StartVeloX = f;
-    }
-
-    f = settingsFile->value("StartVeloY", 0).toFloat( &res);
-
-    if (res == true) {
-        coord[Y].minVelo = f;
-        //         StartVeloY = f;
-    }
-
-    f = settingsFile->value("StartVeloZ", 0).toFloat( &res);
-
-    if (res == true) {
-        coord[Z].minVelo = f;
-        //         StartVeloZ = f;
-    }
-
-    f = settingsFile->value("StartVeloA", 0).toFloat( &res);
-
-    if (res == true) {
-        coord[A].minVelo = f;
-        //         StartVeloA = f;
-    }
-
-    f = settingsFile->value("EndVeloX", 400).toFloat( &res);
-
-    if (res == true) {
-        coord[X].maxVelo = f;
-        //         EndVeloX = f;
-    }
-
-    f = settingsFile->value("EndVeloY", 400).toFloat( &res);
-
-    if (res == true) {
-        coord[Y].maxVelo = f;
-        //         EndVeloY = f;
-    }
-
-    f = settingsFile->value("EndVeloZ", 400).toFloat( &res);
-
-    if (res == true) {
-        coord[Z].maxVelo = f;
-        //         EndVeloZ = f;
-    }
-
-    f = settingsFile->value("EndVeloA", 400).toFloat( &res);
-
-    if (res == true) {
-        coord[A].maxVelo = f;
-        //         EndVeloA = f;
+        if (res == true) {
+            coord[c].maxVelo = f;
+        }
     }
 
     settingsFile->endGroup();
@@ -659,29 +582,25 @@ void mk1Controller::saveSettings()
 
     settingsFile->beginGroup("mk1");
 
-    settingsFile->setValue("PulseX", coord[X].pulsePerMm);
-    settingsFile->setValue("PulseY", coord[Y].pulsePerMm);
-    settingsFile->setValue("PulseZ", coord[Z].pulsePerMm);
-    settingsFile->setValue("PulseA", coord[A].pulsePerMm);
+    for (int c= 0; c < coordList.count(); c++){
+        settingsFile->setValue("Pulse"+coordList.at(c), coord[c].pulsePerMm);
+    }
 
-    pack9F(coord[X].pulsePerMm, coord[Y].pulsePerMm, coord[Z].pulsePerMm, coord[A].pulsePerMm);
+    pack9F(/*coord[X].pulsePerMm, coord[Y].pulsePerMm, coord[Z].pulsePerMm, coord[A].pulsePerMm*/);
 
-    settingsFile->setValue("AccelX", (double)coord[X].acceleration);
-    settingsFile->setValue("AccelY", (double)coord[Y].acceleration);
-    settingsFile->setValue("AccelZ", (double)coord[Z].acceleration);
-    settingsFile->setValue("AccelA", (double)coord[A].acceleration);
+    for (int c= 0; c < coordList.count(); c++){
+        settingsFile->setValue("Accel"+coordList.at(c), (double)coord[c].acceleration);
+    }
 
     packA0(/*coord[X].acceleration, coord[Y].acceleration, coord[Z].acceleration, coord[A].acceleration*/);
 
-    settingsFile->setValue("StartVeloX", (double)coord[X].minVelo);
-    settingsFile->setValue("StartVeloY", (double)coord[Y].minVelo);
-    settingsFile->setValue("StartVeloZ", (double)coord[Z].minVelo);
-    settingsFile->setValue("StartVeloA", (double)coord[A].minVelo);
+    for (int c= 0; c < coordList.count(); c++){
+        settingsFile->setValue("StartVelo"+coordList.at(c), (double)coord[c].minVelo);
+    }
 
-    settingsFile->setValue("EndVeloX", (double)coord[X].maxVelo);
-    settingsFile->setValue("EndVeloY", (double)coord[Y].maxVelo);
-    settingsFile->setValue("EndVeloZ", (double)coord[Z].maxVelo);
-    settingsFile->setValue("EndVeloA", (double)coord[A].maxVelo);
+    for (int c= 0; c < coordList.count(); c++){
+        settingsFile->setValue("EndVelo"+coordList.at(c), (double)coord[c].maxVelo);
+    }
 
     packBF(coord[X].maxVelo, coord[Y].maxVelo, coord[Z].maxVelo, coord[A].maxVelo);
 
@@ -1027,9 +946,13 @@ void BinaryData::pack9E(byte value, bool send)
 
 // settings
 // impulses per mm
-void BinaryData::pack9F(int _impX, int _impY, int _impZ, int _impA, bool send)
+void BinaryData::pack9F(/*int _impX, int _impY, int _impZ, int _impA,*/ bool send)
 {
     cleanBuf(writeBuf);
+    int _impX = coord[X].pulsePerMm;
+    int _impY = coord[Y].pulsePerMm; 
+    int _impZ = coord[Z].pulsePerMm;
+    int _impA = coord[A].pulsePerMm;
 
     writeBuf[0] = 0x9f;
     writeBuf[4] = 0x80; //TODO:unknown

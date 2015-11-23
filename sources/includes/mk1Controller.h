@@ -199,7 +199,7 @@ class BinaryData : public mk1Settings
         void packD2(int speed, float returnDistance, float PulsePerMmZ, bool send = true);
         void packBE(byte direction, int speed, bool send = true);
         void pack9E(byte value, bool send = true);
-        void pack9F(int impX, int impY, int impZ, int impA, bool send = true);
+        void pack9F(/*int impX, int impY, int impZ, int impA,*/ bool send = true);
         void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
         void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send = true);
         void packFF(bool send = true);
@@ -253,6 +253,7 @@ class mk1Controller : public QObject, public BinaryData
     private:
         int count;
         bool devConnected;
+        QStringList coordList;
 
         static libusb_hotplug_callback_handle hotplug[2];
 
