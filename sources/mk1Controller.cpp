@@ -71,40 +71,6 @@ int axis::posPulse(float posMm)
 }
 
 
-// int mk1Settings::PositionPulseX = 0;
-// int mk1Settings::PositionPulseY = 0;
-// int mk1Settings::PositionPulseZ = 0;
-// int mk1Settings::PositionPulseA = 0;
-//
-// int mk1Settings::PulsePerMmX = 400;
-// int mk1Settings::PulsePerMmY = 400;
-// int mk1Settings::PulsePerMmZ = 400;
-// int mk1Settings::PulsePerMmA = 400;
-//
-// float mk1Settings::StartVelo = 0;
-// float mk1Settings::StartVelo = 0;
-// float mk1Settings::StartVelo = 0;
-// float mk1Settings::StartVelo = 0;
-//
-// float mk1Settings::EndVelo = 400;
-// float mk1Settings::EndVelo = 400;
-// float mk1Settings::EndVelo = 400;
-// float mk1Settings::EndVelo = 400;
-//
-// float mk1Settings::Acceleration = 15;
-// float mk1Settings::Acceleration = 15;
-// float mk1Settings::Acceleration = 15;
-// float mk1Settings::Acceleration = 15;
-
-// bool mk1Settings::LimitMaxX = false;
-// bool mk1Settings::LimitMinX = false;
-// bool mk1Settings::LimitMaxY = false;
-// bool mk1Settings::LimitMinY = false;
-// bool mk1Settings::LimitMaxZ = false;
-// bool mk1Settings::LimitMinZ = false;
-// bool mk1Settings::LimitMaxA = false;
-// bool mk1Settings::LimitMinA = false;
-
 int mk1Settings::spindle_MoveSpeed = 0;
 bool mk1Settings::spindle_Enable = false;
 
@@ -234,13 +200,12 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     product_id = 0x2130;
 
     handle = NULL;
-    
+
     coordList << "X" << "Y" << "Z" << "A";
 
     devConnected = false;
 
     int class_id   = LIBUSB_HOTPLUG_MATCH_ANY;
-    //     libusb_context* ct;
 
     rc = libusb_init (NULL);
 
@@ -258,15 +223,10 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
     if(handle == NULL) {
         qDebug() << "Device not connected" << endl;
-        //         return false;
     } else {
-        //         dev = libusb_get_device(handle);
         qDebug() << "Device connected" << handle << endl;
 
-
-        //         if (handle) {
 #ifdef __linux__
-        //     qDebug() << "linux detach kernel driver";
 
         if(libusb_kernel_driver_active(handle, 0) == 1) {
             qDebug() << "Kernel Driver Active";
@@ -281,8 +241,6 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
         }
 
 #endif
-
-        //  libusb_close(handle);
 
         int e = libusb_set_configuration (handle, 1);
 
@@ -337,7 +295,6 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
         if (devAlreadyConnected == true) {
             if (handle != 0) {
-                //                 libusb_release_interface(handle, 0);
                 libusb_close(handle);
             }
 
@@ -374,26 +331,6 @@ int mk1Controller::getDeviceInfo()
         handle = 0;
         return -1;
     }
-
-    //     qDebug() << "Device to attache" << handle;
-
-    //     qDebug() << QString("Device attached: %1:%2").arg(desc.idVendor).arg(desc.idProduct);
-
-    //     if (handle) {
-    //         libusb_close (handle);
-    //         handle = 0;
-    //         return -1;
-    //     }
-    //
-    //     rc = libusb_open (dev, &handle);
-    //
-    //     if (LIBUSB_SUCCESS != rc) {
-    //         qDebug() << "Error opening device";
-    //         handle = 0;
-    //         return -1;
-    //     }
-
-    //     QString descrStr;
 
     // get device descriptor
     descrStr = QString().sprintf("VendorID: 0x%x ProductID: 0x%x\n\n", desc.idVendor,  desc.idProduct);
@@ -433,13 +370,10 @@ int mk1Controller::getDeviceInfo()
         }
     }
 
-    //     qDebug() << descrStr;
-
     libusb_free_config_descriptor(config);
 
     devDescriptor = descrStr;
-    //     setDescription(descrStr);
-    // end of get device descriptor
+
     return 0;
 }
 
@@ -469,7 +403,6 @@ QString mk1Controller::getDescription()
 void mk1Controller::setDescription(const QString &c)
 {
     devDescriptor = c;
-    //     devDescriptor = st.split("\n");
 }
 
 
@@ -502,7 +435,6 @@ void mk1Controller::handleHotplug()
 
             connect(readThread, SIGNAL(readEvent()), this, SLOT(readNewData()));
 
-            //             connect(readThread, SIGNAL(bufIsFree()), this, SLOT(onBufFree()));
             readThread->start();
         }
 
@@ -530,37 +462,36 @@ void mk1Controller::handleHotplug()
 void mk1Controller::loadSettings()
 {
     bool res;
-//     int i;
 
     settingsFile->beginGroup("mk1");
-    
-    for (int c= 0; c < coordList.count(); c++){
-        int i = settingsFile->value("Pulse"+coordList.at(c), 400).toInt( &res);
+
+    for (int c = 0; c < coordList.count(); c++) {
+        int i = settingsFile->value("Pulse" + coordList.at(c), 400).toInt( &res);
 
         if (res == true) {
             coord[c].pulsePerMm = i;
         }
     }
 
-   
-    for (int c= 0; c < coordList.count(); c++){
-        float f = settingsFile->value("Accel"+coordList.at(c), 15).toFloat( &res);
+
+    for (int c = 0; c < coordList.count(); c++) {
+        float f = settingsFile->value("Accel" + coordList.at(c), 15).toFloat( &res);
 
         if (res == true) {
             coord[c].acceleration = f;
         }
     }
 
-    for (int c= 0; c < coordList.count(); c++){
-        float f = settingsFile->value("StartVelo"+coordList.at(c), 0).toFloat( &res);
+    for (int c = 0; c < coordList.count(); c++) {
+        float f = settingsFile->value("StartVelo" + coordList.at(c), 0).toFloat( &res);
 
         if (res == true) {
             coord[c].minVelo = f;
         }
     }
-    
-    for (int c= 0; c < coordList.count(); c++){
-        float f = settingsFile->value("EndVelo"+coordList.at(c), 400).toFloat( &res);
+
+    for (int c = 0; c < coordList.count(); c++) {
+        float f = settingsFile->value("EndVelo" + coordList.at(c), 400).toFloat( &res);
 
         if (res == true) {
             coord[c].maxVelo = f;
@@ -575,43 +506,55 @@ void mk1Controller::loadSettings()
 //
 void mk1Controller::saveSettings()
 {
-    packD3();
-    packAB();
-
-    //     qDebug() << "save mk1 settings";
-
     settingsFile->beginGroup("mk1");
 
-    for (int c= 0; c < coordList.count(); c++){
-        settingsFile->setValue("Pulse"+coordList.at(c), coord[c].pulsePerMm);
+    for (int c = 0; c < coordList.count(); c++) {
+        settingsFile->setValue("Pulse" + coordList.at(c), coord[c].pulsePerMm);
     }
 
-    pack9F(/*coord[X].pulsePerMm, coord[Y].pulsePerMm, coord[Z].pulsePerMm, coord[A].pulsePerMm*/);
-
-    for (int c= 0; c < coordList.count(); c++){
-        settingsFile->setValue("Accel"+coordList.at(c), (double)coord[c].acceleration);
+    for (int c = 0; c < coordList.count(); c++) {
+        settingsFile->setValue("Accel" + coordList.at(c), (double)coord[c].acceleration);
     }
 
-    packA0(/*coord[X].acceleration, coord[Y].acceleration, coord[Z].acceleration, coord[A].acceleration*/);
-
-    for (int c= 0; c < coordList.count(); c++){
-        settingsFile->setValue("StartVelo"+coordList.at(c), (double)coord[c].minVelo);
+    for (int c = 0; c < coordList.count(); c++) {
+        settingsFile->setValue("StartVelo" + coordList.at(c), (double)coord[c].minVelo);
     }
 
-    for (int c= 0; c < coordList.count(); c++){
-        settingsFile->setValue("EndVelo"+coordList.at(c), (double)coord[c].maxVelo);
+    for (int c = 0; c < coordList.count(); c++) {
+        settingsFile->setValue("EndVelo" + coordList.at(c), (double)coord[c].maxVelo);
     }
-
-    packBF(coord[X].maxVelo, coord[Y].maxVelo, coord[Z].maxVelo, coord[A].maxVelo);
 
     settingsFile->endGroup();
 
     settingsFile->sync();
 
-    packC2();
-    pack9D();
-    //     pack9E(0x00);
+    sendSettings();
 }
+
+
+// send settings to mk
+void mk1Controller::sendSettings()
+{
+
+    packD3();
+    packAB();
+
+    pack9F(); // set pulses per mm
+
+    packA0(); // set acceleration
+    packA1(); // set allowed limits
+
+    packBF(coord[X].maxVelo, coord[Y].maxVelo, coord[Z].maxVelo, coord[A].maxVelo); // set max velocities
+
+    packB5(false); // spindle off
+    packB6(); // unknown
+
+    packC2(); // unknown
+    pack9D();
+
+    pack9E(0x80);
+}
+
 
 
 // info about connection
@@ -851,9 +794,9 @@ byte BinaryData::writeBuf[BUFFER_SIZE];
 
 
 
-void BinaryData::setByte(short offset, byte data)
+void BinaryData::setByte(byte offset, byte data)
 {
-    if (offset >= BUFFER_SIZE || offset < 0) {
+    if (offset >= BUFFER_SIZE) {
         return;
     }
 
@@ -861,9 +804,9 @@ void BinaryData::setByte(short offset, byte data)
 }
 
 
-byte BinaryData::getByte(short offset)
+byte BinaryData::getByte(byte offset)
 {
-    if (offset >= BUFFER_SIZE || offset < 0) {
+    if (offset >= BUFFER_SIZE) {
         return 0;
     }
 
@@ -876,6 +819,18 @@ void BinaryData::cleanBuf(byte *m)
     memset(m, 0x0, BUFFER_SIZE);
 }
 
+
+void BinaryData::packFourBytes(byte offset, int val)
+{
+    if ((offset + 3)>= BUFFER_SIZE) {
+        return;
+    }
+
+    writeBuf[offset + 0] = (byte)val;
+    writeBuf[offset + 1] = (byte)(val >> 8);
+    writeBuf[offset + 2] = (byte)(val >> 16);
+    writeBuf[offset + 3] = (byte)(val >> 24);
+}
 
 //
 // send the data to controller
@@ -922,8 +877,8 @@ void BinaryData::pack9D(bool send)
 
     writeBuf[0] = 0x9d;
 
-    writeBuf[4] = 0x80;
-    writeBuf[5] = 0x01;
+    writeBuf[4] = 0x80; //unknown
+    writeBuf[5] = 0x01; //unknown
 
     if (send == true) {
         sendBinaryData();
@@ -936,7 +891,15 @@ void BinaryData::pack9E(byte value, bool send)
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0x9e;
-    writeBuf[5] = value;
+
+    if (value == 0x80) { // if settings
+        writeBuf[4] = value;
+    } else {
+        // bit mask for begin / end of moving
+        // 01 or 05 ? begin of moving
+        // 0x2: end of moving
+        writeBuf[5] = value;
+    }
 
     if (send == true) {
         sendBinaryData();
@@ -946,37 +909,41 @@ void BinaryData::pack9E(byte value, bool send)
 
 // settings
 // impulses per mm
-void BinaryData::pack9F(/*int _impX, int _impY, int _impZ, int _impA,*/ bool send)
+void BinaryData::pack9F( bool send)
 {
     cleanBuf(writeBuf);
     int _impX = coord[X].pulsePerMm;
-    int _impY = coord[Y].pulsePerMm; 
+    int _impY = coord[Y].pulsePerMm;
     int _impZ = coord[Z].pulsePerMm;
     int _impA = coord[A].pulsePerMm;
 
     writeBuf[0] = 0x9f;
     writeBuf[4] = 0x80; //TODO:unknown
-    writeBuf[5] = 0xb1;
+    writeBuf[5] = 0xb1; //TODO:unknown
 
-    writeBuf[6] = (byte)(_impX);
-    writeBuf[7] = (byte)(_impX >> 8);
-    writeBuf[8] = (byte)(_impX >> 16);
-    writeBuf[9] = (byte)(_impX >> 24);
+    packFourBytes(6, _impX);
+    //     writeBuf[6] = (byte)(_impX);
+    //     writeBuf[7] = (byte)(_impX >> 8);
+    //     writeBuf[8] = (byte)(_impX >> 16);
+    //     writeBuf[9] = (byte)(_impX >> 24);
 
-    writeBuf[10] = (byte)(_impY);
-    writeBuf[11] = (byte)(_impY >> 8);
-    writeBuf[12] = (byte)(_impY >> 16);
-    writeBuf[13] = (byte)(_impY >> 24);
+    packFourBytes(10, _impY);
+    //     writeBuf[10] = (byte)(_impY);
+    //     writeBuf[11] = (byte)(_impY >> 8);
+    //     writeBuf[12] = (byte)(_impY >> 16);
+    //     writeBuf[13] = (byte)(_impY >> 24);
 
-    writeBuf[14] = (byte)(_impZ);
-    writeBuf[15] = (byte)(_impZ >> 8);
-    writeBuf[16] = (byte)(_impZ >> 16);
-    writeBuf[17] = (byte)(_impZ >> 24);
+    packFourBytes(14, _impZ);
+    //     writeBuf[14] = (byte)(_impZ);
+    //     writeBuf[15] = (byte)(_impZ >> 8);
+    //     writeBuf[16] = (byte)(_impZ >> 16);
+    //     writeBuf[17] = (byte)(_impZ >> 24);
 
-    writeBuf[18] = (byte)(_impA);
-    writeBuf[19] = (byte)(_impA >> 8);
-    writeBuf[20] = (byte)(_impA >> 16);
-    writeBuf[21] = (byte)(_impA >> 24);
+    packFourBytes(18, _impA);
+    //     writeBuf[18] = (byte)(_impA);
+    //     writeBuf[19] = (byte)(_impA >> 8);
+    //     writeBuf[20] = (byte)(_impA >> 16);
+    //     writeBuf[21] = (byte)(_impA >> 24);
 
     if (send == true) {
         sendBinaryData();
@@ -985,7 +952,7 @@ void BinaryData::pack9F(/*int _impX, int _impY, int _impZ, int _impA,*/ bool sen
 
 
 // acceleration settings
-void BinaryData::packA0(/*float accelx, float accely, float accelz, float accela, int stepsMm, */bool send)
+void BinaryData::packA0(bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1000,10 +967,11 @@ void BinaryData::packA0(/*float accelx, float accely, float accelz, float accela
         AccelX = 4056 * coord[X].pulsePerMm / sqrt(coord[X].acceleration);
     }
 
-    writeBuf[6] = (byte)(AccelX);
-    writeBuf[7] = (byte)(AccelX >> 8);
-    writeBuf[8] = (byte)(AccelX >> 16);
-    writeBuf[9] = (byte)(AccelX >> 24);
+    packFourBytes(6, AccelX);
+    //     writeBuf[6] = (byte)(AccelX);
+    //     writeBuf[7] = (byte)(AccelX >> 8);
+    //     writeBuf[8] = (byte)(AccelX >> 16);
+    //     writeBuf[9] = (byte)(AccelX >> 24);
 
     int AccelY = 4056;
 
@@ -1011,10 +979,11 @@ void BinaryData::packA0(/*float accelx, float accely, float accelz, float accela
         AccelY = 4056 * coord[Y].pulsePerMm / sqrt(coord[Y].acceleration);
     }
 
-    writeBuf[10] = (byte)(AccelY);
-    writeBuf[11] = (byte)(AccelY >> 8);
-    writeBuf[12] = (byte)(AccelY >> 16);
-    writeBuf[13] = (byte)(AccelY >> 24);
+    packFourBytes(10, AccelY);
+    //     writeBuf[10] = (byte)(AccelY);
+    //     writeBuf[11] = (byte)(AccelY >> 8);
+    //     writeBuf[12] = (byte)(AccelY >> 16);
+    //     writeBuf[13] = (byte)(AccelY >> 24);
 
     int AccelZ = 4056;
 
@@ -1022,29 +991,36 @@ void BinaryData::packA0(/*float accelx, float accely, float accelz, float accela
         AccelZ = 4056 * coord[Z].pulsePerMm / sqrt(coord[Z].acceleration);
     }
 
-    writeBuf[14] = (byte)(AccelZ);
-    writeBuf[15] = (byte)(AccelZ >> 8);
-    writeBuf[16] = (byte)(AccelZ >> 16);
-    writeBuf[17] = (byte)(AccelZ >> 24);
+    packFourBytes(14, AccelZ);
+    //     writeBuf[14] = (byte)(AccelZ);
+    //     writeBuf[15] = (byte)(AccelZ >> 8);
+    //     writeBuf[16] = (byte)(AccelZ >> 16);
+    //     writeBuf[17] = (byte)(AccelZ >> 24);
 
-    int AccelA = 0;
+    int AccelA = 4056;
 
     if (coord[A].acceleration > 0) {
         AccelA = 4056 * coord[A].pulsePerMm / sqrt(coord[A].acceleration);
     }
 
-    writeBuf[18] = (byte)(AccelA);
-    writeBuf[19] = (byte)(AccelA >> 8);
-    writeBuf[20] = (byte)(AccelA >> 16);
-    writeBuf[21] = (byte)(AccelA >> 24);
+    packFourBytes(18, AccelA);
+    //     writeBuf[18] = (byte)(AccelA);
+    //     writeBuf[19] = (byte)(AccelA >> 8);
+    //     writeBuf[20] = (byte)(AccelA >> 16);
+    //     writeBuf[21] = (byte)(AccelA >> 24);
 
     writeBuf[42] = 0x60;// unknown byte
     writeBuf[43] = 0x09;// unknown byte
 
     writeBuf[46] = 0x08;// unknown byte
 
+    // reverse of axis.: 0xff no reverse, 0xfe axis x, 0xfd axis y, 0xfb axis z
     writeBuf[57] = 0xff;// unknown byte
     writeBuf[58] = 0x01;// unknown byte
+
+    // reverse motor steps, bitmask: 0 no inverting, 1 invert step X, 2 invert step Y, 4 invert step Z
+    writeBuf[59] = 0x00; //
+    writeBuf[60] = 0x00; //
 
     if (send == true) {
         sendBinaryData();
@@ -1061,7 +1037,9 @@ void BinaryData::packA1( bool send )
 
     writeBuf[4] = 0x80;
 
-    writeBuf[48] = 0xff;
+    // allow limits: bit 7 a+; bit 6 a-, bit 5 z+, bit 4 z-, bit 3 y+, bit 2 y-, bit 1 x+, bit 0 x-
+    writeBuf[42] = 0xff;
+    writeBuf[48] = 0xff; // unknown
 
     if (send == true) {
         sendBinaryData();
@@ -1158,19 +1136,17 @@ void BinaryData::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Sp
         }
     }
 
-    int itmp = SpeedShim;
-    writeBuf[10] = (byte)(itmp);
-    writeBuf[11] = (byte)(itmp >> 8);
-    writeBuf[12] = (byte)(itmp >> 16);
+//     int itmp = SpeedShim;
+    packFourBytes(10, SpeedShim);
+    //     writeBuf[10] = (byte)(itmp);
+    //     writeBuf[11] = (byte)(itmp >> 8);
+    //     writeBuf[12] = (byte)(itmp >> 16);
+    //      writeBuf[13] = (byte)(itmp >> 24);
 
 
     if (send == true) {
         sendBinaryData();
     }
-
-    //writeBuf[10] = 0xff;
-    //writeBuf[11] = 0xff;
-    //writeBuf[12] = 0x04;
 }
 
 
@@ -1180,6 +1156,13 @@ void BinaryData::packB6( bool send )
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xb6;
+
+    writeBuf[4] = 0x80;
+
+    writeBuf[5] = 0x01; //TODO:unknown
+    writeBuf[6] = 0x02; //TODO:unknown
+    writeBuf[7] = 0x01; //TODO:unknown
+    writeBuf[8] = 0x03; //TODO:unknown
 
     if (send == true) {
         sendBinaryData();
@@ -1209,9 +1192,11 @@ void BinaryData::packBE(byte direction, int speed, bool send)
     }
 
     //velocity
-    writeBuf[10] = (byte)(inewSpd);
-    writeBuf[11] = (byte)(inewSpd >> 8);
-    writeBuf[12] = (byte)(inewSpd >> 16);
+    packFourBytes(10, inewSpd);
+    /*    writeBuf[10] = (byte)(inewSpd);
+        writeBuf[11] = (byte)(inewSpd >> 8);
+        writeBuf[12] = (byte)(inewSpd >> 16);
+        writeBuf[13] = (byte)(inewSpd >> 24);  */
 
     if (send == true) {
         sendBinaryData();
@@ -1230,18 +1215,19 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
     writeBuf[0] = 0xbf;
     writeBuf[4] = 0x80; //TODO:unknown
 
-    float dnewSpdX  = 3600;
+    float dnewSpdX  = 3600; // 3584?
 
     if (speedLimitX != 0) {
         dnewSpdX = (3600 / (float)speedLimitX) * 1000;
     }
 
-    int inewSpdX = (int)dnewSpdX;
+//     int inewSpdX = (int)dnewSpdX;
 
-    writeBuf[7] = (byte)(inewSpdX);
-    writeBuf[8] = (byte)(inewSpdX >> 8);
-    writeBuf[9] = (byte)(inewSpdX >> 16);
-    writeBuf[10] = (byte)(inewSpdX >> 24);
+    packFourBytes(7, (int)dnewSpdX);
+    //     writeBuf[7] = (byte)(inewSpdX);
+    //     writeBuf[8] = (byte)(inewSpdX >> 8);
+    //     writeBuf[9] = (byte)(inewSpdX >> 16);
+    //     writeBuf[10] = (byte)(inewSpdX >> 24);
 
     float dnewSpdY = 3600;
 
@@ -1249,12 +1235,13 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
         dnewSpdY = (3600 / (float)speedLimitY) * 1000;
     }
 
-    int inewSpdY = (int)dnewSpdY;
+//     int inewSpdY = (int)dnewSpdY;
 
-    writeBuf[11] = (byte)(inewSpdY);
-    writeBuf[12] = (byte)(inewSpdY >> 8);
-    writeBuf[13] = (byte)(inewSpdY >> 16);
-    writeBuf[14] = (byte)(inewSpdY >> 24);
+    packFourBytes(11, (int)dnewSpdY);
+    //     writeBuf[11] = (byte)(inewSpdY);
+    //     writeBuf[12] = (byte)(inewSpdY >> 8);
+    //     writeBuf[13] = (byte)(inewSpdY >> 16);
+    //     writeBuf[14] = (byte)(inewSpdY >> 24);
 
     float dnewSpdZ = 3600;
 
@@ -1262,12 +1249,13 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
         dnewSpdZ = (3600 / (float)speedLimitZ) * 1000;
     }
 
-    int inewSpdZ = (int)dnewSpdZ;
+//     int inewSpdZ = (int)dnewSpdZ;
 
-    writeBuf[15] = (byte)(inewSpdZ);
-    writeBuf[16] = (byte)(inewSpdZ >> 8);
-    writeBuf[17] = (byte)(inewSpdZ >> 16);
-    writeBuf[18] = (byte)(inewSpdZ >> 24);
+    packFourBytes(15, (int)dnewSpdZ);
+    //     writeBuf[15] = (byte)(inewSpdZ);
+    //     writeBuf[16] = (byte)(inewSpdZ >> 8);
+    //     writeBuf[17] = (byte)(inewSpdZ >> 16);
+    //     writeBuf[18] = (byte)(inewSpdZ >> 24);
 
     float dnewSpdA = 3600;
 
@@ -1275,12 +1263,13 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
         dnewSpdA = (3600 / (float)speedLimitA) * 1000;
     }
 
-    int inewSpdA = (int)dnewSpdA;
+//     int inewSpdA = (int)dnewSpdA;
 
-    writeBuf[19] = (byte)(inewSpdA);
-    writeBuf[20] = (byte)(inewSpdA >> 8);
-    writeBuf[21] = (byte)(inewSpdA >> 16);
-    writeBuf[22] = (byte)(inewSpdA >> 24);
+    packFourBytes(19, (int)dnewSpdA);
+    //     writeBuf[19] = (byte)(inewSpdA);
+    //     writeBuf[20] = (byte)(inewSpdA >> 8);
+    //     writeBuf[21] = (byte)(inewSpdA >> 16);
+    //     writeBuf[22] = (byte)(inewSpdA >> 24);
 
     if (send == true) {
         sendBinaryData();
@@ -1306,7 +1295,6 @@ void BinaryData::packC0(byte byte05, bool send)
 }
 
 
-
 // unknown settings
 void BinaryData::packC2( bool send )
 {
@@ -1328,38 +1316,42 @@ void BinaryData::packC2( bool send )
 //
 void BinaryData::packC8(int x, int y, int z, int a, bool send)
 {
-    int newPosX = x;
-    int newPosY = y;
-    int newPosZ = z;
-    int newPosA = a;
+    //     int newPosX = x;
+    //     int newPosY = y;
+    //     int newPosZ = z;
+    //     int newPosA = a;
 
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xc8;
 
     //num of pulses
-    writeBuf[6] = (byte)(newPosX);
-    writeBuf[7] = (byte)(newPosX >> 8);
-    writeBuf[8] = (byte)(newPosX >> 16);
-    writeBuf[9] = (byte)(newPosX >> 24);
+    packFourBytes(6, x);
+    //     writeBuf[6] = (byte)(newPosX);
+    //     writeBuf[7] = (byte)(newPosX >> 8);
+    //     writeBuf[8] = (byte)(newPosX >> 16);
+    //     writeBuf[9] = (byte)(newPosX >> 24);
 
     //num of pulses
-    writeBuf[10] = (byte)(newPosY);
-    writeBuf[11] = (byte)(newPosY >> 8);
-    writeBuf[12] = (byte)(newPosY >> 16);
-    writeBuf[13] = (byte)(newPosY >> 24);
+    packFourBytes(10, y);
+    //     writeBuf[10] = (byte)(newPosY);
+    //     writeBuf[11] = (byte)(newPosY >> 8);
+    //     writeBuf[12] = (byte)(newPosY >> 16);
+    //     writeBuf[13] = (byte)(newPosY >> 24);
 
     //num of pulses
-    writeBuf[14] = (byte)(newPosZ);
-    writeBuf[15] = (byte)(newPosZ >> 8);
-    writeBuf[16] = (byte)(newPosZ >> 16);
-    writeBuf[17] = (byte)(newPosZ >> 24);
+    packFourBytes(14, z);
+    //     writeBuf[14] = (byte)(newPosZ);
+    //     writeBuf[15] = (byte)(newPosZ >> 8);
+    //     writeBuf[16] = (byte)(newPosZ >> 16);
+    //     writeBuf[17] = (byte)(newPosZ >> 24);
 
     //num of pulses
-    writeBuf[18] = (byte)(newPosA);
-    writeBuf[19] = (byte)(newPosA >> 8);
-    writeBuf[20] = (byte)(newPosA >> 16);
-    writeBuf[21] = (byte)(newPosA >> 24);
+    packFourBytes(18, a);
+    //     writeBuf[18] = (byte)(newPosA);
+    //     writeBuf[19] = (byte)(newPosA >> 8);
+    //     writeBuf[20] = (byte)(newPosA >> 16);
+    //     writeBuf[21] = (byte)(newPosA >> 24);
 
     if (send == true) {
         sendBinaryData();
@@ -1383,36 +1375,41 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
     writeBuf[0] = 0xca;
 
     //save the number instruction
-    writeBuf[1] = (byte)(newInst);
-    writeBuf[2] = (byte)(newInst >> 8);
-    writeBuf[3] = (byte)(newInst >> 16);
-    writeBuf[4] = (byte)(newInst >> 24);
+    packFourBytes(1, newInst);
+    //     writeBuf[1] = (byte)(newInst);
+    //     writeBuf[2] = (byte)(newInst >> 8);
+    //     writeBuf[3] = (byte)(newInst >> 16);
+    //     writeBuf[4] = (byte)(newInst >> 24);
 
-    writeBuf[5] = 0x39; //TODO: unnknown byte
-
-    //how many pulses
-    writeBuf[6] = (byte)(newPosX);
-    writeBuf[7] = (byte)(newPosX >> 8);
-    writeBuf[8] = (byte)(newPosX >> 16);
-    writeBuf[9] = (byte)(newPosX >> 24);
+    writeBuf[5] = 0x39; //TODO: unnknown byte delay in µs?
 
     //how many pulses
-    writeBuf[10] = (byte)(newPosY);
-    writeBuf[11] = (byte)(newPosY >> 8);
-    writeBuf[12] = (byte)(newPosY >> 16);
-    writeBuf[13] = (byte)(newPosY >> 24);
+    packFourBytes(6, newPosX);
+    //     writeBuf[6] = (byte)(newPosX);
+    //     writeBuf[7] = (byte)(newPosX >> 8);
+    //     writeBuf[8] = (byte)(newPosX >> 16);
+    //     writeBuf[9] = (byte)(newPosX >> 24);
 
     //how many pulses
-    writeBuf[14] = (byte)(newPosZ);
-    writeBuf[15] = (byte)(newPosZ >> 8);
-    writeBuf[16] = (byte)(newPosZ >> 16);
-    writeBuf[17] = (byte)(newPosZ >> 24);
+    packFourBytes(10, newPosY);
+    //     writeBuf[10] = (byte)(newPosY);
+    //     writeBuf[11] = (byte)(newPosY >> 8);
+    //     writeBuf[12] = (byte)(newPosY >> 16);
+    //     writeBuf[13] = (byte)(newPosY >> 24);
 
     //how many pulses
-    writeBuf[18] = (byte)(newPosA);
-    writeBuf[19] = (byte)(newPosA >> 8);
-    writeBuf[20] = (byte)(newPosA >> 16);
-    writeBuf[21] = (byte)(newPosA >> 24);
+    packFourBytes(14, newPosZ);
+    //     writeBuf[14] = (byte)(newPosZ);
+    //     writeBuf[15] = (byte)(newPosZ >> 8);
+    //     writeBuf[16] = (byte)(newPosZ >> 16);
+    //     writeBuf[17] = (byte)(newPosZ >> 24);
+
+    //how many pulses
+    packFourBytes(18, newPosA);
+    //     writeBuf[18] = (byte)(newPosA);
+    //     writeBuf[19] = (byte)(newPosA >> 8);
+    //     writeBuf[20] = (byte)(newPosA >> 16);
+    //     writeBuf[21] = (byte)(newPosA >> 24);
 
     int inewSpd = 2328; //TODO: default velocity
 
@@ -1422,9 +1419,10 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
     }
 
     //axes xspeed
-    writeBuf[43] = (byte)(inewSpd);
-    writeBuf[44] = (byte)(inewSpd >> 8);
-    writeBuf[45] = (byte)(inewSpd >> 16);
+    packFourBytes(43, inewSpd);
+    //     writeBuf[43] = (byte)(inewSpd);
+    //     writeBuf[44] = (byte)(inewSpd >> 8);
+    //     writeBuf[45] = (byte)(inewSpd >> 16);
 
     writeBuf[54] = 0x40;  //TODO: unknown byte
 
@@ -1437,7 +1435,7 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
 //
 // check length of tool
 //
-void BinaryData::packD2(int speed, float returnDistance, float PulsePerMmZ, bool send)
+void BinaryData::packD2(int speed, float returnDistance, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1451,21 +1449,23 @@ void BinaryData::packD2(int speed, float returnDistance, float PulsePerMmZ, bool
     }
 
     //velocity
-    writeBuf[43] = (byte)(inewSpd);
-    writeBuf[44] = (byte)(inewSpd >> 8);
-    writeBuf[45] = (byte)(inewSpd >> 16);
+    packFourBytes(43, inewSpd);
+    //     writeBuf[43] = (byte)(inewSpd);
+    //     writeBuf[44] = (byte)(inewSpd >> 8);
+    //     writeBuf[45] = (byte)(inewSpd >> 16);
 
 
     //unknown
     writeBuf[46] = 0x10;
 
     //
-    int inewReturn = (int)(returnDistance * (float)PulsePerMmZ);
+    int inewReturn = (int)(returnDistance * (float)coord[Z].pulsePerMm);
 
     //return to position
-    writeBuf[50] = (byte)(inewReturn);
-    writeBuf[51] = (byte)(inewReturn >> 8);
-    writeBuf[52] = (byte)(inewReturn >> 16);
+    packFourBytes(50, inewReturn);
+    //     writeBuf[50] = (byte)(inewReturn);
+    //     writeBuf[51] = (byte)(inewReturn >> 8);
+    //     writeBuf[52] = (byte)(inewReturn >> 16);
 
     //unknown
     writeBuf[55] = 0x12;

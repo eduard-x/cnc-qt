@@ -360,7 +360,7 @@ void ScanSurfaceDialog::onTestScan()
 
     cnc->packC0(0x01);  // on
 
-    cnc->packD2((int)numSpeed->value(), (float)numReturn->value(), cnc->coord[Z].pulsePerMm);      // settings of movement and velocity
+    cnc->packD2((int)numSpeed->value(), (float)numReturn->value());      // settings of movement and velocity
 
     cnc->packC0(0x00); // off
 }
@@ -452,7 +452,7 @@ void ScanThread::run()
     // опустим щуп
     cnc->packC0(0x01); // on
 
-    cnc->packD2((int)sParent->numSpeed->value(), 0, cnc->coord[Z].pulsePerMm);// settings of movement and velocity
+    cnc->packD2((int)sParent->numSpeed->value(), 0);// settings of movement and velocity
 
     cnc->packC0(0x00); // off
 
@@ -469,7 +469,7 @@ void ScanThread::run()
 
     cnc->packC0(0x01); // on
 
-    cnc->packD2((int)sParent->numSpeed->value(), (float)sParent->numReturn->value(), cnc->coord[Z].pulsePerMm); // settings of movement and velocity
+    cnc->packD2((int)sParent->numSpeed->value(), (float)sParent->numReturn->value()); // settings of movement and velocity
 
     cnc->packC0(0x00); // off
 

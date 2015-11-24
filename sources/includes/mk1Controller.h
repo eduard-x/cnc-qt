@@ -112,44 +112,6 @@ class mk1Settings
 
         axis coord[4]; // array of 4 axis for mk1
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2
-#if 0
-        // current position, impulses
-        static int PositionPulseX;
-        static int PositionPulseY;
-        static int PositionPulseZ;
-        static int PositionPulseA;
-
-        static int PulsePerMmX;
-        static int PulsePerMmY;
-        static int PulsePerMmZ;
-        static int PulsePerMmA;
-
-        float StartVeloX;
-        float StartVeloY;
-        float StartVeloZ;
-        float StartVeloA;
-
-        float EndVeloX;
-        float EndVeloY;
-        float EndVeloZ;
-        float EndVeloA;
-
-        float AccelerationX;
-        float AccelerationY;
-        float AccelerationZ;
-        float AccelerationA;
-
-        // limit sensors
-        static bool LimitMaxX;
-        static bool LimitMinX;
-        static bool LimitMaxY;
-        static bool LimitMinY;
-        static bool LimitMaxZ;
-        static bool LimitMinZ;
-        static bool LimitMaxA;
-        static bool LimitMinA;
-#endif
-        // speed settings
 
         static int spindle_MoveSpeed;
         static bool spindle_Enable;
@@ -158,20 +120,6 @@ class mk1Settings
 
         // for virtual controller
         static bool DEMO_DEVICE;
-
-    public: // methods
-        //         static float PositionXmm();
-        //         static float PositionYmm();
-        //         static float PositionZmm();
-        //         static float PositionAmm();
-
-        //
-        // calculation of pulse number
-        //
-        // axes: "X", "Y" , "Z" or "A"
-        // posMm: position in mm
-        // return: pulses number
-        //         static int CalcPosPulse(QString axes, float posMm);
 };
 
 
@@ -185,30 +133,32 @@ class BinaryData : public mk1Settings
             RC
         };
 
-
+    public:
         void packC0(byte byte05 = 0x0, bool send = true);
         void packB5(bool spindleON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 0, bool send = true);
         void packAA(bool send = true);
-        void packA0(/*float accelx, float accely, float accelz, float accela, int stepsMm,*/ bool send = true);
+        void packA0( bool send = true);
         void packA1( bool send = true);
         void packC8(int x, int y, int z, int a, bool send = true);
         void packD3( bool send = true);
         void packC2( bool send = true);
         void packB6( bool send = true);
         void packAB( bool send = true);
-        void packD2(int speed, float returnDistance, float PulsePerMmZ, bool send = true);
+        void packD2(int speed, float returnDistance, bool send = true);
         void packBE(byte direction, int speed, bool send = true);
         void pack9E(byte value, bool send = true);
-        void pack9F(/*int impX, int impY, int impZ, int impA,*/ bool send = true);
+        void pack9F( bool send = true);
         void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
         void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send = true);
         void packFF(bool send = true);
         void pack9D(bool send = true);
-
-        void setByte(short offset, byte data);
-        byte getByte(short offset);
-        void cleanBuf(byte *m);
+        void setByte(byte offset, byte data);
+        byte getByte(byte offset);
         void sendBinaryData(bool checkBuffSize = true);
+
+    private:
+        static void packFourBytes(byte offset, int val);
+        static void cleanBuf(byte *m);
 
     public:
         static libusb_device_handle *handle;
@@ -291,6 +241,7 @@ class mk1Controller : public QObject, public BinaryData
 
         void loadSettings();
         void saveSettings();
+        void sendSettings();
 
         //         int  getConfiguration();
         bool testAllowActions();
@@ -308,7 +259,7 @@ class mk1Controller : public QObject, public BinaryData
 
         Q_DISABLE_COPY(mk1Controller);
 
-    private slots:
+        //     private slots:
         //         void threadsStart();
         //         void threadFinished();
         //         void processReadBytes(const QByteArray &bytes);
