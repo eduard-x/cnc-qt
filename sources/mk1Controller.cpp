@@ -693,11 +693,6 @@ void mk1Controller::startManualMove(QString x, QString y, QString z, QString a, 
         return;
     }
 
-    //if (!IsFreeToTask)
-    //{
-    //    return;
-    //}
-
     byte axesDirection = 0x00; // = new SuperByte(0x00);
 
     // set the bits
@@ -733,10 +728,7 @@ void mk1Controller::startManualMove(QString x, QString y, QString z, QString a, 
         axesDirection |= (1 << 7);
     }
 
-    //DataClear();
-    //DataAdd(BinaryData.packBE(axesDirection.valueByte, speed));
     packBE(axesDirection, speed);
-    //Task_Start();
 }
 
 
@@ -746,11 +738,8 @@ void mk1Controller::stopManualMove()
         return;
     }
 
-    //     QByteArray buff = BinaryData.packBE(0x00, 0);
-
     packBE(0x00, 0, false);
-    setByte(22, 0x01);
-    //TODO: unknown
+    setByte(22, 0x01); //TODO: unknown
     //     buff[22] = 0x01;
 
     //DataClear();
@@ -922,28 +911,9 @@ void BinaryData::pack9F( bool send)
     writeBuf[5] = 0xb1; //TODO:unknown
 
     packFourBytes(6, _impX);
-    //     writeBuf[6] = (byte)(_impX);
-    //     writeBuf[7] = (byte)(_impX >> 8);
-    //     writeBuf[8] = (byte)(_impX >> 16);
-    //     writeBuf[9] = (byte)(_impX >> 24);
-
     packFourBytes(10, _impY);
-    //     writeBuf[10] = (byte)(_impY);
-    //     writeBuf[11] = (byte)(_impY >> 8);
-    //     writeBuf[12] = (byte)(_impY >> 16);
-    //     writeBuf[13] = (byte)(_impY >> 24);
-
     packFourBytes(14, _impZ);
-    //     writeBuf[14] = (byte)(_impZ);
-    //     writeBuf[15] = (byte)(_impZ >> 8);
-    //     writeBuf[16] = (byte)(_impZ >> 16);
-    //     writeBuf[17] = (byte)(_impZ >> 24);
-
     packFourBytes(18, _impA);
-    //     writeBuf[18] = (byte)(_impA);
-    //     writeBuf[19] = (byte)(_impA >> 8);
-    //     writeBuf[20] = (byte)(_impA >> 16);
-    //     writeBuf[21] = (byte)(_impA >> 24);
 
     if (send == true) {
         sendBinaryData();
@@ -962,52 +932,32 @@ void BinaryData::packA0(bool send)
     writeBuf[5] = 0x12;
 
     int AccelX = 4056;
-
     if (coord[X].acceleration > 0) {
         AccelX = 4056 * coord[X].pulsePerMm / sqrt(coord[X].acceleration);
     }
 
     packFourBytes(6, AccelX);
-    //     writeBuf[6] = (byte)(AccelX);
-    //     writeBuf[7] = (byte)(AccelX >> 8);
-    //     writeBuf[8] = (byte)(AccelX >> 16);
-    //     writeBuf[9] = (byte)(AccelX >> 24);
 
     int AccelY = 4056;
-
     if (coord[Y].acceleration > 0) {
         AccelY = 4056 * coord[Y].pulsePerMm / sqrt(coord[Y].acceleration);
     }
 
     packFourBytes(10, AccelY);
-    //     writeBuf[10] = (byte)(AccelY);
-    //     writeBuf[11] = (byte)(AccelY >> 8);
-    //     writeBuf[12] = (byte)(AccelY >> 16);
-    //     writeBuf[13] = (byte)(AccelY >> 24);
 
     int AccelZ = 4056;
-
     if (coord[Z].acceleration > 0) {
         AccelZ = 4056 * coord[Z].pulsePerMm / sqrt(coord[Z].acceleration);
     }
 
     packFourBytes(14, AccelZ);
-    //     writeBuf[14] = (byte)(AccelZ);
-    //     writeBuf[15] = (byte)(AccelZ >> 8);
-    //     writeBuf[16] = (byte)(AccelZ >> 16);
-    //     writeBuf[17] = (byte)(AccelZ >> 24);
 
     int AccelA = 4056;
-
     if (coord[A].acceleration > 0) {
         AccelA = 4056 * coord[A].pulsePerMm / sqrt(coord[A].acceleration);
     }
 
     packFourBytes(18, AccelA);
-    //     writeBuf[18] = (byte)(AccelA);
-    //     writeBuf[19] = (byte)(AccelA >> 8);
-    //     writeBuf[20] = (byte)(AccelA >> 16);
-    //     writeBuf[21] = (byte)(AccelA >> 24);
 
     writeBuf[42] = 0x60;// unknown byte
     writeBuf[43] = 0x09;// unknown byte
@@ -1136,13 +1086,7 @@ void BinaryData::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Sp
         }
     }
 
-//     int itmp = SpeedShim;
     packFourBytes(10, SpeedShim);
-    //     writeBuf[10] = (byte)(itmp);
-    //     writeBuf[11] = (byte)(itmp >> 8);
-    //     writeBuf[12] = (byte)(itmp >> 16);
-    //      writeBuf[13] = (byte)(itmp >> 24);
-
 
     if (send == true) {
         sendBinaryData();
@@ -1193,10 +1137,6 @@ void BinaryData::packBE(byte direction, int speed, bool send)
 
     //velocity
     packFourBytes(10, inewSpd);
-    /*    writeBuf[10] = (byte)(inewSpd);
-        writeBuf[11] = (byte)(inewSpd >> 8);
-        writeBuf[12] = (byte)(inewSpd >> 16);
-        writeBuf[13] = (byte)(inewSpd >> 24);  */
 
     if (send == true) {
         sendBinaryData();
@@ -1221,13 +1161,7 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
         dnewSpdX = (3600 / (float)speedLimitX) * 1000;
     }
 
-//     int inewSpdX = (int)dnewSpdX;
-
     packFourBytes(7, (int)dnewSpdX);
-    //     writeBuf[7] = (byte)(inewSpdX);
-    //     writeBuf[8] = (byte)(inewSpdX >> 8);
-    //     writeBuf[9] = (byte)(inewSpdX >> 16);
-    //     writeBuf[10] = (byte)(inewSpdX >> 24);
 
     float dnewSpdY = 3600;
 
@@ -1235,13 +1169,7 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
         dnewSpdY = (3600 / (float)speedLimitY) * 1000;
     }
 
-//     int inewSpdY = (int)dnewSpdY;
-
     packFourBytes(11, (int)dnewSpdY);
-    //     writeBuf[11] = (byte)(inewSpdY);
-    //     writeBuf[12] = (byte)(inewSpdY >> 8);
-    //     writeBuf[13] = (byte)(inewSpdY >> 16);
-    //     writeBuf[14] = (byte)(inewSpdY >> 24);
 
     float dnewSpdZ = 3600;
 
@@ -1249,13 +1177,7 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
         dnewSpdZ = (3600 / (float)speedLimitZ) * 1000;
     }
 
-//     int inewSpdZ = (int)dnewSpdZ;
-
     packFourBytes(15, (int)dnewSpdZ);
-    //     writeBuf[15] = (byte)(inewSpdZ);
-    //     writeBuf[16] = (byte)(inewSpdZ >> 8);
-    //     writeBuf[17] = (byte)(inewSpdZ >> 16);
-    //     writeBuf[18] = (byte)(inewSpdZ >> 24);
 
     float dnewSpdA = 3600;
 
@@ -1263,13 +1185,7 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
         dnewSpdA = (3600 / (float)speedLimitA) * 1000;
     }
 
-//     int inewSpdA = (int)dnewSpdA;
-
     packFourBytes(19, (int)dnewSpdA);
-    //     writeBuf[19] = (byte)(inewSpdA);
-    //     writeBuf[20] = (byte)(inewSpdA >> 8);
-    //     writeBuf[21] = (byte)(inewSpdA >> 16);
-    //     writeBuf[22] = (byte)(inewSpdA >> 24);
 
     if (send == true) {
         sendBinaryData();
@@ -1316,42 +1232,15 @@ void BinaryData::packC2( bool send )
 //
 void BinaryData::packC8(int x, int y, int z, int a, bool send)
 {
-    //     int newPosX = x;
-    //     int newPosY = y;
-    //     int newPosZ = z;
-    //     int newPosA = a;
-
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xc8;
 
     //num of pulses
     packFourBytes(6, x);
-    //     writeBuf[6] = (byte)(newPosX);
-    //     writeBuf[7] = (byte)(newPosX >> 8);
-    //     writeBuf[8] = (byte)(newPosX >> 16);
-    //     writeBuf[9] = (byte)(newPosX >> 24);
-
-    //num of pulses
     packFourBytes(10, y);
-    //     writeBuf[10] = (byte)(newPosY);
-    //     writeBuf[11] = (byte)(newPosY >> 8);
-    //     writeBuf[12] = (byte)(newPosY >> 16);
-    //     writeBuf[13] = (byte)(newPosY >> 24);
-
-    //num of pulses
     packFourBytes(14, z);
-    //     writeBuf[14] = (byte)(newPosZ);
-    //     writeBuf[15] = (byte)(newPosZ >> 8);
-    //     writeBuf[16] = (byte)(newPosZ >> 16);
-    //     writeBuf[17] = (byte)(newPosZ >> 24);
-
-    //num of pulses
     packFourBytes(18, a);
-    //     writeBuf[18] = (byte)(newPosA);
-    //     writeBuf[19] = (byte)(newPosA >> 8);
-    //     writeBuf[20] = (byte)(newPosA >> 16);
-    //     writeBuf[21] = (byte)(newPosA >> 24);
 
     if (send == true) {
         sendBinaryData();
@@ -1376,40 +1265,14 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
 
     //save the number instruction
     packFourBytes(1, newInst);
-    //     writeBuf[1] = (byte)(newInst);
-    //     writeBuf[2] = (byte)(newInst >> 8);
-    //     writeBuf[3] = (byte)(newInst >> 16);
-    //     writeBuf[4] = (byte)(newInst >> 24);
 
     writeBuf[5] = 0x39; //TODO: unnknown byte delay in µs?
 
     //how many pulses
     packFourBytes(6, newPosX);
-    //     writeBuf[6] = (byte)(newPosX);
-    //     writeBuf[7] = (byte)(newPosX >> 8);
-    //     writeBuf[8] = (byte)(newPosX >> 16);
-    //     writeBuf[9] = (byte)(newPosX >> 24);
-
-    //how many pulses
     packFourBytes(10, newPosY);
-    //     writeBuf[10] = (byte)(newPosY);
-    //     writeBuf[11] = (byte)(newPosY >> 8);
-    //     writeBuf[12] = (byte)(newPosY >> 16);
-    //     writeBuf[13] = (byte)(newPosY >> 24);
-
-    //how many pulses
     packFourBytes(14, newPosZ);
-    //     writeBuf[14] = (byte)(newPosZ);
-    //     writeBuf[15] = (byte)(newPosZ >> 8);
-    //     writeBuf[16] = (byte)(newPosZ >> 16);
-    //     writeBuf[17] = (byte)(newPosZ >> 24);
-
-    //how many pulses
     packFourBytes(18, newPosA);
-    //     writeBuf[18] = (byte)(newPosA);
-    //     writeBuf[19] = (byte)(newPosA >> 8);
-    //     writeBuf[20] = (byte)(newPosA >> 16);
-    //     writeBuf[21] = (byte)(newPosA >> 24);
 
     int inewSpd = 2328; //TODO: default velocity
 
@@ -1420,9 +1283,6 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
 
     //axes xspeed
     packFourBytes(43, inewSpd);
-    //     writeBuf[43] = (byte)(inewSpd);
-    //     writeBuf[44] = (byte)(inewSpd >> 8);
-    //     writeBuf[45] = (byte)(inewSpd >> 16);
 
     writeBuf[54] = 0x40;  //TODO: unknown byte
 
@@ -1450,10 +1310,6 @@ void BinaryData::packD2(int speed, float returnDistance, bool send)
 
     //velocity
     packFourBytes(43, inewSpd);
-    //     writeBuf[43] = (byte)(inewSpd);
-    //     writeBuf[44] = (byte)(inewSpd >> 8);
-    //     writeBuf[45] = (byte)(inewSpd >> 16);
-
 
     //unknown
     writeBuf[46] = 0x10;
@@ -1463,9 +1319,6 @@ void BinaryData::packD2(int speed, float returnDistance, bool send)
 
     //return to position
     packFourBytes(50, inewReturn);
-    //     writeBuf[50] = (byte)(inewReturn);
-    //     writeBuf[51] = (byte)(inewReturn >> 8);
-    //     writeBuf[52] = (byte)(inewReturn >> 16);
 
     //unknown
     writeBuf[55] = 0x12;
@@ -1475,7 +1328,6 @@ void BinaryData::packD2(int speed, float returnDistance, bool send)
         sendBinaryData();
     }
 }
-
 
 
 // unknown settings
@@ -1490,7 +1342,6 @@ void BinaryData::packD3( bool send )
         sendBinaryData();
     }
 }
-
 
 
 //
