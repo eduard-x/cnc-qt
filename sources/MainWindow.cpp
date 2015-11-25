@@ -1181,7 +1181,7 @@ bool MainWindow::runCommand()
 
         cnc->packFF();
 
-        cnc->pack9D();
+        cnc->pack9D(0x00);
 
         cnc->pack9E(0x02);
 
@@ -1381,7 +1381,7 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
     cnc->packFF();
 
-    cnc->pack9D();
+    cnc->pack9D(0x00);
 
     cnc->pack9E(0x02);
 

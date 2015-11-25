@@ -151,7 +151,7 @@ class BinaryData : public mk1Settings
         void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
         void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send = true);
         void packFF(bool send = true);
-        void pack9D(bool send = true);
+        void pack9D(byte value, bool send = true);
         void setByte(byte offset, byte data);
         byte getByte(byte offset);
         void sendBinaryData(bool checkBuffSize = true);
@@ -203,7 +203,7 @@ class mk1Controller : public QObject, public BinaryData
     private:
         int count;
         bool devConnected;
-        QStringList coordList;
+        QStringList axisList;
 
         static libusb_hotplug_callback_handle hotplug[2];
 

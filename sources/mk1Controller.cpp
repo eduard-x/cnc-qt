@@ -93,15 +93,8 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
 {
 
     int rc;
-    //     QString descrStr;
-    //
-    //     //     struct libusb_device_descriptor desc;
-
-    //     mk1Controller::getDeviceInfo(dev);
 
     qDebug() << "Device to attache" << mk1Controller::handle;
-
-    //     qDebug() << QString("Device attached: %1:%2").arg(desc.idVendor).arg(desc.idProduct);
 
     if (mk1Controller::handle) {
         libusb_close (mk1Controller::handle);
@@ -155,17 +148,6 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
         qDebug() << "Claimed Interface";
     }
 
-
-    //     libusb_claim_interface (mk1Controller::handle, 0);
-
-    // open read endpoint 1.
-    //     mk1Controller::usbReader = _myUsbDevice.OpenEndpointReader(ReadEndpointID.Ep01);
-
-    // open write endpoint 1.
-    //     mk1Controller::usbWriter = _myUsbDevice.OpenEndpointWriter(WriteEndpointID.Ep01);
-
-    //     emit mk1Controller::wasConnected();
-
     qDebug() << "Device attached" << mk1Controller::handle;
 
     return 0;
@@ -201,7 +183,7 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
     handle = NULL;
 
-    coordList << "X" << "Y" << "Z" << "A";
+    axisList << "X" << "Y" << "Z" << "A";
 
     devConnected = false;
 
@@ -310,6 +292,8 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
             }
 
             getDeviceInfo();
+            
+            pack9D(0x00); // to get actual info from device
         }
     }
 
@@ -436,6 +420,8 @@ void mk1Controller::handleHotplug()
             connect(readThread, SIGNAL(readEvent()), this, SLOT(readNewData()));
 
             readThread->start();
+            
+            pack9D(0x00); // to get tha actual info from device
         }
 
         devConnected = true;
@@ -465,8 +451,8 @@ void mk1Controller::loadSettings()
 
     settingsFile->beginGroup("mk1");
 
-    for (int c = 0; c < coordList.count(); c++) {
-        int i = settingsFile->value("Pulse" + coordList.at(c), 400).toInt( &res);
+    for (int c = 0; c < axisList.count(); c++) {
+        int i = settingsFile->value("Pulse" + axisList.at(c), 400).toInt( &res);
 
         if (res == true) {
             coord[c].pulsePerMm = i;
@@ -474,24 +460,24 @@ void mk1Controller::loadSettings()
     }
 
 
-    for (int c = 0; c < coordList.count(); c++) {
-        float f = settingsFile->value("Accel" + coordList.at(c), 15).toFloat( &res);
+    for (int c = 0; c < axisList.count(); c++) {
+        float f = settingsFile->value("Accel" + axisList.at(c), 15).toFloat( &res);
 
         if (res == true) {
             coord[c].acceleration = f;
         }
     }
 
-    for (int c = 0; c < coordList.count(); c++) {
-        float f = settingsFile->value("StartVelo" + coordList.at(c), 0).toFloat( &res);
+    for (int c = 0; c < axisList.count(); c++) {
+        float f = settingsFile->value("StartVelo" + axisList.at(c), 0).toFloat( &res);
 
         if (res == true) {
             coord[c].minVelo = f;
         }
     }
 
-    for (int c = 0; c < coordList.count(); c++) {
-        float f = settingsFile->value("EndVelo" + coordList.at(c), 400).toFloat( &res);
+    for (int c = 0; c < axisList.count(); c++) {
+        float f = settingsFile->value("EndVelo" + axisList.at(c), 400).toFloat( &res);
 
         if (res == true) {
             coord[c].maxVelo = f;
@@ -508,20 +494,20 @@ void mk1Controller::saveSettings()
 {
     settingsFile->beginGroup("mk1");
 
-    for (int c = 0; c < coordList.count(); c++) {
-        settingsFile->setValue("Pulse" + coordList.at(c), coord[c].pulsePerMm);
+    for (int c = 0; c < axisList.count(); c++) {
+        settingsFile->setValue("Pulse" + axisList.at(c), coord[c].pulsePerMm);
     }
 
-    for (int c = 0; c < coordList.count(); c++) {
-        settingsFile->setValue("Accel" + coordList.at(c), (double)coord[c].acceleration);
+    for (int c = 0; c < axisList.count(); c++) {
+        settingsFile->setValue("Accel" + axisList.at(c), (double)coord[c].acceleration);
     }
 
-    for (int c = 0; c < coordList.count(); c++) {
-        settingsFile->setValue("StartVelo" + coordList.at(c), (double)coord[c].minVelo);
+    for (int c = 0; c < axisList.count(); c++) {
+        settingsFile->setValue("StartVelo" + axisList.at(c), (double)coord[c].minVelo);
     }
 
-    for (int c = 0; c < coordList.count(); c++) {
-        settingsFile->setValue("EndVelo" + coordList.at(c), (double)coord[c].maxVelo);
+    for (int c = 0; c < axisList.count(); c++) {
+        settingsFile->setValue("EndVelo" + axisList.at(c), (double)coord[c].maxVelo);
     }
 
     settingsFile->endGroup();
@@ -550,7 +536,7 @@ void mk1Controller::sendSettings()
     packB6(); // unknown
 
     packC2(); // unknown
-    pack9D();
+    pack9D(0x80);
 
     pack9E(0x80);
 }
@@ -628,15 +614,18 @@ void mk1Controller::parseBinaryInfo()
     coord[X].actualPosPulses = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
     coord[Y].actualPosPulses = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
     coord[Z].actualPosPulses = ((readBuf[35] << 24) + (readBuf[34] << 16) + (readBuf[33] << 8) + (readBuf[32]));
+    coord[A].actualPosPulses = ((readBuf[39] << 24) + (readBuf[38] << 16) + (readBuf[37] << 8) + (readBuf[36]));
+    
+    byte bb15 = readBuf[15];
 
-    coord[X].limitMax = (readBuf[15] & (1 << 0)) != 0;
-    coord[X].limitMax = (readBuf[15] & (1 << 1)) != 0;
-    coord[Y].limitMax = (readBuf[15] & (1 << 2)) != 0;
-    coord[Y].limitMax = (readBuf[15] & (1 << 3)) != 0;
-    coord[Z].limitMax = (readBuf[15] & (1 << 4)) != 0;
-    coord[Z].limitMax = (readBuf[15] & (1 << 5)) != 0;
-    coord[A].limitMax = (readBuf[15] & (1 << 6)) != 0;
-    coord[A].limitMax = (readBuf[15] & (1 << 7)) != 0;
+    coord[X].limitMax = (bb15 & (1 << 0)) != 0;
+    coord[X].limitMax = (bb15 & (1 << 1)) != 0;
+    coord[Y].limitMax = (bb15 & (1 << 2)) != 0;
+    coord[Y].limitMax = (bb15 & (1 << 3)) != 0;
+    coord[Z].limitMax = (bb15 & (1 << 4)) != 0;
+    coord[Z].limitMax = (bb15 & (1 << 5)) != 0;
+    coord[A].limitMax = (bb15 & (1 << 6)) != 0;
+    coord[A].limitMax = (bb15 & (1 << 7)) != 0;
 
     NumberCompleatedInstruction = ((readBuf[9] << 24) + (readBuf[8] << 16) + (readBuf[7] << 8) + (readBuf[6]));
 
@@ -859,15 +848,17 @@ void BinaryData::sendBinaryData(bool checkBuffSize)
 
 //
 // UNKNOWN COMMAND
-//
-void BinaryData::pack9D(bool send)
+// value = 0x80 settings
+void BinaryData::pack9D(byte value, bool send)
 {
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0x9d;
 
-    writeBuf[4] = 0x80; //unknown
-    writeBuf[5] = 0x01; //unknown
+    if (value == 0x80){
+        writeBuf[4] = 0x80; //unknown
+        writeBuf[5] = 0x01; //unknown
+    }
 
     if (send == true) {
         sendBinaryData();
@@ -901,19 +892,15 @@ void BinaryData::pack9E(byte value, bool send)
 void BinaryData::pack9F( bool send)
 {
     cleanBuf(writeBuf);
-    int _impX = coord[X].pulsePerMm;
-    int _impY = coord[Y].pulsePerMm;
-    int _impZ = coord[Z].pulsePerMm;
-    int _impA = coord[A].pulsePerMm;
 
     writeBuf[0] = 0x9f;
     writeBuf[4] = 0x80; //TODO:unknown
     writeBuf[5] = 0xb1; //TODO:unknown
 
-    packFourBytes(6, _impX);
-    packFourBytes(10, _impY);
-    packFourBytes(14, _impZ);
-    packFourBytes(18, _impA);
+    packFourBytes(6, coord[X].pulsePerMm);
+    packFourBytes(10, coord[Y].pulsePerMm);
+    packFourBytes(14, coord[Z].pulsePerMm);
+    packFourBytes(18, coord[A].pulsePerMm);
 
     if (send == true) {
         sendBinaryData();
@@ -1253,10 +1240,10 @@ void BinaryData::packC8(int x, int y, int z, int a, bool send)
 //
 void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send)
 {
-    int newPosX = _posX;
-    int newPosY = _posY;
-    int newPosZ = _posZ;
-    int newPosA = _posA;
+//     int newPosX = _posX;
+//     int newPosY = _posY;
+//     int newPosZ = _posZ;
+//     int newPosA = _posA;
     int newInst = _NumberInstruction;
 
     cleanBuf(writeBuf);
@@ -1266,13 +1253,13 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
     //save the number instruction
     packFourBytes(1, newInst);
 
-    writeBuf[5] = 0x39; //TODO: unnknown byte delay in µs?
+    writeBuf[5] = 0x39; //TODO: unnknown byte delay in µs? was 0x39
 
     //how many pulses
-    packFourBytes(6, newPosX);
-    packFourBytes(10, newPosY);
-    packFourBytes(14, newPosZ);
-    packFourBytes(18, newPosA);
+    packFourBytes(6, _posX);
+    packFourBytes(10, _posY);
+    packFourBytes(14, _posZ);
+    packFourBytes(18, _posA);
 
     int inewSpd = 2328; //TODO: default velocity
 
