@@ -124,7 +124,7 @@ class mk1Settings
 
 
 // class for communication with device
-class BinaryData : public mk1Settings
+class mk1Data : public mk1Settings
 {
     public:
         enum TypeSignal {
@@ -177,7 +177,7 @@ enum EStatusDevice { Connect = 0, Disconnect };
 class usbReadThread;
 
 
-class mk1Controller : public QObject, public BinaryData
+class mk1Controller : public QObject, public mk1Data
 {
         Q_OBJECT
 

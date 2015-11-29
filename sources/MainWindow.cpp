@@ -388,6 +388,9 @@ void MainWindow::addConnections()
     connect(actionAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
     connect(actionAboutQt, SIGNAL(triggered()), this, SLOT(onAboutQt()));
 
+    connect(pushCopyPos, SIGNAL(clicked()), this, SLOT(onCopyPos()));
+    connect(pushSetHome, SIGNAL(clicked()), this, SLOT(onSetHome()));
+    connect(pushCopyHome, SIGNAL(clicked()), this, SLOT(onCopyHome()));
     // end menu
 
     connect(listGCodeWidget, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(onEditGCode(int, int)));
@@ -1411,20 +1414,20 @@ void MainWindow::onRunToPoint()
 //DEBUGGING generator PWM
 void MainWindow::SendSignal()
 {
-    BinaryData::TypeSignal tSign;
+    mk1Data::TypeSignal tSign;
 
-    tSign = BinaryData::None;
+    tSign = mk1Data::None;
 
     //     if (radioButtonOff->isChecked()) {
-    //         tSign = BinaryData::None;
+    //         tSign = mk1Data::None;
     //     }
 
     if (radioButtonHz->isChecked()) {
-        tSign = BinaryData::Hz;
+        tSign = mk1Data::Hz;
     }
 
     if (radioButtonRC->isChecked()) {
-        tSign = BinaryData::RC;
+        tSign = mk1Data::RC;
     }
 
     cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), tSign, (int)spinBoxVelo->value());
@@ -1907,6 +1910,27 @@ void MainWindow::onSettings()
     if (dlgResult == QMessageBox::Accepted) {
         cnc->saveSettings();
     }
+}
+
+
+void MainWindow::onCopyHome()
+{
+    doubleSpinHomeX->setValue( numPosX->value() );
+    doubleSpinHomeY->setValue( numPosY->value() );
+    doubleSpinHomeZ->setValue( numPosZ->value() );
+}
+
+
+void MainWindow::onSetHome()
+{
+}
+
+
+void MainWindow::onCopyPos()
+{
+    doubleSpinMoveX->setValue( numPosX->value() );
+    doubleSpinMoveY->setValue( numPosY->value() );
+    doubleSpinMoveZ->setValue( numPosZ->value() );
 }
 
 

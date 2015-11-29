@@ -257,6 +257,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onSettings();
         void onCalcVelocity();
         void onLogClear();
+        
+        void onCopyPos();
+        void onSetHome();
+        void onCopyHome();
 
         void onSpindel();
         void onEmergyStop();

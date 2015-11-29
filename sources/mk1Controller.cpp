@@ -80,11 +80,11 @@ bool mk1Settings::DEMO_DEVICE = false;
 
 
 // static
-libusb_device_handle *BinaryData::handle = 0;
+libusb_device_handle *mk1Data::handle = 0;
 
 libusb_hotplug_callback_handle mk1Controller::hotplug[2];
 
-libusb_device_descriptor BinaryData::desc = {0};
+libusb_device_descriptor mk1Data::desc = {0};
 
 QString mk1Controller::devDescriptor;
 
@@ -767,12 +767,12 @@ void mk1Controller::deviceNewPosition(float x, float y, float z, float a)
 
 
 // You MUST declare it, because of static field
-byte BinaryData::readBuf[BUFFER_SIZE];
-byte BinaryData::writeBuf[BUFFER_SIZE];
+byte mk1Data::readBuf[BUFFER_SIZE];
+byte mk1Data::writeBuf[BUFFER_SIZE];
 
 
 
-void BinaryData::setByte(byte offset, byte data)
+void mk1Data::setByte(byte offset, byte data)
 {
     if (offset >= BUFFER_SIZE) {
         return;
@@ -782,7 +782,7 @@ void BinaryData::setByte(byte offset, byte data)
 }
 
 
-byte BinaryData::getByte(byte offset)
+byte mk1Data::getByte(byte offset)
 {
     if (offset >= BUFFER_SIZE) {
         return 0;
@@ -792,13 +792,13 @@ byte BinaryData::getByte(byte offset)
 }
 
 
-void BinaryData::cleanBuf(byte *m)
+void mk1Data::cleanBuf(byte *m)
 {
     memset(m, 0x0, BUFFER_SIZE);
 }
 
 
-void BinaryData::packFourBytes(byte offset, int val)
+void mk1Data::packFourBytes(byte offset, int val)
 {
     if ((offset + 3)>= BUFFER_SIZE) {
         return;
@@ -814,7 +814,7 @@ void BinaryData::packFourBytes(byte offset, int val)
 // send the data to controller
 //
 // "checkBuffSize" check the buffer
-void BinaryData::sendBinaryData(bool checkBuffSize)
+void mk1Data::sendBinaryData(bool checkBuffSize)
 {
     if (checkBuffSize) {
         if (FreebuffSize < 2) {
@@ -849,7 +849,7 @@ void BinaryData::sendBinaryData(bool checkBuffSize)
 //
 // UNKNOWN COMMAND
 // value = 0x80 settings
-void BinaryData::pack9D(byte value, bool send)
+void mk1Data::pack9D(byte value, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -866,7 +866,7 @@ void BinaryData::pack9D(byte value, bool send)
 }
 
 
-void BinaryData::pack9E(byte value, bool send)
+void mk1Data::pack9E(byte value, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -889,7 +889,7 @@ void BinaryData::pack9E(byte value, bool send)
 
 // settings
 // impulses per mm
-void BinaryData::pack9F( bool send)
+void mk1Data::pack9F( bool send)
 {
     cleanBuf(writeBuf);
 
@@ -909,7 +909,7 @@ void BinaryData::pack9F( bool send)
 
 
 // acceleration settings
-void BinaryData::packA0(bool send)
+void mk1Data::packA0(bool send)
 {
     cleanBuf(writeBuf);
 
@@ -966,7 +966,7 @@ void BinaryData::packA0(bool send)
 
 
 // unknown settings
-void BinaryData::packA1( bool send )
+void mk1Data::packA1( bool send )
 {
     cleanBuf(writeBuf);
 
@@ -986,7 +986,7 @@ void BinaryData::packA1( bool send )
 //
 // emergency STOP
 //
-void BinaryData::packAA(bool send)
+void mk1Data::packAA(bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1000,7 +1000,7 @@ void BinaryData::packAA(bool send)
 
 
 // unknown settings
-void BinaryData::packAB( bool send )
+void mk1Data::packAB( bool send )
 {
     cleanBuf(writeBuf);
 
@@ -1022,7 +1022,7 @@ void BinaryData::packAB( bool send )
 // ts signal type
 // SpeedShim signal form
 //
-void BinaryData::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
+void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1082,7 +1082,7 @@ void BinaryData::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Sp
 
 
 // unknown settings
-void BinaryData::packB6( bool send )
+void mk1Data::packB6( bool send )
 {
     cleanBuf(writeBuf);
 
@@ -1107,7 +1107,7 @@ void BinaryData::packB6( bool send )
 // direction axes
 // speed
 //
-void BinaryData::packBE(byte direction, int speed, bool send)
+void mk1Data::packBE(byte direction, int speed, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1135,7 +1135,7 @@ void BinaryData::packBE(byte direction, int speed, bool send)
 //
 // set velocity limit
 //
-void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send)
+void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1185,7 +1185,7 @@ void BinaryData::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int s
 //
 // param "byte05"
 //
-void BinaryData::packC0(byte byte05, bool send)
+void mk1Data::packC0(byte byte05, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1199,7 +1199,7 @@ void BinaryData::packC0(byte byte05, bool send)
 
 
 // unknown settings
-void BinaryData::packC2( bool send )
+void mk1Data::packC2( bool send )
 {
     cleanBuf(writeBuf);
 
@@ -1217,7 +1217,7 @@ void BinaryData::packC2( bool send )
 //
 // set the coordinates without moving
 //
-void BinaryData::packC8(int x, int y, int z, int a, bool send)
+void mk1Data::packC8(int x, int y, int z, int a, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1238,12 +1238,8 @@ void BinaryData::packC8(int x, int y, int z, int a, bool send)
 //
 // moving to the point
 //
-void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send)
+void mk1Data::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send)
 {
-//     int newPosX = _posX;
-//     int newPosY = _posY;
-//     int newPosZ = _posZ;
-//     int newPosA = _posA;
     int newInst = _NumberInstruction;
 
     cleanBuf(writeBuf);
@@ -1282,7 +1278,7 @@ void BinaryData::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, 
 //
 // check length of tool
 //
-void BinaryData::packD2(int speed, float returnDistance, bool send)
+void mk1Data::packD2(int speed, float returnDistance, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1318,7 +1314,7 @@ void BinaryData::packD2(int speed, float returnDistance, bool send)
 
 
 // unknown settings
-void BinaryData::packD3( bool send )
+void mk1Data::packD3( bool send )
 {
     cleanBuf(writeBuf);
 
@@ -1334,7 +1330,7 @@ void BinaryData::packD3( bool send )
 //
 // break of all operations
 //
-void BinaryData::packFF(bool send)
+void mk1Data::packFF(bool send)
 {
     cleanBuf(writeBuf);
 

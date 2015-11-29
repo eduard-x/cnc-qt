@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1002</width>
-    <height>779</height>
+    <height>809</height>
    </rect>
   </property>
   <property name="iconSize">
@@ -879,7 +879,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>776</width>
-                    <height>486</height>
+                    <height>516</height>
                    </rect>
                   </property>
                  </widget>
@@ -897,7 +897,7 @@
              <item row="1" column="0">
               <widget class="QGroupBox" name="groupB15">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -980,7 +980,7 @@
              <item row="0" column="0">
               <widget class="QGroupBox" name="groupB14">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -1062,11 +1062,17 @@
              </item>
              <item row="3" column="0">
               <widget class="QGroupBox" name="groupBoxMoving">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="title">
                 <string>Moving to the coordinates</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_8">
-                <item row="0" column="0" rowspan="3">
+                <item row="1" column="0" rowspan="3">
                  <widget class="QToolButton" name="toolRunMoving">
                   <property name="minimumSize">
                    <size>
@@ -1079,7 +1085,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1">
+                <item row="1" column="1">
                  <widget class="QLabel" name="label_26">
                   <property name="text">
                    <string>X</string>
@@ -1089,7 +1095,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2">
+                <item row="1" column="2">
                  <widget class="QDoubleSpinBox" name="doubleSpinMoveX">
                   <property name="minimumSize">
                    <size>
@@ -1105,7 +1111,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
+                <item row="2" column="1">
                  <widget class="QLabel" name="label_25">
                   <property name="text">
                    <string>Y</string>
@@ -1115,7 +1121,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="2">
+                <item row="2" column="2">
                  <widget class="QDoubleSpinBox" name="doubleSpinMoveY">
                   <property name="minimumSize">
                    <size>
@@ -1131,7 +1137,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
+                <item row="3" column="1">
                  <widget class="QLabel" name="label_27">
                   <property name="text">
                    <string>Z</string>
@@ -1141,7 +1147,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="2">
+                <item row="3" column="2">
                  <widget class="QDoubleSpinBox" name="doubleSpinMoveZ">
                   <property name="minimumSize">
                    <size>
@@ -1157,21 +1163,21 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0" colspan="3">
+                <item row="4" column="0" colspan="3">
                  <widget class="Line" name="line_4">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
+                <item row="5" column="0">
                  <widget class="QLabel" name="labelVelo">
                   <property name="text">
                    <string>Velocity</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="2">
+                <item row="5" column="2">
                  <widget class="QSpinBox" name="spinMoveVelo">
                   <property name="minimumSize">
                    <size>
@@ -1181,84 +1187,17 @@
                   </property>
                  </widget>
                 </item>
-               </layout>
-              </widget>
-             </item>
-             <item row="3" column="1" colspan="2">
-              <widget class="QGroupBox" name="groupGenerate">
-               <property name="title">
-                <string>Generate signal </string>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_9">
-                <item row="0" column="2" colspan="2">
-                 <widget class="QLabel" name="labelPWMCHan">
-                  <property name="text">
-                   <string>PWM Channel</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="0" colspan="2">
-                 <widget class="QCheckBox" name="checkBoxEnSpindnle">
+                 <widget class="QLabel" name="label_2">
                   <property name="text">
-                   <string>Enable spindle</string>
+                   <string>Get actual position</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="4" colspan="2">
-                 <widget class="QSpinBox" name="spinBoxVelo"/>
-                </item>
-                <item row="3" column="0">
-                 <layout class="QVBoxLayout" name="verticalLayout_2">
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonOff">
-                    <property name="text">
-                     <string>Off</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonHz">
-                    <property name="text">
-                     <string>Hz</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonRC">
-                    <property name="text">
-                     <string>RC</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="3" column="1" colspan="3">
-                 <spacer name="horizontalSpacer_3">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>188</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="0" column="4" colspan="2">
-                 <widget class="QSpinBox" name="spinBoxChann"/>
-                </item>
-                <item row="1" column="2" colspan="2">
-                 <widget class="QLabel" name="labelPWMVelo">
+                <item row="0" column="2">
+                 <widget class="QPushButton" name="pushCopyPos">
                   <property name="text">
-                   <string>PWM Velocity</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="5">
-                 <widget class="QPushButton" name="pushSendSignal">
-                  <property name="text">
-                   <string>Send command</string>
+                   <string>Copy</string>
                   </property>
                  </widget>
                 </item>
@@ -1281,7 +1220,7 @@
              <item row="2" column="0">
               <widget class="QGroupBox" name="groupB19">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -1359,6 +1298,220 @@
                  </widget>
                 </item>
                </layout>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QGroupBox" name="groupGenerate">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="title">
+                <string>Generate signal </string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_9">
+                <item row="0" column="0">
+                 <widget class="QCheckBox" name="checkBoxEnSpindnle">
+                  <property name="text">
+                   <string>Enable spindle</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QSpinBox" name="spinBoxChann"/>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="labelPWMCHan">
+                  <property name="text">
+                   <string>PWM Channel</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QSpinBox" name="spinBoxVelo"/>
+                </item>
+                <item row="4" column="0">
+                 <layout class="QVBoxLayout" name="verticalLayout_2">
+                  <item>
+                   <widget class="QRadioButton" name="radioButtonOff">
+                    <property name="text">
+                     <string>Off</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="radioButtonHz">
+                    <property name="text">
+                     <string>Hz</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="radioButtonRC">
+                    <property name="text">
+                     <string>RC</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="labelPWMVelo">
+                  <property name="text">
+                   <string>PWM Velocity</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QPushButton" name="pushSendSignal">
+                  <property name="text">
+                   <string>Send command</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="0" column="1" rowspan="3">
+              <widget class="QGroupBox" name="groupBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="title">
+                <string>Home position</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_12">
+                <item row="3" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinHomeZ">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-999.990000000000009</double>
+                  </property>
+                  <property name="maximum">
+                   <double>999.990000000000009</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_29">
+                  <property name="text">
+                   <string>X</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinHomeX">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-999.990000000000009</double>
+                  </property>
+                  <property name="maximum">
+                   <double>999.990000000000009</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_30">
+                  <property name="text">
+                   <string>Y</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinHomeY">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-999.990000000000009</double>
+                  </property>
+                  <property name="maximum">
+                   <double>999.990000000000009</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_28">
+                  <property name="text">
+                   <string>Z</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QPushButton" name="pushSetHome">
+                  <property name="text">
+                   <string>Set</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_3">
+                  <property name="text">
+                   <string>Get actual position</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QPushButton" name="pushCopyHome">
+                  <property name="text">
+                   <string>Copy</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QGroupBox" name="groupBox_2">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="title">
+                <string>Reserved</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2" rowspan="3">
+              <widget class="QGroupBox" name="groupBox_3">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="title">
+                <string>Reserved</string>
+               </property>
               </widget>
              </item>
             </layout>
