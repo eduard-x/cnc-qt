@@ -977,18 +977,126 @@
                </layout>
               </widget>
              </item>
-             <item row="0" column="0">
-              <widget class="QGroupBox" name="groupB14">
+             <item row="0" column="1" rowspan="3">
+              <widget class="QGroupBox" name="groupBox">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="title">
+                <string>Home position</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_12">
+                <item row="3" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinHomeZ">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-999.990000000000009</double>
+                  </property>
+                  <property name="maximum">
+                   <double>999.990000000000009</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_29">
+                  <property name="text">
+                   <string>X</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinHomeX">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-999.990000000000009</double>
+                  </property>
+                  <property name="maximum">
+                   <double>999.990000000000009</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_30">
+                  <property name="text">
+                   <string>Y</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinHomeY">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-999.990000000000009</double>
+                  </property>
+                  <property name="maximum">
+                   <double>999.990000000000009</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_28">
+                  <property name="text">
+                   <string>Z</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QPushButton" name="pushSetHome">
+                  <property name="text">
+                   <string>Set</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_3">
+                  <property name="text">
+                   <string>Get actual position</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QPushButton" name="pushCopyHome">
+                  <property name="text">
+                   <string>Copy</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QGroupBox" name="groupBox_3">
                <property name="minimumSize">
                 <size>
                  <width>200</width>
-                 <height>50</height>
+                 <height>0</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -998,60 +1106,60 @@
                 </size>
                </property>
                <property name="title">
-                <string>Byte 14 (coolant)</string>
+                <string>Reserved</string>
                </property>
-               <layout class="QGridLayout" name="gridLayout_15">
-                <item row="0" column="6">
-                 <widget class="QLabel" name="labelB14B1">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="5">
-                 <widget class="QLabel" name="labelB14B2">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
+               <layout class="QGridLayout" name="gridLayout_16">
                 <item row="0" column="0">
-                 <widget class="QLabel" name="labelB14B7">
+                 <widget class="QLabel" name="labelB14B7_4">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QLabel" name="labelB14B6">
+                 <widget class="QLabel" name="labelB14B6_4">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="2">
-                 <widget class="QLabel" name="labelB14B5">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="7">
-                 <widget class="QLabel" name="labelB14B0">
+                 <widget class="QLabel" name="labelB14B5_4">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="3">
-                 <widget class="QLabel" name="labelB14B4">
+                 <widget class="QLabel" name="labelB14B4_4">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="4">
-                 <widget class="QLabel" name="labelB14B3">
+                 <widget class="QLabel" name="labelB14B3_4">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="5">
+                 <widget class="QLabel" name="labelB14B2_4">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="6">
+                 <widget class="QLabel" name="labelB14B1_4">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="7">
+                 <widget class="QLabel" name="labelB14B0_4">
                   <property name="text">
                    <string/>
                   </property>
@@ -1060,7 +1168,94 @@
                </layout>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item row="9" column="0">
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="4" column="1" rowspan="3">
+              <widget class="QGroupBox" name="groupGenerate">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="title">
+                <string>Generate signal </string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_9">
+                <item row="0" column="0">
+                 <widget class="QCheckBox" name="checkBoxEnSpindnle">
+                  <property name="text">
+                   <string>Enable spindle</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QSpinBox" name="spinBoxChann"/>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="labelPWMCHan">
+                  <property name="text">
+                   <string>PWM Channel</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QSpinBox" name="spinBoxVelo"/>
+                </item>
+                <item row="4" column="0">
+                 <layout class="QVBoxLayout" name="verticalLayout_2">
+                  <item>
+                   <widget class="QRadioButton" name="radioButtonOff">
+                    <property name="text">
+                     <string>Off</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="radioButtonHz">
+                    <property name="text">
+                     <string>Hz</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="radioButtonRC">
+                    <property name="text">
+                     <string>RC</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="labelPWMVelo">
+                  <property name="text">
+                   <string>PWM Velocity</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QPushButton" name="pushSendSignal">
+                  <property name="text">
+                   <string>Send command</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="0" column="2" rowspan="3">
               <widget class="QGroupBox" name="groupBoxMoving">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -1204,18 +1399,88 @@
                </layout>
               </widget>
              </item>
-             <item row="4" column="0" colspan="3">
-              <spacer name="verticalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
+             <item row="0" column="0">
+              <widget class="QGroupBox" name="groupB14">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
-               <property name="sizeHint" stdset="0">
+               <property name="minimumSize">
                 <size>
-                 <width>20</width>
-                 <height>40</height>
+                 <width>200</width>
+                 <height>50</height>
                 </size>
                </property>
-              </spacer>
+               <property name="maximumSize">
+                <size>
+                 <width>300</width>
+                 <height>75</height>
+                </size>
+               </property>
+               <property name="title">
+                <string>Byte 14 (coolant)</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_15">
+                <item row="0" column="6">
+                 <widget class="QLabel" name="labelB14B1">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="5">
+                 <widget class="QLabel" name="labelB14B2">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="labelB14B7">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="labelB14B6">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="labelB14B5">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="7">
+                 <widget class="QLabel" name="labelB14B0">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QLabel" name="labelB14B4">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="4">
+                 <widget class="QLabel" name="labelB14B3">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
              </item>
              <item row="2" column="0">
               <widget class="QGroupBox" name="groupB19">
@@ -1241,8 +1506,8 @@
                 <string>Byte 19 (E-Sop)</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_10">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="labelB19B7">
+                <item row="0" column="4">
+                 <widget class="QLabel" name="labelB19B3">
                   <property name="text">
                    <string/>
                   </property>
@@ -1255,8 +1520,29 @@
                   </property>
                  </widget>
                 </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="labelB19B5">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
                 <item row="0" column="7">
                  <widget class="QLabel" name="labelB19B0">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="labelB19B7">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="5">
+                 <widget class="QLabel" name="labelB19B2">
                   <property name="text">
                    <string/>
                   </property>
@@ -1276,22 +1562,78 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="4">
-                 <widget class="QLabel" name="labelB19B3">
+               </layout>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QGroupBox" name="groupBox_5">
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>300</width>
+                 <height>75</height>
+                </size>
+               </property>
+               <property name="title">
+                <string>Reserved</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_17">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="labelB14B7_3">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="labelB14B6_3">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="2">
-                 <widget class="QLabel" name="labelB19B5">
+                 <widget class="QLabel" name="labelB14B5_3">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QLabel" name="labelB14B4_3">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="4">
+                 <widget class="QLabel" name="labelB14B3_3">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="5">
-                 <widget class="QLabel" name="labelB19B2">
+                 <widget class="QLabel" name="labelB14B2_3">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="6">
+                 <widget class="QLabel" name="labelB14B1_3">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="7">
+                 <widget class="QLabel" name="labelB14B0_3">
                   <property name="text">
                    <string/>
                   </property>
@@ -1300,209 +1642,85 @@
                </layout>
               </widget>
              </item>
-             <item row="3" column="1">
-              <widget class="QGroupBox" name="groupGenerate">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+             <item row="4" column="0">
+              <widget class="QGroupBox" name="groupBox_4">
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>0</height>
+                </size>
                </property>
-               <property name="title">
-                <string>Generate signal </string>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_9">
-                <item row="0" column="0">
-                 <widget class="QCheckBox" name="checkBoxEnSpindnle">
-                  <property name="text">
-                   <string>Enable spindle</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QSpinBox" name="spinBoxChann"/>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="labelPWMCHan">
-                  <property name="text">
-                   <string>PWM Channel</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QSpinBox" name="spinBoxVelo"/>
-                </item>
-                <item row="4" column="0">
-                 <layout class="QVBoxLayout" name="verticalLayout_2">
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonOff">
-                    <property name="text">
-                     <string>Off</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonHz">
-                    <property name="text">
-                     <string>Hz</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonRC">
-                    <property name="text">
-                     <string>RC</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="labelPWMVelo">
-                  <property name="text">
-                   <string>PWM Velocity</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <widget class="QPushButton" name="pushSendSignal">
-                  <property name="text">
-                   <string>Send command</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item row="0" column="1" rowspan="3">
-              <widget class="QGroupBox" name="groupBox">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="title">
-                <string>Home position</string>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_12">
-                <item row="3" column="1">
-                 <widget class="QDoubleSpinBox" name="doubleSpinHomeZ">
-                  <property name="minimumSize">
-                   <size>
-                    <width>100</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="minimum">
-                   <double>-999.990000000000009</double>
-                  </property>
-                  <property name="maximum">
-                   <double>999.990000000000009</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_29">
-                  <property name="text">
-                   <string>X</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QDoubleSpinBox" name="doubleSpinHomeX">
-                  <property name="minimumSize">
-                   <size>
-                    <width>100</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="minimum">
-                   <double>-999.990000000000009</double>
-                  </property>
-                  <property name="maximum">
-                   <double>999.990000000000009</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_30">
-                  <property name="text">
-                   <string>Y</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QDoubleSpinBox" name="doubleSpinHomeY">
-                  <property name="minimumSize">
-                   <size>
-                    <width>100</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="minimum">
-                   <double>-999.990000000000009</double>
-                  </property>
-                  <property name="maximum">
-                   <double>999.990000000000009</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="label_28">
-                  <property name="text">
-                   <string>Z</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <widget class="QPushButton" name="pushSetHome">
-                  <property name="text">
-                   <string>Set</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_3">
-                  <property name="text">
-                   <string>Get actual position</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QPushButton" name="pushCopyHome">
-                  <property name="text">
-                   <string>Copy</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item row="3" column="2">
-              <widget class="QGroupBox" name="groupBox_2">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+               <property name="maximumSize">
+                <size>
+                 <width>300</width>
+                 <height>75</height>
+                </size>
                </property>
                <property name="title">
                 <string>Reserved</string>
                </property>
+               <layout class="QGridLayout" name="gridLayout_18">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="labelB14B7_2">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="labelB14B6_2">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="labelB14B5_2">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QLabel" name="labelB14B4_2">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="4">
+                 <widget class="QLabel" name="labelB14B3_2">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="5">
+                 <widget class="QLabel" name="labelB14B2_2">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="6">
+                 <widget class="QLabel" name="labelB14B1_2">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="7">
+                 <widget class="QLabel" name="labelB14B0_2">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
-             <item row="0" column="2" rowspan="3">
-              <widget class="QGroupBox" name="groupBox_3">
+             <item row="4" column="2" rowspan="3">
+              <widget class="QGroupBox" name="groupBox_2">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
