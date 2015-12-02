@@ -292,7 +292,7 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
             }
 
             getDeviceInfo();
-            
+
             pack9D(0x00); // to get actual info from device
         }
     }
@@ -384,6 +384,19 @@ QString mk1Controller::getDescription()
 }
 
 
+void mk1Controller::setUseHome(bool b)
+{
+    if (b == true) {
+    }
+}
+
+
+// startpos in mm
+void mk1Controller::setStartPos(float x, float y, float z, float a)
+{
+}
+
+
 void mk1Controller::setDescription(const QString &c)
 {
     devDescriptor = c;
@@ -420,7 +433,7 @@ void mk1Controller::handleHotplug()
             connect(readThread, SIGNAL(readEvent()), this, SLOT(readNewData()));
 
             readThread->start();
-            
+
             pack9D(0x00); // to get tha actual info from device
         }
 
@@ -615,7 +628,7 @@ void mk1Controller::parseBinaryInfo()
     coord[Y].actualPosPulses = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
     coord[Z].actualPosPulses = ((readBuf[35] << 24) + (readBuf[34] << 16) + (readBuf[33] << 8) + (readBuf[32]));
     coord[A].actualPosPulses = ((readBuf[39] << 24) + (readBuf[38] << 16) + (readBuf[37] << 8) + (readBuf[36]));
-    
+
     byte bb15 = readBuf[15];
 
     coord[X].limitMax = (bb15 & (1 << 0)) != 0;
@@ -800,7 +813,7 @@ void mk1Data::cleanBuf(byte *m)
 
 void mk1Data::packFourBytes(byte offset, int val)
 {
-    if ((offset + 3)>= BUFFER_SIZE) {
+    if ((offset + 3) >= BUFFER_SIZE) {
         return;
     }
 
@@ -855,7 +868,7 @@ void mk1Data::pack9D(byte value, bool send)
 
     writeBuf[0] = 0x9d;
 
-    if (value == 0x80){
+    if (value == 0x80) {
         writeBuf[4] = 0x80; //unknown
         writeBuf[5] = 0x01; //unknown
     }
@@ -919,6 +932,7 @@ void mk1Data::packA0(bool send)
     writeBuf[5] = 0x12;
 
     int AccelX = 4056;
+
     if (coord[X].acceleration > 0) {
         AccelX = 4056 * coord[X].pulsePerMm / sqrt(coord[X].acceleration);
     }
@@ -926,6 +940,7 @@ void mk1Data::packA0(bool send)
     packFourBytes(6, AccelX);
 
     int AccelY = 4056;
+
     if (coord[Y].acceleration > 0) {
         AccelY = 4056 * coord[Y].pulsePerMm / sqrt(coord[Y].acceleration);
     }
@@ -933,6 +948,7 @@ void mk1Data::packA0(bool send)
     packFourBytes(10, AccelY);
 
     int AccelZ = 4056;
+
     if (coord[Z].acceleration > 0) {
         AccelZ = 4056 * coord[Z].pulsePerMm / sqrt(coord[Z].acceleration);
     }
@@ -940,6 +956,7 @@ void mk1Data::packA0(bool send)
     packFourBytes(14, AccelZ);
 
     int AccelA = 4056;
+
     if (coord[A].acceleration > 0) {
         AccelA = 4056 * coord[A].pulsePerMm / sqrt(coord[A].acceleration);
     }
@@ -1232,6 +1249,17 @@ void mk1Data::packC8(int x, int y, int z, int a, bool send)
     if (send == true) {
         sendBinaryData();
     }
+}
+
+// recalculate from mm/inch to pulses
+void mk1Data::packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, bool send)
+{
+    int xPulses = coord[X].posPulse(_posX);
+    int yPulses = coord[Y].posPulse(_posY);
+    int zPulses = coord[Z].posPulse(_posZ);
+    int aPulses = coord[A].posPulse(_posA);
+
+    packCA(xPulses, yPulses, zPulses, aPulses, _speed, _NumberInstruction, send);
 }
 
 

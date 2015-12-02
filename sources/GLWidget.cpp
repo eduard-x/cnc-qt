@@ -85,6 +85,8 @@ GLWidget::GLWidget(QWidget *p)
 
     parent = (MainWindow*)p;
 
+    cnc = parent->cnc;
+
     workNum = 0;
 
     initializeGL();
@@ -476,7 +478,7 @@ void GLWidget::drawWorkField()
         glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelectStart]);
         glDrawArrays(GL_LINE_STRIP, 0, numSelectStop - numSelectStart - 1);
     } else {
-        int numSelect = parent->cnc->numberCompleatedInstructions() - 1;
+        int numSelect = cnc->numberCompleatedInstructions() - 1;
         glLineWidth(3.0f);
         glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
         glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect]);
@@ -602,9 +604,9 @@ void GLWidget::drawSurface()
 void GLWidget::drawInstrument()
 {
     //нарисуем курсор
-    float startX = parent->cnc->coord[X].posMm();
-    float startY = parent->cnc->coord[Y].posMm();
-    float startZ = parent->cnc->coord[Z].posMm();
+    float startX = cnc->coord[X].posMm();
+    float startY = cnc->coord[Y].posMm();
+    float startZ = cnc->coord[Z].posMm();
 
     glPushMatrix();
 

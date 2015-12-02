@@ -44,6 +44,7 @@
 #include "MainWindow.h"
 
 class MainWindow;
+class mk1Controller;
 
 
 struct pointGL {
@@ -139,6 +140,8 @@ class GLWidget : public QGLWidget
 
     private:
         MainWindow* parent;
+        mk1Controller* cnc;
+
         static GLint instrumentArray[][3];
         static GLint xAxis[][3];
         static GLint yAxis[][3];

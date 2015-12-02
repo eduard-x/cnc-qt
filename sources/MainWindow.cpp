@@ -1148,6 +1148,20 @@ bool MainWindow::runCommand()
 
     GCodeCommand gcodeNow = GCodeList.at(Task::posCodeNow);
 
+    useHome = checkHome->isChecked();
+
+    if (useHome == true) {
+        cnc->coord[X].startPos = doubleSpinHomeX->value();
+        cnc->coord[Y].startPos = doubleSpinHomeY->value();
+        cnc->coord[Z].startPos = doubleSpinHomeZ->value();
+        cnc->coord[A].startPos = 0.0;
+    } else {
+        cnc->coord[X].startPos = cnc->coord[X].actualPosmm;
+        cnc->coord[Y].startPos = cnc->coord[Y].actualPosmm;
+        cnc->coord[Z].startPos = cnc->coord[Z].actualPosmm;
+        cnc->coord[A].startPos = 0.0;
+    }
+
     // Start
     if (Task::Status == Start) { // init of controller
         AddLog(translate(_START_TASK_AT) + QDateTime().currentDateTime().toString());
@@ -1163,12 +1177,13 @@ bool MainWindow::runCommand()
 
         cnc->packC0();
 
+        //         cnc->setUseHome( == true); // home or from current position
+
         //moving to the first point axes X and Y
         //TODO: spindle move higher, now 10 mm
-        cnc->packCA(cnc->coord[X].actualPosPulses, cnc->coord[Y].actualPosPulses, cnc->coord[Z].actualPosPulses + cnc->coord[Z].posPulse( 10), cnc->coord[A].actualPosPulses, userSpeedG0, 0);
+        cnc->packCA(cnc->coord[X].startPos, cnc->coord[Y].startPos, cnc->coord[Z].startPos + 10.0, cnc->coord[A].startPos, userSpeedG0, 0);
 
-        //TODO: not implemented moving to point
-        cnc->packCA(cnc->coord[X].posPulse( gcodeNow.X), cnc->coord[Y].posPulse(gcodeNow.Y), cnc->coord[Z].actualPosPulses + cnc->coord[Z].posPulse( 10), cnc->coord[A].posPulse( gcodeNow.A), userSpeedG0, 0);
+        cnc->packCA(gcodeNow.X + cnc->coord[X].startPos, gcodeNow.Y + cnc->coord[Y].startPos, cnc->coord[Z].startPos + 10.0, gcodeNow.A + cnc->coord[A].startPos, userSpeedG0, 0);
 
         Task::Status = Working;
 
@@ -1286,15 +1301,16 @@ bool MainWindow::runCommand()
         }
     }
 
-    int posX = cnc->coord[X].posPulse( pointX);
-    int posY = cnc->coord[Y].posPulse( pointY);
-    int posZ = cnc->coord[Z].posPulse( pointZ);
-    int posA = cnc->coord[A].posPulse( pointA);
+    //     int posX = cnc->coord[X].posPulse( pointX);
+    //     int posY = cnc->coord[Y].posPulse( pointY);
+    //     int posZ = cnc->coord[Z].posPulse( pointZ);
+    //     int posA = cnc->coord[A].posPulse( pointA);
 
     //TODO: additional velocity control manual/automatical
     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
 
-    cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
+    //     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
+    cnc->packCA(pointX + cnc->coord[X].startPos, pointY + cnc->coord[Y].startPos, pointZ + cnc->coord[Z].startPos, pointA, speed, Task::posCodeNow);
 
     Task::posCodeNow++;
     labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::posCodeNow + 1));
@@ -1360,17 +1376,17 @@ void MainWindow::moveToPoint(bool surfaceScan)
             return;
         }
 
-        posX = cnc->coord[X].posPulse( surfaceMatrix[scanPosY][scanPosX].X);
-        posY = cnc->coord[Y].posPulse( surfaceMatrix[scanPosY][scanPosX].Y);
-        posZ = cnc->coord[Z].posPulse( surfaceMatrix[scanPosY][scanPosX].Z);
-        posA = cnc->coord[A].posPulse( surfaceMatrix[scanPosY][scanPosX].A);
+        posX = /*cnc->coord[X].posPulse( */surfaceMatrix[scanPosY][scanPosX].X;//);
+        posY = /*cnc->coord[Y].posPulse(*/ surfaceMatrix[scanPosY][scanPosX].Y;//);
+        posZ = /*cnc->coord[Z].posPulse( */surfaceMatrix[scanPosY][scanPosX].Z;//);
+        posA = /*cnc->coord[A].posPulse(*/ surfaceMatrix[scanPosY][scanPosX].A;//);
     } else {
         speed = spinMoveVelo->value();
 
-        posX = cnc->coord[X].posPulse( doubleSpinMoveX->value());
-        posY = cnc->coord[Y].posPulse( doubleSpinMoveY->value());
-        posZ = cnc->coord[Z].posPulse( doubleSpinMoveZ->value());
-        posA = cnc->coord[A].posPulse( numAngleGrad->value());
+        posX = /*cnc->coord[X].posPulse(*/ doubleSpinMoveX->value();//);
+        posY = /*cnc->coord[Y].posPulse( */doubleSpinMoveY->value();//);
+        posZ = /*cnc->coord[Z].posPulse(*/ doubleSpinMoveZ->value();//);
+        posA = /*cnc->coord[A].posPulse( */numAngleGrad->value();//);
     }
 
     cnc->pack9E(0x05);

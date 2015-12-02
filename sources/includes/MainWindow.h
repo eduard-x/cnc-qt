@@ -257,7 +257,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onSettings();
         void onCalcVelocity();
         void onLogClear();
-        
+
         void onCopyPos();
         void onSetHome();
         void onCopyHome();
@@ -329,7 +329,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         QLabel *statusLabel1;
         QProgressBar *statusProgress;
         QLabel *statusLabel2;
-
+        bool useHome;
         QTimer  renderTimer;
         QVector<QAction*> actLangSelect;
         QMenu *langMenu;

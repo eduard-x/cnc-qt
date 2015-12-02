@@ -95,6 +95,7 @@ class axis
         bool  invert;
         bool  limitMax;
         bool  limitMin;
+        float startPos;
         float maxPos;
         float minPos;
         bool  wrong;
@@ -150,6 +151,7 @@ class mk1Data : public mk1Settings
         void pack9F( bool send = true);
         void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
         void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send = true);
+        void packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, bool send = true);
         void packFF(bool send = true);
         void pack9D(byte value, bool send = true);
         void setByte(byte offset, byte data);
@@ -233,6 +235,9 @@ class mk1Controller : public QObject, public mk1Data
         void deviceNewPosition(int x, int y, int z, int a = 0);
         void deviceNewPosition(float x, float y, float z, float a = 0.0);
         void startManualMove(QString x, QString y, QString z, QString a, int speed);
+
+        void setStartPos(float x, float y, float z, float a = 0.0);
+        void setUseHome(bool b);
 
         QString getDescription();
         static void setDescription(const QString &s);
