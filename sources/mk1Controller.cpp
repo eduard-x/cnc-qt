@@ -470,30 +470,53 @@ void mk1Controller::loadSettings()
         if (res == true) {
             coord[c].pulsePerMm = i;
         }
-    }
 
-
-    for (int c = 0; c < axisList.count(); c++) {
         float f = settingsFile->value("Accel" + axisList.at(c), 15).toFloat( &res);
 
         if (res == true) {
             coord[c].acceleration = f;
         }
-    }
 
-    for (int c = 0; c < axisList.count(); c++) {
-        float f = settingsFile->value("StartVelo" + axisList.at(c), 0).toFloat( &res);
+        f = settingsFile->value("StartVelo" + axisList.at(c), 0).toFloat( &res);
 
         if (res == true) {
             coord[c].minVelo = f;
         }
-    }
 
-    for (int c = 0; c < axisList.count(); c++) {
-        float f = settingsFile->value("EndVelo" + axisList.at(c), 400).toFloat( &res);
+        f = settingsFile->value("EndVelo" + axisList.at(c), 400).toFloat( &res);
 
         if (res == true) {
             coord[c].maxVelo = f;
+        }
+
+        int b = settingsFile->value("SoftLimit" + axisList.at(c), 0).toInt( &res);
+
+        if (res == true) {
+            coord[c].checkSoftLimits = b;
+        }
+
+        f = settingsFile->value("SoftMin" + axisList.at(c), 0).toFloat( &res);
+
+        if (res == true) {
+            coord[c].softMin = f;
+        }
+
+        f = settingsFile->value("SoftMax" + axisList.at(c), 0).toFloat( &res);
+
+        if (res == true) {
+            coord[c].softMax = f;
+        }
+
+        b = settingsFile->value("HardLimitMin" + axisList.at(c), 1).toInt( &res);
+
+        if (res == true) {
+            coord[c].limitMin = b;
+        }
+
+        b = settingsFile->value("HardLimitMax" + axisList.at(c), 1).toInt( &res);
+
+        if (res == true) {
+            coord[c].limitMax = b;
         }
     }
 
@@ -509,18 +532,16 @@ void mk1Controller::saveSettings()
 
     for (int c = 0; c < axisList.count(); c++) {
         settingsFile->setValue("Pulse" + axisList.at(c), coord[c].pulsePerMm);
-    }
-
-    for (int c = 0; c < axisList.count(); c++) {
         settingsFile->setValue("Accel" + axisList.at(c), (double)coord[c].acceleration);
-    }
-
-    for (int c = 0; c < axisList.count(); c++) {
         settingsFile->setValue("StartVelo" + axisList.at(c), (double)coord[c].minVelo);
-    }
-
-    for (int c = 0; c < axisList.count(); c++) {
         settingsFile->setValue("EndVelo" + axisList.at(c), (double)coord[c].maxVelo);
+
+        settingsFile->setValue("HardLimitMin" + axisList.at(c), (int)coord[c].limitMin);
+        settingsFile->setValue("HardLimitMax" + axisList.at(c), (int)coord[c].limitMax);
+
+        settingsFile->setValue("SoftLimit" + axisList.at(c), (int)coord[c].checkSoftLimits);
+        settingsFile->setValue("SoftMin" + axisList.at(c), (double)coord[c].softMin);
+        settingsFile->setValue("SoftMax" + axisList.at(c), (double)coord[c].softMax);
     }
 
     settingsFile->endGroup();
@@ -992,7 +1013,17 @@ void mk1Data::packA1( bool send )
     writeBuf[4] = 0x80;
 
     // allow limits: bit 7 a+; bit 6 a-, bit 5 z+, bit 4 z-, bit 3 y+, bit 2 y-, bit 1 x+, bit 0 x-
-    writeBuf[42] = 0xff;
+    byte limits = 0x0;
+    limits |= (coord[X].limitMin << 0);
+    limits |= (coord[X].limitMax << 1);
+    limits |= (coord[Y].limitMin << 2);
+    limits |= (coord[Y].limitMax << 3);
+    limits |= (coord[Z].limitMin << 4);
+    limits |= (coord[Z].limitMax << 5);
+    limits |= (coord[A].limitMin << 6);
+    limits |= (coord[A].limitMax << 7);
+
+    writeBuf[42] = limits;
     writeBuf[48] = 0xff; // unknown
 
     if (send == true) {

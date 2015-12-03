@@ -54,6 +54,31 @@ SettingsDialog::SettingsDialog(QWidget *p)
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
+    checkXmin->setChecked(cnc->coord[X].limitMin);
+    checkXplus->setChecked(cnc->coord[X].limitMax);
+    checkYmin->setChecked(cnc->coord[Y].limitMin);
+    checkYplus->setChecked(cnc->coord[Y].limitMax);
+    checkZmin->setChecked(cnc->coord[Z].limitMin);
+    checkZplus->setChecked(cnc->coord[Z].limitMax);
+    checkAmin->setChecked(cnc->coord[A].limitMin);
+    checkAplus->setChecked(cnc->coord[A].limitMax);
+
+    checkSoftX->setChecked(cnc->coord[X].checkSoftLimits);
+    doubleXmin->setValue(cnc->coord[X].softMin);
+    doubleXmax->setValue(cnc->coord[X].softMax);
+
+    checkSoftY->setChecked(cnc->coord[Y].checkSoftLimits);
+    doubleYmin->setValue(cnc->coord[Y].softMin);
+    doubleYmax->setValue(cnc->coord[Y].softMax);
+
+    checkSoftZ->setChecked(cnc->coord[Z].checkSoftLimits);
+    doubleZmin->setValue(cnc->coord[Z].softMin);
+    doubleZmax->setValue(cnc->coord[Z].softMax);
+
+    checkSoftA->setChecked(cnc->coord[A].checkSoftLimits);
+    doubleAmin->setValue(cnc->coord[A].softMin);
+    doubleAmax->setValue(cnc->coord[A].softMax);
+
     numPulseX->setValue(cnc->coord[X].pulsePerMm);
     numPulseY->setValue(cnc->coord[Y].pulsePerMm);
     numPulseZ->setValue(cnc->coord[Z].pulsePerMm);
@@ -104,6 +129,31 @@ void SettingsDialog::translateDialog()
 
 void SettingsDialog::onSave()
 {
+    cnc->coord[X].limitMin = checkXmin->isChecked();
+    cnc->coord[X].limitMax = checkXplus->isChecked();
+    cnc->coord[Y].limitMin = checkYmin->isChecked();
+    cnc->coord[Y].limitMax = checkYplus->isChecked();
+    cnc->coord[Z].limitMin = checkZmin->isChecked();
+    cnc->coord[Z].limitMax = checkZplus->isChecked();
+    cnc->coord[A].limitMin = checkAmin->isChecked();
+    cnc->coord[A].limitMax = checkAplus->isChecked();
+
+    cnc->coord[X].checkSoftLimits = checkSoftX->isChecked();
+    cnc->coord[X].softMin = doubleXmin->value();
+    cnc->coord[X].softMax = doubleXmax->value();
+
+    cnc->coord[Y].checkSoftLimits = checkSoftY->isChecked();
+    cnc->coord[Y].softMin = doubleYmin->value();
+    cnc->coord[Y].softMax = doubleYmax->value();
+
+    cnc->coord[Z].checkSoftLimits = checkSoftZ->isChecked();
+    cnc->coord[Z].softMin = doubleZmin->value();
+    cnc->coord[Z].softMax = doubleZmax->value();
+
+    cnc->coord[A].checkSoftLimits = checkSoftA->isChecked();
+    cnc->coord[A].softMin = doubleAmin->value();
+    cnc->coord[A].softMax = doubleAmax->value();
+
     cnc->coord[X].pulsePerMm = numPulseX->value();
     cnc->coord[Y].pulsePerMm = numPulseY->value();
     cnc->coord[Z].pulsePerMm = numPulseZ->value();

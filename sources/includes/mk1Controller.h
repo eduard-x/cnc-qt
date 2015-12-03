@@ -59,8 +59,7 @@ class mk1Controller;
 class usbHotplugThread : public QThread
 {
         Q_OBJECT
-        void run()
-        {
+        void run() {
             /* expensive or blocking operation  */
             while(true) {
                 int r = libusb_handle_events(NULL);
@@ -96,8 +95,9 @@ class axis
         bool  limitMax;
         bool  limitMin;
         float startPos;
-        float maxPos;
-        float minPos;
+        bool  checkSoftLimits;
+        float softMax;
+        float softMin;
         bool  wrong;
 };
 
@@ -276,12 +276,10 @@ class usbReadThread : public QThread
 {
         Q_OBJECT
     public:
-        usbReadThread(QObject *parent) : QThread(parent)
-        {
+        usbReadThread(QObject *parent) : QThread(parent) {
             p = (mk1Controller*)parent;
         }
-        void run()
-        {
+        void run() {
             // init of read array
             memset( buf, 0x0, BUFFER_SIZE);
 

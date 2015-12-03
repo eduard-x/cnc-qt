@@ -15,37 +15,31 @@ struct Vec {
 
     public:
         inline Vec()    {}
-        inline Vec(const T &x0)
-        {
+        inline Vec(const T &x0) {
             _v[0] = x0;
         }
-        inline Vec(const T &x0, const T &x1)
-        {
+        inline Vec(const T &x0, const T &x1) {
             _v[0] = x0;
             _v[1] = x1;
         }
-        inline Vec(const T &x0, const T &x1, const T &x2)
-        {
+        inline Vec(const T &x0, const T &x1, const T &x2) {
             _v[0] = x0;
             _v[1] = x1;
             _v[2] = x2;
         }
-        inline Vec(const T &x0, const T &x1, const T &x2, const T &x3)
-        {
+        inline Vec(const T &x0, const T &x1, const T &x2, const T &x3) {
             _v[0] = x0;
             _v[1] = x1;
             _v[2] = x2;
             _v[3] = x3;
         }
-        inline Vec(const Vec &v)
-        {
+        inline Vec(const Vec &v) {
             for(size_t i = 0 ; i < N ; ++i) {
                 _v[i] = v._v[i];
             }
         }
 
-        inline Vec &operator=(const Vec &v)
-        {
+        inline Vec &operator=(const Vec &v) {
             for(size_t i = 0 ; i < N ; ++i) {
                 _v[i] = v._v[i];
             }
@@ -53,8 +47,7 @@ struct Vec {
             return *this;
         }
 
-        inline bool operator==(const Vec &v) const
-        {
+        inline bool operator==(const Vec &v) const {
             for(size_t i = 0 ; i < N ; ++i)
                 if (_v[i] != v._v[i]) {
                     return false;
@@ -63,8 +56,7 @@ struct Vec {
             return true;
         }
 
-        inline Vec &operator+=(const Vec &v)
-        {
+        inline Vec &operator+=(const Vec &v) {
             for(size_t i = 0 ; i < N ; ++i) {
                 _v[i] += v._v[i];
             }
@@ -72,8 +64,7 @@ struct Vec {
             return *this;
         }
 
-        inline Vec &operator-=(const Vec &v)
-        {
+        inline Vec &operator-=(const Vec &v) {
             for(size_t i = 0 ; i < N ; ++i) {
                 _v[i] -= v._v[i];
             }
@@ -81,8 +72,7 @@ struct Vec {
             return *this;
         }
 
-        inline Vec &operator*=(const Vec &v)
-        {
+        inline Vec &operator*=(const Vec &v) {
             for(size_t i = 0 ; i < N ; ++i) {
                 _v[i] *= v._v[i];
             }
@@ -90,8 +80,7 @@ struct Vec {
             return *this;
         }
 
-        inline Vec &operator/=(const Vec &v)
-        {
+        inline Vec &operator/=(const Vec &v) {
             for(size_t i = 0 ; i < N ; ++i) {
                 _v[i] /= v._v[i];
             }
@@ -99,8 +88,7 @@ struct Vec {
             return *this;
         }
 
-        inline Vec &operator*=(const T &v)
-        {
+        inline Vec &operator*=(const T &v) {
             for(size_t i = 0 ; i < N ; ++i) {
                 _v[i] *= v;
             }
@@ -108,8 +96,7 @@ struct Vec {
             return *this;
         }
 
-        inline Vec &operator/=(const T &v)
-        {
+        inline Vec &operator/=(const T &v) {
             for(size_t i = 0 ; i < N ; ++i) {
                 _v[i] /= v;
             }
@@ -131,8 +118,7 @@ struct Vec {
         IMPLEMENT_OP(*)
         IMPLEMENT_OP( / )
 
-        inline Vec operator *(const T &v) const
-        {
+        inline Vec operator *(const T &v) const {
             Vec r;
 
             for(size_t i = 0 ; i < N ; ++i) {
@@ -142,8 +128,7 @@ struct Vec {
             return r;
         }
 
-        inline Vec operator /(const T &v) const
-        {
+        inline Vec operator /(const T &v) const {
             Vec r;
 
             for(size_t i = 0 ; i < N ; ++i) {
@@ -153,8 +138,7 @@ struct Vec {
             return r;
         }
 
-        inline Vec operator -() const
-        {
+        inline Vec operator -() const {
             Vec r;
 
             for(size_t i = 0 ; i < N ; ++i) {
@@ -166,8 +150,7 @@ struct Vec {
 
 #undef IMPLEMENT_OP
 
-        inline T operator |(const Vec &v) const
-        {
+        inline T operator |(const Vec &v) const {
             T acc(0);
 
             for(size_t i = 0 ; i < N ; ++i) {
@@ -177,24 +160,20 @@ struct Vec {
             return acc;
         }
 
-        inline Vec operator ^(const Vec &v) const
-        {
+        inline Vec operator ^(const Vec &v) const {
             return Vec(_v[1] * v[2] - _v[2] * v[1],
                        _v[2] * v[0] - _v[0] * v[2],
                        _v[0] * v[1] - _v[1] * v[0]);
         }
 
-        inline T sq() const
-        {
+        inline T sq() const {
             return *this | *this;
         }
-        inline T length() const
-        {
+        inline T length() const {
             return std::sqrt(sq());
         }
 
-        inline void normalize()
-        {
+        inline void normalize() {
             const T l = T(1.0) / length();
 
             if (!isinf(l) && !isnan(l))
@@ -203,44 +182,35 @@ struct Vec {
                 }
         }
 
-        inline const T &operator[](size_t idx) const
-        {
+        inline const T &operator[](size_t idx) const {
             return _v[idx];
         }
-        inline T &operator[](size_t idx)
-        {
+        inline T &operator[](size_t idx) {
             return _v[idx];
         }
 
-        inline void clear()
-        {
+        inline void clear() {
             for(size_t i = 0 ; i < N ; ++i) {
                 _v[i] = T(0);
             }
         }
 
-        inline T &x()
-        {
+        inline T &x() {
             return _v[0];
         }
-        inline const T &x() const
-        {
+        inline const T &x() const {
             return _v[0];
         }
-        inline T &y()
-        {
+        inline T &y() {
             return _v[1];
         }
-        inline const T &y() const
-        {
+        inline const T &y() const {
             return _v[1];
         }
-        inline T &z()
-        {
+        inline T &z() {
             return _v[2];
         }
-        inline const T &z() const
-        {
+        inline const T &z() const {
             return _v[2];
         }
 
