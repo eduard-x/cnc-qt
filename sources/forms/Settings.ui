@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -133,6 +133,12 @@
              <width>75</width>
              <height>35</height>
             </size>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>2000</number>
            </property>
           </widget>
          </item>
@@ -506,6 +512,12 @@
              <height>35</height>
             </size>
            </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>2000</number>
+           </property>
           </widget>
          </item>
          <item row="3" column="2">
@@ -516,6 +528,12 @@
              <height>35</height>
             </size>
            </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>2000</number>
+           </property>
           </widget>
          </item>
          <item row="4" column="2">
@@ -525,6 +543,12 @@
              <width>75</width>
              <height>35</height>
             </size>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>2000</number>
            </property>
           </widget>
          </item>
@@ -630,6 +654,15 @@
               <height>35</height>
              </size>
             </property>
+            <property name="minimum">
+             <double>-999.990000000000009</double>
+            </property>
+            <property name="maximum">
+             <double>999.990000000000009</double>
+            </property>
+            <property name="singleStep">
+             <double>10.000000000000000</double>
+            </property>
            </widget>
           </item>
           <item row="0" column="2">
@@ -639,6 +672,15 @@
               <width>75</width>
               <height>35</height>
              </size>
+            </property>
+            <property name="minimum">
+             <double>-999.990000000000009</double>
+            </property>
+            <property name="maximum">
+             <double>999.990000000000009</double>
+            </property>
+            <property name="singleStep">
+             <double>10.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -657,6 +699,15 @@
               <height>35</height>
              </size>
             </property>
+            <property name="minimum">
+             <double>-999.990000000000009</double>
+            </property>
+            <property name="maximum">
+             <double>999.990000000000009</double>
+            </property>
+            <property name="singleStep">
+             <double>10.000000000000000</double>
+            </property>
            </widget>
           </item>
           <item row="1" column="2">
@@ -666,6 +717,15 @@
               <width>75</width>
               <height>35</height>
              </size>
+            </property>
+            <property name="minimum">
+             <double>-999.990000000000009</double>
+            </property>
+            <property name="maximum">
+             <double>999.990000000000009</double>
+            </property>
+            <property name="singleStep">
+             <double>10.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -684,6 +744,15 @@
               <height>35</height>
              </size>
             </property>
+            <property name="minimum">
+             <double>-999.990000000000009</double>
+            </property>
+            <property name="maximum">
+             <double>999.990000000000009</double>
+            </property>
+            <property name="singleStep">
+             <double>10.000000000000000</double>
+            </property>
            </widget>
           </item>
           <item row="2" column="2">
@@ -693,6 +762,15 @@
               <width>75</width>
               <height>35</height>
              </size>
+            </property>
+            <property name="minimum">
+             <double>-999.990000000000009</double>
+            </property>
+            <property name="maximum">
+             <double>999.990000000000009</double>
+            </property>
+            <property name="singleStep">
+             <double>10.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -711,6 +789,15 @@
               <height>35</height>
              </size>
             </property>
+            <property name="minimum">
+             <double>-999.990000000000009</double>
+            </property>
+            <property name="maximum">
+             <double>999.990000000000009</double>
+            </property>
+            <property name="singleStep">
+             <double>10.000000000000000</double>
+            </property>
            </widget>
           </item>
           <item row="3" column="2">
@@ -720,6 +807,15 @@
               <width>75</width>
               <height>35</height>
              </size>
+            </property>
+            <property name="minimum">
+             <double>-999.990000000000009</double>
+            </property>
+            <property name="maximum">
+             <double>999.990000000000009</double>
+            </property>
+            <property name="singleStep">
+             <double>10.000000000000000</double>
             </property>
            </widget>
           </item>
