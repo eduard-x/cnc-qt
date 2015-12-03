@@ -491,10 +491,6 @@ void mk1Controller::loadSettings()
 
         coord[c].checkSoftLimits = settingsFile->value("SoftLimit" + axisList.at(c), false).toBool( );
 
-//         if (res == true) {
-//             coord[c].checkSoftLimits = b;
-//         }
-
         f = settingsFile->value("SoftMin" + axisList.at(c), 0).toFloat( &res);
 
         if (res == true) {
@@ -509,15 +505,7 @@ void mk1Controller::loadSettings()
 
         coord[c].limitMin = settingsFile->value("HardLimitMin" + axisList.at(c), true).toBool();
 
-//         if (res == true) {
-//             coord[c].limitMin = b;
-//         }
-
         coord[c].limitMax = settingsFile->value("HardLimitMax" + axisList.at(c), true).toBool();
-
-//         if (res == true) {
-//             coord[c].limitMax = b;
-//         }
     }
 
     settingsFile->endGroup();

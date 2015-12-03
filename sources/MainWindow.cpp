@@ -1395,7 +1395,6 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
     cnc->packC0();
 
-
     cnc->packCA(posX, posY, posZ, posA, speed, 0);
 
     cnc->packFF();
