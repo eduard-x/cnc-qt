@@ -1788,6 +1788,18 @@ void  MainWindow::refreshElementsForms()
             toolRun->setEnabled(true);
             toolStop->setEnabled(false);
             toolPause->setEnabled(false);
+            
+            toolResetCoorX->setEnabled( true );
+            numPosX->setReadOnly( true );
+
+            toolResetCoorY->setEnabled( true );
+            numPosY->setReadOnly( true );
+
+            toolResetCoorZ->setEnabled( true );
+            numPosZ->setReadOnly( true );
+
+            toolResetCoorA->setEnabled( true );
+            numAngleGrad->setReadOnly( true );
         }
 
         if (Task::Status == Paused) {
@@ -1808,6 +1820,18 @@ void  MainWindow::refreshElementsForms()
         toolRun->setEnabled( cncConnected);
         toolPause->setEnabled( cncConnected);
         toolStop->setEnabled( cncConnected);
+        
+        toolResetCoorX->setEnabled( false );
+        numPosX->setReadOnly( false );
+
+        toolResetCoorY->setEnabled( false );
+        numPosY->setReadOnly( false );
+
+        toolResetCoorZ->setEnabled( false );
+        numPosZ->setReadOnly( false );
+
+        toolResetCoorA->setEnabled( false );
+        numAngleGrad->setReadOnly( false );
     }
 }
 
