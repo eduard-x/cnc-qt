@@ -489,11 +489,11 @@ void mk1Controller::loadSettings()
             coord[c].maxVelo = f;
         }
 
-        int b = settingsFile->value("SoftLimit" + axisList.at(c), 0).toInt( &res);
+        coord[c].checkSoftLimits = settingsFile->value("SoftLimit" + axisList.at(c), false).toBool( );
 
-        if (res == true) {
-            coord[c].checkSoftLimits = b;
-        }
+//         if (res == true) {
+//             coord[c].checkSoftLimits = b;
+//         }
 
         f = settingsFile->value("SoftMin" + axisList.at(c), 0).toFloat( &res);
 
@@ -507,17 +507,17 @@ void mk1Controller::loadSettings()
             coord[c].softMax = f;
         }
 
-        b = settingsFile->value("HardLimitMin" + axisList.at(c), 1).toInt( &res);
+        coord[c].limitMin = settingsFile->value("HardLimitMin" + axisList.at(c), true).toBool();
 
-        if (res == true) {
-            coord[c].limitMin = b;
-        }
+//         if (res == true) {
+//             coord[c].limitMin = b;
+//         }
 
-        b = settingsFile->value("HardLimitMax" + axisList.at(c), 1).toInt( &res);
+        coord[c].limitMax = settingsFile->value("HardLimitMax" + axisList.at(c), true).toBool();
 
-        if (res == true) {
-            coord[c].limitMax = b;
-        }
+//         if (res == true) {
+//             coord[c].limitMax = b;
+//         }
     }
 
     settingsFile->endGroup();
@@ -536,10 +536,10 @@ void mk1Controller::saveSettings()
         settingsFile->setValue("StartVelo" + axisList.at(c), (double)coord[c].minVelo);
         settingsFile->setValue("EndVelo" + axisList.at(c), (double)coord[c].maxVelo);
 
-        settingsFile->setValue("HardLimitMin" + axisList.at(c), (int)coord[c].limitMin);
-        settingsFile->setValue("HardLimitMax" + axisList.at(c), (int)coord[c].limitMax);
+        settingsFile->setValue("HardLimitMin" + axisList.at(c), (bool)coord[c].limitMin);
+        settingsFile->setValue("HardLimitMax" + axisList.at(c), (bool)coord[c].limitMax);
 
-        settingsFile->setValue("SoftLimit" + axisList.at(c), (int)coord[c].checkSoftLimits);
+        settingsFile->setValue("SoftLimit" + axisList.at(c), (bool)coord[c].checkSoftLimits);
         settingsFile->setValue("SoftMin" + axisList.at(c), (double)coord[c].softMin);
         settingsFile->setValue("SoftMax" + axisList.at(c), (double)coord[c].softMax);
     }

@@ -1677,14 +1677,16 @@ void  MainWindow::refreshElementsForms()
     QPixmap greenPix = QPixmap(":/images/ball_green.png");
     QPixmap redPix = QPixmap(":/images/ball_red.png");
 
-    maxXLED->setPixmap( cnc->coord[X].limitMax ? redPix : greenPix );
-    minXLED->setPixmap( cnc->coord[X].limitMin ? redPix : greenPix );
-    maxYLED->setPixmap( cnc->coord[Y].limitMax ? redPix : greenPix );
-    minYLED->setPixmap( cnc->coord[Y].limitMin ? redPix : greenPix );
-    maxZLED->setPixmap( cnc->coord[Z].limitMax ? redPix : greenPix );
-    minZLED->setPixmap( cnc->coord[Z].limitMin ? redPix : greenPix );
-    maxALED->setPixmap( cnc->coord[A].limitMax ? redPix : greenPix );
-    minALED->setPixmap( cnc->coord[A].limitMin ? redPix : greenPix );
+    byte bb15 = cnc->getByte(15);
+     
+    maxXLED->setPixmap( bb15 & (1 << 0) ? redPix : greenPix /*cnc->coord[X].limitMax ? redPix : greenPix*/ );
+    minXLED->setPixmap( bb15 & (1 << 1) ? redPix : greenPix /*cnc->coord[X].limitMin ? redPix : greenPix*/ );
+    maxYLED->setPixmap( bb15 & (1 << 2) ? redPix : greenPix /*cnc->coord[Y].limitMax ? redPix : greenPix*/ );
+    minYLED->setPixmap( bb15 & (1 << 3) ? redPix : greenPix /*cnc->coord[Y].limitMin ? redPix : greenPix*/ );
+    maxZLED->setPixmap( bb15 & (1 << 4) ? redPix : greenPix /* cnc->coord[Z].limitMax ? redPix : greenPix*/ );
+    minZLED->setPixmap( bb15 & (1 << 5) ? redPix : greenPix /*cnc->coord[Z].limitMin ? redPix : greenPix*/ );
+    maxALED->setPixmap( bb15 & (1 << 6) ? redPix : greenPix /*cnc->coord[A].limitMax ? redPix : greenPix */);
+    minALED->setPixmap( bb15 & (1 << 7) ? redPix : greenPix /*cnc->coord[A].limitMin ? redPix : greenPix */);
 
     //***************
 
@@ -1700,7 +1702,7 @@ void  MainWindow::refreshElementsForms()
     labelB14B7->setPixmap( bb14 & (1 << 7) ? redPix : greenPix );
 
 
-    byte bb15 = cnc->getByte(15);
+   
     labelB15B0->setPixmap( bb15 & (1 << 0) ? redPix : greenPix );
     labelB15B1->setPixmap( bb15 & (1 << 1) ? redPix : greenPix );
     labelB15B2->setPixmap( bb15 & (1 << 2) ? redPix : greenPix );
