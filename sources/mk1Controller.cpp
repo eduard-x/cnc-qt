@@ -850,7 +850,7 @@ void mk1Data::sendBinaryData(bool checkBuffSize)
         //         _error_code = _usb->write(rawData);//, 2000, bytesWritten);
         if (handle != 0) {
             int transferred = 0;
-            int e = libusb_bulk_transfer(handle, BULK_ENDPOINT_IN, writeBuf, BUFFER_SIZE, &transferred, 30); // timeout 30 msecons
+            int e = libusb_bulk_transfer(handle, BULK_ENDPOINT_IN, writeBuf, BUFFER_SIZE, &transferred, 300); // timeout 300 msecons
 
             if(e == 0 && transferred == BUFFER_SIZE) {
                 //                 qDebug() << "Write successful!";

@@ -136,7 +136,7 @@ class mk1Data : public mk1Settings
 
     public:
         void packC0(byte byte05 = 0x0, bool send = true);
-        void packB5(bool spindleON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 0, bool send = true);
+        void packB5(bool spindleON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 61535, bool send = true);
         void packAA(bool send = true);
         void packA0( bool send = true);
         void packA1( bool send = true);
