@@ -543,7 +543,6 @@ void mk1Controller::saveSettings()
 // send settings to mk
 void mk1Controller::sendSettings()
 {
-
     packD3();
     packAB();
 
@@ -940,34 +939,34 @@ void mk1Data::packA0(bool send)
 
     writeBuf[5] = 0x12;
 
-    int AccelX = 4056;
+    int AccelX = 0;
 
-    if (coord[X].acceleration > 0) {
-        AccelX = 4056 * coord[X].pulsePerMm / sqrt(coord[X].acceleration);
+     if ((coord[X].acceleration > 0) && (coord[X].pulsePerMm > 0)) {
+        AccelX = (int)3186.7 * 3600.0  * sqrt(coord[X].pulsePerMm) / (sqrt(coord[X].acceleration) * coord[X].pulsePerMm);
     }
 
     packFourBytes(6, AccelX);
 
-    int AccelY = 4056;
+    int AccelY = 0;
 
-    if (coord[Y].acceleration > 0) {
-        AccelY = 4056 * coord[Y].pulsePerMm / sqrt(coord[Y].acceleration);
+     if ((coord[Y].acceleration > 0) && (coord[Y].pulsePerMm > 0)) {
+        AccelY = (int)3186.7 * 3600.0  * sqrt(coord[Y].pulsePerMm) / (sqrt(coord[Y].acceleration) * coord[Y].pulsePerMm);
     }
 
     packFourBytes(10, AccelY);
 
-    int AccelZ = 4056;
+    int AccelZ = 0;
 
-    if (coord[Z].acceleration > 0) {
-        AccelZ = 4056 * coord[Z].pulsePerMm / sqrt(coord[Z].acceleration);
+     if ((coord[Z].acceleration > 0) && (coord[Z].pulsePerMm > 0)) {
+        AccelZ = (int)3186.7 * 3600.0  * sqrt(coord[Z].pulsePerMm) / (sqrt(coord[Z].acceleration) * coord[Z].pulsePerMm);
     }
 
     packFourBytes(14, AccelZ);
 
-    int AccelA = 4056;
+    int AccelA = 0;
 
-    if (coord[A].acceleration > 0) {
-        AccelA = 4056 * coord[A].pulsePerMm / sqrt(coord[A].acceleration);
+    if ((coord[A].acceleration > 0) && (coord[A].pulsePerMm > 0)) {
+        AccelA = (int)3186.7 * 3600.0  * sqrt(coord[A].pulsePerMm) / (sqrt(coord[A].acceleration) * coord[A].pulsePerMm);
     }
 
     packFourBytes(18, AccelA);
@@ -978,7 +977,7 @@ void mk1Data::packA0(bool send)
     writeBuf[46] = 0x08;// unknown byte
 
     // reverse of axis.: 0xff no reverse, 0xfe axis x, 0xfd axis y, 0xfb axis z
-    writeBuf[57] = 0xff;// unknown byte
+    writeBuf[57] = 0xff;// reverse axis
     writeBuf[58] = 0x01;// unknown byte
 
     // reverse motor steps, bitmask: 0 no inverting, 1 invert step X, 2 invert step Y, 4 invert step Z
