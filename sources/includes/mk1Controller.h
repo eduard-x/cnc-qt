@@ -160,6 +160,7 @@ class mk1Data : public mk1Settings
 
     private:
         static void packFourBytes(byte offset, int val);
+        static void packTwoBytes(byte offset, int val);
         static void cleanBuf(byte *m);
 
     public:

@@ -819,6 +819,17 @@ void mk1Data::cleanBuf(byte *m)
 }
 
 
+void mk1Data::packTwoBytes(byte offset, int val)
+{
+    if ((offset + 1) >= BUFFER_SIZE) {
+        return;
+    }
+
+    writeBuf[offset + 0] = (byte)val;
+    writeBuf[offset + 1] = (byte)(val >> 8);
+}
+
+
 void mk1Data::packFourBytes(byte offset, int val)
 {
     if ((offset + 3) >= BUFFER_SIZE) {
@@ -940,33 +951,29 @@ void mk1Data::packA0(bool send)
     writeBuf[5] = 0x12;
 
     int AccelX = 0;
-
-     if ((coord[X].acceleration > 0) && (coord[X].pulsePerMm > 0)) {
-        AccelX = (int)3186.7 * 3600.0  * sqrt(coord[X].pulsePerMm) / (sqrt(coord[X].acceleration) * coord[X].pulsePerMm);
+    if ((coord[X].acceleration > 0) && (coord[X].pulsePerMm > 0)) {
+        AccelX = (int)3186.7 * 3600.0 / sqrt(coord[X].acceleration * coord[X].pulsePerMm);
     }
 
     packFourBytes(6, AccelX);
 
     int AccelY = 0;
-
-     if ((coord[Y].acceleration > 0) && (coord[Y].pulsePerMm > 0)) {
-        AccelY = (int)3186.7 * 3600.0  * sqrt(coord[Y].pulsePerMm) / (sqrt(coord[Y].acceleration) * coord[Y].pulsePerMm);
+    if ((coord[Y].acceleration > 0) && (coord[Y].pulsePerMm > 0)) {
+        AccelY = (int)3186.7 * 3600.0  / sqrt(coord[Y].acceleration * coord[Y].pulsePerMm);
     }
 
     packFourBytes(10, AccelY);
 
     int AccelZ = 0;
-
-     if ((coord[Z].acceleration > 0) && (coord[Z].pulsePerMm > 0)) {
-        AccelZ = (int)3186.7 * 3600.0  * sqrt(coord[Z].pulsePerMm) / (sqrt(coord[Z].acceleration) * coord[Z].pulsePerMm);
+    if ((coord[Z].acceleration > 0) && (coord[Z].pulsePerMm > 0)) {
+        AccelZ = (int)3186.7 * 3600.0  / sqrt(coord[Z].acceleration * coord[Z].pulsePerMm);
     }
 
     packFourBytes(14, AccelZ);
 
     int AccelA = 0;
-
     if ((coord[A].acceleration > 0) && (coord[A].pulsePerMm > 0)) {
-        AccelA = (int)3186.7 * 3600.0  * sqrt(coord[A].pulsePerMm) / (sqrt(coord[A].acceleration) * coord[A].pulsePerMm);
+        AccelA = (int)3186.7 * 3600.0 / sqrt(coord[A].acceleration * coord[A].pulsePerMm);
     }
 
     packFourBytes(18, AccelA);
@@ -1179,32 +1186,32 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
 
     float dnewSpdX  = 3600; // 3584?
 
-    if (speedLimitX != 0) {
-        dnewSpdX = (3600 / (float)speedLimitX) * 1000;
+    if (speedLimitX != 0 && coord[X].pulsePerMm != 0) {
+        dnewSpdX = 1.152e9 / ((float)speedLimitX * coord[X].pulsePerMm);
     }
 
     packFourBytes(7, (int)dnewSpdX);
 
     float dnewSpdY = 3600;
 
-    if (speedLimitY != 0) {
-        dnewSpdY = (3600 / (float)speedLimitY) * 1000;
+    if (speedLimitY != 0 && coord[Y].pulsePerMm != 0) {
+        dnewSpdY = 1.152e9 / ((float)speedLimitY * coord[Y].pulsePerMm);
     }
 
     packFourBytes(11, (int)dnewSpdY);
 
     float dnewSpdZ = 3600;
 
-    if (speedLimitZ != 0) {
-        dnewSpdZ = (3600 / (float)speedLimitZ) * 1000;
+    if (speedLimitZ != 0 && coord[Z].pulsePerMm != 0) {
+        dnewSpdZ = 1.152e9 / ((float)speedLimitZ * coord[Z].pulsePerMm);
     }
 
     packFourBytes(15, (int)dnewSpdZ);
 
     float dnewSpdA = 3600;
 
-    if (speedLimitA != 0) {
-        dnewSpdA = (3600 / (float)speedLimitA) * 1000;
+    if (speedLimitA != 0 && coord[A].pulsePerMm != 0) {
+        dnewSpdA = 1.152e9 / ((float)speedLimitA * coord[A].pulsePerMm);
     }
 
     packFourBytes(19, (int)dnewSpdA);
