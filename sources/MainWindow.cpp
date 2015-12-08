@@ -1183,7 +1183,7 @@ bool MainWindow::runCommand()
         //TODO: spindle move higher, now 10 mm
         cnc->packCA(cnc->coord[X].startPos, cnc->coord[Y].startPos, cnc->coord[Z].startPos + 10.0, cnc->coord[A].startPos, userSpeedG0, 0);
 
-        cnc->packCA(gcodeNow.X + cnc->coord[X].startPos, gcodeNow.Y + cnc->coord[Y].startPos, cnc->coord[Z].startPos + 10.0, gcodeNow.A + cnc->coord[A].startPos, userSpeedG0, 0);
+        cnc->packCA(gcodeNow.X /*+ cnc->coord[X].startPos*/, gcodeNow.Y /*+ cnc->coord[Y].startPos*/, cnc->coord[Z].startPos + 10.0, gcodeNow.A /*+ cnc->coord[A].startPos*/, userSpeedG0, 0);
 
         Task::Status = Working;
 
@@ -1205,13 +1205,13 @@ bool MainWindow::runCommand()
 
         cnc->packFF();
 
-        //         cnc->packFF();
-        //
-        //         cnc->packFF();
-        //
-        //         cnc->packFF();
-        //
-        //         cnc->packFF();
+        cnc->packFF();
+
+        cnc->packFF();
+
+        cnc->packFF();
+
+        cnc->packFF();
 
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
         Task::Status = Waiting;
@@ -1310,7 +1310,7 @@ bool MainWindow::runCommand()
     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
 
     //     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
-    cnc->packCA(pointX + cnc->coord[X].startPos, pointY + cnc->coord[Y].startPos, pointZ + cnc->coord[Z].startPos, pointA, speed, Task::posCodeNow);
+    cnc->packCA(pointX /*+ cnc->coord[X].startPos*/, pointY /*+ cnc->coord[Y].startPos*/, pointZ /*+ cnc->coord[Z].startPos*/, pointA, speed, Task::posCodeNow);
 
     Task::posCodeNow++;
     labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::posCodeNow + 1));
