@@ -1405,13 +1405,13 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
     cnc->packFF();
 
-    //     cnc->packFF();
-    //
-    //     cnc->packFF();
-    //
-    //     cnc->packFF();
-    //
-    //     cnc->packFF();
+    cnc->packFF();
+
+    cnc->packFF();
+
+    cnc->packFF();
+
+    cnc->packFF();
 }
 
 
@@ -1677,7 +1677,7 @@ void  MainWindow::refreshElementsForms()
     QPixmap redPix = QPixmap(":/images/ball_red.png");
 
     byte bb15 = cnc->getByte(15);
-     
+
     maxXLED->setPixmap( bb15 & (1 << 0) ? redPix : greenPix /*cnc->coord[X].limitMax ? redPix : greenPix*/ );
     minXLED->setPixmap( bb15 & (1 << 1) ? redPix : greenPix /*cnc->coord[X].limitMin ? redPix : greenPix*/ );
     maxYLED->setPixmap( bb15 & (1 << 2) ? redPix : greenPix /*cnc->coord[Y].limitMax ? redPix : greenPix*/ );
@@ -1701,7 +1701,7 @@ void  MainWindow::refreshElementsForms()
     labelB14B7->setPixmap( bb14 & (1 << 7) ? redPix : greenPix );
 
 
-   
+
     labelB15B0->setPixmap( bb15 & (1 << 0) ? redPix : greenPix );
     labelB15B1->setPixmap( bb15 & (1 << 1) ? redPix : greenPix );
     labelB15B2->setPixmap( bb15 & (1 << 2) ? redPix : greenPix );
@@ -1788,7 +1788,7 @@ void  MainWindow::refreshElementsForms()
             toolRun->setEnabled(true);
             toolStop->setEnabled(false);
             toolPause->setEnabled(false);
-            
+
             toolResetCoorX->setEnabled( true );
             numPosX->setReadOnly( true );
 
@@ -1820,7 +1820,7 @@ void  MainWindow::refreshElementsForms()
         toolRun->setEnabled( cncConnected);
         toolPause->setEnabled( cncConnected);
         toolStop->setEnabled( cncConnected);
-        
+
         toolResetCoorX->setEnabled( false );
         numPosX->setReadOnly( false );
 

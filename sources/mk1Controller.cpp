@@ -951,6 +951,7 @@ void mk1Data::packA0(bool send)
     writeBuf[5] = 0x12;
 
     int AccelX = 0;
+
     if ((coord[X].acceleration > 0) && (coord[X].pulsePerMm > 0)) {
         AccelX = (int)3186.7 * 3600.0 / sqrt(coord[X].acceleration * coord[X].pulsePerMm);
     }
@@ -958,6 +959,7 @@ void mk1Data::packA0(bool send)
     packFourBytes(6, AccelX);
 
     int AccelY = 0;
+
     if ((coord[Y].acceleration > 0) && (coord[Y].pulsePerMm > 0)) {
         AccelY = (int)3186.7 * 3600.0  / sqrt(coord[Y].acceleration * coord[Y].pulsePerMm);
     }
@@ -965,6 +967,7 @@ void mk1Data::packA0(bool send)
     packFourBytes(10, AccelY);
 
     int AccelZ = 0;
+
     if ((coord[Z].acceleration > 0) && (coord[Z].pulsePerMm > 0)) {
         AccelZ = (int)3186.7 * 3600.0  / sqrt(coord[Z].acceleration * coord[Z].pulsePerMm);
     }
@@ -972,6 +975,7 @@ void mk1Data::packA0(bool send)
     packFourBytes(14, AccelZ);
 
     int AccelA = 0;
+
     if ((coord[A].acceleration > 0) && (coord[A].pulsePerMm > 0)) {
         AccelA = (int)3186.7 * 3600.0 / sqrt(coord[A].acceleration * coord[A].pulsePerMm);
     }
