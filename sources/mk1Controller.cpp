@@ -503,6 +503,12 @@ void mk1Controller::loadSettings()
             coord[c].softMax = f;
         }
 
+        f = settingsFile->value("Home" + axisList.at(c), 0).toFloat( &res);
+
+        if (res == true) {
+            coord[c].home = f;
+        }
+        
         coord[c].limitMin = settingsFile->value("HardLimitMin" + axisList.at(c), true).toBool();
 
         coord[c].limitMax = settingsFile->value("HardLimitMax" + axisList.at(c), true).toBool();
@@ -530,6 +536,8 @@ void mk1Controller::saveSettings()
         settingsFile->setValue("SoftLimit" + axisList.at(c), (bool)coord[c].checkSoftLimits);
         settingsFile->setValue("SoftMin" + axisList.at(c), (double)coord[c].softMin);
         settingsFile->setValue("SoftMax" + axisList.at(c), (double)coord[c].softMax);
+        
+        settingsFile->setValue("Home" + axisList.at(c), (double)coord[c].home);
     }
 
     settingsFile->endGroup();

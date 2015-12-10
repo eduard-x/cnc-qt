@@ -99,6 +99,7 @@ class axis
         bool  checkSoftLimits;
         float softMax;
         float softMin;
+        float home;
         bool  wrong;
 };
 
