@@ -80,8 +80,8 @@ GLWidget::GLWidget(QWidget *p)
         return;
     }
 
-    coordArray = NULL;
-    colorArray = NULL;
+    coordArray.clear();
+    colorArray.clear();
 
     parent = (MainWindow*)p;
 
@@ -130,7 +130,7 @@ void GLWidget::surfaceReloaded()
                 pointX, pointY, pointZ
             };
 
-            *(coordArray + i) = p;
+            coordArray[i] = p;
         }
     }
 }
@@ -155,21 +155,11 @@ void GLWidget::matrixReloaded()
 {
     workNum = 0;
 
-    if ( coordArray != NULL) {
-        free(coordArray);
-        coordArray = NULL;
-    }
-
-    if ( colorArray != NULL) {
-        free(colorArray);
-        colorArray = NULL;
-    }
-
     workNum = parent->GCodeList.count();
 
     if (workNum > 1) {
-        coordArray = (pointGL*) malloc( sizeof(pointGL) * (workNum));
-        colorArray = (colorGL*) malloc( sizeof(colorGL) * (workNum));
+        coordArray.resize(workNum);
+        colorArray.resize(workNum);
 
         int currWorkPoint = 0;
 
@@ -213,8 +203,8 @@ void GLWidget::matrixReloaded()
                 pointX, pointY, pointZ
             };
 
-            *(coordArray + currWorkPoint) = p;
-            *(colorArray + currWorkPoint) = cl;
+            coordArray[currWorkPoint] = p;
+            colorArray[currWorkPoint] = cl;
 
             currWorkPoint++;
         }
@@ -448,10 +438,6 @@ void GLWidget::drawAxes()
 
 void GLWidget::drawWorkField()
 {
-    if (coordArray == NULL || colorArray == NULL) {
-        return;
-    }
-
     if (workNum < 2) {
         return;
     }

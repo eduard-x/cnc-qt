@@ -263,6 +263,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onCopyHome();
 
         void onSpindel();
+        void onMist();
+        void onFluid();
         void onEmergyStop();
         void onScanSurface();
         void onEditGCode(int row, int col);

@@ -378,6 +378,8 @@ void MainWindow::addConnections()
 
     connect(pushClean, SIGNAL(clicked()), this, SLOT(onLogClear()));
     connect(actionSpindle, SIGNAL(triggered()), this, SLOT(onSpindel()));
+    connect(actionMist, SIGNAL(triggered()), this, SLOT(onMist()));
+    connect(actionFluid, SIGNAL(triggered()), this, SLOT(onFluid()));
     connect(actionStop, SIGNAL(triggered()), this, SLOT(onEmergyStop()));
     connect(actionScan, SIGNAL(triggered()), this, SLOT(onScanSurface()));
 
@@ -1445,7 +1447,13 @@ void MainWindow::SendSignal()
         tSign = mk1Data::RC;
     }
 
-    cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), tSign, (int)spinBoxVelo->value());
+    if (checkBoxEnSpindnle->isChecked()) {
+        cnc->spindleON();
+    } else {
+        cnc->spindleOFF();
+    }
+
+    cnc->packB5(/*checkBoxEnSpindnle->isChecked(),*/ (int)spinBoxChann->value(), tSign, (int)spinBoxVelo->value());
 }
 
 
@@ -1849,32 +1857,35 @@ void MainWindow::onManualControlDialog()
 //
 void MainWindow::fillListWidget(QStringList listCode)
 {
+    qDebug() << "begin table fill";
     listGCodeWidget->clear();
     listGCodeWidget->setRowCount( 0);
     listGCodeWidget->setColumnCount(3);
     QStringList header = (QStringList() << translate(_COMMAND) << translate(_INFO) << translate(_STATE));
 
     listGCodeWidget->setHorizontalHeaderLabels(header);
+    listGCodeWidget->setRowCount( listCode.count() );
 
-    foreach (QString valueStr, listCode) {
-        listGCodeWidget->insertRow( listGCodeWidget->rowCount() );
+    for(int i = 0; i < listCode.count(); i++) {
+        QString valueStr = listCode.at(i);
+        //         listGCodeWidget->insertRow( listGCodeWidget->rowCount() );
 
         QTableWidgetItem *newItem = new QTableWidgetItem(valueStr);
         newItem->setFlags(newItem->flags() ^ Qt::ItemIsEditable); // set read only
 
-        listGCodeWidget->setItem(listGCodeWidget->rowCount() - 1, 0, newItem);
+        listGCodeWidget->setItem(i, 0, newItem);
 
         for (int j = 1; j < 3; j++) { // set other elements read only
             QTableWidgetItem *it = new QTableWidgetItem();
             it->setFlags(it->flags() ^ Qt::ItemIsEditable);
-            listGCodeWidget->setItem(listGCodeWidget->rowCount() - 1, j, it);
+            listGCodeWidget->setItem(i, j, it);
         }
     }
 
     listGCodeWidget->resizeColumnsToContents();
 
     tabWidget->setCurrentIndex(0);
-
+    qDebug() << "end table";
     statusProgress->setRange(0, listGCodeWidget->rowCount());
     statusProgress->setValue(0);
 
@@ -1987,6 +1998,26 @@ void MainWindow::onAbout()
     dlg->exec();
 
     delete dlg;
+}
+
+
+void MainWindow::onMist()
+{
+    if (cnc->isMistOn()) {
+        cnc->mistOFF();
+    } else {
+        cnc->mistON();
+    }
+}
+
+
+void MainWindow::onFluid()
+{
+    if (cnc->isFluidOn()) {
+        cnc->fluidOFF();
+    } else {
+        cnc->fluidON();
+    }
 }
 
 

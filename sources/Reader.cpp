@@ -763,6 +763,8 @@ bool Reader::readGCode(const QByteArray &gcode)
         gCodeList << lineStream;
     }
 
+    qDebug() << "data loaded";
+
     index = 0;
     foreach(QString line, gCodeList) {
         decoded = true;
@@ -1010,7 +1012,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
         index++;
     }
-
+    qDebug() << "data parsed";
     gCodeList.clear();
 
     delete tmpCommand;

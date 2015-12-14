@@ -73,6 +73,8 @@ int axis::posPulse(float posMm)
 
 int mk1Settings::spindle_MoveSpeed = 0;
 bool mk1Settings::spindle_Enable = false;
+bool mk1Settings::mist_Enable = false;
+bool mk1Settings::fluid_Enable = false;
 
 bool mk1Settings::Estop = false;
 
@@ -508,7 +510,7 @@ void mk1Controller::loadSettings()
         if (res == true) {
             coord[c].home = f;
         }
-        
+
         coord[c].limitMin = settingsFile->value("HardLimitMin" + axisList.at(c), true).toBool();
 
         coord[c].limitMax = settingsFile->value("HardLimitMax" + axisList.at(c), true).toBool();
@@ -536,7 +538,7 @@ void mk1Controller::saveSettings()
         settingsFile->setValue("SoftLimit" + axisList.at(c), (bool)coord[c].checkSoftLimits);
         settingsFile->setValue("SoftMin" + axisList.at(c), (double)coord[c].softMin);
         settingsFile->setValue("SoftMax" + axisList.at(c), (double)coord[c].softMax);
-        
+
         settingsFile->setValue("Home" + axisList.at(c), (double)coord[c].home);
     }
 
@@ -593,6 +595,22 @@ int mk1Controller::spindleMoveSpeed()
 long mk1Controller::numberCompleatedInstructions()
 {
     return NumberCompleatedInstruction;
+}
+
+//
+// splindle is on?
+//
+bool mk1Controller::isFluidOn()
+{
+    return fluid_Enable;
+}
+
+//
+// mist is on?
+//
+bool mk1Controller::isMistOn()
+{
+    return mist_Enable;
 }
 
 //
@@ -681,7 +699,8 @@ void mk1Controller::ADDMessage(int num)
 //
 void mk1Controller::spindleON()
 {
-    packB5(true);
+    spindle_Enable = true;
+    packB5();
 }
 
 //
@@ -689,8 +708,37 @@ void mk1Controller::spindleON()
 //
 void mk1Controller::spindleOFF()
 {
-    packB5(false);
+    spindle_Enable = false;
+    packB5();
 }
+
+void mk1Controller::fluidON()
+{
+    fluid_Enable = true;
+    packB6();
+}
+
+
+void mk1Controller::fluidOFF()
+{
+    fluid_Enable = false;
+    packB6();
+}
+
+
+void mk1Controller::mistON()
+{
+    mist_Enable = true;
+    packB6();
+}
+
+
+void mk1Controller::mistOFF()
+{
+    mist_Enable = false;
+    packB6();
+}
+
 
 //
 // send emergency stop
@@ -1076,7 +1124,7 @@ void mk1Data::packAB( bool send )
 // ts signal type
 // SpeedShim signal form
 //
-void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
+void mk1Data::packB5(/*bool spindleON, */int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1084,7 +1132,7 @@ void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Speed
     writeBuf[4] = 0x80;
 
 
-    if (spindleON) {
+    if (spindle_Enable) {
         writeBuf[5] = 0x02;
     } else {
         writeBuf[5] = 0x01;
@@ -1135,7 +1183,7 @@ void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Speed
 }
 
 
-// unknown settings
+// mist/fluid settings
 void mk1Data::packB6( bool send )
 {
     cleanBuf(writeBuf);
@@ -1144,9 +1192,20 @@ void mk1Data::packB6( bool send )
 
     writeBuf[4] = 0x80;
 
-    writeBuf[5] = 0x01; //TODO:unknown
+    if (fluid_Enable) {
+        writeBuf[5] = 0x02;
+    } else {
+        writeBuf[5] = 0x01;
+    }
+
     writeBuf[6] = 0x02; //TODO:unknown
-    writeBuf[7] = 0x01; //TODO:unknown
+
+    if (mist_Enable) {
+        writeBuf[7] = 0x01;
+    } else {
+        writeBuf[7] = 0x01;
+    }
+
     writeBuf[8] = 0x03; //TODO:unknown
 
     if (send == true) {

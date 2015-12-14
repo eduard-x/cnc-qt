@@ -118,6 +118,8 @@ class mk1Settings
 
         static int spindle_MoveSpeed;
         static bool spindle_Enable;
+        static bool mist_Enable;
+        static bool fluid_Enable;
 
         static bool Estop;
 
@@ -138,7 +140,7 @@ class mk1Data : public mk1Settings
 
     public:
         void packC0(byte byte05 = 0x0, bool send = true);
-        void packB5(bool spindleON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 61535, bool send = true);
+        void packB5(/*bool spindleON,*/ int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 61535, bool send = true);
         void packAA(bool send = true);
         void packA0( bool send = true);
         void packA1( bool send = true);
@@ -233,6 +235,10 @@ class mk1Controller : public QObject, public mk1Data
     public:
         void spindleON();
         void spindleOFF();
+        void mistON();
+        void mistOFF();
+        void fluidON();
+        void fluidOFF();
         void emergyStop();
         void stopManualMove();
         void deviceNewPosition(int x, int y, int z, int a = 0);
@@ -258,6 +264,8 @@ class mk1Controller : public QObject, public mk1Data
         int  spindleMoveSpeed();
         long numberCompleatedInstructions();
         bool isSpindelOn();
+        bool isMistOn();
+        bool isFluidOn();
         bool isEmergencyStopOn();
         int  availableBufferSize();
 

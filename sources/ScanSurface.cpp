@@ -447,7 +447,7 @@ void ScanThread::run()
     // move to point
     cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse( pa), (int)sParent->numSpeed->value(), 0);
 
-    sleep(100);
+    usleep(100);
 
     // опустим щуп
     cnc->packC0(0x01); // on
@@ -456,14 +456,14 @@ void ScanThread::run()
 
     cnc->packC0(0x00); // off
 
-    sleep(100);
+    usleep(100);
 
     while (!cnc->coord[Z].limitMax) {
         //dataCode.Matrix[indexScanY].X[indexScanX].Z = cnc->PositionZmm() - numReturn->value();
-        sleep(100);
+        usleep(100);
     }
 
-    sleep(300);
+    usleep(300);
     //dataCode.Matrix[indexScanY].X[indexScanX].Z = cnc->PositionZmm;
     sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (float)cnc->coord[Z].posMm();
 
@@ -473,11 +473,11 @@ void ScanThread::run()
 
     cnc->packC0(0x00); // off
 
-    sleep(100);
+    usleep(100);
     // move to the point
     cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse(pa), (int)sParent->numSpeed->value(), 0);
 
-    sleep(100);
+    usleep(100);
 
     if (sParent->indexScanX == sParent->indexMaxScanX && sParent->indexScanY == sParent->indexMaxScanY) {
         sParent->Scan = false;

@@ -147,9 +147,9 @@ class GLWidget : public QGLWidget
         static GLint yAxis[][3];
         static GLint zAxis[][3];
 
-        pointGL *surfaceArray; //
-        pointGL *coordArray; //
-        colorGL *colorArray; //
+        QVector<pointGL> surfaceArray; //
+        QVector<pointGL> coordArray; //
+        QVector<colorGL> colorArray; //
         int workNum;
 
         QTimer *glTimer;

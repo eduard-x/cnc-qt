@@ -480,7 +480,7 @@
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="currentIndex">
-            <number>3</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tab1">
             <attribute name="title">
@@ -1906,6 +1906,9 @@
      <string>Controller</string>
     </property>
     <addaction name="actionInfo"/>
+    <addaction name="separator"/>
+    <addaction name="actionMist"/>
+    <addaction name="actionFluid"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1948,6 +1951,9 @@
    <addaction name="actionInfo"/>
    <addaction name="actionSpindle"/>
    <addaction name="actionStop"/>
+   <addaction name="separator"/>
+   <addaction name="actionMist"/>
+   <addaction name="actionFluid"/>
    <addaction name="separator"/>
    <addaction name="actionScan"/>
    <addaction name="separator"/>
@@ -1997,6 +2003,24 @@
    </property>
    <property name="text">
     <string>Scan</string>
+   </property>
+  </action>
+  <action name="actionFluid">
+   <property name="icon">
+    <iconset resource="../CNC-Qt.qrc">
+     <normaloff>:/images/layer_grid.png</normaloff>:/images/layer_grid.png</iconset>
+   </property>
+   <property name="text">
+    <string>Fluid</string>
+   </property>
+  </action>
+  <action name="actionMist">
+   <property name="icon">
+    <iconset resource="../CNC-Qt.qrc">
+     <normaloff>:/images/layer_grid.png</normaloff>:/images/layer_grid.png</iconset>
+   </property>
+   <property name="text">
+    <string>Mist</string>
    </property>
   </action>
   <action name="actionExit">
@@ -2075,6 +2099,16 @@
    </property>
    <property name="text">
     <string>Info</string>
+   </property>
+  </action>
+  <action name="actionMist">
+   <property name="text">
+    <string>Mist</string>
+   </property>
+  </action>
+  <action name="actionFluid">
+   <property name="text">
+    <string>Fluid</string>
    </property>
   </action>
  </widget>
