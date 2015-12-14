@@ -1857,7 +1857,6 @@ void MainWindow::onManualControlDialog()
 //
 void MainWindow::fillListWidget(QStringList listCode)
 {
-    qDebug() << "begin table fill";
     listGCodeWidget->clear();
     listGCodeWidget->setRowCount( 0);
     listGCodeWidget->setColumnCount(3);
@@ -1868,7 +1867,6 @@ void MainWindow::fillListWidget(QStringList listCode)
 
     for(int i = 0; i < listCode.count(); i++) {
         QString valueStr = listCode.at(i);
-        //         listGCodeWidget->insertRow( listGCodeWidget->rowCount() );
 
         QTableWidgetItem *newItem = new QTableWidgetItem(valueStr);
         newItem->setFlags(newItem->flags() ^ Qt::ItemIsEditable); // set read only
@@ -1885,7 +1883,7 @@ void MainWindow::fillListWidget(QStringList listCode)
     listGCodeWidget->resizeColumnsToContents();
 
     tabWidget->setCurrentIndex(0);
-    qDebug() << "end table";
+
     statusProgress->setRange(0, listGCodeWidget->rowCount());
     statusProgress->setValue(0);
 
