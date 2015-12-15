@@ -1599,6 +1599,8 @@ void  MainWindow::refreshElementsForms()
 
     actionStop->setEnabled( cncConnected);
     actionSpindle->setEnabled( cncConnected);
+    actionMist->setEnabled( cncConnected);
+    actionFluid->setEnabled( cncConnected);
 
     labelSpeed->setText( QString::number(cnc->spindleMoveSpeed()) + translate(_MM_MIN));
     //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(cnc->numberCompleatedInstructions()));
@@ -2002,8 +2004,10 @@ void MainWindow::onAbout()
 void MainWindow::onMist()
 {
     if (cnc->isMistOn()) {
+        actionMist->setIcon(QIcon(QPixmap(":/images/mist_off.png")));
         cnc->mistOFF();
     } else {
+        actionMist->setIcon(QIcon(QPixmap(":/images/mist_on.png")));
         cnc->mistON();
     }
 }
@@ -2012,8 +2016,10 @@ void MainWindow::onMist()
 void MainWindow::onFluid()
 {
     if (cnc->isFluidOn()) {
+        actionFluid->setIcon(QIcon(QPixmap(":/images/coolant_off.png")));
         cnc->fluidOFF();
     } else {
+        actionFluid->setIcon(QIcon(QPixmap(":/images/coolant_on.png")));
         cnc->fluidON();
     }
 }
@@ -2022,8 +2028,10 @@ void MainWindow::onFluid()
 void MainWindow::onSpindel()
 {
     if (cnc->isSpindelOn()) {
+        actionSpindle->setIcon(QIcon(QPixmap(":/images/forward_off.png")));
         cnc->spindleOFF();
     } else {
+        actionSpindle->setIcon(QIcon(QPixmap(":/images/forward_on.png")));
         cnc->spindleON();
     }
 }

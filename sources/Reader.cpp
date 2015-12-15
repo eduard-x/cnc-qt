@@ -33,6 +33,7 @@
 #include <QObject>
 #include <QRegExp>
 #include <QDebug>
+#include <QTime>
 #include <QFileDialog>
 #include <QString>
 #include <QDir>
@@ -667,12 +668,16 @@ bool Reader::readGCode(const QByteArray &gcode)
 
     QTextStream stream(gcode);
     stream.setLocale(QLocale("C"));
-
+    // or this ? QString.split(QRegExp("\n|\r\n|\r")); 
+    // if we switch the input methode from QTextStream to QStringList, performance is about 15% higher
+   
     Vec3 origin(0, 0, 0);
     Vec3 current_pos(0, 0, 0);
     bool b_absolute = true;
     float coef = 1.0; // 1 or 24.5
 
+    QTime t;
+    t.start();
     GCodeCommand *tmpCommand = new GCodeCommand();
 
     bool decoded;
@@ -687,8 +692,9 @@ bool Reader::readGCode(const QByteArray &gcode)
             continue;
         }
 
-        if (lineStream.contains(';')) {
-            lineStream = lineStream.remove(lineStream.indexOf(';'), lineStream.size());
+        int posComment = lineStream.indexOf(";");
+        if (posComment >= 0) {
+            lineStream = lineStream.mid(posComment);
 
             if (lineStream.isEmpty()) {
                 continue;
@@ -696,13 +702,23 @@ bool Reader::readGCode(const QByteArray &gcode)
         }
 
         int commentBeg = lineStream.indexOf('(');
-        int commentEnd = lineStream.indexOf(')');
-
-        while (lineStream.length() > 0 && commentBeg >= 0 && commentEnd >= 0) {
-            lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);
-            commentBeg = lineStream.indexOf('(');
-            commentEnd = lineStream.indexOf(')');
+        int commentEnd = -1;
+        if (commentBeg >=0){
+            commentEnd = lineStream.lastIndexOf(')');
+                    
+            if (commentEnd > commentBeg){
+                lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);
+            }
         }
+
+
+//         while (lineStream.length() > 0 && commentBeg >= 0 && commentEnd >= 0) {
+//             lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);
+//             if (lineStream.length() > 0){
+//                 commentBeg = lineStream.indexOf('(');
+//                 commentEnd = lineStream.lastIndexOf(')');
+//             }
+//         }
 
         if (lineStream.length() == 0) {
             continue;
@@ -711,7 +727,13 @@ bool Reader::readGCode(const QByteArray &gcode)
         //         lineStream = lineStream.remove(' ');
 
         lineStream = lineStream.replace(fromDecimalPoint, toDecimalPoint);
+#if 0
+        QString tmp = lineStream;
 
+        foreach(QChar c, tmp) {
+            if (c
+        }
+#else
         int pos = lineStream.indexOf(QRegExp("N(\\d+)"));
 
         if ( pos == 0) { // remove command number from lineStream
@@ -730,7 +752,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                 iPos += 2;
             }
         }
-
+#endif
         if (lineStream.indexOf(QRegExp("[G|M|F](\\d+)($|\\s)")) == -1) { // Gxx, Fxx or Mxx not found
             if (lastCmd.length() > 0) {
                 lineStream = QString(lastCmd + " " + lineStream);
@@ -763,8 +785,11 @@ bool Reader::readGCode(const QByteArray &gcode)
         gCodeList << lineStream;
     }
 
+    qDebug("read gcode, loaded. Time elapsed: %d ms", t.elapsed());
 //     qDebug() << "data loaded";
 
+    t.restart();
+    
     index = 0;
     foreach(QString line, gCodeList) {
         decoded = true;
@@ -1012,6 +1037,8 @@ bool Reader::readGCode(const QByteArray &gcode)
 
         index++;
     }
+    
+    qDebug("read gcode, parsed. Time elapsed: %d ms", t.elapsed());
 //     qDebug() << "data parsed";
     gCodeList.clear();
 

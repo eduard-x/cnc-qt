@@ -878,8 +878,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>776</width>
-                    <height>516</height>
+                    <width>400</width>
+                    <height>300</height>
                    </rect>
                   </property>
                  </widget>
@@ -1889,7 +1889,7 @@
      <x>0</x>
      <y>0</y>
      <width>1002</width>
-     <height>29</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1950,10 +1950,9 @@
    <addaction name="separator"/>
    <addaction name="actionInfo"/>
    <addaction name="actionSpindle"/>
-   <addaction name="actionStop"/>
-   <addaction name="separator"/>
    <addaction name="actionMist"/>
    <addaction name="actionFluid"/>
+   <addaction name="actionStop"/>
    <addaction name="separator"/>
    <addaction name="actionScan"/>
    <addaction name="separator"/>
@@ -1981,7 +1980,7 @@
   <action name="actionSpindle">
    <property name="icon">
     <iconset resource="../CNC-Qt.qrc">
-     <normaloff>:/images/drill.png</normaloff>:/images/drill.png</iconset>
+     <normaloff>:/images/forward_off.png</normaloff>:/images/forward_off.png</iconset>
    </property>
    <property name="text">
     <string>Spindle</string>
@@ -2008,7 +2007,7 @@
   <action name="actionFluid">
    <property name="icon">
     <iconset resource="../CNC-Qt.qrc">
-     <normaloff>:/images/layer_grid.png</normaloff>:/images/layer_grid.png</iconset>
+     <normaloff>:/images/coolant_off.png</normaloff>:/images/coolant_off.png</iconset>
    </property>
    <property name="text">
     <string>Fluid</string>
@@ -2017,7 +2016,7 @@
   <action name="actionMist">
    <property name="icon">
     <iconset resource="../CNC-Qt.qrc">
-     <normaloff>:/images/layer_grid.png</normaloff>:/images/layer_grid.png</iconset>
+     <normaloff>:/images/mist_off.png</normaloff>:/images/mist_off.png</iconset>
    </property>
    <property name="text">
     <string>Mist</string>
@@ -2102,11 +2101,19 @@
    </property>
   </action>
   <action name="actionMist">
+   <property name="icon">
+    <iconset resource="../CNC-Qt.qrc">
+     <normaloff>:/images/mist_off.png</normaloff>:/images/mist_off.png</iconset>
+   </property>
    <property name="text">
     <string>Mist</string>
    </property>
   </action>
   <action name="actionFluid">
+   <property name="icon">
+    <iconset resource="../CNC-Qt.qrc">
+     <normaloff>:/images/coolant_off.png</normaloff>:/images/coolant_off.png</iconset>
+   </property>
    <property name="text">
     <string>Fluid</string>
    </property>
