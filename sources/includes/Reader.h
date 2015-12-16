@@ -73,12 +73,14 @@ class GCodeCommand
         // angle in grad
         float A;
 
-        int    speed;       // скорость
-        bool   spindelON;  // spinle on
-        int    numberInstruct;     // g-code
-        bool   workspeed; // true=G1 false=G0
+        int   speed;       // скорость
+        bool  spindelON;  // spinle on
+        int   numberInstruct;     // g-code
+        bool  workspeed; // true=G1 false=G0
         float diametr; // diameter of tool
 
+        int   angleVectors; //угол между отрезками, образуемыми этой, предыдущей и следующей точкой
+        float Distance; //растояние данного отрезка в мм.
         //
         // null constructor
         GCodeCommand();
@@ -198,11 +200,9 @@ class DataCollections
         ///
         ///points
     public:
-        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument)
-        {
+        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument) {
             0, 0.0
-        })
-        {
+        }) {
             TypeData = Points;
             points = _Points;
             intrument = _intrument;

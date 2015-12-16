@@ -375,6 +375,7 @@ void MainWindow::addConnections()
     connect(toolResetCoorX, SIGNAL(clicked()), this, SLOT(onButtonXtoZero()));
     connect(toolResetCoorY, SIGNAL(clicked()), this, SLOT(onButtonYtoZero()));
     connect(toolResetCoorZ, SIGNAL(clicked()), this, SLOT(onButtonZtoZero()));
+    connect(toolResetCoorA, SIGNAL(clicked()), this, SLOT(onButtonAtoZero()));
 
     connect(pushClean, SIGNAL(clicked()), this, SLOT(onLogClear()));
     connect(actionSpindle, SIGNAL(triggered()), this, SLOT(onSpindel()));
@@ -1183,9 +1184,9 @@ bool MainWindow::runCommand()
 
         //moving to the first point axes X and Y
         //TODO: spindle move higher, now 10 mm
-        cnc->packCA(cnc->coord[X].startPos, cnc->coord[Y].startPos, cnc->coord[Z].startPos + 10.0, cnc->coord[A].startPos, userSpeedG0, 0);
+        cnc->packCA(cnc->coord[X].startPos, cnc->coord[Y].startPos, cnc->coord[Z].startPos + 10.0, cnc->coord[A].startPos, userSpeedG0, 0, 0, 0.0);
 
-        cnc->packCA(gcodeNow.X /*+ cnc->coord[X].startPos*/, gcodeNow.Y /*+ cnc->coord[Y].startPos*/, cnc->coord[Z].startPos + 10.0, gcodeNow.A /*+ cnc->coord[A].startPos*/, userSpeedG0, 0);
+        cnc->packCA(gcodeNow.X, gcodeNow.Y, cnc->coord[Z].startPos + 10.0, gcodeNow.A , userSpeedG0, gcodeNow.angleVectors, gcodeNow.Distance);
 
         Task::Status = Working;
 
@@ -1312,7 +1313,7 @@ bool MainWindow::runCommand()
     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
 
     //     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
-    cnc->packCA(pointX /*+ cnc->coord[X].startPos*/, pointY /*+ cnc->coord[Y].startPos*/, pointZ /*+ cnc->coord[Z].startPos*/, pointA, speed, Task::posCodeNow);
+    cnc->packCA(pointX, pointY, pointZ, pointA, speed, Task::posCodeNow, 0.0, 0);
 
     Task::posCodeNow++;
     labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::posCodeNow + 1));
@@ -1397,7 +1398,7 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
     cnc->packC0();
 
-    cnc->packCA(posX, posY, posZ, posA, speed, 0);
+    cnc->packCA(posX, posY, posZ, posA, speed, 0, 0.0, 0);
 
     cnc->packFF();
 
@@ -1453,7 +1454,7 @@ void MainWindow::SendSignal()
         cnc->spindleOFF();
     }
 
-    cnc->packB5(/*checkBoxEnSpindnle->isChecked(),*/ (int)spinBoxChann->value(), tSign, (int)spinBoxVelo->value());
+    cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), tSign, (int)spinBoxVelo->value());
 }
 
 
@@ -1602,7 +1603,7 @@ void  MainWindow::refreshElementsForms()
     actionMist->setEnabled( cncConnected);
     actionFluid->setEnabled( cncConnected);
 
-    labelSpeed->setText( QString::number(cnc->spindleMoveSpeed()) + translate(_MM_MIN));
+    labelSpeed->setText( QString::number(cnc->getSpindleMoveSpeed()) + translate(_MM_MIN));
     //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(cnc->numberCompleatedInstructions()));
 
     if (!cncConnected) {
@@ -1855,7 +1856,7 @@ void MainWindow::onManualControlDialog()
 
 
 //
-// fill the table widget with data
+//  the table widget with data
 //
 void MainWindow::fillListWidget(QStringList listCode)
 {
@@ -1883,6 +1884,9 @@ void MainWindow::fillListWidget(QStringList listCode)
     }
 
     listGCodeWidget->resizeColumnsToContents();
+
+    Task::posCodeStart = 0;
+    Task::posCodeEnd = listGCodeWidget->rowCount();
 
     tabWidget->setCurrentIndex(0);
 
@@ -2096,24 +2100,30 @@ void MainWindow::onEditGCode(int row, int col)
 
 void MainWindow::onButtonXtoZero()
 {
-    cnc->deviceNewPosition(0, cnc->coord[Y].actualPosPulses, cnc->coord[Z].actualPosPulses);
+    cnc->deviceNewPosition(0, cnc->coord[Y].actualPosPulses, cnc->coord[Z].actualPosPulses, cnc->coord[A].actualPosPulses);
     numPosX->setValue(0.0);
 }
 
 
 void MainWindow::onButtonYtoZero()
 {
-    cnc->deviceNewPosition(cnc->coord[X].actualPosPulses, 0, cnc->coord[Z].actualPosPulses);
+    cnc->deviceNewPosition(cnc->coord[X].actualPosPulses, 0, cnc->coord[Z].actualPosPulses, cnc->coord[A].actualPosPulses);
     numPosY->setValue(0.0);
 }
 
 
 void MainWindow::onButtonZtoZero()
 {
-    cnc->deviceNewPosition(cnc->coord[X].actualPosPulses, cnc->coord[Y].actualPosPulses, 0);
+    cnc->deviceNewPosition(cnc->coord[X].actualPosPulses, cnc->coord[Y].actualPosPulses, 0, cnc->coord[A].actualPosPulses);
     numPosZ->setValue(0.0);
 }
 
+
+void MainWindow::onButtonAtoZero()
+{
+    cnc->deviceNewPosition(cnc->coord[X].actualPosPulses, cnc->coord[Y].actualPosPulses, cnc->coord[Z].actualPosPulses, 0);
+    numAngleGrad->setValue(0.0);
+}
 
 void MainWindow::onAboutQt()
 {

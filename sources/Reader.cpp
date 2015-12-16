@@ -60,6 +60,10 @@ GCodeCommand::GCodeCommand()
     Y = 0.0;
     Z = 0.0;
     A = 0.0;
+
+    angleVectors = 0;
+    Distance = 0.0;
+
     spindelON      = false;
     numberInstruct = 0;
     speed          = 0;
@@ -99,6 +103,9 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
     numberInstruct = _cmd->numberInstruct;
     speed = _cmd->speed;
     workspeed = _cmd->workspeed;
+
+    angleVectors = _cmd->angleVectors;
+    Distance = _cmd->Distance;
 
     changeInstrument = _cmd->changeInstrument;
     numberInstrument = _cmd->numberInstrument;
@@ -668,9 +675,9 @@ bool Reader::readGCode(const QByteArray &gcode)
 
     QTextStream stream(gcode);
     stream.setLocale(QLocale("C"));
-    // or this ? QString.split(QRegExp("\n|\r\n|\r")); 
+    // or this ? QString.split(QRegExp("\n|\r\n|\r"));
     // if we switch the input methode from QTextStream to QStringList, performance is about 15% higher
-   
+
     Vec3 origin(0, 0, 0);
     Vec3 current_pos(0, 0, 0);
     bool b_absolute = true;
@@ -679,6 +686,8 @@ bool Reader::readGCode(const QByteArray &gcode)
     QTime t;
     t.start();
     GCodeCommand *tmpCommand = new GCodeCommand();
+
+    //     tmpCommand->angleVectors = 0;
 
     bool decoded;
     int index = 0;
@@ -693,6 +702,7 @@ bool Reader::readGCode(const QByteArray &gcode)
         }
 
         int posComment = lineStream.indexOf(";");
+
         if (posComment >= 0) {
             lineStream = lineStream.mid(posComment);
 
@@ -703,22 +713,23 @@ bool Reader::readGCode(const QByteArray &gcode)
 
         int commentBeg = lineStream.indexOf('(');
         int commentEnd = -1;
-        if (commentBeg >=0){
+
+        if (commentBeg >= 0) {
             commentEnd = lineStream.lastIndexOf(')');
-                    
-            if (commentEnd > commentBeg){
+
+            if (commentEnd > commentBeg) {
                 lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);
             }
         }
 
 
-//         while (lineStream.length() > 0 && commentBeg >= 0 && commentEnd >= 0) {
-//             lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);
-//             if (lineStream.length() > 0){
-//                 commentBeg = lineStream.indexOf('(');
-//                 commentEnd = lineStream.lastIndexOf(')');
-//             }
-//         }
+        //         while (lineStream.length() > 0 && commentBeg >= 0 && commentEnd >= 0) {
+        //             lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);
+        //             if (lineStream.length() > 0){
+        //                 commentBeg = lineStream.indexOf('(');
+        //                 commentEnd = lineStream.lastIndexOf(')');
+        //             }
+        //         }
 
         if (lineStream.length() == 0) {
             continue;
@@ -752,8 +763,10 @@ bool Reader::readGCode(const QByteArray &gcode)
                 iPos += 2;
             }
         }
+
 #endif
-        if (lineStream.indexOf(QRegExp("[G|M|F](\\d+)($|\\s)")) == -1) { // Gxx, Fxx or Mxx not found
+
+    if (lineStream.indexOf(QRegExp("[G|M|F](\\d+)($|\\s)")) == -1) { // Gxx, Fxx or Mxx not found
             if (lastCmd.length() > 0) {
                 lineStream = QString(lastCmd + " " + lineStream);
             } else {
@@ -786,14 +799,14 @@ bool Reader::readGCode(const QByteArray &gcode)
     }
 
     qDebug("read gcode, loaded. Time elapsed: %d ms", t.elapsed());
-//     qDebug() << "data loaded";
+    //     qDebug() << "data loaded";
 
     t.restart();
-    
+
     index = 0;
     foreach(QString line, gCodeList) {
         decoded = true;
-        QStringList lst = line.split(" ");
+        QStringList lst = line.simplified().split(" ");
         QString cmd = lst.at(0);
 
         if (cmd == "") {
@@ -1037,9 +1050,43 @@ bool Reader::readGCode(const QByteArray &gcode)
 
         index++;
     }
-    
+#if 0
+
+    if (!checkBoxNewSpped.Checked) {
+        return;
+    }
+
+    // Вычисление угла между отрезками
+    for (int numPos = 1; numPos < GKODS.Count; numPos++) {
+        double xn = (double)(GKODS[numPos].X - GKODS[numPos - 1].X);
+        double yn = (double)(GKODS[numPos].Y - GKODS[numPos - 1].Y);
+        double zn = (double)(GKODS[numPos].Z - GKODS[numPos - 1].Z);
+
+        //длина отрезка
+        GKODS[numPos].Distance = (decimal) Math.Sqrt((xn * xn) + (yn * yn) + (zn * zn));
+
+        if (numPos > GKODS.Count - 2) {
+            continue;    //первую и последнюю точку не трогаем
+        }
+
+        //получим 3 точки
+        double xa = (double)(GKODS[numPos - 1].X - GKODS[numPos].X);
+        double ya = (double)(GKODS[numPos - 1].Y - GKODS[numPos].Y);
+        double za = (double)(GKODS[numPos - 1].Z - GKODS[numPos].Z);
+        double xb = (double)(GKODS[numPos + 1].X - GKODS[numPos].X);
+        double yb = (double)(GKODS[numPos + 1].Y - GKODS[numPos].Y);
+        double zb = (double)(GKODS[numPos + 1].Z - GKODS[numPos].Z);
+
+        double angle = Math.Acos(   (xa * xb + ya * yb + za * zb) /  ( Math.Sqrt(xa * xa + ya * ya + za * za) * Math.Sqrt(xb * xb + yb * yb + zb * zb )  )       );
+        double angle1 = angle * 180 / Math.PI   ;
+
+        GKODS[numPos].angleVectors = (int)angle1;
+    }
+
+#endif
+
     qDebug("read gcode, parsed. Time elapsed: %d ms", t.elapsed());
-//     qDebug() << "data parsed";
+    //     qDebug() << "data parsed";
     gCodeList.clear();
 
     delete tmpCommand;
@@ -1071,7 +1118,16 @@ bool Reader::readGCode(const QByteArray &gcode)
 // if anything is detected, return true
 bool Reader::parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F)
 {
-    const QStringList &chunks = line.toUpper().split(' ');
+    if (line.isEmpty() == true) {
+        return false;
+    }
+
+    //     qDebug() << line;
+    const QStringList &chunks = line.toUpper().simplified().split(' ');
+
+    if (chunks.count() == 0) {
+        return false;
+    }
 
     bool res = false;
 

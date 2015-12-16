@@ -71,10 +71,10 @@ int axis::posPulse(float posMm)
 }
 
 
-int mk1Settings::spindle_MoveSpeed = 0;
-bool mk1Settings::spindle_Enable = false;
-bool mk1Settings::mist_Enable = false;
-bool mk1Settings::fluid_Enable = false;
+int mk1Settings::spindleMoveSpeed = 0;
+bool mk1Settings::spindleEnabled = false;
+bool mk1Settings::mistEnabled = false;
+bool mk1Settings::fluidEnabled = false;
 
 bool mk1Settings::Estop = false;
 
@@ -198,6 +198,10 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     }
 
     hotplugThread = 0;
+
+    spindleSetEnable = false;
+    fluidSetEnable = false;
+    mistSetEnable = false;
 
     readThread = 0;
 
@@ -563,8 +567,12 @@ void mk1Controller::sendSettings()
 
     packBF(coord[X].maxVelo, coord[Y].maxVelo, coord[Z].maxVelo, coord[A].maxVelo); // set max velocities
 
-    packB5(false); // spindle off
-    packB6(); // unknown
+    packB5(spindleSetEnable); // spindle off
+
+    //     mistSetEnable = false;
+    //     fluidSetEnable = false;
+
+    packB6(mistSetEnable, fluidSetEnable); // mist, fluid coolant
 
     packC2(); // unknown
     pack9D(0x80);
@@ -584,9 +592,9 @@ bool mk1Controller::isConnected()
 //
 // velocity of spindle
 //
-int mk1Controller::spindleMoveSpeed()
+int mk1Controller::getSpindleMoveSpeed()
 {
-    return spindle_MoveSpeed;
+    return spindleMoveSpeed;
 }
 
 //
@@ -602,7 +610,7 @@ long mk1Controller::numberCompleatedInstructions()
 //
 bool mk1Controller::isFluidOn()
 {
-    return fluid_Enable;
+    return fluidEnabled;
 }
 
 //
@@ -610,7 +618,7 @@ bool mk1Controller::isFluidOn()
 //
 bool mk1Controller::isMistOn()
 {
-    return mist_Enable;
+    return mistEnabled;
 }
 
 //
@@ -618,7 +626,7 @@ bool mk1Controller::isMistOn()
 //
 bool mk1Controller::isSpindelOn()
 {
-    return spindle_Enable;
+    return spindleEnabled;
 }
 
 //
@@ -656,7 +664,14 @@ int mk1Controller::availableBufferSize()
 void mk1Controller::parseBinaryInfo()
 {
     FreebuffSize = readBuf[1];
-    spindle_MoveSpeed = (int)(((/*(readBuf[23] << 24) + (readBuf[22] << 16) +*/ (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
+    int velo = (int)(((/*(readBuf[23] << 24)*/ + (readBuf[22] << 16) + (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
+
+    if (velo > 5000) {
+        return;
+    }
+
+    spindleMoveSpeed = velo;
+    // for mk2 instead 2.1 = > 1.341
 
     coord[X].actualPosPulses = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
     coord[Y].actualPosPulses = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
@@ -665,23 +680,26 @@ void mk1Controller::parseBinaryInfo()
 
     byte bb15 = readBuf[15];
 
-    coord[X].limitMax = (bb15 & (1 << 0)) != 0;
-    coord[X].limitMax = (bb15 & (1 << 1)) != 0;
-    coord[Y].limitMax = (bb15 & (1 << 2)) != 0;
-    coord[Y].limitMax = (bb15 & (1 << 3)) != 0;
-    coord[Z].limitMax = (bb15 & (1 << 4)) != 0;
-    coord[Z].limitMax = (bb15 & (1 << 5)) != 0;
-    coord[A].limitMax = (bb15 & (1 << 6)) != 0;
-    coord[A].limitMax = (bb15 & (1 << 7)) != 0;
+    coord[X].limitMax = (bb15 & 0x01) != 0;
+    coord[X].limitMax = (bb15 & 0x02) != 0;
+    coord[Y].limitMax = (bb15 & 0x04) != 0;
+    coord[Y].limitMax = (bb15 & 0x08) != 0;
+    coord[Z].limitMax = (bb15 & 0x10) != 0;
+    coord[Z].limitMax = (bb15 & 0x20) != 0;
+    coord[A].limitMax = (bb15 & 0x40) != 0;
+    coord[A].limitMax = (bb15 & 0x80) != 0;
 
     NumberCompleatedInstruction = ((readBuf[9] << 24) + (readBuf[8] << 16) + (readBuf[7] << 8) + (readBuf[6]));
 
     byte bb19 = readBuf[19];
 
-    spindle_Enable = (bb19 & (1 << 0)) ? true : false;
+    spindleEnabled = (bb19 & 0x01) ? true : false;
+
+    //     mistEnabled =
+    //     fluidEnabled =
 
     byte bb14 = readBuf[14];
-    Estop = (bb14 & (1 << 7)) ? true : false;
+    Estop = (bb14 & 0x80) ? true : false;
 
     emit newDataFromMK1Controller();
 }
@@ -699,8 +717,8 @@ void mk1Controller::ADDMessage(int num)
 //
 void mk1Controller::spindleON()
 {
-    spindle_Enable = true;
-    packB5();
+    spindleSetEnable = true;
+    packB5(spindleSetEnable);
 }
 
 //
@@ -708,35 +726,36 @@ void mk1Controller::spindleON()
 //
 void mk1Controller::spindleOFF()
 {
-    spindle_Enable = false;
-    packB5();
+    spindleSetEnable = false;
+    packB5(spindleSetEnable);
 }
+
 
 void mk1Controller::fluidON()
 {
-    fluid_Enable = true;
-    packB6();
+    fluidSetEnable = true;
+    packB6(mistSetEnable, fluidSetEnable);
 }
 
 
 void mk1Controller::fluidOFF()
 {
-    fluid_Enable = false;
-    packB6();
+    fluidSetEnable = false;
+    packB6(mistSetEnable, fluidSetEnable);
 }
 
 
 void mk1Controller::mistON()
 {
-    mist_Enable = true;
-    packB6();
+    mistSetEnable = true;
+    packB6(mistSetEnable, fluidSetEnable);
 }
 
 
 void mk1Controller::mistOFF()
 {
-    mist_Enable = false;
-    packB6();
+    mistSetEnable = false;
+    packB6(mistSetEnable, fluidSetEnable);
 }
 
 
@@ -759,39 +778,39 @@ void mk1Controller::startManualMove(QString x, QString y, QString z, QString a, 
         return;
     }
 
-    byte axesDirection = 0x00; // = new SuperByte(0x00);
+    byte axesDirection = 0x00;
 
     // set the bits
     if (x == "-") {
-        axesDirection |= (1 << 0);
+        axesDirection |= 0x01;
     }
 
     if (x == "+") {
-        axesDirection |= (1 << 1);
+        axesDirection |= 0x02;
     }
 
     if (y == "-") {
-        axesDirection |= (1 << 2);
+        axesDirection |= 0x04;
     }
 
     if (y == "+") {
-        axesDirection |= (1 << 3);
+        axesDirection |= 0x08;
     }
 
     if (z == "-") {
-        axesDirection |= (1 << 4);
+        axesDirection |= 0x10;
     }
 
     if (z == "+") {
-        axesDirection |= (1 << 5);
+        axesDirection |= 0x20;
     }
 
     if (a == "-") {
-        axesDirection |= (1 << 6);
+        axesDirection |= 0x40;
     }
 
     if (a == "+") {
-        axesDirection |= (1 << 7);
+        axesDirection |= 0x80;
     }
 
     packBE(axesDirection, speed);
@@ -1057,7 +1076,7 @@ void mk1Data::packA0(bool send)
 }
 
 
-// unknown settings
+// limits activate
 void mk1Data::packA1( bool send )
 {
     cleanBuf(writeBuf);
@@ -1068,14 +1087,14 @@ void mk1Data::packA1( bool send )
 
     // allow limits: bit 7 a+; bit 6 a-, bit 5 z+, bit 4 z-, bit 3 y+, bit 2 y-, bit 1 x+, bit 0 x-
     byte limits = 0x0;
-    limits |= (coord[X].limitMin << 0);
-    limits |= (coord[X].limitMax << 1);
-    limits |= (coord[Y].limitMin << 2);
-    limits |= (coord[Y].limitMax << 3);
-    limits |= (coord[Z].limitMin << 4);
-    limits |= (coord[Z].limitMax << 5);
-    limits |= (coord[A].limitMin << 6);
-    limits |= (coord[A].limitMax << 7);
+    limits |= (((int)coord[X].limitMin) << 0);
+    limits |= (((int)coord[X].limitMax) << 1);
+    limits |= (((int)coord[Y].limitMin) << 2);
+    limits |= (((int)coord[Y].limitMax) << 3);
+    limits |= (((int)coord[Z].limitMin) << 4);
+    limits |= (((int)coord[Z].limitMax) << 5);
+    limits |= (((int)coord[A].limitMin) << 6);
+    limits |= (((int)coord[A].limitMax) << 7);
 
     writeBuf[42] = limits;
     writeBuf[48] = 0xff; // unknown
@@ -1124,7 +1143,7 @@ void mk1Data::packAB( bool send )
 // ts signal type
 // SpeedShim signal form
 //
-void mk1Data::packB5(/*bool spindleON, */int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
+void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1132,7 +1151,7 @@ void mk1Data::packB5(/*bool spindleON, */int numShimChanel, TypeSignal ts, int S
     writeBuf[4] = 0x80;
 
 
-    if (spindle_Enable) {
+    if (spindleON) {
         writeBuf[5] = 0x02;
     } else {
         writeBuf[5] = 0x01;
@@ -1184,7 +1203,7 @@ void mk1Data::packB5(/*bool spindleON, */int numShimChanel, TypeSignal ts, int S
 
 
 // mist/fluid settings
-void mk1Data::packB6( bool send )
+void mk1Data::packB6( bool mist, bool fluid, bool send )
 {
     cleanBuf(writeBuf);
 
@@ -1192,7 +1211,7 @@ void mk1Data::packB6( bool send )
 
     writeBuf[4] = 0x80;
 
-    if (fluid_Enable) {
+    if (fluid) {
         writeBuf[5] = 0x02;
     } else {
         writeBuf[5] = 0x01;
@@ -1200,7 +1219,7 @@ void mk1Data::packB6( bool send )
 
     writeBuf[6] = 0x02; //TODO:unknown
 
-    if (mist_Enable) {
+    if (mist) {
         writeBuf[7] = 0x01;
     } else {
         writeBuf[7] = 0x01;
@@ -1237,6 +1256,116 @@ void mk1Data::packBE(byte direction, int speed, bool send)
 
     //velocity
     packFourBytes(10, inewSpd);
+
+#if 0
+
+    if (Setting.DeviceModel == DeviceModel.MK2) {
+        //TODO: Для МК2 немного иные посылки данных
+
+        if (speed != 0) {
+            double dnewSpd = (9000 / (double)speed) * 1000;
+            inewSpd = (int)dnewSpd;
+        }
+
+        //скорость
+        buf[10] = (byte)(inewSpd);
+        buf[11] = (byte)(inewSpd >> 8);
+        buf[12] = (byte)(inewSpd >> 16);
+
+        if (speed == 0) {
+            buf[14] = 0x00;
+            buf[18] = 0x01;
+            buf[22] = 0x01;
+
+            //x
+            buf[26] = 0x00;
+            buf[27] = 0x00;
+            buf[28] = 0x00;
+            buf[29] = 0x00;
+
+            //y
+            buf[30] = 0x00;
+            buf[31] = 0x00;
+            buf[32] = 0x00;
+            buf[33] = 0x00;
+
+            //z
+            buf[34] = 0x00;
+            buf[35] = 0x00;
+            buf[36] = 0x00;
+            buf[37] = 0x00;
+
+            //a
+            buf[38] = 0x00;
+            buf[39] = 0x00;
+            buf[40] = 0x00;
+            buf[41] = 0x00;
+
+
+        } else {
+            buf[14] = 0xC8; //TODO: WTF??
+            buf[18] = 0x14; //TODO: WTF??
+            buf[22] = 0x14; //TODO: WTF??
+
+            if (x == "+") {
+                buf[26] = 0x40;
+                buf[27] = 0x0D;
+                buf[28] = 0x03;
+                buf[29] = 0x00;
+            }
+
+            if (x == "-") {
+                buf[26] = 0xC0;
+                buf[27] = 0xF2;
+                buf[28] = 0xFC;
+                buf[29] = 0xFF;
+            }
+
+            if (y == "+") {
+                buf[30] = 0x40;
+                buf[31] = 0x0D;
+                buf[32] = 0x03;
+                buf[33] = 0x00;
+            }
+
+            if (y == "-") {
+                buf[30] = 0xC0;
+                buf[31] = 0xF2;
+                buf[32] = 0xFC;
+                buf[33] = 0xFF;
+            }
+
+            if (z == "+") {
+                buf[34] = 0x40;
+                buf[35] = 0x0D;
+                buf[36] = 0x03;
+                buf[37] = 0x00;
+            }
+
+            if (z == "-") {
+                buf[34] = 0xC0;
+                buf[35] = 0xF2;
+                buf[36] = 0xFC;
+                buf[37] = 0xFF;
+            }
+
+            if (a == "+") {
+                buf[38] = 0x40;
+                buf[39] = 0x0D;
+                buf[40] = 0x03;
+                buf[41] = 0x00;
+            }
+
+            if (a == "-") {
+                buf[38] = 0xC0;
+                buf[39] = 0xF2;
+                buf[40] = 0xFC;
+                buf[41] = 0xFF;
+            }
+        }
+    }
+
+#endif
 
     if (send == true) {
         sendBinaryData();
@@ -1348,21 +1477,21 @@ void mk1Data::packC8(int x, int y, int z, int a, bool send)
 }
 
 // recalculate from mm/inch to pulses
-void mk1Data::packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, bool send)
+void mk1Data::packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, float distance, int _pause, bool send)
 {
     int xPulses = coord[X].posPulse(_posX);
     int yPulses = coord[Y].posPulse(_posY);
     int zPulses = coord[Z].posPulse(_posZ);
     int aPulses = coord[A].posPulse(_posA);
 
-    packCA(xPulses, yPulses, zPulses, aPulses, _speed, _NumberInstruction, send);
+    packCA(xPulses, yPulses, zPulses, aPulses, _speed, _NumberInstruction, distance, _pause, send);
 }
 
 
 //
 // moving to the point
 //
-void mk1Data::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send)
+void mk1Data::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, float distance, int _pause, bool send)
 {
     int newInst = _NumberInstruction;
 
@@ -1373,7 +1502,11 @@ void mk1Data::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int
     //save the number instruction
     packFourBytes(1, newInst);
 
-    writeBuf[5] = 0x39; //TODO: unnknown byte delay in µs? was 0x39
+    if (distance > 0.0 && distance < 5.0) {
+        writeBuf[5] = 0x03;
+    } else {
+        writeBuf[5] = _pause; //TODO: delay in µs? was 0x39
+    }
 
     //how many pulses
     packFourBytes(6, _posX);
@@ -1384,7 +1517,7 @@ void mk1Data::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int
     int inewSpd = 2328; //TODO: default velocity
 
     if (_speed != 0) {
-        float dnewSpd = (1800 / (float)_speed) * 1000;
+        float dnewSpd = (3600.0 / (float)_speed) * 1000.0;
         inewSpd = (int)dnewSpd;
     }
 

@@ -551,7 +551,7 @@ void ManualControlDialog::pressedCommand(int num)
     }
 
     cnc->startManualMove(x, y, z, a,  speed);
-//     cnc->stopManualMove();
+    //     cnc->stopManualMove();
 }
 
 

@@ -59,8 +59,7 @@ class mk1Controller;
 class usbHotplugThread : public QThread
 {
         Q_OBJECT
-        void run()
-        {
+        void run() {
             /* expensive or blocking operation  */
             while(true) {
                 int r = libusb_handle_events(NULL);
@@ -116,10 +115,10 @@ class mk1Settings
         axis coord[4]; // array of 4 axis for mk1
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2
 
-        static int spindle_MoveSpeed;
-        static bool spindle_Enable;
-        static bool mist_Enable;
-        static bool fluid_Enable;
+        static int spindleMoveSpeed;
+        static bool spindleEnabled;
+        static bool mistEnabled;
+        static bool fluidEnabled;
 
         static bool Estop;
 
@@ -140,22 +139,22 @@ class mk1Data : public mk1Settings
 
     public:
         void packC0(byte byte05 = 0x0, bool send = true);
-        void packB5(/*bool spindleON,*/ int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 61535, bool send = true);
+        void packB5(bool spindleON, int numShimChanel = 0, TypeSignal ts = None, int SpeedShim = 61535, bool send = true);
         void packAA(bool send = true);
         void packA0( bool send = true);
         void packA1( bool send = true);
         void packC8(int x, int y, int z, int a, bool send = true);
         void packD3( bool send = true);
         void packC2( bool send = true);
-        void packB6( bool send = true);
+        void packB6( bool mist, bool fluid, bool send = true);
         void packAB( bool send = true);
         void packD2(int speed, float returnDistance, bool send = true);
         void packBE(byte direction, int speed, bool send = true);
         void pack9E(byte value, bool send = true);
         void pack9F( bool send = true);
         void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
-        void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, bool send = true);
-        void packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, bool send = true);
+        void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, float distance, int _pause = 0x39, bool send = true);
+        void packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, float distance, int _pause = 0x39, bool send = true);
         void packFF(bool send = true);
         void pack9D(byte value, bool send = true);
         void setByte(byte offset, byte data);
@@ -210,6 +209,10 @@ class mk1Controller : public QObject, public mk1Data
     private:
         int count;
         bool devConnected;
+        bool spindleSetEnable;
+        bool fluidSetEnable;
+        bool mistSetEnable;
+
         QStringList axisList;
 
         static libusb_hotplug_callback_handle hotplug[2];
@@ -261,7 +264,7 @@ class mk1Controller : public QObject, public mk1Data
         bool testAllowActions();
 
         bool isConnected();
-        int  spindleMoveSpeed();
+        int  getSpindleMoveSpeed();
         long numberCompleatedInstructions();
         bool isSpindelOn();
         bool isMistOn();
@@ -287,12 +290,10 @@ class usbReadThread : public QThread
 {
         Q_OBJECT
     public:
-        usbReadThread(QObject *parent) : QThread(parent)
-        {
+        usbReadThread(QObject *parent) : QThread(parent) {
             p = (mk1Controller*)parent;
         }
-        void run()
-        {
+        void run() {
             // init of read array
             memset( buf, 0x0, BUFFER_SIZE);
 

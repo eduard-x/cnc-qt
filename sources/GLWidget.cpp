@@ -456,19 +456,43 @@ void GLWidget::drawWorkField()
     glDrawArrays(GL_LINE_STRIP, 0, workNum);
 
     // select with 3.0 the current cut of object
-    if (Task::Status == Waiting) {
-        int numSelectStart = Task::posCodeStart;
-        int numSelectStop = Task::posCodeEnd;
-        glLineWidth(3.0f);
-        glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelectStart]);
-        glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelectStart]);
-        glDrawArrays(GL_LINE_STRIP, 0, numSelectStop - numSelectStart - 1);
-    } else {
-        int numSelect = cnc->numberCompleatedInstructions() - 1;
-        glLineWidth(3.0f);
-        glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
-        glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect]);
-        glDrawArrays(GL_LINE_STRIP, 0, 2);
+    switch (Task::Status) {
+        case Waiting: {
+            int numSelectStart = Task::posCodeStart;
+            int numSelectStop = Task::posCodeEnd;
+            glLineWidth(3.0f);
+            glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelectStart]);
+            glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelectStart]);
+            glDrawArrays(GL_LINE_STRIP, 0, numSelectStop - numSelectStart - 1);
+            break;
+        }
+
+        case Stop:  {
+            //         int numSelect = cnc->numberCompleatedInstructions() - 1;
+            glLineWidth(3.0f);
+            glVertexPointer(3, GL_FLOAT, 0, &coordArray[Task::posCodeStart]);
+            glColorPointer(3, GL_FLOAT, 0, &colorArray[Task::posCodeStart]);
+            glDrawArrays(GL_LINE_STRIP, 0, 2);
+            break;
+        }
+
+        case Paused: {
+            int numSelect = cnc->numberCompleatedInstructions() - 1;
+            glLineWidth(3.0f);
+            glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
+            glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect]);
+            glDrawArrays(GL_LINE_STRIP, 0, 2);
+            break;
+        }
+
+        case Working: {
+            int numSelect = cnc->numberCompleatedInstructions() - 1;
+            glLineWidth(3.0f);
+            glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
+            glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect + 1]);
+            glDrawArrays(GL_LINE_STRIP, 0, 2);
+            break;
+        }
     }
 
     glDisable(GL_VERTEX_ARRAY);

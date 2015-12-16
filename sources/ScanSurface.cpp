@@ -431,7 +431,7 @@ ScanThread::ScanThread(QObject* p)
 // TODO: при сканировании иногда заполняет сразу 2 ячейки в таблице?!?
 void ScanThread::run()
 {
-    if (cnc->spindleMoveSpeed() != 0) {
+    if (cnc->getSpindleMoveSpeed() != 0) {
         return;
     }
 
@@ -445,7 +445,7 @@ void ScanThread::run()
     float pa = 0;//sParent->numPosA->value();
 
     // move to point
-    cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse( pa), (int)sParent->numSpeed->value(), 0);
+    cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse( pa), (int)sParent->numSpeed->value(), 0, 0, 0.0);
 
     usleep(100);
 
@@ -475,7 +475,7 @@ void ScanThread::run()
 
     usleep(100);
     // move to the point
-    cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse(pa), (int)sParent->numSpeed->value(), 0);
+    cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse(pa), (int)sParent->numSpeed->value(), 0, 0, 0.0);
 
     usleep(100);
 
