@@ -983,7 +983,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     QString property1 = lst.at(1).mid(0, 1);
                     QString value1 = lst.at(1).mid(1);
 
-               
+
 
                     if (property1 == "T") {
                         tmpCommand->changeInstrument = true;
@@ -1000,11 +1000,12 @@ bool Reader::readGCode(const QByteArray &gcode)
                             decoded = false;
                         }
 
-                        if (lst.count() > 2){
+                        if (lst.count() > 2) {
                             QString property2 = lst.at(2).mid(0, 1);
-                            if ( property2 == "D" ){
+
+                            if ( property2 == "D" ) {
                                 QString value2 = lst.at(2).mid(1).replace(fromDecimalPoint, toDecimalPoint);
-                                
+
                                 tmpCommand->diametr = value2.toDouble(&res);
 
                                 if (res == false) {

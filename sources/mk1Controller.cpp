@@ -1514,15 +1514,25 @@ void mk1Data::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int
     packFourBytes(14, _posZ);
     packFourBytes(18, _posA);
 
-    int inewSpd = 2328; //TODO: default velocity
+    //     int inewSpd = 2328; //TODO: default velocity
+    //
+    //     if (_speed != 0) {
+    //         float dnewSpd = (3600.0 / (float)_speed) * 1000.0;
+    //         inewSpd = (int)dnewSpd;
+    //     }
 
-    if (_speed != 0) {
-        float dnewSpd = (3600.0 / (float)_speed) * 1000.0;
-        inewSpd = (int)dnewSpd;
+    int inewSpd = 3600;
+
+    if (_speed != 0 && coord[X].pulsePerMm != 0) {
+        inewSpd = 1.152e9 / ((float)_speed * coord[X].pulsePerMm);
     }
 
     //axes xspeed
     packFourBytes(43, inewSpd);
+
+    // todo: unknown 4 byte from offset 46
+    int unk = 0;
+    packFourBytes(46, unk);
 
     writeBuf[54] = 0x40;  //TODO: unknown byte
 

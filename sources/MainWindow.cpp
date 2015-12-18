@@ -812,9 +812,9 @@ void MainWindow::readGUISettings()
 
     GrigStep = s->value("GrigStep", 10).toInt();
 
-    GridXstart = s->value("GridXstart", 0).toInt();
+    GridXstart = s->value("GridXstart", -100).toInt();
     GridXend = s->value("GridXend", 100).toInt();
-    GridYstart = s->value("GridYstart", 0).toInt();
+    GridYstart = s->value("GridYstart", -100).toInt();
     GridYend = s->value("GridYend", 100).toInt();
 
     ShowGrate = s->value("ShowGrate", true).toBool(); // grenzen
