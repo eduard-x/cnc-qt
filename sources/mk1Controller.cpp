@@ -1387,7 +1387,7 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
     float dnewSpdX  = 3600; // 3584?
 
     if (speedLimitX != 0 && coord[X].pulsePerMm != 0) {
-        dnewSpdX = 1.152e9 / ((float)speedLimitX * coord[X].pulsePerMm);
+        dnewSpdX = 7.2e8 / ((float)speedLimitX * coord[X].pulsePerMm);
     }
 
     packFourBytes(7, (int)dnewSpdX);
@@ -1395,7 +1395,7 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
     float dnewSpdY = 3600;
 
     if (speedLimitY != 0 && coord[Y].pulsePerMm != 0) {
-        dnewSpdY = 1.152e9 / ((float)speedLimitY * coord[Y].pulsePerMm);
+        dnewSpdY = 7.2e8 / ((float)speedLimitY * coord[Y].pulsePerMm);
     }
 
     packFourBytes(11, (int)dnewSpdY);
@@ -1403,7 +1403,7 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
     float dnewSpdZ = 3600;
 
     if (speedLimitZ != 0 && coord[Z].pulsePerMm != 0) {
-        dnewSpdZ = 1.152e9 / ((float)speedLimitZ * coord[Z].pulsePerMm);
+        dnewSpdZ = 7.2e8 / ((float)speedLimitZ * coord[Z].pulsePerMm);
     }
 
     packFourBytes(15, (int)dnewSpdZ);
@@ -1411,7 +1411,7 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
     float dnewSpdA = 3600;
 
     if (speedLimitA != 0 && coord[A].pulsePerMm != 0) {
-        dnewSpdA = 1.152e9 / ((float)speedLimitA * coord[A].pulsePerMm);
+        dnewSpdA = 7.2e8 / ((float)speedLimitA * coord[A].pulsePerMm);
     }
 
     packFourBytes(19, (int)dnewSpdA);
@@ -1524,7 +1524,7 @@ void mk1Data::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int
     int inewSpd = 3600;
 
     if (_speed != 0 && coord[X].pulsePerMm != 0) {
-        inewSpd = 1.152e9 / ((float)_speed * coord[X].pulsePerMm);
+        inewSpd = 7.2e8 / ((float)_speed * coord[X].pulsePerMm);
     }
 
     //axes xspeed
