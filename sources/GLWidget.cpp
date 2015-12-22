@@ -639,9 +639,16 @@ void GLWidget::drawInstrument()
 void GLWidget::drawGrate()
 {
     //
-    glLineWidth(4.0f);
+    glLineWidth(2.0f);
 
     glColor3f(0.541f, 0.169f, 0.886f);
+
+    glEnable(GL_LINE_STIPPLE);
+
+    GLushort pattern = 0x00FF;
+    GLint factor = 2;
+
+    glLineStipple( factor, pattern );
 
     glBegin(GL_LINE_STRIP); //normal lines
 
@@ -652,6 +659,8 @@ void GLWidget::drawGrate()
     glVertex3d(parent->grateXmin, parent->grateYmin, 0);
 
     glEnd();
+
+    glDisable(GL_LINE_STIPPLE);
 }
 
 

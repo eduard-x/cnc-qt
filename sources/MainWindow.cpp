@@ -1176,7 +1176,7 @@ bool MainWindow::runCommand()
 
         cnc->pack9E(0x05);
 
-        cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
+        cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA, false);
 
         cnc->packC0();
 
@@ -1202,7 +1202,7 @@ bool MainWindow::runCommand()
 
         cnc->packFF();
 
-        cnc->pack9D(0x00);
+        cnc->pack9D(false);
 
         cnc->pack9E(0x02);
 
@@ -1217,7 +1217,7 @@ bool MainWindow::runCommand()
         cnc->packFF();
 
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
-        Task::Status = Waiting;
+        Task::Status = Stop;
         //         mainTaskTimer.stop();
 
         refreshElementsForms();
@@ -1304,11 +1304,6 @@ bool MainWindow::runCommand()
         }
     }
 
-    //     int posX = cnc->coord[X].posPulse( pointX);
-    //     int posY = cnc->coord[Y].posPulse( pointY);
-    //     int posZ = cnc->coord[Z].posPulse( pointZ);
-    //     int posA = cnc->coord[A].posPulse( pointA);
-
     //TODO: additional velocity control manual/automatical
     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
 
@@ -1379,22 +1374,22 @@ void MainWindow::moveToPoint(bool surfaceScan)
             return;
         }
 
-        posX = /*cnc->coord[X].posPulse( */surfaceMatrix[scanPosY][scanPosX].X;//);
-        posY = /*cnc->coord[Y].posPulse(*/ surfaceMatrix[scanPosY][scanPosX].Y;//);
-        posZ = /*cnc->coord[Z].posPulse( */surfaceMatrix[scanPosY][scanPosX].Z;//);
-        posA = /*cnc->coord[A].posPulse(*/ surfaceMatrix[scanPosY][scanPosX].A;//);
+        posX = surfaceMatrix[scanPosY][scanPosX].X;
+        posY = surfaceMatrix[scanPosY][scanPosX].Y;
+        posZ = surfaceMatrix[scanPosY][scanPosX].Z;
+        posA = surfaceMatrix[scanPosY][scanPosX].A;
     } else {
         speed = spinMoveVelo->value();
 
-        posX = /*cnc->coord[X].posPulse(*/ doubleSpinMoveX->value();//);
-        posY = /*cnc->coord[Y].posPulse( */doubleSpinMoveY->value();//);
-        posZ = /*cnc->coord[Z].posPulse(*/ doubleSpinMoveZ->value();//);
-        posA = /*cnc->coord[A].posPulse( */numAngleGrad->value();//);
+        posX = doubleSpinMoveX->value();
+        posY = doubleSpinMoveY->value();
+        posZ = doubleSpinMoveZ->value();
+        posA = numAngleGrad->value();
     }
 
     cnc->pack9E(0x05);
 
-    cnc->packBF(speed, speed, speed, speed);
+    cnc->packBF(speed, speed, speed, speed, false);
 
     cnc->packC0();
 
@@ -1402,7 +1397,7 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
     cnc->packFF();
 
-    cnc->pack9D(0x00);
+    cnc->pack9D(false);
 
     cnc->pack9E(0x02);
 

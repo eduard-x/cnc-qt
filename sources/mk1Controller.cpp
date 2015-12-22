@@ -299,7 +299,7 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
             getDeviceInfo();
 
-            pack9D(0x00); // to get actual info from device
+            pack9D(false); // to get actual info from device
         }
     }
 
@@ -440,7 +440,7 @@ void mk1Controller::handleHotplug()
 
             readThread->start();
 
-            pack9D(0x00); // to get tha actual info from device
+            pack9D(false); // to get tha actual info from device
         }
 
         devConnected = true;
@@ -565,7 +565,7 @@ void mk1Controller::sendSettings()
     packA0(); // set acceleration
     packA1(); // set allowed limits
 
-    packBF(coord[X].maxVelo, coord[Y].maxVelo, coord[Z].maxVelo, coord[A].maxVelo); // set max velocities
+    packBF(coord[X].maxVelo, coord[Y].maxVelo, coord[Z].maxVelo, coord[A].maxVelo, true); // set max velocities
 
     packB5(spindleSetEnable); // spindle off
 
@@ -575,7 +575,7 @@ void mk1Controller::sendSettings()
     packB6(mistSetEnable, fluidSetEnable); // mist, fluid coolant
 
     packC2(); // unknown
-    pack9D(0x80);
+    pack9D(true);
 
     pack9E(0x80);
 }
@@ -695,11 +695,11 @@ void mk1Controller::parseBinaryInfo()
 
     spindleEnabled = (bb19 & 0x01) ? true : false;
 
-    //     mistEnabled =
-    //     fluidEnabled =
-
     byte bb14 = readBuf[14];
     Estop = (bb14 & 0x80) ? true : false;
+
+    mistEnabled =  (bb14 & 0x10) ? false : true;
+    fluidEnabled = (bb14 & 0x04) ? false : true;
 
     emit newDataFromMK1Controller();
 }
@@ -931,6 +931,14 @@ void mk1Data::sendBinaryData(bool checkBuffSize)
         //TODO: check buffer....
     }
 
+    QString st;
+
+    for (int i = 0; i < 64; i++) {
+        st += QString().sprintf("%2x ", writeBuf[i]);
+    }
+
+    qDebug() << "send" << st;
+
     if (!DEMO_DEVICE) {
         //         _error_code = _usb->write(rawData);//, 2000, bytesWritten);
         if (handle != 0) {
@@ -956,13 +964,13 @@ void mk1Data::sendBinaryData(bool checkBuffSize)
 //
 // UNKNOWN COMMAND
 // value = 0x80 settings
-void mk1Data::pack9D(byte value, bool send)
+void mk1Data::pack9D(bool settings, bool send)
 {
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0x9d;
 
-    if (value == 0x80) {
+    if (settings == true) {
         writeBuf[4] = 0x80; //unknown
         writeBuf[5] = 0x01; //unknown
     }
@@ -995,7 +1003,7 @@ void mk1Data::pack9E(byte value, bool send)
 
 
 // settings
-// impulses per mm
+// impulses per mm, LCD only?
 void mk1Data::pack9F( bool send)
 {
     cleanBuf(writeBuf);
@@ -1220,7 +1228,7 @@ void mk1Data::packB6( bool mist, bool fluid, bool send )
     writeBuf[6] = 0x02; //TODO:unknown
 
     if (mist) {
-        writeBuf[7] = 0x01;
+        writeBuf[7] = 0x02;
     } else {
         writeBuf[7] = 0x01;
     }
@@ -1377,12 +1385,15 @@ void mk1Data::packBE(byte direction, int speed, bool send)
 //
 // set velocity limit
 //
-void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send)
+void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool settings, bool send)
 {
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xbf;
-    writeBuf[4] = 0x80; //TODO:unknown
+
+    if ( settings == true) {
+        writeBuf[4] = 0x80; //TODO:unknown
+    }
 
     float dnewSpdX  = 3600; // 3584?
 
@@ -1513,6 +1524,7 @@ void mk1Data::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int
     packFourBytes(10, _posY);
     packFourBytes(14, _posZ);
     packFourBytes(18, _posA);
+
 
     //     int inewSpd = 2328; //TODO: default velocity
     //

@@ -152,11 +152,11 @@ class mk1Data : public mk1Settings
         void packBE(byte direction, int speed, bool send = true);
         void pack9E(byte value, bool send = true);
         void pack9F( bool send = true);
-        void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
+        void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool settings, bool send = true);
         void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, float distance, int _pause = 0x39, bool send = true);
         void packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, float distance, int _pause = 0x39, bool send = true);
         void packFF(bool send = true);
-        void pack9D(byte value, bool send = true);
+        void pack9D(bool settings, bool send = true);
         void setByte(byte offset, byte data);
         byte getByte(byte offset);
         void sendBinaryData(bool checkBuffSize = true);
