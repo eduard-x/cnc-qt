@@ -75,6 +75,7 @@ int mk1Settings::spindleMoveSpeed = 0;
 bool mk1Settings::spindleEnabled = false;
 bool mk1Settings::mistEnabled = false;
 bool mk1Settings::fluidEnabled = false;
+bool mk1Settings::setSettings = false;
 
 bool mk1Settings::Estop = false;
 
@@ -299,7 +300,7 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
             getDeviceInfo();
 
-            pack9D(false); // to get actual info from device
+            pack9D(); // to get actual info from device
         }
     }
 
@@ -440,7 +441,7 @@ void mk1Controller::handleHotplug()
 
             readThread->start();
 
-            pack9D(false); // to get tha actual info from device
+            pack9D(); // to get tha actual info from device
         }
 
         devConnected = true;
@@ -557,6 +558,8 @@ void mk1Controller::saveSettings()
 // send settings to mk
 void mk1Controller::sendSettings()
 {
+    setSettings = true;
+    
     packD3();
     packAB();
 
@@ -565,7 +568,7 @@ void mk1Controller::sendSettings()
     packA0(); // set acceleration
     packA1(); // set allowed limits
 
-    packBF(coord[X].maxVelo, coord[Y].maxVelo, coord[Z].maxVelo, coord[A].maxVelo, true); // set max velocities
+    packBF(coord[X].maxVelo, coord[Y].maxVelo, coord[Z].maxVelo, coord[A].maxVelo); // set max velocities
 
     packB5(spindleSetEnable); // spindle off
 
@@ -575,9 +578,11 @@ void mk1Controller::sendSettings()
     packB6(mistSetEnable, fluidSetEnable); // mist, fluid coolant
 
     packC2(); // unknown
-    pack9D(true);
+    pack9D();
 
     pack9E(0x80);
+    
+    setSettings = false;
 }
 
 
@@ -964,15 +969,15 @@ void mk1Data::sendBinaryData(bool checkBuffSize)
 //
 // UNKNOWN COMMAND
 // value = 0x80 settings
-void mk1Data::pack9D(bool settings, bool send)
+void mk1Data::pack9D(bool send)
 {
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0x9d;
 
-    if (settings == true) {
-        writeBuf[4] = 0x80; //unknown
-        writeBuf[5] = 0x01; //unknown
+    if (setSettings == true) {
+        writeBuf[4] = 0x80; // settings
+        writeBuf[5] = 0x01; // unknown
     }
 
     if (send == true) {
@@ -987,8 +992,8 @@ void mk1Data::pack9E(byte value, bool send)
 
     writeBuf[0] = 0x9e;
 
-    if (value == 0x80) { // if settings
-        writeBuf[4] = value;
+    if (setSettings == true) { // if settings
+        writeBuf[4] = 0x80;
     } else {
         // bit mask for begin / end of moving
         // 01 or 05 ? begin of moving
@@ -1009,7 +1014,7 @@ void mk1Data::pack9F( bool send)
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0x9f;
-    writeBuf[4] = 0x80; //TODO:unknown
+    writeBuf[4] = 0x80; // settings
     writeBuf[5] = 0xb1; //TODO:unknown
 
     packFourBytes(6, coord[X].pulsePerMm);
@@ -1029,7 +1034,7 @@ void mk1Data::packA0(bool send)
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xa0;
-    writeBuf[4] = 0x80;
+    writeBuf[4] = 0x80; // settings
 
     writeBuf[5] = 0x12;
 
@@ -1091,7 +1096,7 @@ void mk1Data::packA1( bool send )
 
     writeBuf[0] = 0xa1;
 
-    writeBuf[4] = 0x80;
+    writeBuf[4] = 0x80; // settings
 
     // allow limits: bit 7 a+; bit 6 a-, bit 5 z+, bit 4 z-, bit 3 y+, bit 2 y-, bit 1 x+, bit 0 x-
     byte limits = 0x0;
@@ -1120,7 +1125,7 @@ void mk1Data::packAA(bool send)
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xaa;
-    writeBuf[4] = 0x80;
+    writeBuf[4] = 0x80; // settings
 
     if (send == true) {
         sendBinaryData();
@@ -1135,7 +1140,7 @@ void mk1Data::packAB( bool send )
 
     writeBuf[0] = 0xab;
 
-    writeBuf[4] = 0x80;
+    writeBuf[4] = 0x80; // settings
 
     if (send == true) {
         sendBinaryData();
@@ -1156,7 +1161,7 @@ void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Speed
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xb5;
-    writeBuf[4] = 0x80;
+    writeBuf[4] = 0x80; // settings
 
 
     if (spindleON) {
@@ -1217,7 +1222,7 @@ void mk1Data::packB6( bool mist, bool fluid, bool send )
 
     writeBuf[0] = 0xb6;
 
-    writeBuf[4] = 0x80;
+    writeBuf[4] = 0x80; // settings
 
     if (fluid) {
         writeBuf[5] = 0x02;
@@ -1252,7 +1257,7 @@ void mk1Data::packBE(byte direction, int speed, bool send)
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xbe;
-    writeBuf[4] = 0x80;
+    writeBuf[4] = 0x80; // settings
     writeBuf[6] = direction;
 
     int inewSpd = 0;
@@ -1385,14 +1390,14 @@ void mk1Data::packBE(byte direction, int speed, bool send)
 //
 // set velocity limit
 //
-void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool settings, bool send)
+void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send)
 {
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xbf;
 
-    if ( settings == true) {
-        writeBuf[4] = 0x80; //TODO:unknown
+    if ( setSettings == true) {
+        writeBuf[4] = 0x80; // settings
     }
 
     float dnewSpdX  = 3600; // 3584?
@@ -1458,7 +1463,7 @@ void mk1Data::packC2( bool send )
 
     writeBuf[0] = 0xc2;
 
-    writeBuf[4] = 0x80;
+    writeBuf[4] = 0x80; // settings
     writeBuf[5] = 0x03;
 
     if (send == true) {

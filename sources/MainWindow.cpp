@@ -1176,7 +1176,7 @@ bool MainWindow::runCommand()
 
         cnc->pack9E(0x05);
 
-        cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA, false);
+        cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
 
         cnc->packC0();
 
@@ -1202,7 +1202,7 @@ bool MainWindow::runCommand()
 
         cnc->packFF();
 
-        cnc->pack9D(false);
+        cnc->pack9D();
 
         cnc->pack9E(0x02);
 
@@ -1389,7 +1389,7 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
     cnc->pack9E(0x05);
 
-    cnc->packBF(speed, speed, speed, speed, false);
+    cnc->packBF(speed, speed, speed, speed);
 
     cnc->packC0();
 
@@ -1397,7 +1397,7 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
     cnc->packFF();
 
-    cnc->pack9D(false);
+    cnc->pack9D();
 
     cnc->pack9E(0x02);
 
