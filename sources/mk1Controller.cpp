@@ -559,7 +559,7 @@ void mk1Controller::saveSettings()
 void mk1Controller::sendSettings()
 {
     setSettings = true;
-    
+
     packD3();
     packAB();
 
@@ -581,7 +581,7 @@ void mk1Controller::sendSettings()
     pack9D();
 
     pack9E(0x80);
-    
+
     setSettings = false;
 }
 

@@ -1547,23 +1547,23 @@ void MainWindow::onCncNewData()
     refreshElementsForms();
 
     //сдвинем границы
-    if (ShowGrate) {
-        if (cnc->coord[X].posMm() < grateXmin) {
-            grateXmin = cnc->coord[X].posMm();
-        }
-
-        if (cnc->coord[X].posMm() > grateXmax) {
-            grateXmax = cnc->coord[X].posMm();
-        }
-
-        if (cnc->coord[Y].posMm() < grateYmin) {
-            grateYmin = cnc->coord[Y].posMm();
-        }
-
-        if (cnc->coord[Y].posMm() > grateYmax) {
-            grateYmax = cnc->coord[Y].posMm();
-        }
-    }
+    //     if (ShowGrate) {
+    //         if (cnc->coord[X].posMm() < grateXmin) {
+    //             grateXmin = cnc->coord[X].posMm();
+    //         }
+    //
+    //         if (cnc->coord[X].posMm() > grateXmax) {
+    //             grateXmax = cnc->coord[X].posMm();
+    //         }
+    //
+    //         if (cnc->coord[Y].posMm() < grateYmin) {
+    //             grateYmin = cnc->coord[Y].posMm();
+    //         }
+    //
+    //         if (cnc->coord[Y].posMm() > grateYmax) {
+    //             grateYmax = cnc->coord[Y].posMm();
+    //         }
+    //     }
 }
 
 
@@ -1888,6 +1888,9 @@ void MainWindow::fillListWidget(QStringList listCode)
     statusProgress->setRange(0, listGCodeWidget->rowCount());
     statusProgress->setValue(0);
 
+    fixGCodeList();
+
+
 #if USE_OPENGL == true
 
     if (enableOpenGL == true) {
@@ -1895,6 +1898,58 @@ void MainWindow::fillListWidget(QStringList listCode)
     }
 
 #endif
+}
+
+
+void MainWindow::fixGCodeList()
+{
+    cnc->coord[X].areaMin = GCodeList[0].X;
+    cnc->coord[X].areaMax = GCodeList[0].X;
+    cnc->coord[Y].areaMin = GCodeList[0].Y;
+    cnc->coord[Y].areaMax = GCodeList[0].Y;
+
+    // Вычисление угла между отрезками
+    for (int numPos = 1; numPos < GCodeList.count(); numPos++) {
+        float xn = GCodeList[numPos].X - GCodeList[numPos - 1].X;
+        float yn = GCodeList[numPos].Y - GCodeList[numPos - 1].Y;
+        float zn = GCodeList[numPos].Z - GCodeList[numPos - 1].Z;
+
+        if (GCodeList[numPos].X > cnc->coord[X].areaMax) {
+            cnc->coord[X].areaMax = GCodeList[numPos].X;
+        }
+
+        if (GCodeList[numPos].X < cnc->coord[X].areaMin) {
+            cnc->coord[X].areaMin = GCodeList[numPos].X;
+        }
+
+        if (GCodeList[numPos].Y > cnc->coord[Y].areaMax) {
+            cnc->coord[Y].areaMax = GCodeList[numPos].Y;
+        }
+
+        if (GCodeList[numPos].Y < cnc->coord[Y].areaMin) {
+            cnc->coord[Y].areaMin = GCodeList[numPos].Y;
+        }
+
+        //длина отрезка
+        GCodeList[numPos].Distance = sqrt((xn * xn) + (yn * yn) + (zn * zn));
+
+        if (numPos > GCodeList.count() - 2) {
+            continue;    //первую и последнюю точку не трогаем
+        }
+
+        // получим 3 точки
+        float xa = GCodeList[numPos - 1].X - GCodeList[numPos].X;
+        float ya = GCodeList[numPos - 1].Y - GCodeList[numPos].Y;
+        float za = GCodeList[numPos - 1].Z - GCodeList[numPos].Z;
+        float xb = GCodeList[numPos + 1].X - GCodeList[numPos].X;
+        float yb = GCodeList[numPos + 1].Y - GCodeList[numPos].Y;
+        float zb = GCodeList[numPos + 1].Z - GCodeList[numPos].Z;
+
+        float angle = acos(   (xa * xb + ya * yb + za * zb) /  ( sqrt(xa * xa + ya * ya + za * za) * sqrt(xb * xb + yb * yb + zb * zb )));
+        float angle1 = angle * 180 / PI;
+
+        GCodeList[numPos].angleVectors = (int)angle1;
+    }
 }
 
 

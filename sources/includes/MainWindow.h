@@ -207,10 +207,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 #endif
         // 3d Settings
         bool ShowGrate;
-        float grateXmin;
-        float grateXmax;
-        float grateYmin;
-        float grateYmax;
+        //         float grateXmin;
+        //         float grateXmax;
+        //         float grateYmin;
+        //         float grateYmax;
 
         MATERIAL cuttedMaterial;
         float toolDiameter;
@@ -304,6 +304,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 
     private:
         void Feed();
+        void fixGCodeList();
         bool runCommand();
         void fillListWidget(QStringList listCode);
         QString getLocaleString();

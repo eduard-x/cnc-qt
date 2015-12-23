@@ -42,6 +42,7 @@
 #include <limits>
 
 #include "includes/Reader.h"
+#include "includes/MainWindow.h"
 
 
 /******************************************************************************
@@ -1057,37 +1058,38 @@ bool Reader::readGCode(const QByteArray &gcode)
 
         index++;
     }
+
 #if 0
 
-    if (!checkBoxNewSpped.Checked) {
-        return;
-    }
+    //     if (!checkBoxNewSpped.Checked) {
+    //         return;
+    //     }
 
     // Вычисление угла между отрезками
-    for (int numPos = 1; numPos < GKODS.Count; numPos++) {
-        double xn = (double)(GKODS[numPos].X - GKODS[numPos - 1].X);
-        double yn = (double)(GKODS[numPos].Y - GKODS[numPos - 1].Y);
-        double zn = (double)(GKODS[numPos].Z - GKODS[numPos - 1].Z);
+    for (int numPos = 1; numPos < GCodeList.count(); numPos++) {
+        float xn = (float)(GCodeList[numPos].X - GCodeList[numPos - 1].X);
+        float yn = (float)(GCodeList[numPos].Y - GCodeList[numPos - 1].Y);
+        float zn = (float)(GCodeList[numPos].Z - GCodeList[numPos - 1].Z);
 
         //длина отрезка
-        GKODS[numPos].Distance = (decimal) Math.Sqrt((xn * xn) + (yn * yn) + (zn * zn));
+        GCodeList[numPos].Distance = sqrt((xn * xn) + (yn * yn) + (zn * zn));
 
-        if (numPos > GKODS.Count - 2) {
+        if (numPos > GCodeList.count() - 2) {
             continue;    //первую и последнюю точку не трогаем
         }
 
         //получим 3 точки
-        double xa = (double)(GKODS[numPos - 1].X - GKODS[numPos].X);
-        double ya = (double)(GKODS[numPos - 1].Y - GKODS[numPos].Y);
-        double za = (double)(GKODS[numPos - 1].Z - GKODS[numPos].Z);
-        double xb = (double)(GKODS[numPos + 1].X - GKODS[numPos].X);
-        double yb = (double)(GKODS[numPos + 1].Y - GKODS[numPos].Y);
-        double zb = (double)(GKODS[numPos + 1].Z - GKODS[numPos].Z);
+        float xa = (float)(GCodeList[numPos - 1].X - GCodeList[numPos].X);
+        float ya = (float)(GCodeList[numPos - 1].Y - GCodeList[numPos].Y);
+        float za = (float)(GCodeList[numPos - 1].Z - GCodeList[numPos].Z);
+        float xb = (float)(GCodeList[numPos + 1].X - GCodeList[numPos].X);
+        float yb = (float)(GCodeList[numPos + 1].Y - GCodeList[numPos].Y);
+        float zb = (float)(GCodeList[numPos + 1].Z - GCodeList[numPos].Z);
 
-        double angle = Math.Acos(   (xa * xb + ya * yb + za * zb) /  ( Math.Sqrt(xa * xa + ya * ya + za * za) * Math.Sqrt(xb * xb + yb * yb + zb * zb )  )       );
-        double angle1 = angle * 180 / Math.PI   ;
+        float angle = acos(   (xa * xb + ya * yb + za * zb) /  ( sqrt(xa * xa + ya * ya + za * za) * sqrt(xb * xb + yb * yb + zb * zb )));
+        float angle1 = angle * 180 / PI;
 
-        GKODS[numPos].angleVectors = (int)angle1;
+        GCodeList[numPos].angleVectors = (int)angle1;
     }
 
 #endif

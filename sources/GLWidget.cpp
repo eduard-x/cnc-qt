@@ -478,19 +478,27 @@ void GLWidget::drawWorkField()
 
         case Paused: {
             int numSelect = cnc->numberCompleatedInstructions() - 1;
-            glLineWidth(3.0f);
-            glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
-            glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect]);
-            glDrawArrays(GL_LINE_STRIP, 0, 2);
+
+            if (numSelect >= 0 ) {
+                glLineWidth(3.0f);
+                glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
+                glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect]);
+                glDrawArrays(GL_LINE_STRIP, 0, 2);
+            }
+
             break;
         }
 
         case Working: {
             int numSelect = cnc->numberCompleatedInstructions() - 1;
-            glLineWidth(3.0f);
-            glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
-            glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect + 1]);
-            glDrawArrays(GL_LINE_STRIP, 0, 2);
+
+            if (numSelect >= 0 ) {
+                glLineWidth(3.0f);
+                glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
+                glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect + 1]);
+                glDrawArrays(GL_LINE_STRIP, 0, 2);
+            }
+
             break;
         }
     }
@@ -652,11 +660,11 @@ void GLWidget::drawGrate()
 
     glBegin(GL_LINE_STRIP); //normal lines
 
-    glVertex3d(parent->grateXmin, parent->grateYmin, 0);
-    glVertex3d(parent->grateXmax, parent->grateYmin, 0);
-    glVertex3d(parent->grateXmax, parent->grateYmax, 0);
-    glVertex3d(parent->grateXmin, parent->grateYmax, 0);
-    glVertex3d(parent->grateXmin, parent->grateYmin, 0);
+    glVertex3d(cnc->coord[X].areaMin, cnc->coord[Y].areaMin, 0);
+    glVertex3d(cnc->coord[X].areaMax, cnc->coord[Y].areaMin, 0);
+    glVertex3d(cnc->coord[X].areaMax, cnc->coord[Y].areaMax, 0);
+    glVertex3d(cnc->coord[X].areaMin, cnc->coord[Y].areaMax, 0);
+    glVertex3d(cnc->coord[X].areaMin, cnc->coord[Y].areaMin, 0);
 
     glEnd();
 
