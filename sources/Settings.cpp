@@ -54,14 +54,14 @@ SettingsDialog::SettingsDialog(QWidget *p)
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    checkXmin->setChecked(cnc->coord[X].limitMin);
-    checkXplus->setChecked(cnc->coord[X].limitMax);
-    checkYmin->setChecked(cnc->coord[Y].limitMin);
-    checkYplus->setChecked(cnc->coord[Y].limitMax);
-    checkZmin->setChecked(cnc->coord[Z].limitMin);
-    checkZplus->setChecked(cnc->coord[Z].limitMax);
-    checkAmin->setChecked(cnc->coord[A].limitMin);
-    checkAplus->setChecked(cnc->coord[A].limitMax);
+    checkXmin->setChecked(cnc->coord[X].useLimitMin);
+    checkXplus->setChecked(cnc->coord[X].useLimitMax);
+    checkYmin->setChecked(cnc->coord[Y].useLimitMin);
+    checkYplus->setChecked(cnc->coord[Y].useLimitMax);
+    checkZmin->setChecked(cnc->coord[Z].useLimitMin);
+    checkZplus->setChecked(cnc->coord[Z].useLimitMax);
+    checkAmin->setChecked(cnc->coord[A].useLimitMin);
+    checkAplus->setChecked(cnc->coord[A].useLimitMax);
 
     checkSoftX->setChecked(cnc->coord[X].checkSoftLimits);
     doubleXmin->setValue(cnc->coord[X].softMin);
@@ -129,14 +129,14 @@ void SettingsDialog::translateDialog()
 
 void SettingsDialog::onSave()
 {
-    cnc->coord[X].limitMin = checkXmin->isChecked();
-    cnc->coord[X].limitMax = checkXplus->isChecked();
-    cnc->coord[Y].limitMin = checkYmin->isChecked();
-    cnc->coord[Y].limitMax = checkYplus->isChecked();
-    cnc->coord[Z].limitMin = checkZmin->isChecked();
-    cnc->coord[Z].limitMax = checkZplus->isChecked();
-    cnc->coord[A].limitMin = checkAmin->isChecked();
-    cnc->coord[A].limitMax = checkAplus->isChecked();
+    cnc->coord[X].useLimitMin = checkXmin->isChecked();
+    cnc->coord[X].useLimitMax = checkXplus->isChecked();
+    cnc->coord[Y].useLimitMin = checkYmin->isChecked();
+    cnc->coord[Y].useLimitMax = checkYplus->isChecked();
+    cnc->coord[Z].useLimitMin = checkZmin->isChecked();
+    cnc->coord[Z].useLimitMax = checkZplus->isChecked();
+    cnc->coord[A].useLimitMin = checkAmin->isChecked();
+    cnc->coord[A].useLimitMax = checkAplus->isChecked();
 
     cnc->coord[X].checkSoftLimits = checkSoftX->isChecked();
     cnc->coord[X].softMin = doubleXmin->value();

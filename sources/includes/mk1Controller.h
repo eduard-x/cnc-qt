@@ -92,10 +92,13 @@ class axis
         float actualPosmm;
         int   actualPosPulses;
         bool  invert;
-        bool  limitMax;
-        bool  limitMin;
+        bool  useLimitMin;
+        bool  useLimitMax;
+        bool  actualLimitMax;
+        bool  actualLimitMin;
         float startPos;
         bool  checkSoftLimits;
+        
         float softMax;
         float softMin;
         float areaMin;

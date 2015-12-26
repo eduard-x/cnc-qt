@@ -458,7 +458,7 @@ void ScanThread::run()
 
     usleep(100);
 
-    while (!cnc->coord[Z].limitMax) {
+    while (!cnc->coord[Z].actualLimitMax) {
         //dataCode.Matrix[indexScanY].X[indexScanX].Z = cnc->PositionZmm() - numReturn->value();
         usleep(100);
     }

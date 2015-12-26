@@ -51,8 +51,8 @@ int mk1Settings::NumberCompleatedInstruction = 0;
 axis::axis()
 {
     acceleration = 15.0;
-    limitMax = false;
-    limitMin = false;
+    actualLimitMax = false;
+    actualLimitMin = false;
     pulsePerMm = 400;
     actualPosPulses = 0;
     wrong = false;
@@ -516,9 +516,9 @@ void mk1Controller::loadSettings()
             coord[c].home = f;
         }
 
-        coord[c].limitMin = settingsFile->value("HardLimitMin" + axisList.at(c), true).toBool();
+        coord[c].useLimitMin = settingsFile->value("HardLimitMin" + axisList.at(c), true).toBool();
 
-        coord[c].limitMax = settingsFile->value("HardLimitMax" + axisList.at(c), true).toBool();
+        coord[c].useLimitMax = settingsFile->value("HardLimitMax" + axisList.at(c), true).toBool();
     }
 
     settingsFile->endGroup();
@@ -537,8 +537,8 @@ void mk1Controller::saveSettings()
         settingsFile->setValue("StartVelo" + axisList.at(c), (double)coord[c].minVelo);
         settingsFile->setValue("EndVelo" + axisList.at(c), (double)coord[c].maxVelo);
 
-        settingsFile->setValue("HardLimitMin" + axisList.at(c), (bool)coord[c].limitMin);
-        settingsFile->setValue("HardLimitMax" + axisList.at(c), (bool)coord[c].limitMax);
+        settingsFile->setValue("HardLimitMin" + axisList.at(c), (bool)coord[c].useLimitMin);
+        settingsFile->setValue("HardLimitMax" + axisList.at(c), (bool)coord[c].useLimitMax);
 
         settingsFile->setValue("SoftLimit" + axisList.at(c), (bool)coord[c].checkSoftLimits);
         settingsFile->setValue("SoftMin" + axisList.at(c), (double)coord[c].softMin);
@@ -685,14 +685,14 @@ void mk1Controller::parseBinaryInfo()
 
     byte bb15 = readBuf[15];
 
-    coord[X].limitMax = (bb15 & 0x01) != 0;
-    coord[X].limitMax = (bb15 & 0x02) != 0;
-    coord[Y].limitMax = (bb15 & 0x04) != 0;
-    coord[Y].limitMax = (bb15 & 0x08) != 0;
-    coord[Z].limitMax = (bb15 & 0x10) != 0;
-    coord[Z].limitMax = (bb15 & 0x20) != 0;
-    coord[A].limitMax = (bb15 & 0x40) != 0;
-    coord[A].limitMax = (bb15 & 0x80) != 0;
+    coord[X].actualLimitMin = (bb15 & 0x01) != 0;
+    coord[X].actualLimitMax = (bb15 & 0x02) != 0;
+    coord[Y].actualLimitMin = (bb15 & 0x04) != 0;
+    coord[Y].actualLimitMax = (bb15 & 0x08) != 0;
+    coord[Z].actualLimitMin = (bb15 & 0x10) != 0;
+    coord[Z].actualLimitMax = (bb15 & 0x20) != 0;
+    coord[A].actualLimitMin = (bb15 & 0x40) != 0;
+    coord[A].actualLimitMax = (bb15 & 0x80) != 0;
 
     NumberCompleatedInstruction = ((readBuf[9] << 24) + (readBuf[8] << 16) + (readBuf[7] << 8) + (readBuf[6]));
 
@@ -1100,14 +1100,14 @@ void mk1Data::packA1( bool send )
 
     // allow limits: bit 7 a+; bit 6 a-, bit 5 z+, bit 4 z-, bit 3 y+, bit 2 y-, bit 1 x+, bit 0 x-
     byte limits = 0x0;
-    limits |= (((int)coord[X].limitMin) << 0);
-    limits |= (((int)coord[X].limitMax) << 1);
-    limits |= (((int)coord[Y].limitMin) << 2);
-    limits |= (((int)coord[Y].limitMax) << 3);
-    limits |= (((int)coord[Z].limitMin) << 4);
-    limits |= (((int)coord[Z].limitMax) << 5);
-    limits |= (((int)coord[A].limitMin) << 6);
-    limits |= (((int)coord[A].limitMax) << 7);
+    limits |= (((int)coord[X].useLimitMin) << 0);
+    limits |= (((int)coord[X].useLimitMax) << 1);
+    limits |= (((int)coord[Y].useLimitMin) << 2);
+    limits |= (((int)coord[Y].useLimitMax) << 3);
+    limits |= (((int)coord[Z].useLimitMin) << 4);
+    limits |= (((int)coord[Z].useLimitMax) << 5);
+    limits |= (((int)coord[A].useLimitMin) << 6);
+    limits |= (((int)coord[A].useLimitMax) << 7);
 
     writeBuf[42] = limits;
     writeBuf[48] = 0xff; // unknown
