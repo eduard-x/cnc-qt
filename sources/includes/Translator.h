@@ -232,6 +232,7 @@ enum TR_CONSTS {
     _STARTVELO, // 178
     _ENDVELO, // 179
     _ACCELERATION, // 180
+    _SET, // 181
     _NULL
 };
 

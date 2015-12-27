@@ -119,7 +119,7 @@ void SettingsDialog::translateDialog()
     labelAcceleration->setText(translate(_ACCELERATION));
 
     QList<QAbstractButton*> l = buttonBox->buttons();
-    QStringList strl = (QStringList() << translate(_OK) << translate(_CANCEL));
+    QStringList strl = (QStringList() << translate(_SET) << translate(_CANCEL));
 
     for(int i = 0; i < l.count(); i++) {
         l[i]->setText(strl.at(i));

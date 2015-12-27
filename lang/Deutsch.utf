@@ -189,5 +189,6 @@ t175=Hartholz\nWeichholz\nSperrholz\nMDF\nPolyacrylat\nHartpapier\nGlasfaser\Har
 t176=Maßeinheit:
 t177=Achtung! Alle Werte sind ungefähr. Sie können sich abhänging von Material und Werkzeug variieren.
 t178=Anfangsgeschwindigkeit
-t179=Endschwindigkeit
+t179=Endgeschwindigkeit
 t180=Beschleunigung
+t181=Setzen

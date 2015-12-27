@@ -226,6 +226,7 @@ QString cTranslator::engText[] = {
     "Start velocity",
     "End velocity",
     "Acceleration",
+    "Set",
     ""
 };
 
