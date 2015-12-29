@@ -330,14 +330,18 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 
     private:
         QTimer  mainTaskTimer;
+        QStringList lastFiles;
         QLabel *statusLabel1;
         QProgressBar *statusProgress;
         QLabel *statusLabel2;
         bool useHome;
         QTimer  renderTimer;
         QVector<QAction*> actLangSelect;
+        QVector<QAction*> actFileSelect;
         QMenu *langMenu;
+        QMenu *filesMenu;
         QActionGroup* langGroup;
+        QActionGroup* filesGroup;
         QFont sysFont;
         short fontSize;
         //         QString programStyleSheet;

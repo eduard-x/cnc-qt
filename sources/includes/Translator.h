@@ -233,6 +233,19 @@ enum TR_CONSTS {
     _ENDVELO, // 179
     _ACCELERATION, // 180
     _SET, // 181
+    _COOLANT, // 182
+    _MIST, // 183
+    _POS, // 184
+    _SEQUENCE, // 185
+    _SOFTLIMITS, // 186
+    _HARDLIMITS, // 187
+    _USE, // 188
+    _WORKTABLE, // 189
+    _LIMITS, // 190
+    _PARKING, // 191
+    _SWAP, // 192
+    _MOTORS, // 193
+    _RECENTFILES, // 194
     _NULL
 };
 

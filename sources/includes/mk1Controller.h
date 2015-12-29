@@ -98,7 +98,7 @@ class axis
         bool  actualLimitMin;
         float startPos;
         bool  checkSoftLimits;
-        
+
         float softMax;
         float softMin;
         float areaMin;

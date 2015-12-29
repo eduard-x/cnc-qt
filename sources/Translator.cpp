@@ -225,8 +225,21 @@ QString cTranslator::engText[] = {
     "Feed information",
     "Start velocity",
     "End velocity",
-    "Acceleration",
+    "Acceleration", // 180
     "Set",
+    "Coolant",
+    "Mist",
+    "Position",
+    "Sequence",
+    "Software limits",
+    "Hardware switchers",
+    "Use",
+    "Work table",
+    "Limits", // 190
+    "Parking",
+    "Swap",
+    "Motors",
+    "Open recent files",
     ""
 };
 

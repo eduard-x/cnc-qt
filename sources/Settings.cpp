@@ -51,6 +51,12 @@ SettingsDialog::SettingsDialog(QWidget *p)
 
     setStyleSheet(parent->programStyleSheet);
 
+    QStringList seqList = (QStringList() << "1" << "2" << "3" << "4");
+    comboSeqX->addItems(seqList);
+    comboSeqY->addItems(seqList);
+    comboSeqZ->addItems(seqList);
+    comboSeqA->addItems(seqList);
+
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
@@ -110,9 +116,22 @@ SettingsDialog::SettingsDialog(QWidget *p)
 void SettingsDialog::translateDialog()
 {
     setWindowTitle(translate(_SETTINGS_TITLE));
-    groupBoxImpulses->setTitle(translate(_PULSES_PER_MM));
+    groupRanges->setTitle(translate(_LIMITS));
     checkBoxDemoController->setText(translate(_DEV_SIMULATION));
     labelInfo->setText(translate(_DEV_SIM_HELP));
+    labelUse->setText(translate(_USE));
+    labelMin->setText(translate(_MIN));
+    labelMax->setText(translate(_MAX));
+    labelSwap->setText(translate(_SWAP));
+    labelSeq->setText(translate(_SEQUENCE));
+    labelSpeed->setText(translate(_VELO));
+    labelPosition->setText(translate(_POSITION));
+
+    tabWidget->setTabText(0, translate(_WORKTABLE));
+    tabWidget->setTabText(1, translate(_VELO));
+    tabWidget->setTabText(2, translate(_LIMITS));
+    tabWidget->setTabText(3, translate(_PARKING));
+    tabWidget->setTabText(4, translate(_TOOL));
 
     labelStart->setText(translate(_STARTVELO));
     labelEnd->setText(translate(_ENDVELO));

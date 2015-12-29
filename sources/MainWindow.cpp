@@ -178,6 +178,9 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
     currentLang = "English";
 
+    filesMenu = 0;
+    filesGroup = 0;
+
     QFont sysFont = qApp->font();
     sysFont = sysFont;
 
@@ -677,15 +680,15 @@ void MainWindow::writeGUISettings()
     //     s->setValue("FontSize", fontSize);
     //     s->setValue("GUIFont", sysFont);
     // qDebug() << "writeGUISettings";
-    //     int i = 0;
-    //
-    //     for (QStringList::Iterator iDir = lastDirs.begin(); iDir != lastDirs.end(); iDir++, i++) {
-    //         if (i > 8) { // max last dirs
-    //             break;
-    //         }
-    //
-    //         s->setValue("LASDIR" + QString::number(i), (*iDir));
-    //     }
+    int i = 0;
+
+    for (QStringList::Iterator iFile = lastFiles.begin(); iFile != lastFiles.end(); iFile++, i++) {
+        if (i > 10) { // max last dirs
+            break;
+        }
+
+        s->setValue("LASTFILE" + QString::number(i), (*iFile));
+    }
 
     // opengl settings
     s->setValue("ShowLines", ShowLines);
@@ -759,19 +762,61 @@ void MainWindow::readGUISettings()
     }
 
     fontSize = sz;
+    lastFiles.clear();
 
-    //     for (int i = 0; i < 8; i++) {
-    //         QString d = s->value("LASDIR" + QString::number(i)).toString();
-    //         QDir dr;
-    //
-    //         if (d.length() == 0) {
-    //             break;
-    //         }
-    //
-    //         if (dr.exists(d) == true) {
-    //             lastDirs << d;
-    //         }
-    //     }
+    for (int i = 0; i < 10; i++) {
+        QString d = s->value("LASTFILE" + QString::number(i)).toString();
+        QFile fl;
+
+        if (d.length() == 0) {
+            break;
+        }
+
+        if (fl.exists(d) == true) {
+            lastFiles << d;
+        }
+    }
+
+    if (filesMenu != 0) {
+        delete filesMenu;
+    }
+
+
+    if (filesGroup != 0) {
+        delete filesGroup;
+    }
+
+    filesGroup = new QActionGroup(this);
+
+
+    if (lastFiles.count() > 0) {
+        //         filesGroup = new QActionGroup(this);
+        filesMenu = new QMenu();
+        filesMenu->setTitle( translate(_RECENTFILES));
+        menuFile->insertMenu(actionSave, filesMenu);
+
+        for (QStringList::Iterator iL = lastFiles.begin(); iL != lastFiles.end(); iL++) {
+            QFile fLang(*iL);
+
+            if (fLang.exists() == false) {
+                continue;
+            }
+
+            //  langFiles += (*iL) + ":" + nm;
+            QAction *tmpAction = new QAction(*iL, actionFiles);
+            tmpAction->setCheckable(true);
+
+            filesGroup->addAction(tmpAction);
+            filesMenu->addAction(tmpAction);
+
+            //                     if (currentLang == nm) {
+            //                         tmpAction->setChecked(true);
+            //                     }
+
+            actFileSelect.push_back(tmpAction);
+        }
+
+    }
 
     QDir dir;
     QStringList dirsLang;
@@ -1022,6 +1067,9 @@ void MainWindow::translateGUI()
 
     actionOpen->setText(translate(_OPEN_FILE));
     actionExit->setText(translate(_EXIT));
+
+    actionFluid->setText(translate(_COOLANT));
+    actionMist->setText(translate(_MIST));
 
     actionProgram->setText(translate(_PROGRAM));
     //     actionOpenGL->setText(translate(_OPENGL));
