@@ -290,7 +290,7 @@ MainWindow::MainWindow(QWidget *parent)
         currentLang = "English";
     }
 
-    for (QVector<QAction*>::iterator itL = actLangSelect.begin(); itL != actLangSelect.end(); ++itL) {
+    for (QList<QAction*>::iterator itL = actLangSelect.begin(); itL != actLangSelect.end(); ++itL) {
         if ((*itL)->text() == currentLang) {
             (*itL)->setChecked(true);
             break;
@@ -302,19 +302,27 @@ MainWindow::MainWindow(QWidget *parent)
     if (arguments.size() > 1) {
         if (arguments.at(1).length() > 0) { // as parameter is file name to load
             QString nm = arguments.at(1);
-            OpenFile(nm);
 
-            QStringList l = getGoodList();
-            fillListWidget(l);
+            if (OpenFile(nm) == true) {
 
-            l = getBadList();
+                lastFiles.insert(0, nm);
+                lastFiles.removeDuplicates();
+                //                 qDebug() << lastFiles;
 
-            if (l.count() != 0) {
-                foreach (QString s, l) {
-                    AddLog(s);
+                reloadRecentList();
+
+                QStringList l = getGoodList();
+                fillListWidget(l);
+
+                l = getBadList();
+
+                if (l.count() != 0) {
+                    foreach (QString s, l) {
+                        AddLog(s);
+                    }
+                } else {
+                    AddLog("File loaded" );
                 }
-            } else {
-                AddLog("File loaded" );
             }
         }
     }
@@ -683,7 +691,7 @@ void MainWindow::writeGUISettings()
     int i = 0;
 
     for (QStringList::Iterator iFile = lastFiles.begin(); iFile != lastFiles.end(); iFile++, i++) {
-        if (i > 10) { // max last dirs
+        if (i > 9) { // max last dirs
             break;
         }
 
@@ -777,46 +785,7 @@ void MainWindow::readGUISettings()
         }
     }
 
-    if (filesMenu != 0) {
-        delete filesMenu;
-    }
-
-
-    if (filesGroup != 0) {
-        delete filesGroup;
-    }
-
-    filesGroup = new QActionGroup(this);
-
-
-    if (lastFiles.count() > 0) {
-        //         filesGroup = new QActionGroup(this);
-        filesMenu = new QMenu();
-        filesMenu->setTitle( translate(_RECENTFILES));
-        menuFile->insertMenu(actionSave, filesMenu);
-
-        for (QStringList::Iterator iL = lastFiles.begin(); iL != lastFiles.end(); iL++) {
-            QFile fLang(*iL);
-
-            if (fLang.exists() == false) {
-                continue;
-            }
-
-            //  langFiles += (*iL) + ":" + nm;
-            QAction *tmpAction = new QAction(*iL, actionFiles);
-            tmpAction->setCheckable(true);
-
-            filesGroup->addAction(tmpAction);
-            filesMenu->addAction(tmpAction);
-
-            //                     if (currentLang == nm) {
-            //                         tmpAction->setChecked(true);
-            //                     }
-
-            actFileSelect.push_back(tmpAction);
-        }
-
-    }
+    reloadRecentList();
 
     QDir dir;
     QStringList dirsLang;
@@ -863,6 +832,77 @@ void MainWindow::readGUISettings()
     GridYend = s->value("GridYend", 100).toInt();
 
     ShowGrate = s->value("ShowGrate", true).toBool(); // grenzen
+}
+
+
+void MainWindow::reloadRecentList()
+{
+    if (filesMenu != 0) {
+        delete filesMenu;
+    }
+
+    if (filesGroup != 0) {
+        delete filesGroup;
+    }
+
+    actFileSelect.clear();
+
+    if (lastFiles.count() > 0) {
+        filesMenu = new QMenu( translate(_RECENTFILES)); //insertAction
+        QAction *actionRecent = menuFile->insertMenu(actionSave, filesMenu);
+        filesGroup = new QActionGroup(this);
+
+        for (QStringList::Iterator iL = lastFiles.begin(); iL != lastFiles.end(); iL++) {
+            QFileInfo fRecent(*iL);
+
+            *iL = fRecent.absoluteFilePath();
+        }
+
+        lastFiles.removeDuplicates();
+
+        for (QStringList::Iterator iL = lastFiles.begin(); iL != lastFiles.end(); iL++) {
+            QFileInfo fRecent(*iL);
+
+            if (fRecent.exists() == false) {
+                continue;
+            }
+
+            QAction *tmpAction = new QAction(*iL, actionRecent);
+
+            filesGroup->addAction(tmpAction);
+            filesMenu->addAction(tmpAction);
+
+            actFileSelect.push_back(tmpAction);
+        }
+
+        connect(filesGroup, SIGNAL(triggered(QAction*)), this, SLOT(setFile(QAction*)));
+    }
+}
+
+
+void MainWindow::setFile(QAction* a)
+{
+    QString fileStr;
+
+    fileStr = a->text();
+
+    if (OpenFile(fileStr) == false) {
+        AddLog("File loading error: " + fileStr );
+        return;
+    }
+
+    QStringList l = getGoodList();
+    fillListWidget(l);
+
+    l = getBadList();
+
+    if (l.count() != 0) {
+        foreach (QString s, l) {
+            AddLog(s);
+        }
+    } else {
+        AddLog("File loaded: " + fileStr );
+    }
 }
 
 
@@ -2017,6 +2057,13 @@ void MainWindow::onOpenFile()
         AddLog("File loading error: " + nm );
         return;
     }
+
+    lastFiles.insert(0, nm);
+    lastFiles.removeDuplicates();
+
+    //     qDebug() << lastFiles;
+
+    reloadRecentList();
 
     QStringList l = getGoodList();
     fillListWidget(l);

@@ -289,6 +289,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onAboutQt();
 
         void setLang(QAction* mnu);
+        void setFile(QAction* fl);
 
     public slots:
         void onButtonXtoZero();
@@ -303,6 +304,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void getScale(int s);
 
     private:
+        void reloadRecentList();
         void Feed();
         void fixGCodeList();
         bool runCommand();
@@ -336,8 +338,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         QLabel *statusLabel2;
         bool useHome;
         QTimer  renderTimer;
-        QVector<QAction*> actLangSelect;
-        QVector<QAction*> actFileSelect;
+        QList<QAction*> actLangSelect;
+        QList<QAction*> actFileSelect;
         QMenu *langMenu;
         QMenu *filesMenu;
         QActionGroup* langGroup;

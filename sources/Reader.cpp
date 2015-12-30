@@ -301,7 +301,15 @@ bool Reader::OpenFile(QString &fileName)
     }
 
     if (name.length() > 0) {
-        return readFile(name);
+        bool f = readFile(name);
+
+        if (f == true) {
+            QFileInfo fi(name);
+            fileName = fi.absoluteFilePath();
+            //             fileName = name;
+        }
+
+        return f;
     }
 
     return false;
