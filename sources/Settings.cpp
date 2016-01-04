@@ -69,21 +69,55 @@ SettingsDialog::SettingsDialog(QWidget *p)
     checkAmin->setChecked(cnc->coord[A].useLimitMin);
     checkAplus->setChecked(cnc->coord[A].useLimitMax);
 
+    checkInvertSwitchXmin->setChecked(cnc->coord[X].invLimitMin);
+    checkInvertSwitchXplu->setChecked(cnc->coord[X].invLimitMax);
+    checkInvertSwitchYmin->setChecked(cnc->coord[Y].invLimitMin);
+    checkInvertSwitchYplu->setChecked(cnc->coord[Y].invLimitMax);
+    checkInvertSwitchZmin->setChecked(cnc->coord[Z].invLimitMin);
+    checkInvertSwitchZplu->setChecked(cnc->coord[Z].invLimitMax);
+    checkInvertSwitchAmin->setChecked(cnc->coord[A].invLimitMin);
+    checkInvertSwitchAplu->setChecked(cnc->coord[A].invLimitMax);
+
+
     checkSoftX->setChecked(cnc->coord[X].checkSoftLimits);
-    doubleXmin->setValue(cnc->coord[X].softMin);
-    doubleXmax->setValue(cnc->coord[X].softMax);
+    checkSwapX->setChecked(cnc->coord[X].invertDirection);
+    checkUseX->setChecked(cnc->coord[X].enabled);
+    backlashX->setValue(cnc->coord[X].backlash);
+    doubleXmin->setValue(cnc->coord[X].softLimitMin);
+    doubleXmax->setValue(cnc->coord[X].softLimitMax);
+    doubleRangeMinX->setValue(cnc->coord[X].workAreaMin);
+    doubleRangeMaxX->setValue(cnc->coord[X].workAreaMax);
+    checkInvStepsX->setChecked(cnc->coord[X].invertPulses);
 
     checkSoftY->setChecked(cnc->coord[Y].checkSoftLimits);
-    doubleYmin->setValue(cnc->coord[Y].softMin);
-    doubleYmax->setValue(cnc->coord[Y].softMax);
+    checkSwapY->setChecked(cnc->coord[Y].invertDirection);
+    checkUseY->setChecked(cnc->coord[Y].enabled);
+    backlashY->setValue(cnc->coord[Y].backlash);
+    doubleYmin->setValue(cnc->coord[Y].softLimitMin);
+    doubleYmax->setValue(cnc->coord[Y].softLimitMax);
+    doubleRangeMinY->setValue(cnc->coord[Y].workAreaMin);
+    doubleRangeMaxY->setValue(cnc->coord[Y].workAreaMax);
+    checkInvStepsY->setChecked(cnc->coord[Y].invertPulses);
 
     checkSoftZ->setChecked(cnc->coord[Z].checkSoftLimits);
-    doubleZmin->setValue(cnc->coord[Z].softMin);
-    doubleZmax->setValue(cnc->coord[Z].softMax);
+    checkSwapZ->setChecked(cnc->coord[Z].invertDirection);
+    checkUseZ->setChecked(cnc->coord[Z].enabled);
+    backlashZ->setValue(cnc->coord[Z].backlash);
+    doubleZmin->setValue(cnc->coord[Z].softLimitMin);
+    doubleZmax->setValue(cnc->coord[Z].softLimitMax);
+    doubleRangeMinZ->setValue(cnc->coord[Z].workAreaMin);
+    doubleRangeMaxZ->setValue(cnc->coord[Z].workAreaMax);
+    checkInvStepsZ->setChecked(cnc->coord[Z].invertPulses);
 
     checkSoftA->setChecked(cnc->coord[A].checkSoftLimits);
-    doubleAmin->setValue(cnc->coord[A].softMin);
-    doubleAmax->setValue(cnc->coord[A].softMax);
+    checkSwapA->setChecked(cnc->coord[A].invertDirection);
+    checkUseA->setChecked(cnc->coord[A].enabled);
+    backlashA->setValue(cnc->coord[A].backlash);
+    doubleAmin->setValue(cnc->coord[A].softLimitMin);
+    doubleAmax->setValue(cnc->coord[A].softLimitMax);
+    doubleRangeMinA->setValue(cnc->coord[A].workAreaMin);
+    doubleRangeMaxA->setValue(cnc->coord[A].workAreaMax);
+    checkInvStepsA->setChecked(cnc->coord[A].invertPulses);
 
     numPulseX->setValue(cnc->coord[X].pulsePerMm);
     numPulseY->setValue(cnc->coord[Y].pulsePerMm);
@@ -99,6 +133,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
     doubleSpinEndY->setValue(cnc->coord[Y].maxVelo);
     doubleSpinEndZ->setValue(cnc->coord[Z].maxVelo);
     doubleSpinEndA->setValue(cnc->coord[A].maxVelo);
+
 
     doubleSpinAccelX->setValue(cnc->coord[X].acceleration);
     doubleSpinAccelY->setValue(cnc->coord[Y].acceleration);
@@ -157,21 +192,54 @@ void SettingsDialog::onSave()
     cnc->coord[A].useLimitMin = checkAmin->isChecked();
     cnc->coord[A].useLimitMax = checkAplus->isChecked();
 
+    cnc->coord[X].invLimitMin = checkInvertSwitchXmin->isChecked();
+    cnc->coord[X].invLimitMax = checkInvertSwitchXplu->isChecked();
+    cnc->coord[Y].invLimitMin = checkInvertSwitchYmin->isChecked();
+    cnc->coord[Y].invLimitMax = checkInvertSwitchYplu->isChecked();
+    cnc->coord[Z].invLimitMin = checkInvertSwitchZmin->isChecked();
+    cnc->coord[Z].invLimitMax = checkInvertSwitchZplu->isChecked();
+    cnc->coord[A].invLimitMin = checkInvertSwitchAmin->isChecked();
+    cnc->coord[A].invLimitMax = checkInvertSwitchAplu->isChecked();
+
     cnc->coord[X].checkSoftLimits = checkSoftX->isChecked();
-    cnc->coord[X].softMin = doubleXmin->value();
-    cnc->coord[X].softMax = doubleXmax->value();
+    cnc->coord[X].invertDirection = checkSwapX->isChecked();
+    cnc->coord[X].invertPulses = checkInvStepsX->isChecked();
+    cnc->coord[X].enabled = checkUseX->isChecked();
+    cnc->coord[X].backlash = backlashX->value();
+    cnc->coord[X].softLimitMin = doubleXmin->value();
+    cnc->coord[X].softLimitMax = doubleXmax->value();
+    cnc->coord[X].workAreaMin = doubleRangeMinX->value();
+    cnc->coord[X].workAreaMax = doubleRangeMaxX->value();
 
     cnc->coord[Y].checkSoftLimits = checkSoftY->isChecked();
-    cnc->coord[Y].softMin = doubleYmin->value();
-    cnc->coord[Y].softMax = doubleYmax->value();
+    cnc->coord[Y].invertDirection = checkSwapY->isChecked();
+    cnc->coord[Y].invertPulses = checkInvStepsY->isChecked();
+    cnc->coord[Y].enabled = checkUseY->isChecked();
+    cnc->coord[Y].backlash = backlashY->value();
+    cnc->coord[Y].softLimitMin = doubleYmin->value();
+    cnc->coord[Y].softLimitMax = doubleYmax->value();
+    cnc->coord[Y].workAreaMin = doubleRangeMinY->value();
+    cnc->coord[Y].workAreaMax = doubleRangeMaxY->value();
 
     cnc->coord[Z].checkSoftLimits = checkSoftZ->isChecked();
-    cnc->coord[Z].softMin = doubleZmin->value();
-    cnc->coord[Z].softMax = doubleZmax->value();
+    cnc->coord[Z].invertDirection = checkSwapZ->isChecked();
+    cnc->coord[Z].invertPulses = checkInvStepsZ->isChecked();
+    cnc->coord[Z].backlash = backlashZ->value();
+    cnc->coord[Z].enabled = checkUseZ->isChecked();
+    cnc->coord[Z].softLimitMin = doubleZmin->value();
+    cnc->coord[Z].softLimitMax = doubleZmax->value();
+    cnc->coord[Z].workAreaMin = doubleRangeMinZ->value();
+    cnc->coord[Z].workAreaMax = doubleRangeMaxZ->value();
 
     cnc->coord[A].checkSoftLimits = checkSoftA->isChecked();
-    cnc->coord[A].softMin = doubleAmin->value();
-    cnc->coord[A].softMax = doubleAmax->value();
+    cnc->coord[A].invertDirection = checkSwapA->isChecked();
+    cnc->coord[A].invertPulses = checkInvStepsA->isChecked();
+    cnc->coord[A].backlash = backlashA->value();
+    cnc->coord[A].enabled = checkUseA->isChecked();
+    cnc->coord[A].softLimitMin = doubleAmin->value();
+    cnc->coord[A].softLimitMax = doubleAmax->value();
+    cnc->coord[A].workAreaMin = doubleRangeMinA->value();
+    cnc->coord[A].workAreaMax = doubleRangeMaxA->value();
 
     cnc->coord[X].pulsePerMm = numPulseX->value();
     cnc->coord[Y].pulsePerMm = numPulseY->value();

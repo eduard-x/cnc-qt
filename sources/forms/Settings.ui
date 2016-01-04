@@ -16,6 +16,12 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>35</height>
+      </size>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -48,10 +54,24 @@
            </widget>
           </item>
           <item row="4" column="5">
-           <widget class="QDoubleSpinBox" name="doubleRangeMinA"/>
+           <widget class="QDoubleSpinBox" name="doubleRangeMinA">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="2" column="5">
-           <widget class="QDoubleSpinBox" name="doubleRangeMinY"/>
+           <widget class="QDoubleSpinBox" name="doubleRangeMinY">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="0" column="5">
            <widget class="QLabel" name="labelMin">
@@ -61,16 +81,44 @@
            </widget>
           </item>
           <item row="2" column="6">
-           <widget class="QDoubleSpinBox" name="doubleRangeMaxY"/>
+           <widget class="QDoubleSpinBox" name="doubleRangeMaxY">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="3" column="5">
-           <widget class="QDoubleSpinBox" name="doubleRangeMinZ"/>
+           <widget class="QDoubleSpinBox" name="doubleRangeMinZ">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="1" column="6">
-           <widget class="QDoubleSpinBox" name="doubleRangeMaxX"/>
+           <widget class="QDoubleSpinBox" name="doubleRangeMaxX">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="3" column="6">
-           <widget class="QDoubleSpinBox" name="doubleRangeMaxZ"/>
+           <widget class="QDoubleSpinBox" name="doubleRangeMaxZ">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="label_16">
@@ -100,10 +148,24 @@
            </widget>
           </item>
           <item row="4" column="6">
-           <widget class="QDoubleSpinBox" name="doubleRangeMaxA"/>
+           <widget class="QDoubleSpinBox" name="doubleRangeMaxA">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="1" column="5">
-           <widget class="QDoubleSpinBox" name="doubleRangeMinX"/>
+           <widget class="QDoubleSpinBox" name="doubleRangeMinX">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="4" column="0">
            <widget class="QLabel" name="label_17">
@@ -288,7 +350,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -310,7 +372,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -335,7 +397,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -373,7 +435,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="minimum">
@@ -389,7 +451,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -431,7 +493,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -456,7 +518,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -481,7 +543,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -503,7 +565,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -528,7 +590,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -553,7 +615,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -575,7 +637,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -600,7 +662,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -638,7 +700,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="minimum">
@@ -654,7 +716,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="minimum">
@@ -670,7 +732,7 @@
            <property name="minimumSize">
             <size>
              <width>75</width>
-             <height>35</height>
+             <height>30</height>
             </size>
            </property>
            <property name="minimum">
@@ -805,6 +867,13 @@
            </property>
            <property name="text">
             <string>A</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="labelUse">
+           <property name="text">
+            <string>using</string>
            </property>
           </widget>
          </item>
@@ -1324,19 +1393,54 @@
            </widget>
           </item>
           <item row="2" column="4">
-           <widget class="QDoubleSpinBox" name="doubleHomeY"/>
+           <widget class="QDoubleSpinBox" name="doubleHomeY">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="3" column="4">
-           <widget class="QDoubleSpinBox" name="doubleHomeZ"/>
+           <widget class="QDoubleSpinBox" name="doubleHomeZ">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QComboBox" name="comboSeqZ"/>
+           <widget class="QComboBox" name="comboSeqZ">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="2" column="2">
-           <widget class="QComboBox" name="comboSeqY"/>
+           <widget class="QComboBox" name="comboSeqY">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QComboBox" name="comboSeqX"/>
+           <widget class="QComboBox" name="comboSeqX">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="0" column="4">
            <widget class="QLabel" name="labelPosition">
@@ -1346,7 +1450,14 @@
            </widget>
           </item>
           <item row="3" column="6">
-           <widget class="QDoubleSpinBox" name="doubleHomeSpeedZ"/>
+           <widget class="QDoubleSpinBox" name="doubleHomeSpeedZ">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="0" column="2">
            <widget class="QLabel" name="labelSeq">
@@ -1363,13 +1474,34 @@
            </widget>
           </item>
           <item row="1" column="6">
-           <widget class="QDoubleSpinBox" name="doubleHomeSpeedX"/>
+           <widget class="QDoubleSpinBox" name="doubleHomeSpeedX">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="1" column="4">
-           <widget class="QDoubleSpinBox" name="doubleHomeX"/>
+           <widget class="QDoubleSpinBox" name="doubleHomeX">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="2" column="6">
-           <widget class="QDoubleSpinBox" name="doubleHomeSpeedY"/>
+           <widget class="QDoubleSpinBox" name="doubleHomeSpeedY">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="6" column="0" colspan="4">
            <widget class="QLabel" name="labelGetCoordinates">
@@ -1380,6 +1512,12 @@
           </item>
           <item row="6" column="4">
            <widget class="QPushButton" name="pushCopyHome">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
             <property name="text">
              <string>Copy</string>
             </property>
@@ -1393,13 +1531,34 @@
            </widget>
           </item>
           <item row="4" column="2">
-           <widget class="QComboBox" name="comboSeqA"/>
+           <widget class="QComboBox" name="comboSeqA">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="4" column="4">
-           <widget class="QDoubleSpinBox" name="doubleHomeA"/>
+           <widget class="QDoubleSpinBox" name="doubleHomeA">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="4" column="6">
-           <widget class="QDoubleSpinBox" name="doubleHomeSpeedA"/>
+           <widget class="QDoubleSpinBox" name="doubleHomeSpeedA">
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>30</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item row="3" column="1">
            <widget class="QLabel" name="label_4">
@@ -1575,22 +1734,6 @@
           </property>
          </spacer>
         </item>
-        <item row="0" column="2">
-         <widget class="QSpinBox" name="numPulseX_2">
-          <property name="minimumSize">
-           <size>
-            <width>75</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>2000</number>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_18">
           <property name="text">
@@ -1598,22 +1741,6 @@
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QSpinBox" name="numPulseY_2">
-          <property name="minimumSize">
-           <size>
-            <width>75</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>2000</number>
           </property>
          </widget>
         </item>
@@ -1627,22 +1754,6 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <widget class="QSpinBox" name="numPulseZ_2">
-          <property name="minimumSize">
-           <size>
-            <width>75</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>2000</number>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_19">
           <property name="text">
@@ -1653,19 +1764,43 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="2">
-         <widget class="QSpinBox" name="numPulseA_2">
+        <item row="0" column="2">
+         <widget class="QDoubleSpinBox" name="backlashX">
           <property name="minimumSize">
            <size>
             <width>75</width>
-            <height>35</height>
+            <height>30</height>
            </size>
           </property>
-          <property name="minimum">
-           <number>1</number>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QDoubleSpinBox" name="backlashY">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>30</height>
+           </size>
           </property>
-          <property name="maximum">
-           <number>2000</number>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QDoubleSpinBox" name="backlashZ">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>30</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QDoubleSpinBox" name="backlashA">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>30</height>
+           </size>
           </property>
          </widget>
         </item>

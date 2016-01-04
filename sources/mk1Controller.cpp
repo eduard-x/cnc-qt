@@ -50,10 +50,18 @@ int mk1Settings::NumberCompleatedInstruction = 0;
 
 axis::axis()
 {
-    acceleration = 15.0;
+    acceleration = 50.0;
     actualLimitMax = false;
     actualLimitMin = false;
-    pulsePerMm = 400;
+    enabled = true;
+    backlash = 0.0;
+    invertDirection = false;
+    invertPulses = false;
+    invLimitMax = false;
+    invLimitMin = false;
+    workAreaMax = 100.0;
+    workAreaMin = -100.0;
+    pulsePerMm = 200;
     actualPosPulses = 0;
     wrong = false;
 }
@@ -501,13 +509,13 @@ void mk1Controller::loadSettings()
         f = settingsFile->value("SoftMin" + axisList.at(c), 0).toFloat( &res);
 
         if (res == true) {
-            coord[c].softMin = f;
+            coord[c].softLimitMin = f;
         }
 
         f = settingsFile->value("SoftMax" + axisList.at(c), 0).toFloat( &res);
 
         if (res == true) {
-            coord[c].softMax = f;
+            coord[c].softLimitMax = f;
         }
 
         f = settingsFile->value("Home" + axisList.at(c), 0).toFloat( &res);
@@ -519,6 +527,33 @@ void mk1Controller::loadSettings()
         coord[c].useLimitMin = settingsFile->value("HardLimitMin" + axisList.at(c), true).toBool();
 
         coord[c].useLimitMax = settingsFile->value("HardLimitMax" + axisList.at(c), true).toBool();
+
+        //
+        coord[c].invertDirection = settingsFile->value("InvDirection" + axisList.at(c), true).toBool();
+        coord[c].invertPulses = settingsFile->value("InvPulses" + axisList.at(c), true).toBool();
+        coord[c].invLimitMax = settingsFile->value("InvLimitMax" + axisList.at(c), true).toBool();
+        coord[c].invLimitMin = settingsFile->value("InvLimitMin" + axisList.at(c), true).toBool();
+        coord[c].enabled = settingsFile->value("Enabled" + axisList.at(c), true).toBool();
+
+        f = settingsFile->value("Backlash" + axisList.at(c), 0).toFloat( &res);
+
+        if (res == true) {
+            coord[c].backlash = f;
+        }
+
+        f = settingsFile->value("WorkAreaMin" + axisList.at(c), 0).toFloat( &res);
+
+        if (res == true) {
+            coord[c].workAreaMin = f;
+        }
+
+        f = settingsFile->value("WorkAreaMax" + axisList.at(c), 0).toFloat( &res);
+
+        if (res == true) {
+            coord[c].workAreaMax = f;
+        }
+
+        //
     }
 
     settingsFile->endGroup();
@@ -537,12 +572,23 @@ void mk1Controller::saveSettings()
         settingsFile->setValue("StartVelo" + axisList.at(c), (double)coord[c].minVelo);
         settingsFile->setValue("EndVelo" + axisList.at(c), (double)coord[c].maxVelo);
 
+        //
+        settingsFile->setValue("Backlash" + axisList.at(c), (double)coord[c].backlash);
+        settingsFile->setValue("InvDirection" + axisList.at(c), (bool)coord[c].invertDirection);
+        settingsFile->setValue("InvPulses" + axisList.at(c), (bool)coord[c].invertPulses);
+        settingsFile->setValue("InvLimitMax" + axisList.at(c), (bool)coord[c].invLimitMax);
+        settingsFile->setValue("InvLimitMin" + axisList.at(c), (bool)coord[c].invLimitMin);
+        settingsFile->setValue("WorkAreaMin" + axisList.at(c), (double)coord[c].workAreaMin);
+        settingsFile->setValue("WorkAreaMax" + axisList.at(c), (double)coord[c].workAreaMax);
+        settingsFile->setValue("Enabled" + axisList.at(c), (bool)coord[c].enabled);
+        //
+
         settingsFile->setValue("HardLimitMin" + axisList.at(c), (bool)coord[c].useLimitMin);
         settingsFile->setValue("HardLimitMax" + axisList.at(c), (bool)coord[c].useLimitMax);
 
         settingsFile->setValue("SoftLimit" + axisList.at(c), (bool)coord[c].checkSoftLimits);
-        settingsFile->setValue("SoftMin" + axisList.at(c), (double)coord[c].softMin);
-        settingsFile->setValue("SoftMax" + axisList.at(c), (double)coord[c].softMax);
+        settingsFile->setValue("SoftMin" + axisList.at(c), (double)coord[c].softLimitMin);
+        settingsFile->setValue("SoftMax" + axisList.at(c), (double)coord[c].softLimitMax);
 
         settingsFile->setValue("Home" + axisList.at(c), (double)coord[c].home);
     }
@@ -1076,12 +1122,25 @@ void mk1Data::packA0(bool send)
     writeBuf[46] = 0x08;// unknown byte
 
     // reverse of axis.: 0xff no reverse, 0xfe axis x, 0xfd axis y, 0xfb axis z
-    writeBuf[57] = 0xff;// reverse axis
+    byte r = 0xff;
+    r &= (coord[X].invertDirection == true) ? 0xfe : 0xff;
+    r &= (coord[Y].invertDirection == true) ? 0xfd : 0xff;
+    r &= (coord[Z].invertDirection == true) ? 0xfb : 0xff;
+    r &= (coord[A].invertDirection == true) ? 0xf7 : 0xff;
+
+    writeBuf[57] = r;// reverse axis
     writeBuf[58] = 0x01;// unknown byte
 
     // reverse motor steps, bitmask: 0 no inverting, 1 invert step X, 2 invert step Y, 4 invert step Z
-    writeBuf[59] = 0x00; //
-    writeBuf[60] = 0x00; //
+
+    r = 0x0;
+    r |= (coord[X].invertPulses == true) ? 0x01 : 0x00;
+    r |= (coord[Y].invertPulses == true) ? 0x02 : 0x00;
+    r |= (coord[Z].invertPulses == true) ? 0x04 : 0x00;
+    r |= (coord[A].invertPulses == true) ? 0x08 : 0x00;
+
+    writeBuf[59] = r; //
+    writeBuf[60] = 0x00; // for mk2 ?
 
     if (send == true) {
         sendBinaryData();
@@ -1100,17 +1159,17 @@ void mk1Data::packA1( bool send )
 
     // allow limits: bit 7 a+; bit 6 a-, bit 5 z+, bit 4 z-, bit 3 y+, bit 2 y-, bit 1 x+, bit 0 x-
     byte limits = 0x0;
-    limits |= (((int)coord[X].useLimitMin) << 0);
-    limits |= (((int)coord[X].useLimitMax) << 1);
-    limits |= (((int)coord[Y].useLimitMin) << 2);
-    limits |= (((int)coord[Y].useLimitMax) << 3);
-    limits |= (((int)coord[Z].useLimitMin) << 4);
-    limits |= (((int)coord[Z].useLimitMax) << 5);
-    limits |= (((int)coord[A].useLimitMin) << 6);
-    limits |= (((int)coord[A].useLimitMax) << 7);
+    limits |= (coord[X].useLimitMin == true) ? 0x01 : 0x00;
+    limits |= (coord[X].useLimitMax == true) ? 0x02 : 0x00;
+    limits |= (coord[Y].useLimitMin == true) ? 0x04 : 0x00;
+    limits |= (coord[Y].useLimitMax == true) ? 0x08 : 0x00;
+    limits |= (coord[Z].useLimitMin == true) ? 0x10 : 0x00;
+    limits |= (coord[Z].useLimitMax == true) ? 0x20 : 0x00;
+    limits |= (coord[A].useLimitMin == true) ? 0x40 : 0x00;
+    limits |= (coord[A].useLimitMax == true) ? 0x80 : 0x00;
 
     writeBuf[42] = limits;
-    writeBuf[48] = 0xff; // unknown
+    writeBuf[48] = 0xff; // unknown, for mk2?
 
     if (send == true) {
         sendBinaryData();
@@ -1400,37 +1459,45 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
         writeBuf[4] = 0x80; // settings
     }
 
-    float dnewSpdX  = 3600; // 3584?
+    if (coord[X].enabled == true) {
+        float dnewSpdX  = 3600; // 3584?
 
-    if (speedLimitX != 0 && coord[X].pulsePerMm != 0) {
-        dnewSpdX = 7.2e8 / ((float)speedLimitX * coord[X].pulsePerMm);
+        if (speedLimitX != 0 && coord[X].pulsePerMm != 0) {
+            dnewSpdX = 7.2e8 / ((float)speedLimitX * coord[X].pulsePerMm);
+        }
+
+        packFourBytes(7, (int)dnewSpdX);
     }
 
-    packFourBytes(7, (int)dnewSpdX);
+    if (coord[Y].enabled == true) {
+        float dnewSpdY = 3600;
 
-    float dnewSpdY = 3600;
+        if (speedLimitY != 0 && coord[Y].pulsePerMm != 0) {
+            dnewSpdY = 7.2e8 / ((float)speedLimitY * coord[Y].pulsePerMm);
+        }
 
-    if (speedLimitY != 0 && coord[Y].pulsePerMm != 0) {
-        dnewSpdY = 7.2e8 / ((float)speedLimitY * coord[Y].pulsePerMm);
+        packFourBytes(11, (int)dnewSpdY);
     }
 
-    packFourBytes(11, (int)dnewSpdY);
+    if (coord[Z].enabled == true) {
+        float dnewSpdZ = 3600;
 
-    float dnewSpdZ = 3600;
+        if (speedLimitZ != 0 && coord[Z].pulsePerMm != 0) {
+            dnewSpdZ = 7.2e8 / ((float)speedLimitZ * coord[Z].pulsePerMm);
+        }
 
-    if (speedLimitZ != 0 && coord[Z].pulsePerMm != 0) {
-        dnewSpdZ = 7.2e8 / ((float)speedLimitZ * coord[Z].pulsePerMm);
+        packFourBytes(15, (int)dnewSpdZ);
     }
 
-    packFourBytes(15, (int)dnewSpdZ);
+    if (coord[A].enabled == true) {
+        float dnewSpdA = 3600;
 
-    float dnewSpdA = 3600;
+        if (speedLimitA != 0 && coord[A].pulsePerMm != 0) {
+            dnewSpdA = 7.2e8 / ((float)speedLimitA * coord[A].pulsePerMm);
+        }
 
-    if (speedLimitA != 0 && coord[A].pulsePerMm != 0) {
-        dnewSpdA = 7.2e8 / ((float)speedLimitA * coord[A].pulsePerMm);
+        packFourBytes(19, (int)dnewSpdA);
     }
-
-    packFourBytes(19, (int)dnewSpdA);
 
     if (send == true) {
         sendBinaryData();

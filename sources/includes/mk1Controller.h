@@ -91,18 +91,26 @@ class axis
         int   pulsePerMm;
         float actualPosmm;
         int   actualPosPulses;
-        bool  invert;
-        bool  useLimitMin;
-        bool  useLimitMax;
-        bool  actualLimitMax;
-        bool  actualLimitMin;
+        bool  invertDirection;
+        bool  invertPulses;
+
+        bool  useLimitMin; // set HW
+        bool  useLimitMax; // set HW
+        bool  invLimitMin; // set HW
+        bool  invLimitMax; // set HW
+
+        bool  actualLimitMax; // get from HW
+        bool  actualLimitMin; // get from HW
+
         float startPos;
         bool  checkSoftLimits;
 
-        float softMax;
-        float softMin;
-        float areaMin;
-        float areaMax;
+        float softLimitMax;
+        float softLimitMin;
+        float backlash;
+        float workAreaMin;
+        float workAreaMax;
+        bool  enabled;
         float home;
         bool  wrong;
 };

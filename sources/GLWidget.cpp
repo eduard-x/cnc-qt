@@ -660,11 +660,11 @@ void GLWidget::drawGrate()
 
     glBegin(GL_LINE_STRIP); //normal lines
 
-    glVertex3d(cnc->coord[X].areaMin, cnc->coord[Y].areaMin, 0);
-    glVertex3d(cnc->coord[X].areaMax, cnc->coord[Y].areaMin, 0);
-    glVertex3d(cnc->coord[X].areaMax, cnc->coord[Y].areaMax, 0);
-    glVertex3d(cnc->coord[X].areaMin, cnc->coord[Y].areaMax, 0);
-    glVertex3d(cnc->coord[X].areaMin, cnc->coord[Y].areaMin, 0);
+    glVertex3d(cnc->coord[X].softLimitMin, cnc->coord[Y].softLimitMin, 0);
+    glVertex3d(cnc->coord[X].softLimitMax, cnc->coord[Y].softLimitMin, 0);
+    glVertex3d(cnc->coord[X].softLimitMax, cnc->coord[Y].softLimitMax, 0);
+    glVertex3d(cnc->coord[X].softLimitMin, cnc->coord[Y].softLimitMax, 0);
+    glVertex3d(cnc->coord[X].softLimitMin, cnc->coord[Y].softLimitMin, 0);
 
     glEnd();
 

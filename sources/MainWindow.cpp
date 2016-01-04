@@ -1991,10 +1991,10 @@ void MainWindow::fillListWidget(QStringList listCode)
 
 void MainWindow::fixGCodeList()
 {
-    cnc->coord[X].areaMin = GCodeList[0].X;
-    cnc->coord[X].areaMax = GCodeList[0].X;
-    cnc->coord[Y].areaMin = GCodeList[0].Y;
-    cnc->coord[Y].areaMax = GCodeList[0].Y;
+    cnc->coord[X].softLimitMin = GCodeList[0].X;
+    cnc->coord[X].softLimitMax = GCodeList[0].X;
+    cnc->coord[Y].softLimitMin = GCodeList[0].Y;
+    cnc->coord[Y].softLimitMax = GCodeList[0].Y;
 
     // Вычисление угла между отрезками
     for (int numPos = 1; numPos < GCodeList.count(); numPos++) {
@@ -2002,20 +2002,20 @@ void MainWindow::fixGCodeList()
         float yn = GCodeList[numPos].Y - GCodeList[numPos - 1].Y;
         float zn = GCodeList[numPos].Z - GCodeList[numPos - 1].Z;
 
-        if (GCodeList[numPos].X > cnc->coord[X].areaMax) {
-            cnc->coord[X].areaMax = GCodeList[numPos].X;
+        if (GCodeList[numPos].X > cnc->coord[X].softLimitMax) {
+            cnc->coord[X].softLimitMax = GCodeList[numPos].X;
         }
 
-        if (GCodeList[numPos].X < cnc->coord[X].areaMin) {
-            cnc->coord[X].areaMin = GCodeList[numPos].X;
+        if (GCodeList[numPos].X < cnc->coord[X].softLimitMin) {
+            cnc->coord[X].softLimitMin = GCodeList[numPos].X;
         }
 
-        if (GCodeList[numPos].Y > cnc->coord[Y].areaMax) {
-            cnc->coord[Y].areaMax = GCodeList[numPos].Y;
+        if (GCodeList[numPos].Y > cnc->coord[Y].softLimitMax) {
+            cnc->coord[Y].softLimitMax = GCodeList[numPos].Y;
         }
 
-        if (GCodeList[numPos].Y < cnc->coord[Y].areaMin) {
-            cnc->coord[Y].areaMin = GCodeList[numPos].Y;
+        if (GCodeList[numPos].Y < cnc->coord[Y].softLimitMin) {
+            cnc->coord[Y].softLimitMin = GCodeList[numPos].Y;
         }
 
         //длина отрезка
