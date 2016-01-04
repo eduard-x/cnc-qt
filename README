@@ -1,6 +1,6 @@
 How to compile source code and create packages
 Get the project from sourceforge.net.
-Must be installed on your Linux system: gcc-c++, make, cmake, qt4-dev, libusb-1.0-dev, opengl-dev
+Must be installed on your Linux system: gcc-c++, make, cmake, qt4-dev (or qt5-dev), libusb-1.0-dev, opengl-dev
 
 For creating makefile and compiling of CNC-Qt:
 cmake .

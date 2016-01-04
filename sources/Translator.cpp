@@ -203,7 +203,7 @@ QString cTranslator::engText[] = {
     "Algorithmus Z",
     "Grid, mm",
     "enabled",
-    "disadbled",
+    "disabled",
     "From %1 to %2",
     "Show lines grid", // 160
     "Show points grid",

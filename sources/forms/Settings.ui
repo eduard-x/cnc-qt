@@ -40,36 +40,36 @@
           <string>Ranges</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
-          <item row="0" column="8">
+          <item row="0" column="6">
            <widget class="QLabel" name="labelMax">
             <property name="text">
              <string>max</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="7">
+          <item row="4" column="5">
            <widget class="QDoubleSpinBox" name="doubleRangeMinA"/>
           </item>
-          <item row="2" column="7">
+          <item row="2" column="5">
            <widget class="QDoubleSpinBox" name="doubleRangeMinY"/>
           </item>
-          <item row="0" column="7">
+          <item row="0" column="5">
            <widget class="QLabel" name="labelMin">
             <property name="text">
              <string>min</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="8">
+          <item row="2" column="6">
            <widget class="QDoubleSpinBox" name="doubleRangeMaxY"/>
           </item>
-          <item row="3" column="7">
+          <item row="3" column="5">
            <widget class="QDoubleSpinBox" name="doubleRangeMinZ"/>
           </item>
-          <item row="1" column="8">
+          <item row="1" column="6">
            <widget class="QDoubleSpinBox" name="doubleRangeMaxX"/>
           </item>
-          <item row="3" column="8">
+          <item row="3" column="6">
            <widget class="QDoubleSpinBox" name="doubleRangeMaxZ"/>
           </item>
           <item row="3" column="0">
@@ -79,6 +79,19 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="3">
+           <spacer name="horizontalSpacer_17">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_14">
             <property name="text">
@@ -86,10 +99,10 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="8">
+          <item row="4" column="6">
            <widget class="QDoubleSpinBox" name="doubleRangeMaxA"/>
           </item>
-          <item row="1" column="7">
+          <item row="1" column="5">
            <widget class="QDoubleSpinBox" name="doubleRangeMinX"/>
           </item>
           <item row="4" column="0">
@@ -106,116 +119,43 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="10">
+          <item row="2" column="8">
            <widget class="QCheckBox" name="checkSwapY">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="0" column="10">
+          <item row="0" column="8">
            <widget class="QLabel" name="labelSwap">
             <property name="text">
              <string>Invert</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="10">
+          <item row="1" column="8">
            <widget class="QCheckBox" name="checkSwapX">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="3" column="10">
+          <item row="3" column="8">
            <widget class="QCheckBox" name="checkSwapZ">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="4" column="10">
+          <item row="4" column="8">
            <widget class="QCheckBox" name="checkSwapA">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="1" column="4">
-           <widget class="QCheckBox" name="checkUseX">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="QLabel" name="labelUse">
-            <property name="text">
-             <string>use</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="4">
-           <widget class="QCheckBox" name="checkUseY">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="4">
-           <widget class="QCheckBox" name="checkUseZ">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="4">
-           <widget class="QCheckBox" name="checkUseA">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <spacer name="horizontalSpacer_6">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="9">
+          <item row="2" column="7">
            <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="5">
-           <spacer name="horizontalSpacer_17">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -322,7 +262,27 @@
         </spacer>
        </item>
        <item row="1" column="0">
-        <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0,0,0,0,0,0,0,0,0" columnminimumwidth="0,0,0,0,0,0,0,0,0,0,0">
+        <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0,0,0,0,0,0,0,0,0">
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="checkUseX">
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+           <property name="text">
+            <string>X</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="10">
+          <widget class="QLabel" name="labelAcceleration">
+           <property name="text">
+            <string>Acceleration</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="6">
           <widget class="QDoubleSpinBox" name="doubleSpinStartY">
            <property name="minimumSize">
@@ -451,6 +411,9 @@
            <property name="text">
             <string>Start speed</string>
            </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="0" column="8">
@@ -458,22 +421,8 @@
            <property name="text">
             <string>End speed</string>
            </property>
-          </widget>
-         </item>
-         <item row="0" column="10">
-          <widget class="QLabel" name="labelAcceleration">
-           <property name="text">
-            <string>Acceleration</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>X</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
+           <property name="wordWrap">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -502,16 +451,6 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Y</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="10">
           <widget class="QDoubleSpinBox" name="doubleSpinAccelY">
            <property name="minimumSize">
@@ -534,16 +473,6 @@
            </property>
            <property name="maximum">
             <double>599.990000000000009</double>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>Z</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -616,16 +545,6 @@
            </property>
            <property name="maximum">
             <double>599.990000000000009</double>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>A</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -767,6 +686,9 @@
            <property name="text">
             <string>Imp/mm</string>
            </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="3" column="3">
@@ -822,6 +744,9 @@
            <property name="text">
             <string>Inv. steps</string>
            </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="4" column="3">
@@ -852,6 +777,36 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="checkUseY">
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+           <property name="text">
+            <string>Y</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QCheckBox" name="checkUseZ">
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+           <property name="text">
+            <string>Z</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QCheckBox" name="checkUseA">
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+           <property name="text">
+            <string>A</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>

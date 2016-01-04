@@ -174,7 +174,7 @@ MainWindow::MainWindow(QWidget *parent)
     QString d = getenv( "DISPLAY" ); // linux machines only!
 
     // to disable the OpenGL features, if over ssh
-    enableOpenGL = (d.indexOf(":0") == 0);
+    enableOpenGL = (d.indexOf(QRegExp(":[0-9]")) == 0);
 #endif
     currentLang = "English";
 
