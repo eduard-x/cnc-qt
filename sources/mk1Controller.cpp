@@ -525,14 +525,13 @@ void mk1Controller::loadSettings()
         }
 
         coord[c].useLimitMin = settingsFile->value("HardLimitMin" + axisList.at(c), true).toBool();
-
         coord[c].useLimitMax = settingsFile->value("HardLimitMax" + axisList.at(c), true).toBool();
 
         //
-        coord[c].invertDirection = settingsFile->value("InvDirection" + axisList.at(c), true).toBool();
-        coord[c].invertPulses = settingsFile->value("InvPulses" + axisList.at(c), true).toBool();
-        coord[c].invLimitMax = settingsFile->value("InvLimitMax" + axisList.at(c), true).toBool();
-        coord[c].invLimitMin = settingsFile->value("InvLimitMin" + axisList.at(c), true).toBool();
+        coord[c].invertDirection = settingsFile->value("InvDirection" + axisList.at(c), false).toBool();
+        coord[c].invertPulses = settingsFile->value("InvPulses" + axisList.at(c), false).toBool();
+        coord[c].invLimitMax = settingsFile->value("InvLimitMax" + axisList.at(c), false).toBool();
+        coord[c].invLimitMin = settingsFile->value("InvLimitMin" + axisList.at(c), false).toBool();
         coord[c].enabled = settingsFile->value("Enabled" + axisList.at(c), true).toBool();
 
         f = settingsFile->value("Backlash" + axisList.at(c), 0).toFloat( &res);
@@ -1132,7 +1131,6 @@ void mk1Data::packA0(bool send)
     writeBuf[58] = 0x01;// unknown byte
 
     // reverse motor steps, bitmask: 0 no inverting, 1 invert step X, 2 invert step Y, 4 invert step Z
-
     r = 0x0;
     r |= (coord[X].invertPulses == true) ? 0x01 : 0x00;
     r |= (coord[Y].invertPulses == true) ? 0x02 : 0x00;
