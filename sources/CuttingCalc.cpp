@@ -63,31 +63,32 @@ void CuttingCalc::initMaterialList()
 {
     materialList = (QVector<materialFeed>()
     << (materialFeed) {
-        HARDWOOD,    60.0, 150.0, 10000, 0.035
+        // material, min Feed, max Feed, max RPM, coeff fz diameter
+        HARDWOOD,    60.0, 150.0, 23000, 0.035
     }
     << (materialFeed) {
-        SOFTWOOD,    80.0, 250.0, 10000, 0.04
+        SOFTWOOD,    80.0, 250.0, 18000, 0.04
     }
     << (materialFeed) {
-        PLYWOOD,     80.0, 250.0, 10000, 0.04
+        PLYWOOD,     80.0, 250.0, 18000, 0.04
     }
     << (materialFeed) {
-        MDF,         80.0, 250.0, 10000, 0.04
+        MDF,         80.0, 250.0, 23000, 0.04
     }
     << (materialFeed) {
-        ACRYLIC,     100.0, 150.0, 10000, 0.035
+        ACRYLIC,     100.0, 150.0, 20000, 0.035
     }
     << (materialFeed) {
-        PHENOLIC,    100.0, 200.0, 10000, 0.035
+        PHENOLIC,    100.0, 200.0, 20000, 0.035
     }
     << (materialFeed) {
-        FIBERGLASS,  100.0, 150.0, 10000, 0.035
+        FIBERGLASS,  100.0, 150.0, 20000, 0.035
     } // polyacril
     << (materialFeed) {
-        HARDPLASTIC, 150.0, 350.0, 10000, 0.035
+        HARDPLASTIC, 150.0, 350.0, 18000, 0.035
     }
     << (materialFeed) {
-        SOFTPLASTIC, 200.0, 400.0, 10000, 0.04
+        SOFTPLASTIC, 200.0, 400.0, 20000, 0.04
     }
     << (materialFeed) {
         BRONZE,      30.0, 60.0, 10000, 0.0085

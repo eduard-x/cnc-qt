@@ -492,7 +492,7 @@ void GLWidget::drawWorkField()
         case Working: {
             int numSelect = cnc->numberCompleatedInstructions() - 1;
 
-            if (numSelect >= 0 ) {
+            if (numSelect >= 0 && numSelect < workNum) {
                 glLineWidth(3.0f);
                 glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
                 glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect + 1]);
