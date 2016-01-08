@@ -485,49 +485,28 @@ void mk1Controller::loadSettings()
     settingsFile->beginGroup("mk1");
 
     for (int c = 0; c < axisList.count(); c++) {
-        int i = settingsFile->value("Pulse" + axisList.at(c), 400).toInt( &res);
-
-        if (res == true) {
-            coord[c].pulsePerMm = i;
-        }
+        int i = settingsFile->value("Pulse" + axisList.at(c), 200).toInt( &res);
+        coord[c].pulsePerMm = (res == true) ? i : 200;
 
         float f = settingsFile->value("Accel" + axisList.at(c), 15).toFloat( &res);
-
-        if (res == true) {
-            coord[c].acceleration = f;
-        }
+        coord[c].acceleration = (res == true) ? f : 15;
 
         f = settingsFile->value("StartVelo" + axisList.at(c), 0).toFloat( &res);
-
-        if (res == true) {
-            coord[c].minVelo = f;
-        }
+        coord[c].minVelo = (res == true) ? f : 0;
 
         f = settingsFile->value("EndVelo" + axisList.at(c), 400).toFloat( &res);
-
-        if (res == true) {
-            coord[c].maxVelo = f;
-        }
+        coord[c].maxVelo = (res == true) ? f : 400;
 
         coord[c].checkSoftLimits = settingsFile->value("SoftLimit" + axisList.at(c), false).toBool( );
 
         f = settingsFile->value("SoftMin" + axisList.at(c), 0).toFloat( &res);
-
-        if (res == true) {
-            coord[c].softLimitMin = f;
-        }
+        coord[c].softLimitMin = (res == true) ? f : 0;
 
         f = settingsFile->value("SoftMax" + axisList.at(c), 0).toFloat( &res);
-
-        if (res == true) {
-            coord[c].softLimitMax = f;
-        }
+        coord[c].softLimitMax = (res == true) ? f : 0;
 
         f = settingsFile->value("Home" + axisList.at(c), 0).toFloat( &res);
-
-        if (res == true) {
-            coord[c].home = f;
-        }
+        coord[c].home = (res == true) ? f : 0;
 
         coord[c].useLimitMin = settingsFile->value("HardLimitMin" + axisList.at(c), true).toBool();
         coord[c].useLimitMax = settingsFile->value("HardLimitMax" + axisList.at(c), true).toBool();
@@ -540,23 +519,13 @@ void mk1Controller::loadSettings()
         coord[c].enabled = settingsFile->value("Enabled" + axisList.at(c), true).toBool();
 
         f = settingsFile->value("Backlash" + axisList.at(c), 0).toFloat( &res);
-
-        if (res == true) {
-            coord[c].backlash = f;
-        }
+        coord[c].backlash = (res == true) ? f : 0;
 
         f = settingsFile->value("WorkAreaMin" + axisList.at(c), 0).toFloat( &res);
-
-        if (res == true) {
-            coord[c].workAreaMin = f;
-        }
-
+        coord[c].workAreaMin = (res == true) ? f :0;
+       
         f = settingsFile->value("WorkAreaMax" + axisList.at(c), 0).toFloat( &res);
-
-        if (res == true) {
-            coord[c].workAreaMax = f;
-        }
-
+        coord[c].workAreaMax = (res == true) ? f : 0;
         //
     }
 
