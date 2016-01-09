@@ -112,7 +112,7 @@ CuttingCalc::CuttingCalc(QWidget *p)
     setStyleSheet(parent->programStyleSheet);
 
     initMaterialList();
-    
+
     current = parent->cuttedMaterial;
 
     doubleSpinFeedRate->setReadOnly(true);

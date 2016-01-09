@@ -69,10 +69,9 @@ axis::axis()
 
 float axis::posMm()
 {
-    if (pulsePerMm != 0){
+    if (pulsePerMm != 0) {
         return (float)(actualPosPulses / (float) pulsePerMm);
-    }
-    else{
+    } else {
         return 0.0;
     }
 }
@@ -522,8 +521,8 @@ void mk1Controller::loadSettings()
         coord[c].backlash = (res == true) ? f : 0;
 
         f = settingsFile->value("WorkAreaMin" + axisList.at(c), 0).toFloat( &res);
-        coord[c].workAreaMin = (res == true) ? f :0;
-       
+        coord[c].workAreaMin = (res == true) ? f : 0;
+
         f = settingsFile->value("WorkAreaMax" + axisList.at(c), 0).toFloat( &res);
         coord[c].workAreaMax = (res == true) ? f : 0;
         //
@@ -1058,29 +1057,37 @@ void mk1Data::packA0(bool send)
     writeBuf[5] = 0x12;
 
     int AccelX = 0;
+
     if ((coord[X].acceleration > 0) && (coord[X].pulsePerMm > 0)) {
         AccelX = (int)3186.7 * 3600.0 / sqrt(coord[X].acceleration * coord[X].pulsePerMm);
     }
+
     packFourBytes(6, AccelX);
 
     int AccelY = 0;
+
     if ((coord[Y].acceleration > 0) && (coord[Y].pulsePerMm > 0)) {
         AccelY = (int)3186.7 * 3600.0  / sqrt(coord[Y].acceleration * coord[Y].pulsePerMm);
     }
+
     packFourBytes(10, AccelY);
 
     int AccelZ = 0;
+
     if ((coord[Z].acceleration > 0) && (coord[Z].pulsePerMm > 0)) {
         AccelZ = (int)3186.7 * 3600.0  / sqrt(coord[Z].acceleration * coord[Z].pulsePerMm);
     }
+
     packFourBytes(14, AccelZ);
 
     int AccelA = 0;
+
     if ((coord[A].acceleration > 0) && (coord[A].pulsePerMm > 0)) {
         AccelA = (int)3186.7 * 3600.0 / sqrt(coord[A].acceleration * coord[A].pulsePerMm);
     }
+
     packFourBytes(18, AccelA);
-    
+
 
     writeBuf[42] = 0x60;// unknown byte
     writeBuf[43] = 0x09;// unknown byte
@@ -1088,7 +1095,7 @@ void mk1Data::packA0(bool send)
     writeBuf[46] = 0x08;// unknown byte
 
     // reverse of axis.: 0xff no reverse, 0xfe axis x, 0xfd axis y, 0xfb axis z
-    byte r = 0xff; 
+    byte r = 0xff;
     // reset bits
     r &= (coord[X].invertDirection == true) ? 0xfe : 0xff;
     r &= (coord[Y].invertDirection == true) ? 0xfd : 0xff;
@@ -1099,7 +1106,7 @@ void mk1Data::packA0(bool send)
     writeBuf[58] = 0x01;// unknown byte
 
     // reverse motor steps, bitmask: 0 no inverting, 1 invert step X, 2 invert step Y, 4 invert step Z
-    r = 0x0; 
+    r = 0x0;
     // set bits
     r |= (coord[X].invertPulses == true) ? 0x01 : 0x00;
     r |= (coord[Y].invertPulses == true) ? 0x02 : 0x00;

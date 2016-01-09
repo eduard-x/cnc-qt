@@ -45,33 +45,6 @@
 #include <math.h>
 
 
-GLint GLWidget::xAxis[][3] = {
-    {0, 0, 0}, {10, 0, 0}, {10, 0, 0},
-    {9, 1, 0}, {10, 0, 0}, {9, -1, 0}
-};
-
-
-GLint GLWidget::yAxis[][3] = {
-    {0, 0, 0}, {0, 10, 0}, {0, 10, 0},
-    {1, 9, 0}, {0, 10, 0}, { -1, 9, 0}
-};
-
-
-GLint GLWidget::zAxis[][3] = {
-    {0, 0, 0}, {0, 0, 10}, {0, 0, 10},
-    {1, 1, 9}, {0, 0, 10}, { -1, -1, 9}
-};
-
-
-GLint GLWidget::instrumentArray[][3] = {
-    {0, 0, 0}, {0, 0, 4}, { -1, -1, 2},
-    { -1, 1, 2}, {1, -1, 2}, {1, 1, 2},
-    {1, 1, 2}, { -1, 1, 2}, {1, -1, 2},
-    { -1, -1, 2}, { -1, -1, 2}, {0, 0, 0},
-    {1, 1, 2}, {0, 0, 0}, {1, -1, 2},
-    {0, 0, 0}, { -1, 1, 2}, {0, 0, 0}
-};
-
 
 GLWidget::GLWidget(QWidget *p)
     : QGLWidget(p)
@@ -88,6 +61,8 @@ GLWidget::GLWidget(QWidget *p)
     cnc = parent->cnc;
 
     workNum = 0;
+
+    initStaticElements();
 
     initializeGL();
 
@@ -113,6 +88,127 @@ GLWidget::GLWidget(QWidget *p)
 
 GLWidget::~GLWidget()
 {
+}
+
+
+void GLWidget::initStaticElements()
+{
+    xAxis = (QVector<pointGL>()
+    << (pointGL) {
+        0.0, 0.0, 0.0
+    }
+    << (pointGL) {
+        10.0, 0.0, 0.0
+    } 
+    << (pointGL) {
+        10.0, 0.0, 0.0
+    }
+    << (pointGL) {
+        9.0, 1.0, 0.0
+    } 
+    << (pointGL) {
+        10.0, 0.0, 0.0
+    } 
+    << (pointGL) {
+        9.0, -1.0, 0.0
+    });
+
+    yAxis = (QVector<pointGL>()
+    << (pointGL) {
+        0.0, 0.0, 0.0
+    }
+    << (pointGL) {
+        0.0, 10.0, 0.0
+    }
+    << (pointGL) {
+        0.0, 10.0, 0.0
+    }
+    << (pointGL) {
+        1.0, 9.0, 0.0
+    } 
+    << (pointGL) {
+        0.0, 10.0, 0.0
+    } 
+    << (pointGL) {
+        -1.0, 9.0, 0.0
+    });
+
+    zAxis = (QVector<pointGL>()
+    << (pointGL) {
+        0.0, 0.0, 0.0
+    }
+    << (pointGL) {
+        0.0, 0.0, 10.0
+    }
+    << (pointGL) {
+        0.0, 0.0, 10.0
+    }
+    << (pointGL) {
+        1.0, 1.0, 9.0
+    } 
+    << (pointGL) {
+        0.0, 0.0, 10.0
+    } 
+    << (pointGL) {
+        -1.0, -1.0, 9.0
+    });
+
+
+    instrumentArray = (QVector<pointGL>()
+    << (pointGL) {
+        0.0, 0.0, 0.0
+    } 
+    << (pointGL) {
+        0.0, 0.0, 4.0
+    } 
+    << (pointGL) {
+        -1.0, -1.0, 2.0
+    }
+    << (pointGL) {
+        -1.0, 1.0, 2.0
+    } 
+    << (pointGL) {
+        1.0, -1.0, 2.0
+    } 
+    << (pointGL) {
+        1.0, 1.0, 2.0
+    }
+    << (pointGL) {
+        1.0, 1.0, 2.0
+    } 
+    << (pointGL) {
+        -1.0, 1.0, 2.0
+    } 
+    << (pointGL) {
+        1.0, -1.0, 2.0
+    }
+    << (pointGL) {
+        -1.0, -1.0, 2.0
+    } 
+    << (pointGL) {
+        -1.0, -1.0, 2.0
+    } 
+    << (pointGL) {
+        0.0, 0.0, 0.0
+    }
+    << (pointGL) {
+        1.0, 1.0, 2.0
+    } 
+    << (pointGL) {
+        0.0, 0.0, 0.0
+    } 
+    << (pointGL) {
+        1.0, -1.0, 2.0
+    }
+    << (pointGL) {
+        0.0, 0.0, 0.0
+    } 
+    << (pointGL) {
+        -1.0, 1.0, 2.0
+    } 
+    << (pointGL) {
+        0.0, 0.0, 0.0
+    });
 }
 
 
@@ -410,29 +506,33 @@ void GLWidget::Draw() // drawing, main function
 
 void GLWidget::drawAxes()
 {
+//     glPushMatrix();
+    
     glLineWidth(2);
 
     glEnableClientState(GL_VERTEX_ARRAY);
 
     // x
     glColor3f(0.0f, 1.0f, 0.0f);
-    glVertexPointer(3, GL_INT, 0, xAxis);
+    glVertexPointer(3, GL_FLOAT, 0, &xAxis[0]);
     glDrawArrays(GL_LINES, 0, 6); // draw array of lines
     renderText(12.0, 0.0, 0.0, QString("X")); //coordinates of text
 
     // y
     glColor3f(1.0F, 0, 0.0F);
-    glVertexPointer(3, GL_INT, 0, yAxis);
+    glVertexPointer(3, GL_FLOAT, 0, &yAxis[0]);
     glDrawArrays(GL_LINES, 0, 6);
     renderText(0.0, 12.0, 0.0, QString("Y")); //coordinates of text
 
     // z
     glColor3f(0.0F, 1.0, 1.0F);
-    glVertexPointer(3, GL_INT, 0, zAxis);
+    glVertexPointer(3, GL_FLOAT, 0, &zAxis[0]);
     glDrawArrays(GL_LINES, 0, 6);
     renderText(0.0, 0.0, 12.0, QString("Z")); //coordinates of text
 
     glDisableClientState(GL_VERTEX_ARRAY);
+    
+//     glPopMatrix();
 }
 
 
@@ -621,26 +721,27 @@ void GLWidget::drawSurface()
 
 void GLWidget::drawInstrument()
 {
-    //нарисуем курсор
+    // instrument
     float startX = cnc->coord[X].posMm();
     float startY = cnc->coord[Y].posMm();
     float startZ = cnc->coord[Z].posMm();
 
-    glPushMatrix();
-
-    glEnableClientState(GL_VERTEX_ARRAY);
+//     glPushMatrix();
 
     glColor3f(1.000f, 1.000f, 0.000f);
     glLineWidth(3);
 
     glTranslated(startX, startY, startZ);
 
-    glVertexPointer(3, GL_INT, 0, instrumentArray);
-    glDrawArrays(GL_LINES, 0, 18);
+    glVertexPointer(3, GL_FLOAT, 0, &instrumentArray[0]);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    glDrawArrays(GL_LINES, 0, instrumentArray.count());
 
     glDisableClientState(GL_VERTEX_ARRAY);
 
-    glPopMatrix();
+//     glPopMatrix();
 }
 
 

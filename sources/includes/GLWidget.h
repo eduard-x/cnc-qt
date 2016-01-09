@@ -74,7 +74,7 @@ class GLWidget : public QGLWidget
 
     private:
         void initPreviewSettings();
-
+        void initStaticElements();
 
         void normalizeAngle(int *angle);
 
@@ -142,10 +142,10 @@ class GLWidget : public QGLWidget
         MainWindow* parent;
         mk1Controller* cnc;
 
-        static GLint instrumentArray[][3];
-        static GLint xAxis[][3];
-        static GLint yAxis[][3];
-        static GLint zAxis[][3];
+        QVector<pointGL> instrumentArray;
+        QVector<pointGL> xAxis;
+        QVector<pointGL> yAxis;
+        QVector<pointGL> zAxis;
 
         QVector<pointGL> surfaceArray; //
         QVector<pointGL> coordArray; //
