@@ -68,6 +68,15 @@ class GCodeCommand
         float X;
         float Y;
         float Z;
+        
+        // curve settings: G02, G03
+        bool arc;
+        float I;
+        float J;
+        float K;
+        
+        float Radius;
+        // end of curves
 
         //
         // angle in grad
@@ -282,6 +291,7 @@ class Reader : public cTranslator
         QList<DataCollections> data;
         std::deque<std::pair<float, std::vector<Vec2d> > > layers;
         std::vector<Vec3f> cached_lines;
+        std::vector<Vec3f> cached_arcs;
         std::vector<Vec3f> cached_points;
         std::vector<Vec3f> cached_color;
 
@@ -291,7 +301,7 @@ class Reader : public cTranslator
 
     private:
         void Swap(int &p1, int &p2);
-        bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
+        bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL, bool parse_arc = false);
         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );
         bool readDRL( const QByteArray &gcode );

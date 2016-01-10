@@ -515,19 +515,19 @@ void GLWidget::drawAxes()
     // x
     glColor3f(0.0f, 1.0f, 0.0f);
     glVertexPointer(3, GL_FLOAT, 0, &xAxis[0]);
-    glDrawArrays(GL_LINES, 0, 6); // draw array of lines
+    glDrawArrays(GL_LINES, 0, xAxis.count()); // draw array of lines
     renderText(12.0, 0.0, 0.0, QString("X")); //coordinates of text
 
     // y
     glColor3f(1.0F, 0, 0.0F);
     glVertexPointer(3, GL_FLOAT, 0, &yAxis[0]);
-    glDrawArrays(GL_LINES, 0, 6);
+    glDrawArrays(GL_LINES, 0, yAxis.count());
     renderText(0.0, 12.0, 0.0, QString("Y")); //coordinates of text
 
     // z
     glColor3f(0.0F, 1.0, 1.0F);
     glVertexPointer(3, GL_FLOAT, 0, &zAxis[0]);
-    glDrawArrays(GL_LINES, 0, 6);
+    glDrawArrays(GL_LINES, 0, zAxis.count());
     renderText(0.0, 0.0, 12.0, QString("Z")); //coordinates of text
 
     glDisableClientState(GL_VERTEX_ARRAY);

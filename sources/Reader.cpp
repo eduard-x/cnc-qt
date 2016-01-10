@@ -61,6 +61,14 @@ GCodeCommand::GCodeCommand()
     Y = 0.0;
     Z = 0.0;
     A = 0.0;
+    
+    // curve parameters
+    I = 0.0;
+    J = 0.0;
+    K = 0.0;
+    arc = false;
+    Radius = 0.0;
+    // end of curve
 
     angleVectors = 0;
     Distance = 0.0;
@@ -73,25 +81,6 @@ GCodeCommand::GCodeCommand()
 };
 
 
-// GCodeCommand::GCodeCommand(int _numberInstruct, bool _spindelON, float _X, float _Y, float _Z, float _A, int _speed, bool _workspeed, bool _changeInstrument, int _numberInstrument, bool _needPause, int _timeSeconds, float _diametr)
-// {
-//     X = _X;
-//     Y = _Y;
-//     Z = _Z;
-//     A = _A;
-//     spindelON = _spindelON;
-//     numberInstruct = _numberInstruct;
-//     speed = _speed;
-//     workspeed = _workspeed;
-//
-//     changeInstrument = _changeInstrument;
-//     numberInstrument = _numberInstrument;
-//     needPause        = _needPause;
-//     mSeconds      = _timeSeconds;
-//     diametr = _diametr;
-// };
-
-
 // constructor based on existing command
 GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
 {
@@ -99,6 +88,12 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
     Y = _cmd->Y;
     Z = _cmd->Z;
     A = _cmd->A;
+    
+    I = _cmd->I;
+    J = _cmd->J;
+    K = _cmd->K;
+    arc = _cmd->arc;
+    Radius = _cmd->Radius;
 
     spindelON = _cmd->spindelON;
     numberInstruct = _cmd->numberInstruct;
@@ -772,7 +767,6 @@ bool Reader::readGCode(const QByteArray &gcode)
                 iPos += 2;
             }
         }
-
 #endif
 
     if (lineStream.indexOf(QRegExp("[G|M|F](\\d+)($|\\s)")) == -1) { // Gxx, Fxx or Mxx not found
@@ -876,6 +870,97 @@ bool Reader::readGCode(const QByteArray &gcode)
 
                     if (E > 0.0) {
                         cached_lines.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                        cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                    }
+
+                    break;
+                }
+                
+                if (cmd == "G02") { // clockwise arc
+                    Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
+                    float E(-1.0);
+
+                    if (parseCoord(line, next_pos, E, coef) == false) {
+                        decoded = false;
+                        break;
+                    }
+
+                    tmpCommand->X = next_pos.x();
+                    tmpCommand->Y = next_pos.y();
+                    tmpCommand->Z = next_pos.z();
+                    
+                    Vec3 next_arc_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
+                    float E_arc(-1.0);
+
+                    if (parseCoord(line, next_arc_pos, E_arc, coef, NULL, true) == false) {
+                        decoded = false;
+                        break;
+                    }
+                    
+                    tmpCommand->I = next_arc_pos.x();
+                    tmpCommand->J = next_arc_pos.y();
+                    tmpCommand->K = next_arc_pos.z();
+
+                    tmpCommand->workspeed = true;
+
+                    if (E > 0.0) {
+                        cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                        cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                    }
+
+                    if (b_absolute) {
+                        current_pos = next_pos + origin;
+                    } else {
+                        current_pos += next_pos;
+                    }
+
+                    if (E > 0.0) {
+                        cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                        cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                    }
+
+                    break;
+                }
+
+                if (cmd == "G03") { // counterclockwise arc
+                    Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
+                    float E(-1.0);
+
+                    if (parseCoord(line, next_pos, E, coef) == false) {
+                        decoded = false;
+                        break;
+                    }
+
+                    tmpCommand->X = next_pos.x();
+                    tmpCommand->Y = next_pos.y();
+                    tmpCommand->Z = next_pos.z();
+
+                    Vec3 next_arc_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
+                    float E_arc(-1.0);
+
+                    if (parseCoord(line, next_arc_pos, E_arc, coef, NULL, true) == false) {
+                        decoded = false;
+                        break;
+                    }
+                    
+                    tmpCommand->I = next_arc_pos.x();
+                    tmpCommand->J = next_arc_pos.y();
+                    tmpCommand->K = next_arc_pos.z();
+                    tmpCommand->workspeed = true;
+
+                    if (E > 0.0) {
+                        cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                        cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                    }
+
+                    if (b_absolute) {
+                        current_pos = next_pos + origin;
+                    } else {
+                        current_pos += next_pos;
+                    }
+
+                    if (E > 0.0) {
+                        cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                     }
 
@@ -1133,7 +1218,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
 
 // if anything is detected, return true
-bool Reader::parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F)
+bool Reader::parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F, bool parse_arc)
 {
     if (line.isEmpty() == true) {
         return false;
@@ -1151,68 +1236,131 @@ bool Reader::parseCoord(const QString &line, Vec3 &pos, float &E, const float co
     for(int i = 1 ; i < chunks.size() ; ++i) {
         const QString &s = chunks[i];
         bool conv;
+        if (parse_arc == true){
+            switch(s[0].toLatin1()) {
+                case 'I': {
+                    pos.x() = coef * (s.right(s.size() - 1).toDouble(&conv));
 
-        switch(s[0].toLatin1()) {
-            case 'X': {
-                pos.x() = coef * (s.right(s.size() - 1).toDouble(&conv));
+                    if (conv == true) {
+                        res = true;
+                    }
 
-                if (conv == true) {
-                    res = true;
+                    break;
                 }
 
-                break;
-            }
+                case 'J': {
+                    pos.y() = coef * (s.right(s.size() - 1).toDouble(&conv));
 
-            case 'Y': {
-                pos.y() = coef * (s.right(s.size() - 1).toDouble(&conv));
+                    if (conv == true) {
+                        res = true;
+                    }
 
-                if (conv == true) {
-                    res = true;
+                    break;
                 }
 
-                break;
-            }
+                case 'K': {
+                    pos.z() = coef * (s.right(s.size() - 1).toDouble(&conv));
 
-            case 'Z': {
-                pos.z() = coef * (s.right(s.size() - 1).toDouble(&conv));
+                    if (conv == true) {
+                        res = true;
+                    }
 
-                if (conv == true) {
-                    res = true;
+                    break;
+                }
+                
+                case 'R': {
+                    break;
                 }
 
-                break;
-            }
+                case 'E': {
+                    E = coef * (s.right(s.size() - 1).toDouble(&conv));
 
-            case 'A': // rotation X
-            case 'B': // rotation Y
-            case 'C': { // rotation Z are not supported
-                break;
-            }
+                    if (conv == true) {
+                        res = true;
+                    }
 
-            case 'E': {
-                E = coef * (s.right(s.size() - 1).toDouble(&conv));
-
-                if (conv == true) {
-                    res = true;
+                    break;
                 }
 
-                break;
-            }
+                case 'F': {
+                    if (F) {
+                        *F = s.right(s.size() - 1).toDouble(&conv);
+                    }
 
-            case 'F': {
-                if (F) {
-                    *F = s.right(s.size() - 1).toDouble(&conv);
+                    if (conv == true) {
+                        res = true;
+                    }
+
+                    break;
                 }
 
-                if (conv == true) {
-                    res = true;
+                default:
+                    break;
+            }
+        }
+        else {
+            switch(s[0].toLatin1()) {
+                case 'X': {
+                    pos.x() = coef * (s.right(s.size() - 1).toDouble(&conv));
+
+                    if (conv == true) {
+                        res = true;
+                    }
+
+                    break;
                 }
 
-                break;
-            }
+                case 'Y': {
+                    pos.y() = coef * (s.right(s.size() - 1).toDouble(&conv));
 
-            default:
-                break;
+                    if (conv == true) {
+                        res = true;
+                    }
+
+                    break;
+                }
+
+                case 'Z': {
+                    pos.z() = coef * (s.right(s.size() - 1).toDouble(&conv));
+
+                    if (conv == true) {
+                        res = true;
+                    }
+
+                    break;
+                }
+
+                case 'A': // rotation X
+                case 'B': // rotation Y
+                case 'C': { // rotation Z are not supported
+                    break;
+                }
+
+                case 'E': {
+                    E = coef * (s.right(s.size() - 1).toDouble(&conv));
+
+                    if (conv == true) {
+                        res = true;
+                    }
+
+                    break;
+                }
+
+                case 'F': {
+                    if (F) {
+                        *F = s.right(s.size() - 1).toDouble(&conv);
+                    }
+
+                    if (conv == true) {
+                        res = true;
+                    }
+
+                    break;
+                }
+
+                default:
+                    break;
+            }
         }
     }
 
