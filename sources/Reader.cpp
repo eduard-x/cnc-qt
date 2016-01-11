@@ -61,7 +61,7 @@ GCodeCommand::GCodeCommand()
     Y = 0.0;
     Z = 0.0;
     A = 0.0;
-    
+
     // arc parameters
     I = 0.0;
     J = 0.0;
@@ -71,7 +71,7 @@ GCodeCommand::GCodeCommand()
     // end of arc
 
     typeMoving = NoType;
-    
+
     angleVectors = 0;
     Distance = 0.0;
 
@@ -90,13 +90,13 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
     Y = _cmd->Y;
     Z = _cmd->Z;
     A = _cmd->A;
-    
+
     I = _cmd->I;
     J = _cmd->J;
     K = _cmd->K;
     arc = _cmd->arc;
     Radius = _cmd->Radius;
-    
+
     typeMoving = _cmd->typeMoving;
 
     spindelON = _cmd->spindelON;
@@ -744,6 +744,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                 iPos += 2;
             }
         }
+
 #endif
 
     if (lineStream.indexOf(QRegExp("[G|M|F](\\d+)($|\\s)")) == -1) { // Gxx, Fxx or Mxx not found
@@ -807,7 +808,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->X = next_pos.x();
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
-                    
+
                     tmpCommand->typeMoving = Line;
 
                     tmpCommand->workspeed = false;
@@ -835,7 +836,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->Z = next_pos.z();
 
                     tmpCommand->typeMoving = Line;
-                     
+
                     tmpCommand->workspeed = true;
 
                     if (E > 0.0) {
@@ -856,7 +857,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
                     break;
                 }
-                
+
                 if (cmd == "G02" || cmd == "G03") { // arc
                     Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
                     float E(-1.0);
@@ -869,7 +870,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->X = next_pos.x();
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
-                    
+
                     Vec3 arc_center(current_pos);
                     float E_arc(-1.0);
 
@@ -877,19 +878,18 @@ bool Reader::readGCode(const QByteArray &gcode)
                         decoded = false;
                         break;
                     }
-                    
+
                     // the arc center coordinateds
                     tmpCommand->I = arc_center.x();
                     tmpCommand->J = arc_center.y();
                     tmpCommand->K = arc_center.z();
 
-                    if (cmd == "G02" ){
+                    if (cmd == "G02" ) {
                         tmpCommand->typeMoving = ArcCW;
-                    }
-                    else{
+                    } else {
                         tmpCommand->typeMoving = ArcCCW;
                     }
-                     
+
                     tmpCommand->workspeed = true;
 
                     if (E > 0.0) {
@@ -1213,7 +1213,7 @@ bool Reader::parseArc(const QString &line, Vec3 &pos, float &E, const float coef
 
                 break;
             }
-            
+
             case 'R': {
                 break;
             }
@@ -1243,7 +1243,7 @@ bool Reader::parseArc(const QString &line, Vec3 &pos, float &E, const float coef
             default:
                 break;
         }
-       
+
     }
 
     return res;

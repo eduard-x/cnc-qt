@@ -75,13 +75,13 @@ class GCodeCommand
         float X;
         float Y;
         float Z;
-        
+
         // curve settings: G02, G03
         bool arc;
         float I;
         float J;
         float K;
-        
+
         float Radius;
         // end of curves
 

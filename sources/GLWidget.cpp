@@ -83,7 +83,7 @@ GLWidget::GLWidget(QWidget *p)
 
     qDebug() << glStr;
     initPreviewSettings();
-    
+
     paintGL();
 }
 
@@ -101,16 +101,16 @@ void GLWidget::initStaticElements()
     }
     << (pointGL) {
         10.0, 0.0, 0.0
-    } 
+    }
     << (pointGL) {
         10.0, 0.0, 0.0
     }
     << (pointGL) {
         9.0, 1.0, 0.0
-    } 
+    }
     << (pointGL) {
         10.0, 0.0, 0.0
-    } 
+    }
     << (pointGL) {
         9.0, -1.0, 0.0
     });
@@ -127,10 +127,10 @@ void GLWidget::initStaticElements()
     }
     << (pointGL) {
         1.0, 9.0, 0.0
-    } 
+    }
     << (pointGL) {
         0.0, 10.0, 0.0
-    } 
+    }
     << (pointGL) {
         -1.0, 9.0, 0.0
     });
@@ -147,10 +147,10 @@ void GLWidget::initStaticElements()
     }
     << (pointGL) {
         1.0, 1.0, 9.0
-    } 
+    }
     << (pointGL) {
         0.0, 0.0, 10.0
-    } 
+    }
     << (pointGL) {
         -1.0, -1.0, 9.0
     });
@@ -159,55 +159,55 @@ void GLWidget::initStaticElements()
     instrumentArray = (QVector<pointGL>()
     << (pointGL) {
         0.0, 0.0, 0.0
-    } 
+    }
     << (pointGL) {
         0.0, 0.0, 4.0
-    } 
+    }
     << (pointGL) {
         -1.0, -1.0, 2.0
     }
     << (pointGL) {
         -1.0, 1.0, 2.0
-    } 
+    }
     << (pointGL) {
         1.0, -1.0, 2.0
-    } 
+    }
     << (pointGL) {
         1.0, 1.0, 2.0
     }
     << (pointGL) {
         1.0, 1.0, 2.0
-    } 
+    }
     << (pointGL) {
         -1.0, 1.0, 2.0
-    } 
+    }
     << (pointGL) {
         1.0, -1.0, 2.0
     }
     << (pointGL) {
         -1.0, -1.0, 2.0
-    } 
+    }
     << (pointGL) {
         -1.0, -1.0, 2.0
-    } 
+    }
     << (pointGL) {
         0.0, 0.0, 0.0
     }
     << (pointGL) {
         1.0, 1.0, 2.0
-    } 
+    }
     << (pointGL) {
         0.0, 0.0, 0.0
-    } 
+    }
     << (pointGL) {
         1.0, -1.0, 2.0
     }
     << (pointGL) {
         0.0, 0.0, 0.0
-    } 
+    }
     << (pointGL) {
         -1.0, 1.0, 2.0
-    } 
+    }
     << (pointGL) {
         0.0, 0.0, 0.0
     });
@@ -510,11 +510,12 @@ void GLWidget::drawAxes()
 {
     glLineWidth(2);
 
+    glDisable(GL_DEPTH_TEST);
+
     glEnable(GL_VERTEX_ARRAY);
 
     glDisable(GL_NORMAL_ARRAY);
-    glDisable(GL_TEXTURE_COORD_ARRAY);
-    
+
     // x
     glColor3f(0.0f, 1.0f, 0.0f);
     glVertexPointer(3, GL_FLOAT, 0, &xAxis[0]);
@@ -534,9 +535,10 @@ void GLWidget::drawAxes()
     renderText(0.0, 0.0, 12.0, QString("Z")); //coordinates of text
 
     glDisable(GL_VERTEX_ARRAY);
-    
+
     glEnable(GL_NORMAL_ARRAY);
-    glEnable(GL_TEXTURE_COORD_ARRAY);
+
+    glEnable(GL_DEPTH_TEST);
 }
 
 
