@@ -51,6 +51,13 @@
 
 class cTranslator;
 
+enum MovingType {
+    NoType,
+    Line,
+    ArcCW,
+    ArcCCW
+};
+
 //
 // g-code instruction
 //
@@ -85,6 +92,7 @@ class GCodeCommand
         int   speed;       // скорость
         bool  spindelON;  // spinle on
         int   numberInstruct;     // g-code
+        MovingType typeMoving; // NONE, LINE, ARC_CW, ARC_CCW
         bool  workspeed; // true=G1 false=G0
         float diametr; // diameter of tool
 
@@ -301,7 +309,8 @@ class Reader : public cTranslator
 
     private:
         void Swap(int &p1, int &p2);
-        bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL, bool parse_arc = false);
+        bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
+        bool parseArc(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );
         bool readDRL( const QByteArray &gcode );

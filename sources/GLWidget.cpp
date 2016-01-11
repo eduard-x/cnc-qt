@@ -64,8 +64,6 @@ GLWidget::GLWidget(QWidget *p)
 
     initStaticElements();
 
-    initializeGL();
-
     fps = 0;
 
     QTimer* fpsTimer = new QTimer();
@@ -83,6 +81,8 @@ GLWidget::GLWidget(QWidget *p)
 
     qDebug() << glStr;
     initPreviewSettings();
+    
+     initializeGL();
 }
 
 
@@ -506,12 +506,13 @@ void GLWidget::Draw() // drawing, main function
 
 void GLWidget::drawAxes()
 {
-//     glPushMatrix();
-    
     glLineWidth(2);
 
-    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnable(GL_VERTEX_ARRAY);
 
+    glDisable(GL_NORMAL_ARRAY);
+    glDisable(GL_TEXTURE_COORD_ARRAY);
+    
     // x
     glColor3f(0.0f, 1.0f, 0.0f);
     glVertexPointer(3, GL_FLOAT, 0, &xAxis[0]);
@@ -530,9 +531,10 @@ void GLWidget::drawAxes()
     glDrawArrays(GL_LINES, 0, zAxis.count());
     renderText(0.0, 0.0, 12.0, QString("Z")); //coordinates of text
 
-    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisable(GL_VERTEX_ARRAY);
     
-//     glPopMatrix();
+    glEnable(GL_NORMAL_ARRAY);
+    glEnable(GL_TEXTURE_COORD_ARRAY);
 }
 
 
@@ -682,7 +684,7 @@ void GLWidget::drawSurface()
 
     glEnd();
 
-    //Добавим связи между точками
+    // connections between the points
     glColor3f(0.678f, 1.000f, 0.184f); // green
     glLineWidth(0.4f);
     glBegin(GL_LINES);
@@ -726,8 +728,6 @@ void GLWidget::drawInstrument()
     float startY = cnc->coord[Y].posMm();
     float startZ = cnc->coord[Z].posMm();
 
-//     glPushMatrix();
-
     glColor3f(1.000f, 1.000f, 0.000f);
     glLineWidth(3);
 
@@ -735,13 +735,17 @@ void GLWidget::drawInstrument()
 
     glVertexPointer(3, GL_FLOAT, 0, &instrumentArray[0]);
 
-    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnable(GL_VERTEX_ARRAY);
+
+    glDisable(GL_NORMAL_ARRAY);
+    glDisable(GL_TEXTURE_COORD_ARRAY);
 
     glDrawArrays(GL_LINES, 0, instrumentArray.count());
 
-    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisable(GL_VERTEX_ARRAY);
 
-//     glPopMatrix();
+    glEnable(GL_NORMAL_ARRAY);
+    glEnable(GL_TEXTURE_COORD_ARRAY);
 }
 
 
@@ -759,7 +763,7 @@ void GLWidget::drawGrate()
 
     glLineStipple( factor, pattern );
 
-    glBegin(GL_LINE_STRIP); //normal lines
+    glBegin(GL_LINE_STRIP); // normal lines
 
     glVertex3d(cnc->coord[X].softLimitMin, cnc->coord[Y].softLimitMin, 0);
     glVertex3d(cnc->coord[X].softLimitMax, cnc->coord[Y].softLimitMin, 0);

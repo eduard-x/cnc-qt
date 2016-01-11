@@ -62,14 +62,16 @@ GCodeCommand::GCodeCommand()
     Z = 0.0;
     A = 0.0;
     
-    // curve parameters
+    // arc parameters
     I = 0.0;
     J = 0.0;
     K = 0.0;
     arc = false;
     Radius = 0.0;
-    // end of curve
+    // end of arc
 
+    typeMoving = NoType;
+    
     angleVectors = 0;
     Distance = 0.0;
 
@@ -94,6 +96,8 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
     K = _cmd->K;
     arc = _cmd->arc;
     Radius = _cmd->Radius;
+    
+    typeMoving = _cmd->typeMoving;
 
     spindelON = _cmd->spindelON;
     numberInstruct = _cmd->numberInstruct;
@@ -118,13 +122,13 @@ GerberData::GerberData()
 {
     UnitsType = "";
 
-    //длина всего числа
+    // длина всего числа
     countDigitsX = 1;
-    //длина всего числа
+    // длина всего числа
     countDigitsY = 1;
-    //длина дробной части
+    // длина дробной части
     countPdigX = 0;
-    //длина дробной части
+    // длина дробной части
     countPdigY = 0;
 
 
@@ -231,43 +235,36 @@ bool Reader::readFile(const QString &fileName)
     if ((detectArray.indexOf("G90") >= 0) || (detectArray.indexOf("G91") >= 0)) { // G-Code program detect
         TypeFile == GCODE;
         return readGCode(arr);
-        //         return;
     }
 
     if ( detectArray.indexOf("IN1;") >= 0 ) { // plotter format
         TypeFile = PLT;
         return readPLT(arr);
-        //         return;
     }
 
     if ( detectArray.indexOf("<svg") >= 0 ) { // svg
         TypeFile = SVG;
         return readSVG(arr);
-        //         return;
     }
 
     if ( detectArray.indexOf("") >= 0 ) { // eps
         TypeFile = EPS;
         return readEPS(arr);
-        //         return;
     }
 
     if ( detectArray.indexOf("") >= 0 ) { // polylines
         TypeFile = DXF;
         return readDXF(arr);
-        //         return;
     }
 
     if ( detectArray.indexOf("") >= 0 ) { // excellon
         TypeFile = DRL;
         return readDRL(arr);
-        //         return;
     }
 
     if ((detectArray.indexOf("G04 ") >= 0) && (detectArray.indexOf("%MOMM*%") > 0 || detectArray.indexOf("%MOIN*%") > 0) ) { // extended gerber
         TypeFile = GBR;
         return readGBR(arr);
-        //         return;
     }
 
     if (TypeFile == None) { // error
@@ -279,14 +276,14 @@ bool Reader::readFile(const QString &fileName)
 
 
 //
-// Вызов диалога пользователя для выбора файла, и посылка данных в процедуру: LoadDataFromText(QStringList lines)
+// dialog for opening of file
 //
 bool Reader::OpenFile(QString &fileName)
 {
     QString name;
 
     if (fileName == "") {
-        name = QFileDialog::getOpenFileName ( 0, translate(_LOAD_FROM_FILE), QDir::homePath() );//File.ReadAllLines(openFileDialog.FileName);
+        name = QFileDialog::getOpenFileName ( 0, translate(_LOAD_FROM_FILE), QDir::homePath() );
 
         if (name.length() == 0) {
             return false;
@@ -301,32 +298,12 @@ bool Reader::OpenFile(QString &fileName)
         if (f == true) {
             QFileInfo fi(name);
             fileName = fi.absoluteFilePath();
-            //             fileName = name;
         }
 
         return f;
     }
 
     return false;
-#if 0
-    QStringList sData;
-    QFile file(name);
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return;
-    }
-
-    QTextStream in(&file);
-
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        sData << line;
-    }
-
-    file.close();
-
-    loadGCodeFromText(sData);
-#endif
 }
 
 
@@ -830,6 +807,8 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->X = next_pos.x();
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
+                    
+                    tmpCommand->typeMoving = Line;
 
                     tmpCommand->workspeed = false;
 
@@ -842,7 +821,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     break;
                 }
 
-                if (cmd == "G01") {
+                if (cmd == "G01") { // bearbeitung
                     Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
                     float E(-1.0);
 
@@ -855,6 +834,8 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
 
+                    tmpCommand->typeMoving = Line;
+                     
                     tmpCommand->workspeed = true;
 
                     if (E > 0.0) {
@@ -876,7 +857,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     break;
                 }
                 
-                if (cmd == "G02") { // clockwise arc
+                if (cmd == "G02" || cmd == "G03") { // arc
                     Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
                     float E(-1.0);
 
@@ -889,63 +870,26 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
                     
-                    Vec3 next_arc_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
+                    Vec3 arc_center(current_pos);
                     float E_arc(-1.0);
 
-                    if (parseCoord(line, next_arc_pos, E_arc, coef, NULL, true) == false) {
+                    if (parseArc(line, arc_center, E_arc, coef) == false) {
                         decoded = false;
                         break;
                     }
                     
-                    tmpCommand->I = next_arc_pos.x();
-                    tmpCommand->J = next_arc_pos.y();
-                    tmpCommand->K = next_arc_pos.z();
+                    // the arc center coordinateds
+                    tmpCommand->I = arc_center.x();
+                    tmpCommand->J = arc_center.y();
+                    tmpCommand->K = arc_center.z();
 
-                    tmpCommand->workspeed = true;
-
-                    if (E > 0.0) {
-                        cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
-                        cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                    if (cmd == "G02" ){
+                        tmpCommand->typeMoving = ArcCW;
                     }
-
-                    if (b_absolute) {
-                        current_pos = next_pos + origin;
-                    } else {
-                        current_pos += next_pos;
+                    else{
+                        tmpCommand->typeMoving = ArcCCW;
                     }
-
-                    if (E > 0.0) {
-                        cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
-                        cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
-                    }
-
-                    break;
-                }
-
-                if (cmd == "G03") { // counterclockwise arc
-                    Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
-                    float E(-1.0);
-
-                    if (parseCoord(line, next_pos, E, coef) == false) {
-                        decoded = false;
-                        break;
-                    }
-
-                    tmpCommand->X = next_pos.x();
-                    tmpCommand->Y = next_pos.y();
-                    tmpCommand->Z = next_pos.z();
-
-                    Vec3 next_arc_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
-                    float E_arc(-1.0);
-
-                    if (parseCoord(line, next_arc_pos, E_arc, coef, NULL, true) == false) {
-                        decoded = false;
-                        break;
-                    }
-                    
-                    tmpCommand->I = next_arc_pos.x();
-                    tmpCommand->J = next_arc_pos.y();
-                    tmpCommand->K = next_arc_pos.z();
+                     
                     tmpCommand->workspeed = true;
 
                     if (E > 0.0) {
@@ -1141,6 +1085,7 @@ bool Reader::readGCode(const QByteArray &gcode)
         } else {
             GCodeList << *tmpCommand;
 
+            // init of next instuction
             tmpCommand->numberInstruct++;
             tmpCommand->needPause = false;
             tmpCommand->changeInstrument = false;
@@ -1217,8 +1162,9 @@ bool Reader::readGCode(const QByteArray &gcode)
 }
 
 
+
 // if anything is detected, return true
-bool Reader::parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F, bool parse_arc)
+bool Reader::parseArc(const QString &line, Vec3 &pos, float &E, const float coef, float *F)
 {
     if (line.isEmpty() == true) {
         return false;
@@ -1236,131 +1182,154 @@ bool Reader::parseCoord(const QString &line, Vec3 &pos, float &E, const float co
     for(int i = 1 ; i < chunks.size() ; ++i) {
         const QString &s = chunks[i];
         bool conv;
-        if (parse_arc == true){
-            switch(s[0].toLatin1()) {
-                case 'I': {
-                    pos.x() = coef * (s.right(s.size() - 1).toDouble(&conv));
 
-                    if (conv == true) {
-                        res = true;
-                    }
+        switch(s[0].toLatin1()) {
+            case 'I': {
+                pos.x() += coef * (s.right(s.size() - 1).toDouble(&conv));
 
-                    break;
+                if (conv == true) {
+                    res = true;
                 }
 
-                case 'J': {
-                    pos.y() = coef * (s.right(s.size() - 1).toDouble(&conv));
-
-                    if (conv == true) {
-                        res = true;
-                    }
-
-                    break;
-                }
-
-                case 'K': {
-                    pos.z() = coef * (s.right(s.size() - 1).toDouble(&conv));
-
-                    if (conv == true) {
-                        res = true;
-                    }
-
-                    break;
-                }
-                
-                case 'R': {
-                    break;
-                }
-
-                case 'E': {
-                    E = coef * (s.right(s.size() - 1).toDouble(&conv));
-
-                    if (conv == true) {
-                        res = true;
-                    }
-
-                    break;
-                }
-
-                case 'F': {
-                    if (F) {
-                        *F = s.right(s.size() - 1).toDouble(&conv);
-                    }
-
-                    if (conv == true) {
-                        res = true;
-                    }
-
-                    break;
-                }
-
-                default:
-                    break;
+                break;
             }
+
+            case 'J': {
+                pos.y() += coef * (s.right(s.size() - 1).toDouble(&conv));
+
+                if (conv == true) {
+                    res = true;
+                }
+
+                break;
+            }
+
+            case 'K': {
+                pos.z() += coef * (s.right(s.size() - 1).toDouble(&conv));
+
+                if (conv == true) {
+                    res = true;
+                }
+
+                break;
+            }
+            
+            case 'R': {
+                break;
+            }
+
+            case 'E': {
+                E = coef * (s.right(s.size() - 1).toDouble(&conv));
+
+                if (conv == true) {
+                    res = true;
+                }
+
+                break;
+            }
+
+            case 'F': {
+                if (F) {
+                    *F = s.right(s.size() - 1).toDouble(&conv);
+                }
+
+                if (conv == true) {
+                    res = true;
+                }
+
+                break;
+            }
+
+            default:
+                break;
         }
-        else {
-            switch(s[0].toLatin1()) {
-                case 'X': {
-                    pos.x() = coef * (s.right(s.size() - 1).toDouble(&conv));
+       
+    }
 
-                    if (conv == true) {
-                        res = true;
-                    }
+    return res;
+}
 
-                    break;
+// if anything is detected, return true
+bool Reader::parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F)
+{
+    if (line.isEmpty() == true) {
+        return false;
+    }
+
+    //     qDebug() << line;
+    const QStringList &chunks = line.toUpper().simplified().split(' ');
+
+    if (chunks.count() == 0) {
+        return false;
+    }
+
+    bool res = false;
+
+    for(int i = 1 ; i < chunks.size() ; ++i) {
+        const QString &s = chunks[i];
+        bool conv;
+
+        switch(s[0].toLatin1()) {
+            case 'X': {
+                pos.x() = coef * (s.right(s.size() - 1).toDouble(&conv));
+
+                if (conv == true) {
+                    res = true;
                 }
 
-                case 'Y': {
-                    pos.y() = coef * (s.right(s.size() - 1).toDouble(&conv));
-
-                    if (conv == true) {
-                        res = true;
-                    }
-
-                    break;
-                }
-
-                case 'Z': {
-                    pos.z() = coef * (s.right(s.size() - 1).toDouble(&conv));
-
-                    if (conv == true) {
-                        res = true;
-                    }
-
-                    break;
-                }
-
-                case 'A': // rotation X
-                case 'B': // rotation Y
-                case 'C': { // rotation Z are not supported
-                    break;
-                }
-
-                case 'E': {
-                    E = coef * (s.right(s.size() - 1).toDouble(&conv));
-
-                    if (conv == true) {
-                        res = true;
-                    }
-
-                    break;
-                }
-
-                case 'F': {
-                    if (F) {
-                        *F = s.right(s.size() - 1).toDouble(&conv);
-                    }
-
-                    if (conv == true) {
-                        res = true;
-                    }
-
-                    break;
-                }
-
-                default:
-                    break;
+                break;
             }
+
+            case 'Y': {
+                pos.y() = coef * (s.right(s.size() - 1).toDouble(&conv));
+
+                if (conv == true) {
+                    res = true;
+                }
+
+                break;
+            }
+
+            case 'Z': {
+                pos.z() = coef * (s.right(s.size() - 1).toDouble(&conv));
+
+                if (conv == true) {
+                    res = true;
+                }
+
+                break;
+            }
+
+            case 'A': // rotation X
+            case 'B': // rotation Y
+            case 'C': { // rotation Z are not supported
+                break;
+            }
+
+            case 'E': {
+                E = coef * (s.right(s.size() - 1).toDouble(&conv));
+
+                if (conv == true) {
+                    res = true;
+                }
+
+                break;
+            }
+
+            case 'F': {
+                if (F) {
+                    *F = s.right(s.size() - 1).toDouble(&conv);
+                }
+
+                if (conv == true) {
+                    res = true;
+                }
+
+                break;
+            }
+
+            default:
+                break;
         }
     }
 
