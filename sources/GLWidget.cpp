@@ -64,6 +64,8 @@ GLWidget::GLWidget(QWidget *p)
 
     initStaticElements();
 
+    initializeGL();
+
     fps = 0;
 
     QTimer* fpsTimer = new QTimer();
@@ -82,7 +84,7 @@ GLWidget::GLWidget(QWidget *p)
     qDebug() << glStr;
     initPreviewSettings();
     
-     initializeGL();
+    paintGL();
 }
 
 
