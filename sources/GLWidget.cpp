@@ -255,6 +255,8 @@ void GLWidget::matrixReloaded()
 
     workNum = parent->GCodeList.count();
 
+    int fs = 0;
+
     if (workNum > 1) {
         coordArray.resize(workNum);
         colorArray.resize(workNum);
@@ -274,37 +276,130 @@ void GLWidget::matrixReloaded()
                 };
             }
 
-            pointGL p;
-            //coordinates of next point
-            float pointX = vv.X;
-            float pointY = vv.Y;
-            float pointZ = vv.Z;
+            pointGL prevPoint;
 
-            //moving in G-code
-            if (parent->Correction) {
-                // proportions
-                pointX *= parent->koeffSizeX;
-                pointY *= parent->koeffSizeY;
+            if (!(vv.typeMoving == ArcCW || vv.typeMoving == ArcCCW) ) { // lines and points
+                pointGL p;
+                //coordinates of next point
+                float pointX = vv.X;
+                float pointY = vv.Y;
+                float pointZ = vv.Z;
 
-                // offset
-                pointX += parent->deltaX;
-                pointY += parent->deltaY;
-                pointZ += parent->deltaZ;
+                //moving in G-code
+                if (parent->Correction) {
+                    // proportions
+                    pointX *= parent->koeffSizeX;
+                    pointY *= parent->koeffSizeY;
 
-                // to use the scanned surface, z correcture
-                if (parent->deltaFeed) {
-                    pointZ += parent->GetDeltaZ(pointX, pointY);
+                    // offset
+                    pointX += parent->deltaX;
+                    pointY += parent->deltaY;
+                    pointZ += parent->deltaZ;
+
+                    // to use the scanned surface, z correcture
+                    if (parent->deltaFeed) {
+                        pointZ += parent->GetDeltaZ(pointX, pointY);
+                    }
+                }
+
+                p = (pointGL) {
+                    pointX, pointY, pointZ
+                };
+
+                prevPoint = p;
+
+                coordArray[currWorkPoint] = p;
+                colorArray[currWorkPoint] = cl;
+
+                currWorkPoint++;
+            } else { // arcs
+                // translate arc to points
+                float a, r; // length of sides
+                float x2, x1, y2, y1, z2, z1;
+
+                x1 = prevPoint.X;
+                x2 = vv.X;
+
+                y1 = prevPoint.Y;
+                y2 = vv.Y;
+
+                z1 = prevPoint.Z;
+                z2 = vv.Z;
+
+                //                 qDebug() << "anfang: " << x1 << y1 << "ende" << x2 << y2 << "center" << vv.I << vv.J;
+
+                a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
+
+                float i, j, k;
+                i = vv.I;
+                j = vv.J;
+                k = vv.K;
+
+                r = sqrt(pow(x1 - i, 2) + pow(y1 - j, 2) + pow(z1 - k, 2));
+
+                float alpha = 0.0;
+
+                if (r != 0.0) {
+                    // alpha in rad
+                    alpha = acos ((r * r + r * r - a * a) / (2.0 * r * r));
+                }
+
+                float bLength = r * alpha;
+                qDebug() << "bogen " << bLength << "mm" << "r" << r << "a" << a << "alpha" << alpha << "acos von "  << (r * r + r * r - a * a) / (2.0 * r * r);
+                // test: 100 stück pro mm
+                int n = (int)bLength * 10.0; // num segments of arc
+
+                if (n > 0) {
+                    float dAlpha = alpha / (float)n;
+
+                    if (vv.typeMoving == ArcCCW) {
+                        dAlpha = -dAlpha;
+                    }
+
+                    coordArray.resize(workNum + n);
+                    colorArray.resize(workNum + n);
+
+                    float rx = x1 - i;
+                    float ry = y1 - j;
+
+                    QString dbg;
+
+                    qDebug() << "d alpha: " << dAlpha; // rad
+
+                    for (int i = 0; i < n; i++) {
+                        pointGL p;
+                        //coordinates of next arc point
+                        float c = cos(dAlpha * (float)i);
+                        float s = sin(dAlpha * (float)i);
+                        float x_new = i + rx * c - ry * s;
+                        float y_new = j + rx * s + ry * c;
+
+                        float pointX = x_new;
+                        float pointY = y_new;
+
+                        dbg += QString().sprintf("n=%d x=%f y=%f \t", i, x_new, y_new);
+
+                        float pointZ = vv.Z;
+
+                        p = (pointGL) {
+                            pointX, pointY, pointZ
+                        };
+
+                        coordArray[currWorkPoint] = p;
+                        colorArray[currWorkPoint] = cl;
+
+                        currWorkPoint++;
+                    }
+
+                    fs++;
+
+                    if (fs == 1) {
+                        qDebug() << dbg;
+                    }
+
+                    workNum += n;
                 }
             }
-
-            p = (pointGL) {
-                pointX, pointY, pointZ
-            };
-
-            coordArray[currWorkPoint] = p;
-            colorArray[currWorkPoint] = cl;
-
-            currWorkPoint++;
         }
     }
 
@@ -510,7 +605,7 @@ void GLWidget::drawAxes()
 {
     glLineWidth(2);
 
-    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST); // because of text rendering
 
     glEnable(GL_VERTEX_ARRAY);
 
@@ -557,9 +652,11 @@ void GLWidget::drawWorkField()
 
     glLineWidth(0.3f);
 
+    // the object
     glVertexPointer(3, GL_FLOAT, 0, &coordArray[0]);
     glColorPointer(3, GL_FLOAT, 0, &colorArray[0]);
     glDrawArrays(GL_LINE_STRIP, 0, workNum);
+    //
 
     // select with 3.0 the current cut of object
     switch (Task::Status) {

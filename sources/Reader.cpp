@@ -66,7 +66,7 @@ GCodeCommand::GCodeCommand()
     I = 0.0;
     J = 0.0;
     K = 0.0;
-    arc = false;
+    //     arc = false;
     Radius = 0.0;
     // end of arc
 
@@ -94,7 +94,7 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
     I = _cmd->I;
     J = _cmd->J;
     K = _cmd->K;
-    arc = _cmd->arc;
+    //     arc = _cmd->arc;
     Radius = _cmd->Radius;
 
     typeMoving = _cmd->typeMoving;

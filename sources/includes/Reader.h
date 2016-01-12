@@ -77,7 +77,7 @@ class GCodeCommand
         float Z;
 
         // curve settings: G02, G03
-        bool arc;
+        //         bool arc;
         float I;
         float J;
         float K;
