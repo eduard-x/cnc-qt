@@ -263,6 +263,10 @@ void GLWidget::matrixReloaded()
 
         int currWorkPoint = 0;
 
+        pointGL prevPoint = (pointGL) {
+            0.0, 0.0, 0.0
+        };
+
         foreach (GCodeCommand vv, parent->GCodeList) {
             colorGL cl;
 
@@ -275,8 +279,6 @@ void GLWidget::matrixReloaded()
                     255, 0, 0
                 };
             }
-
-            pointGL prevPoint;
 
             if (!(vv.typeMoving == ArcCW || vv.typeMoving == ArcCCW) ) { // lines and points
                 pointGL p;
@@ -326,8 +328,6 @@ void GLWidget::matrixReloaded()
                 z1 = prevPoint.Z;
                 z2 = vv.Z;
 
-                //                 qDebug() << "anfang: " << x1 << y1 << "ende" << x2 << y2 << "center" << vv.I << vv.J;
-
                 a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
 
                 float i, j, k;
@@ -344,40 +344,68 @@ void GLWidget::matrixReloaded()
                     alpha = acos ((r * r + r * r - a * a) / (2.0 * r * r));
                 }
 
+                //   if (vv.typeMoving == ArcCW) {
+                //                     alpha = -alpha;
+                //                 }
+
                 float bLength = r * alpha;
-                qDebug() << "bogen " << bLength << "mm" << "r" << r << "a" << a << "alpha" << alpha << "acos von "  << (r * r + r * r - a * a) / (2.0 * r * r);
+
+
                 // test: 100 stück pro mm
                 int n = (int)bLength * 10.0; // num segments of arc
 
                 if (n > 0) {
                     float dAlpha = alpha / (float)n;
 
-                    if (vv.typeMoving == ArcCCW) {
+                    //                     float m = 1.0;
+
+
+                    if (vv.typeMoving == ArcCW) {
                         dAlpha = -dAlpha;
+                        //                         m = -1;
                     }
 
                     coordArray.resize(workNum + n);
                     colorArray.resize(workNum + n);
 
-                    float rx = x1 - i;
-                    float ry = y1 - j;
-
                     QString dbg;
 
-                    qDebug() << "d alpha: " << dAlpha; // rad
+                    //                   http://www.cyberforum.ru/csharp-net/thread113812.html
+                    float beg_angle;
 
-                    for (int i = 0; i < n; i++) {
+                    if ((x1 - i) != 0.0) {
+                        beg_angle = atan( (y1 - j) / (x1 - i));
+                    } else {
+                        beg_angle = 0.0;
+                    }
+
+                    float mx = 1.0;
+                    float my = 1.0;
+
+                    if (i > x1) {
+                        beg_angle += PI;
+                        //                         mx = -1.0;
+                    }
+
+                    if (j > y1) {
+                        my = -1.0;
+                    }
+
+                    float angle = beg_angle;
+
+                    for (int ii = 0; ii < n; ii++) {
                         pointGL p;
                         //coordinates of next arc point
-                        float c = cos(dAlpha * (float)i);
-                        float s = sin(dAlpha * (float)i);
-                        float x_new = i + rx * c - ry * s;
-                        float y_new = j + rx * s + ry * c;
+                        angle += dAlpha;
+                        float c = cos(angle);
+                        float s = sin(angle);
+                        float x_new = i + mx * r * c;// - r * s; //rx * c - ry * s;
+                        float y_new = j + my * r * s;// - r * c;//rx * s + ry * c;
 
                         float pointX = x_new;
                         float pointY = y_new;
 
-                        dbg += QString().sprintf("n=%d x=%f y=%f \t", i, x_new, y_new);
+                        dbg += QString().sprintf("n=%d x=%f y=%f\n", ii, x_new, y_new);
 
                         float pointZ = vv.Z;
 
@@ -391,13 +419,25 @@ void GLWidget::matrixReloaded()
                         currWorkPoint++;
                     }
 
+                    prevPoint =  (pointGL) {
+                        vv.X, vv.Y, vv.Z
+                    };
+
+                    coordArray[currWorkPoint] = prevPoint;
+                    colorArray[currWorkPoint] = cl;
+
+                    currWorkPoint++;
+
                     fs++;
 
-                    if (fs == 1) {
+                    workNum += n;
+
+                    if (fs == 2) { // only for one arc element
+                        qDebug() << "anfang: " << x1 << y1 << "ende" << x2 << y2 << "center" << vv.I << vv.J;
+                        qDebug() << "bogen " << bLength << "mm" << "r" << r << "a" << a << "triangle alpha" << alpha;
+                        qDebug() << "alpha init" << beg_angle << "d alpha: " << dAlpha; // rad
                         qDebug() << dbg;
                     }
-
-                    workNum += n;
                 }
             }
         }

@@ -858,6 +858,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     break;
                 }
 
+                // http://www.manufacturinget.org/2011/12/cnc-g-code-g02-and-g03/
                 if (cmd == "G02" || cmd == "G03") { // arc
                     Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
                     float E(-1.0);
