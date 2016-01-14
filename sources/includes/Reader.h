@@ -76,8 +76,11 @@ class GCodeCommand
         float Y;
         float Z;
 
+        //
+        // angle in grad
+        float A;
+
         // curve settings: G02, G03
-        //         bool arc;
         float I;
         float J;
         float K;
@@ -85,13 +88,10 @@ class GCodeCommand
         float Radius;
         // end of curves
 
-        //
-        // angle in grad
-        float A;
-
         int   speed;       // скорость
         bool  spindelON;  // spinle on
         int   numberInstruct;     // g-code
+        int   numberLine;
         MovingType typeMoving; // NONE, LINE, ARC_CW, ARC_CCW
         bool  workspeed; // true=G1 false=G0
         float diametr; // diameter of tool
@@ -299,7 +299,7 @@ class Reader : public cTranslator
         QList<DataCollections> data;
         std::deque<std::pair<float, std::vector<Vec2d> > > layers;
         std::vector<Vec3f> cached_lines;
-        std::vector<Vec3f> cached_arcs;
+        //         std::vector<Vec3f> cached_arcs;
         std::vector<Vec3f> cached_points;
         std::vector<Vec3f> cached_color;
 
@@ -311,6 +311,7 @@ class Reader : public cTranslator
         void Swap(int &p1, int &p2);
         bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
         bool parseArc(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
+        bool convertArcToLines(GCodeCommand *c);
         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );
         bool readDRL( const QByteArray &gcode );

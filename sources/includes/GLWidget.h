@@ -150,7 +150,6 @@ class GLWidget : public QGLWidget
         QVector<pointGL> surfaceArray; //
         QVector<pointGL> coordArray; //
         QVector<colorGL> colorArray; //
-        int workNum;
 
         QTimer *glTimer;
 

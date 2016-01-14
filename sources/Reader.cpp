@@ -77,6 +77,7 @@ GCodeCommand::GCodeCommand()
 
     spindelON      = false;
     numberInstruct = 0;
+    numberLine = 0;
     speed          = 0;
     workspeed      = false;
     diametr = 0.0;
@@ -101,6 +102,7 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
 
     spindelON = _cmd->spindelON;
     numberInstruct = _cmd->numberInstruct;
+    numberLine = _cmd->numberLine;
     speed = _cmd->speed;
     workspeed = _cmd->workspeed;
 
@@ -790,9 +792,11 @@ bool Reader::readGCode(const QByteArray &gcode)
         QStringList lst = line.simplified().split(" ");
         QString cmd = lst.at(0);
 
-        if (cmd == "") {
+        if (cmd.isEmpty()) {
             continue;
         }
+
+        bool movingCommand = true;
 
         switch(cmd[0].toLatin1()) {
             case 'G':
@@ -894,7 +898,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->workspeed = true;
 
                     if (E > 0.0) {
-                        cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                        //                         cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                     }
 
@@ -905,9 +909,11 @@ bool Reader::readGCode(const QByteArray &gcode)
                     }
 
                     if (E > 0.0) {
-                        cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                        //                         cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                     }
+
+                    convertArcToLines(tmpCommand);
 
                     break;
                 }
@@ -968,21 +974,25 @@ bool Reader::readGCode(const QByteArray &gcode)
                 }
 
                 if (cmd == "G20") {
+                    movingCommand = false;
                     coef = 25.4;
                     break;
                 }
 
                 if (cmd == "G21") {
+                    movingCommand = false;
                     coef = 1.0;
                     break;
                 }
 
                 if (cmd == "G90") {
+                    movingCommand = false;
                     b_absolute = true;
                     break;
                 }
 
                 if (cmd == "G91") {
+                    movingCommand = false;
                     b_absolute = false;
                     break;
                 }
@@ -1084,13 +1094,16 @@ bool Reader::readGCode(const QByteArray &gcode)
             QString msg = translate(_NOT_DECODED);
             badList << msg.arg(QString::number(index)) + line;
         } else {
-            GCodeList << *tmpCommand;
+            if (movingCommand == true) {
+                GCodeList << *tmpCommand;
 
-            // init of next instuction
-            tmpCommand->numberInstruct++;
-            tmpCommand->needPause = false;
-            tmpCommand->changeInstrument = false;
-            tmpCommand->mSeconds = 0;
+                // init of next instuction
+                tmpCommand->numberInstruct++;
+                tmpCommand->numberLine++;
+                tmpCommand->needPause = false;
+                tmpCommand->changeInstrument = false;
+                tmpCommand->mSeconds = 0;
+            }
 
             goodList << line;
         }
@@ -1162,6 +1175,137 @@ bool Reader::readGCode(const QByteArray &gcode)
     return true;
 }
 
+
+bool Reader::convertArcToLines(GCodeCommand *code)
+{
+    if (GCodeList.count() == 0) {
+        return false;
+    }
+
+    if (code == 0) {
+        return false;
+    }
+
+    if (!(code->typeMoving == ArcCW || code->typeMoving == ArcCCW) ) { // it's not arc
+        return false;
+    }
+
+    GCodeCommand &prev = GCodeList.last();
+    // arcs
+    // translate arc to points
+    float a, r; // length of sides
+    float x2, x1, y2, y1, z2, z1;
+
+    x1 = prev.X;
+
+    GCodeCommand arc_cmd(code);
+    x2 = code->X;
+
+    y1 = prev.Y;
+    y2 = code->Y;
+
+    z1 = prev.Z;
+    z2 = code->Z;
+
+    a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
+
+    float i, j, k;
+    i = code->I;
+    j = code->J;
+    k = code->K;
+
+    r = sqrt(pow(x1 - i, 2) + pow(y1 - j, 2) + pow(z1 - k, 2));
+
+    float alpha = 0.0;
+
+    if (r != 0.0) {
+        // alpha in rad
+        alpha = acos ((r * r + r * r - a * a) / (2.0 * r * r));
+    }
+
+    float bLength = r * alpha;
+
+
+    // test: 10 stück pro mm
+    int n = (int)(bLength * 10.0); // num segments of arc
+
+    if ( n == 0) {
+        return false;
+    }
+
+    //     if (n > 0) {
+    float dAlpha = alpha / (float)n;
+
+    if (code->typeMoving == ArcCW) {
+        dAlpha = -dAlpha;
+    }
+
+    QString dbg;
+
+    // http://www.cyberforum.ru/csharp-net/thread113812.html
+    float beg_angle;
+
+    beg_angle = acos ((x1 - i) / r);
+
+    if (y1 < j) {
+        beg_angle = -beg_angle;
+    }
+
+
+    if (beg_angle < 0.0) {
+        beg_angle += (2.0 * PI);
+    }
+
+    float angle = beg_angle;
+
+    // now split
+    for (int ii = 0; ii < n; ii++) {
+        pointGL p;
+        //coordinates of next arc point
+        angle += dAlpha;
+        float c = cos(angle);
+        float s = sin(angle);
+        float x_new = i + r * c;
+        float y_new = j + r * s;
+
+        float pointX = x_new;
+        float pointY = y_new;
+
+        dbg += QString().sprintf("n=%d x=%f y=%f angle=%f sin=%f cos=%f\n", ii, x_new, y_new, angle, s, c);
+
+        float pointZ = code->Z;
+
+        p = (pointGL) {
+            pointX, pointY, pointZ
+        };
+
+        GCodeCommand ncommand = GCodeCommand(GCodeList.last());
+        ncommand.X = x_new;
+        ncommand.Y = y_new;
+
+        ncommand.numberInstruct++;
+        ncommand.needPause = false;
+        ncommand.changeInstrument = false;
+        ncommand.mSeconds = 0;
+
+        GCodeList << ncommand;
+    }
+
+    if ((fabs (x2 - GCodeList.last().X) > (bLength / 10.0)) || (fabs (y2 - GCodeList.last().Y) > (bLength / 10.0))) { // wenn zu weit vom ziel...
+        if (code->typeMoving == ArcCW) {
+            qDebug() << "CW";
+        } else {
+            qDebug() << "CCW";
+        }
+
+        qDebug() << "anfang: " << x1 << y1 << "ende" << x2 << y2 << "center" << code->I << code->J;
+        qDebug() << "bogen " << bLength << "mm" << "r" << r << "a" << a << "triangle alpha" << alpha;
+        qDebug() << "alpha init" << beg_angle << "d alpha: " << dAlpha; // rad
+        qDebug() << dbg;
+    }
+
+    return true;
+}
 
 
 // if anything is detected, return true
