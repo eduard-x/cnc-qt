@@ -361,10 +361,23 @@ void GLWidget::paintGL()
 }
 
 
-void GLWidget::resizeGL(int width, int height)
+void GLWidget::resizeGL(int w, int h)
 {
     // set the current size of view
-    glViewport(0, 0, width, height);
+//     glViewport(0, 0, width, height);
+    int left = 0, top = 0;
+    int width = w, height = h;
+
+    if (w > h * 4 / 3) {// Если экран шире необходимого
+        width = h * 4 / 3;
+        left = (w - width) / 2;
+    }
+    else { // Наоборот, если экран выше необходимого
+        height = w * 3 / 4;
+        top = (h - height) / 2;
+    }
+
+    glViewport(left, top, width, height); // Устанавливаем область отображения
 }
 
 
@@ -433,36 +446,34 @@ void GLWidget::Draw() // drawing, main function
 
     glPushMatrix();                                     // push current matrix
 
-    /// move eyes point for better view of object
-    glTranslated(parent->PosX / GLSCALE, parent->PosY / GLSCALE, parent->PosZ / GLSCALE);
-
-    ///угловое вращение
-    glRotated(parent->PosAngleX, 1, 0, 0);
-    glRotated(parent->PosAngleY, 0, 1, 0);
-    glRotated(parent->PosAngleZ, 0, 0, 1);
-
-    //TODO: to implement the proportions if width or high will be changed
-
-    //glScalef(preview_setting.posZoom / (p1*1000), preview_setting.posZoom / p2, preview_setting.posZoom / 1000.0);
-
-    // ReSharper disable once PossibleLossOfFraction
-
     if (windowState() != Qt::WindowMinimized) {
-        int p1 = width();
-        int p2 = height();
+        int w = width();
+        int h = height();
 
         float n = 1;
 
-        if (p2 < p1) {
-            n = (p1 / p2);
+        if (h < w) {
+            n = (w / h);
         }
+        
+    /// move eyes point for better view of object
+        glTranslated(parent->PosX / GLSCALE, parent->PosY / GLSCALE, parent->PosZ / GLSCALE);
 
+        
         float scaleX = parent->PosZoom / (GLSCALE * n);
         float scaleY = parent->PosZoom / GLSCALE;
         float scaleZ = parent->PosZoom / GLSCALE;
 
         glScaled(scaleX, scaleY, scaleZ);
     }
+    
+    
+    ///угловое вращение
+    glRotated(parent->PosAngleX, 1, 0, 0);
+    glRotated(parent->PosAngleY, 0, 1, 0);
+    glRotated(parent->PosAngleZ, 0, 0, 1);
+    
+    
 
     glEnable(GL_LINE_SMOOTH);
 
