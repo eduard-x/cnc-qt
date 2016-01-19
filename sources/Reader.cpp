@@ -1176,7 +1176,23 @@ bool Reader::readGCode(const QByteArray &gcode)
 }
 
 
-bool Reader::convertArcToLines(GCodeCommand *code)
+float Reader::determineAngle(const Vec3 &pos, const Vec3 &pos_center)
+{
+    if (pos[0] == pos_center[0]) {
+        return 0.0;
+    }
+
+    float radians = atan2(pos[1] - pos_center[1], pos[0] - pos_center[0]);
+
+    if (radians < 0.0) {
+        radians = 2.0 * PI + radians;
+    }
+
+    return radians;
+}
+
+
+bool Reader::convertArcToLines(const GCodeCommand *code)
 {
     if (GCodeList.count() == 0) {
         return false;
@@ -1192,13 +1208,11 @@ bool Reader::convertArcToLines(GCodeCommand *code)
 
     GCodeCommand &prev = GCodeList.last();
     // arcs
-    // translate arc to points
+    // translate points to arc
     float a, r; // length of sides
     float x2, x1, y2, y1, z2, z1;
 
-    x1 = prev.X;
-
-    GCodeCommand arc_cmd(code);
+    x1 = prev.X;;
     x2 = code->X;
 
     y1 = prev.Y;
@@ -1207,34 +1221,56 @@ bool Reader::convertArcToLines(GCodeCommand *code)
     z1 = prev.Z;
     z2 = code->Z;
 
-    a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
+    a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2)/* + pow(z2 - z1, 2)*/);
 
     float i, j, k;
     i = code->I;
     j = code->J;
     k = code->K;
 
-    r = sqrt(pow(x1 - i, 2) + pow(y1 - j, 2) + pow(z1 - k, 2));
+    r = sqrt(pow(x1 - i, 2) + pow(y1 - j, 2)/* + pow(z1 - k, 2)*/);
+
+    //     code->Radius = r;
 
     float alpha = 0.0;
+    float alpha_beg, alpha_end;
 
-    if (r != 0.0) {
-        // alpha in rad
-        alpha = acos ((r * r + r * r - a * a) / (2.0 * r * r));
+    if (r == 0.0) {
+        qDebug() << "wrong, r = 0";
+        return false;
+    }
+
+    Vec3 pos1(x1, y1, z1);
+    Vec3 pos2(x2, y2, z2);
+    Vec3 posC(i, j, k);
+
+    alpha_beg = determineAngle (pos1, posC);
+    alpha_end = determineAngle (pos2, posC);
+
+    if (code->typeMoving == ArcCW) {
+        alpha = alpha_beg - alpha_end;
+
+        if (alpha_beg < alpha_end) {
+            alpha = fabs(alpha_beg + (2.0 * PI - alpha_end));
+        }
+    } else {
+        alpha = alpha_end - alpha_beg;
+
+        if (alpha_beg > alpha_end) {
+            alpha = fabs(alpha_end + (2.0 * PI - alpha_beg));
+        }
     }
 
     float bLength = r * alpha;
 
-
-    // test: 10 stück pro mm
-    int n = (int)(bLength * 10.0); // num segments of arc
+    int n = qRound(bLength * 10.0); // num segments of arc per mm
 
     if ( n == 0) {
+        qDebug() << "wrong, n = 0";
         return false;
     }
 
-    //     if (n > 0) {
-    float dAlpha = alpha / (float)n;
+    float dAlpha = alpha / n;
 
     if (code->typeMoving == ArcCW) {
         dAlpha = -dAlpha;
@@ -1242,25 +1278,10 @@ bool Reader::convertArcToLines(GCodeCommand *code)
 
     QString dbg;
 
-    // http://www.cyberforum.ru/csharp-net/thread113812.html
-    float beg_angle;
-
-    beg_angle = acos ((x1 - i) / r);
-
-    if (y1 < j) {
-        beg_angle = -beg_angle;
-    }
-
-
-    if (beg_angle < 0.0) {
-        beg_angle += (2.0 * PI);
-    }
-
-    float angle = beg_angle;
+    float angle = alpha_beg;
 
     // now split
-    for (int ii = 0; ii < n; ii++) {
-        pointGL p;
+    for (int step = 0; step < n; ++step) {
         //coordinates of next arc point
         angle += dAlpha;
         float c = cos(angle);
@@ -1268,16 +1289,7 @@ bool Reader::convertArcToLines(GCodeCommand *code)
         float x_new = i + r * c;
         float y_new = j + r * s;
 
-        float pointX = x_new;
-        float pointY = y_new;
-
-        dbg += QString().sprintf("n=%d x=%f y=%f angle=%f sin=%f cos=%f\n", ii, x_new, y_new, angle, s, c);
-
-        float pointZ = code->Z;
-
-        p = (pointGL) {
-            pointX, pointY, pointZ
-        };
+        dbg += QString().sprintf("n=%d x=%f y=%f angle=%f sin=%f cos=%f\n", step, x_new, y_new, angle, s, c);
 
         GCodeCommand ncommand = GCodeCommand(GCodeList.last());
         ncommand.X = x_new;
@@ -1298,9 +1310,9 @@ bool Reader::convertArcToLines(GCodeCommand *code)
             qDebug() << "CCW";
         }
 
-        qDebug() << "anfang: " << x1 << y1 << "ende" << x2 << y2 << "center" << code->I << code->J;
+        qDebug() << "anfang: " << x1 << y1 << "ende" << x2 << y2 << "center" << i << j;
         qDebug() << "bogen " << bLength << "mm" << "r" << r << "a" << a << "triangle alpha" << alpha;
-        qDebug() << "alpha init" << beg_angle << "d alpha: " << dAlpha; // rad
+        qDebug() << "alpha:" << alpha_beg << "->" << alpha_end << "d alpha: " << dAlpha; // rad
         qDebug() << dbg;
     }
 

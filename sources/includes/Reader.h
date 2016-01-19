@@ -46,6 +46,7 @@
 #include "vec.h"
 // #include "MainWindow.h"
 #include "Translator.h"
+// #include "mk1Controller.h"
 
 #define byte unsigned char
 
@@ -119,8 +120,6 @@ struct GCode_resultParse {
     QString GoodStr; // for decoded
     QString BadStr;  // for unknown
 };
-
-
 
 
 enum typeFileLoad {
@@ -311,7 +310,8 @@ class Reader : public cTranslator
         void Swap(int &p1, int &p2);
         bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
         bool parseArc(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
-        bool convertArcToLines(GCodeCommand *c);
+        bool convertArcToLines(const GCodeCommand *c);
+        float determineAngle(const Vec3 &pos, const Vec3 &pos_c);
         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );
         bool readDRL( const QByteArray &gcode );
