@@ -363,21 +363,18 @@ void GLWidget::paintGL()
 
 void GLWidget::resizeGL(int w, int h)
 {
-    // set the current size of view
-//     glViewport(0, 0, width, height);
     int left = 0, top = 0;
     int width = w, height = h;
 
-    if (w > h * 4 / 3) {// Если экран шире необходимого
+    if (w > h * 4 / 3) {// wenn screen width over 4 / 3
         width = h * 4 / 3;
         left = (w - width) / 2;
-    }
-    else { // Наоборот, если экран выше необходимого
+    } else { // wenn screen width under 4 / 3
         height = w * 3 / 4;
         top = (h - height) / 2;
     }
 
-    glViewport(left, top, width, height); // Устанавливаем область отображения
+    glViewport(left, top, width, height); // set the current size of view
 }
 
 
@@ -455,25 +452,25 @@ void GLWidget::Draw() // drawing, main function
         if (h < w) {
             n = (w / h);
         }
-        
-    /// move eyes point for better view of object
+
+        /// move eyes point for better view of object
         glTranslated(parent->PosX / GLSCALE, parent->PosY / GLSCALE, parent->PosZ / GLSCALE);
 
-        
+
         float scaleX = parent->PosZoom / (GLSCALE * n);
         float scaleY = parent->PosZoom / GLSCALE;
         float scaleZ = parent->PosZoom / GLSCALE;
 
         glScaled(scaleX, scaleY, scaleZ);
     }
-    
-    
+
+
     ///угловое вращение
     glRotated(parent->PosAngleX, 1, 0, 0);
     glRotated(parent->PosAngleY, 0, 1, 0);
     glRotated(parent->PosAngleZ, 0, 0, 1);
-    
-    
+
+
 
     glEnable(GL_LINE_SMOOTH);
 

@@ -49,6 +49,12 @@
 ** Reader
 */
 
+//
+// for debugging information of arc calculations
+// to disable seto to 0
+//
+#define DEBUG_ARC 1
+
 
 GCodeCommand::GCodeCommand()
 {
@@ -66,11 +72,14 @@ GCodeCommand::GCodeCommand()
     I = 0.0;
     J = 0.0;
     K = 0.0;
-    //     arc = false;
+
+    plane = NonePlane;
+
     Radius = 0.0;
     // end of arc
 
     typeMoving = NoType;
+
 
     angleVectors = 0;
     Distance = 0.0;
@@ -97,6 +106,8 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
     K = _cmd->K;
     //     arc = _cmd->arc;
     Radius = _cmd->Radius;
+
+    plane = _cmd->plane;
 
     typeMoving = _cmd->typeMoving;
 
@@ -670,8 +681,6 @@ bool Reader::readGCode(const QByteArray &gcode)
     t.start();
     GCodeCommand *tmpCommand = new GCodeCommand();
 
-    //     tmpCommand->angleVectors = 0;
-
     bool decoded;
     int index = 0;
     QStringList gCodeList;
@@ -872,14 +881,17 @@ bool Reader::readGCode(const QByteArray &gcode)
                         break;
                     }
 
+                    tmpCommand->plane = NonePlane;
+
                     tmpCommand->X = next_pos.x();
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
 
                     Vec3 arc_center(current_pos);
                     float E_arc(-1.0);
+                    float radius = 0.0;
 
-                    if (parseArc(line, arc_center, E_arc, coef) == false) {
+                    if (parseArc(line, arc_center, E_arc, radius, coef) == false) {
                         decoded = false;
                         break;
                     }
@@ -888,6 +900,20 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->I = arc_center.x();
                     tmpCommand->J = arc_center.y();
                     tmpCommand->K = arc_center.z();
+
+                    if (tmpCommand->K == 100000.0) {
+                        tmpCommand->plane = XY;
+                    }
+
+                    if (tmpCommand->I == 100000.0) {
+                        tmpCommand->plane = YZ;
+                    }
+
+                    if (tmpCommand->J == 100000.0) {
+                        tmpCommand->plane = ZX;
+                    }
+
+                    tmpCommand->Radius = radius;
 
                     if (cmd == "G02" ) {
                         tmpCommand->typeMoving = ArcCW;
@@ -1176,13 +1202,45 @@ bool Reader::readGCode(const QByteArray &gcode)
 }
 
 
-float Reader::determineAngle(const Vec3 &pos, const Vec3 &pos_center)
+float Reader::determineAngle(const Vec3 &pos, const Vec3 &pos_center, planeEnum pl)
 {
-    if (pos[0] == pos_center[0]) {
-        return 0.0;
-    }
+    float radians = 0.0;
 
-    float radians = atan2(pos[1] - pos_center[1], pos[0] - pos_center[0]);
+    switch (pl) {
+        case XY: {
+            if (pos[0] == pos_center[0]) {
+                return 0.0;
+            }
+
+            radians = atan2(pos[1] - pos_center[1], pos[0] - pos_center[0]);
+
+            break;
+        }
+
+        case YZ: {
+            if (pos[1] == pos_center[1]) {
+                return 0.0;
+            }
+
+            radians = atan2(pos[2] - pos_center[2], pos[1] - pos_center[1]);
+
+            break;
+        }
+
+        case ZX: {
+            if (pos[2] == pos_center[2]) {
+                return 0.0;
+            }
+
+            radians = atan2(pos[0] - pos_center[0], pos[2] - pos_center[2]);
+
+            break;
+        }
+
+        default:
+            qDebug() << "not defined plane of arc";
+            break;
+    }
 
     if (radians < 0.0) {
         radians = 2.0 * PI + radians;
@@ -1244,8 +1302,8 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
     Vec3 pos2(x2, y2, z2);
     Vec3 posC(i, j, k);
 
-    alpha_beg = determineAngle (pos1, posC);
-    alpha_end = determineAngle (pos2, posC);
+    alpha_beg = determineAngle (pos1, posC, code->plane);
+    alpha_end = determineAngle (pos2, posC, code->plane);
 
     if (code->typeMoving == ArcCW) {
         alpha = alpha_beg - alpha_end;
@@ -1276,8 +1334,9 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
         dAlpha = -dAlpha;
     }
 
+#if DEBUG_ARC
     QString dbg;
-
+#endif
     float angle = alpha_beg;
 
     // now split
@@ -1288,12 +1347,33 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
         float s = sin(angle);
         float x_new = i + r * c;
         float y_new = j + r * s;
-
+#if DEBUG_ARC
         dbg += QString().sprintf("n=%d x=%f y=%f angle=%f sin=%f cos=%f\n", step, x_new, y_new, angle, s, c);
-
+#endif
         GCodeCommand ncommand = GCodeCommand(GCodeList.last());
-        ncommand.X = x_new;
-        ncommand.Y = y_new;
+
+        switch (code->plane) {
+            case XY: {
+                ncommand.X = x_new;
+                ncommand.Y = y_new;
+            }
+            break;
+
+            case YZ: {
+                ncommand.Y = x_new;
+                ncommand.Z = y_new;
+            }
+            break;
+
+            case ZX: {
+                ncommand.Z = x_new;
+                ncommand.X = y_new;
+            }
+            break;
+
+            default:
+                break;
+        }
 
         ncommand.numberInstruct++;
         ncommand.needPause = false;
@@ -1302,6 +1382,8 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
 
         GCodeList << ncommand;
     }
+
+#if DEBUG_ARC
 
     if ((fabs (x2 - GCodeList.last().X) > (bLength / 10.0)) || (fabs (y2 - GCodeList.last().Y) > (bLength / 10.0))) { // wenn zu weit vom ziel...
         if (code->typeMoving == ArcCW) {
@@ -1316,12 +1398,13 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
         qDebug() << dbg;
     }
 
+#endif
     return true;
 }
 
 
 // if anything is detected, return true
-bool Reader::parseArc(const QString &line, Vec3 &pos, float &E, const float coef, float *F)
+bool Reader::parseArc(const QString &line, Vec3 &pos, float &E, float &R, const float coef, float *F)
 {
     if (line.isEmpty() == true) {
         return false;
@@ -1329,6 +1412,8 @@ bool Reader::parseArc(const QString &line, Vec3 &pos, float &E, const float coef
 
     //     qDebug() << line;
     const QStringList &chunks = line.toUpper().simplified().split(' ');
+
+    Vec3 arc(100000.0, 100000.0, 100000.0); // too big coordinates
 
     if (chunks.count() == 0) {
         return false;
@@ -1342,7 +1427,7 @@ bool Reader::parseArc(const QString &line, Vec3 &pos, float &E, const float coef
 
         switch(s[0].toLatin1()) {
             case 'I': {
-                pos.x() += coef * (s.right(s.size() - 1).toDouble(&conv));
+                arc.x() = pos.x() + coef * (s.right(s.size() - 1).toDouble(&conv));
 
                 if (conv == true) {
                     res = true;
@@ -1352,7 +1437,7 @@ bool Reader::parseArc(const QString &line, Vec3 &pos, float &E, const float coef
             }
 
             case 'J': {
-                pos.y() += coef * (s.right(s.size() - 1).toDouble(&conv));
+                arc.y() = pos.y() + coef * (s.right(s.size() - 1).toDouble(&conv));
 
                 if (conv == true) {
                     res = true;
@@ -1362,7 +1447,7 @@ bool Reader::parseArc(const QString &line, Vec3 &pos, float &E, const float coef
             }
 
             case 'K': {
-                pos.z() += coef * (s.right(s.size() - 1).toDouble(&conv));
+                arc.z() = pos.z() + coef * (s.right(s.size() - 1).toDouble(&conv));
 
                 if (conv == true) {
                     res = true;
@@ -1372,6 +1457,12 @@ bool Reader::parseArc(const QString &line, Vec3 &pos, float &E, const float coef
             }
 
             case 'R': {
+                R = coef * (s.right(s.size() - 1).toDouble(&conv));
+
+                if (conv == true) {
+                    res = true;
+                }
+
                 break;
             }
 
@@ -1400,8 +1491,9 @@ bool Reader::parseArc(const QString &line, Vec3 &pos, float &E, const float coef
             default:
                 break;
         }
-
     }
+
+    pos = arc;
 
     return res;
 }

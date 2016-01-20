@@ -59,6 +59,17 @@ enum MovingType {
     ArcCCW
 };
 
+
+enum planeEnum {
+    NonePlane,
+    XY,
+    YZ,
+    ZX,
+    UV,
+    VW,
+    WU
+};
+
 //
 // g-code instruction
 //
@@ -85,6 +96,8 @@ class GCodeCommand
         float I;
         float J;
         float K;
+
+        planeEnum plane;
 
         float Radius;
         // end of curves
@@ -120,6 +133,26 @@ struct GCode_resultParse {
     QString GoodStr; // for decoded
     QString BadStr;  // for unknown
 };
+
+
+
+// enum axisEnum {
+//     None = 0,
+//     X = 1,
+//     Y = 2,
+//     Z = 4,
+//     A = 8,
+//     B = 16,
+//     C = 32,
+//     U = 64,
+//     V = 128,
+//     W = 256,
+//     XZ = Z | X,
+//     XYZ = XZ | Y,
+//     ABC = C | B | A,
+//     UVW = W | V | U,
+//     All = UVW | ABC | XYZ,
+// };
 
 
 enum typeFileLoad {
@@ -309,9 +342,9 @@ class Reader : public cTranslator
     private:
         void Swap(int &p1, int &p2);
         bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
-        bool parseArc(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
+        bool parseArc(const QString &line, Vec3 &pos, float &E, float &R, const float coef, float *F = NULL);
         bool convertArcToLines(const GCodeCommand *c);
-        float determineAngle(const Vec3 &pos, const Vec3 &pos_c);
+        float determineAngle(const Vec3 &pos, const Vec3 &pos_c, planeEnum pl);
         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );
         bool readDRL( const QByteArray &gcode );
