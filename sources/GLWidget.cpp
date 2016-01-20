@@ -360,18 +360,21 @@ void GLWidget::paintGL()
     fps++;
 }
 
+// #define SCALE_SCREEN 1.25
 
 void GLWidget::resizeGL(int w, int h)
 {
     int left = 0, top = 0;
     int width = w, height = h;
+    float scale = ((float)w / (float)h);
 
     if (w > h * 4 / 3) {// wenn screen width over 4 / 3
-        width = h * 4 / 3;
-        left = (w - width) / 2;
+        width = h * 4 * scale / 3;
+        height = h * scale;
+        left = (w - width) / (2* scale);
     } else { // wenn screen width under 4 / 3
-        height = w * 3 / 4;
-        top = (h - height) / 2;
+        height = w * 3 / (4 * scale);
+        top = (h - height) / (2 * scale);
     }
 
     glViewport(left, top, width, height); // set the current size of view
