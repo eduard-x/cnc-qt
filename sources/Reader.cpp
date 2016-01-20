@@ -1279,16 +1279,48 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
     z1 = prev.Z;
     z2 = code->Z;
 
-    a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2)/* + pow(z2 - z1, 2)*/);
-
     float i, j, k;
     i = code->I;
     j = code->J;
     k = code->K;
 
-    r = sqrt(pow(x1 - i, 2) + pow(y1 - j, 2)/* + pow(z1 - k, 2)*/);
+    switch (code->plane) {
+        case XY: {
+            a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+            if (code->Radius == 0.0){
+                r = sqrt(pow(x1 - i, 2) + pow(y1 - j, 2));
+            }
+            else{
+                r = code->Radius;
+            }
+        }
+        break;
 
-    //     code->Radius = r;
+        case YZ: {
+            a = sqrt(pow(y2 - y1, 2) + pow(z2 - z1, 2));
+            if (code->Radius == 0.0){
+                r = sqrt(pow(y1 - j, 2) + pow(z1 - k, 2));
+            }
+            else{
+                r = code->Radius;
+            }
+        }
+        break;
+
+        case ZX: {
+            a = sqrt(pow(z2 - z1, 2) + pow(x2 - x1, 2));
+            if (code->Radius == 0.0){
+                r = sqrt(pow(z1 - k, 2) + pow(x1 - i, 2));
+            }
+            else{
+                r = code->Radius;
+            }
+        }
+        break;
+
+        default:
+            break;
+    }
 
     float alpha = 0.0;
     float alpha_beg, alpha_end;
@@ -1345,35 +1377,44 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
         angle += dAlpha;
         float c = cos(angle);
         float s = sin(angle);
-        float x_new = i + r * c;
-        float y_new = j + r * s;
-#if DEBUG_ARC
-        dbg += QString().sprintf("n=%d x=%f y=%f angle=%f sin=%f cos=%f\n", step, x_new, y_new, angle, s, c);
-#endif
+        float x_new = 0.0; 
+        float y_new = 0.0; 
+        float z_new = 0.0;
+
         GCodeCommand ncommand = GCodeCommand(GCodeList.last());
 
         switch (code->plane) {
             case XY: {
+                x_new = i + r * c;
+                y_new = j + r * s;
                 ncommand.X = x_new;
                 ncommand.Y = y_new;
             }
             break;
 
             case YZ: {
-                ncommand.Y = x_new;
-                ncommand.Z = y_new;
+                y_new = j + r * c;
+                z_new = k + r * s;
+                ncommand.Y = y_new;
+                ncommand.Z = z_new;
             }
             break;
 
             case ZX: {
-                ncommand.Z = x_new;
-                ncommand.X = y_new;
+                z_new = k + r * c;
+                x_new = i + r * s;
+                ncommand.Z = z_new;
+                ncommand.X = x_new;
             }
             break;
 
             default:
                 break;
         }
+
+#if DEBUG_ARC
+        dbg += QString().sprintf("n=%d x=%f y=%f z=%f angle=%f sin=%f cos=%f\n", step, x_new, y_new, z_new, angle, s, c);
+#endif
 
         ncommand.numberInstruct++;
         ncommand.needPause = false;
@@ -1399,6 +1440,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
     }
 
 #endif
+
     return true;
 }
 
