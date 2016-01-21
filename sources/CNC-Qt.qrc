@@ -5,6 +5,8 @@
         <file>images/canvas.png</file>
         <file>images/control_stop_blue.png</file>
 	<file>images/icon.png</file>
+	<file>images/forw_step.png</file>
+	<file>images/back_step.png</file>
 	<!--file>images/pin-icon.png</file-->
 	<file>images/forward_on.png</file>
         <file>images/forward_off.png</file>

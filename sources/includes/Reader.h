@@ -342,7 +342,7 @@ class Reader : public cTranslator
     private:
         void Swap(int &p1, int &p2);
         bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
-        bool parseArc(const QString &line, Vec3 &pos, float &E, float &R, const float coef, float *F = NULL);
+        bool parseArc(const QString &line, Vec3 &pos, float &R, const float coef);
         bool convertArcToLines(const GCodeCommand *c);
         float determineAngle(const Vec3 &pos, const Vec3 &pos_c, planeEnum pl);
         bool readGCode( const QByteArray &gcode );

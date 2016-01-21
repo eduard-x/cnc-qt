@@ -306,10 +306,8 @@ void GLWidget::matrixReloaded()
             currWorkPoint++;
         }
     }
-
-    emit xRotationChanged(parent->PosAngleX);
-    emit yRotationChanged(parent->PosAngleY);
-    emit zRotationChanged(parent->PosAngleZ);
+    
+    initPreviewSettings();
 
     initializeGL();
 }
@@ -317,13 +315,13 @@ void GLWidget::matrixReloaded()
 
 void GLWidget::initPreviewSettings()
 {
-    parent->PosX = -96;
-    parent->PosY = -64;
-    parent->PosZ = -300;
+    parent->PosX = -96; // TODO depended from figure size
+    parent->PosY = -64; // TODO depended from figure size
+    parent->PosZ = -300; // TODO depended from figure size
     parent->PosAngleX = 180;
     parent->PosAngleY = 180;
     parent->PosAngleZ = 180;
-    parent->PosZoom = 25;
+    parent->PosZoom = 20; // TODO depended from picture size 
 
     emit xRotationChanged(parent->PosAngleX);
     emit yRotationChanged(parent->PosAngleY);
@@ -339,6 +337,7 @@ void GLWidget::initPreviewSettings()
 void GLWidget::initializeGL()//Init3D()//*OK*
 {
     makeCurrent();
+    
     // activate projection matrix
     glMatrixMode(GL_PROJECTION);
 
@@ -360,7 +359,6 @@ void GLWidget::paintGL()
     fps++;
 }
 
-// #define SCALE_SCREEN 1.25
 
 void GLWidget::resizeGL(int w, int h)
 {
