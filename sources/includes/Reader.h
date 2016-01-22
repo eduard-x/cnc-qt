@@ -44,9 +44,9 @@
 #include <deque>
 #include <utility>
 #include "vec.h"
-// #include "MainWindow.h"
+
 #include "Translator.h"
-// #include "mk1Controller.h"
+
 
 #define byte unsigned char
 
@@ -69,6 +69,10 @@ enum planeEnum {
     VW,
     WU
 };
+
+
+#define COORD_TOO_BIG 100000.0
+#define MAX_FILE_SIZE 20e6
 
 //
 // g-code instruction
