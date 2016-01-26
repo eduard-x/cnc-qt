@@ -576,21 +576,34 @@ bool Reader::readGCode(const QByteArray &gcode)
                         break;
                     }
 
-                    // the arc center coordinateds
-                    tmpCommand->I = arc_center.x();
-                    tmpCommand->J = arc_center.y();
-                    tmpCommand->K = arc_center.z();
+                    if (radius == 0.0) {
+                        // the arc center coordinateds
+                        tmpCommand->I = arc_center.x();
+                        tmpCommand->J = arc_center.y();
+                        tmpCommand->K = arc_center.z();
 
-                    if (tmpCommand->K == COORD_TOO_BIG) {
-                        tmpCommand->plane = XY;
-                    }
-
-                    if (tmpCommand->I == COORD_TOO_BIG) {
-                        tmpCommand->plane = YZ;
-                    }
-
-                    if (tmpCommand->J == COORD_TOO_BIG) {
-                        tmpCommand->plane = ZX;
+                        if (tmpCommand->K == COORD_TOO_BIG) {
+                            tmpCommand->plane = XY;
+                        } else if (tmpCommand->I == COORD_TOO_BIG) {
+                            tmpCommand->plane = YZ;
+                        } else if (tmpCommand->J == COORD_TOO_BIG) {
+                            tmpCommand->plane = ZX;
+                        }
+                    } else { // radius detected, ijk should be calculated
+                        // circle ?
+                        if (current_pos.x() == next_pos.x() && current_pos.y() == next_pos.y()) {
+                            tmpCommand->plane = XY;
+                        } else if (current_pos.y() == next_pos.y() && current_pos.z() == next_pos.z()) {
+                            tmpCommand->plane = YZ;
+                        } else if (current_pos.z() == next_pos.z() && current_pos.x() == next_pos.x()) {
+                            tmpCommand->plane = ZX;
+                        } else if((current_pos.x() != next_pos.x() || current_pos.y() != next_pos.y()) && current_pos.z() == next_pos.z()) {
+                            tmpCommand->plane = XY;
+                        } else if((current_pos.y() != next_pos.y() || current_pos.z() != next_pos.z()) && current_pos.x() == next_pos.x()) {
+                            tmpCommand->plane = YZ;
+                        } else if((current_pos.z() != next_pos.z() || current_pos.x() != next_pos.x()) && current_pos.y() == next_pos.y()) {
+                            tmpCommand->plane = ZX;
+                        }
                     }
 
                     tmpCommand->Radius = radius;
@@ -962,6 +975,9 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
     j = code->J;
     k = code->K;
 
+    Vec3 pos1(x1, y1, z1);
+    Vec3 pos2(x2, y2, z2);
+
     float dPos = 0.0;
     float begPos = 0.0;
 
@@ -973,6 +989,9 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
                 r = sqrt(pow(x1 - i, 2) + pow(y1 - j, 2));
             } else {
                 r = code->Radius;
+                // compute i, j
+                float a = determineAngle (pos1, pos2, code->plane) + PI;
+                qDebug() << "radius " << r << "alpha" << a << "xy point 1" << x1 << y1 << "xy point 2" << x2 << y2;
             }
 
             dPos = z2 - z1;
@@ -987,6 +1006,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
                 r = sqrt(pow(y1 - j, 2) + pow(z1 - k, 2));
             } else {
                 r = code->Radius;
+                // compute j, k
             }
 
             dPos = x2 - x1;
@@ -1001,6 +1021,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
                 r = sqrt(pow(z1 - k, 2) + pow(x1 - i, 2));
             } else {
                 r = code->Radius;
+                // compute k, i
             }
 
             dPos = y2 - y1;
@@ -1020,8 +1041,6 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
         return false;
     }
 
-    Vec3 pos1(x1, y1, z1);
-    Vec3 pos2(x2, y2, z2);
     Vec3 posC(i, j, k);
 
     alpha_beg = determineAngle (pos1, posC, code->plane);

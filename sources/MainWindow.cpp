@@ -151,7 +151,9 @@ EStatusTask  Task::Status = Stop;
 int Task::posCodeStart = -1;
 int Task::posCodeEnd = -1;
 int Task::posCodeNow = -1;
-
+int Task::lineCodeStart = -1;
+int Task::lineCodeNow = -1;
+int Task::lineCodeEnd = -1;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), Reader ()
@@ -1177,14 +1179,14 @@ void MainWindow::onStartTask()
     }
 
     // set task ranges
-    Task::posCodeStart = beg;
-    Task::posCodeEnd = end;
-    Task::posCodeNow = Task::posCodeStart;
+    Task::lineCodeStart = beg;
+    Task::lineCodeEnd = end;
+    Task::lineCodeNow = Task::lineCodeStart;
 
-    QString s = translate(_FROM_TO).arg( Task::posCodeStart + 1).arg( Task::posCodeEnd + 1);
+    QString s = translate(_FROM_TO).arg( Task::lineCodeStart + 1).arg( Task::lineCodeEnd + 1);
     labelTask->setText( s );
 
-    statusProgress->setRange(Task::posCodeStart, Task::posCodeEnd);
+    statusProgress->setRange(Task::lineCodeStart, Task::lineCodeEnd);
 
     groupManualControl->setChecked( false ); // disable manual control
 
@@ -1228,7 +1230,7 @@ bool MainWindow::runCommand()
     int userSpeedG1 = (int)numVeloSubmission->value();
     int userSpeedG0 = (int)numVeloMoving->value();
 
-    if (Task::posCodeNow > Task::posCodeEnd) {
+    if (Task::lineCodeNow > Task::lineCodeEnd) {
         Task::Status = Stop;
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
 
@@ -1237,7 +1239,16 @@ bool MainWindow::runCommand()
         return false;
     }
 
-    GCodeCommand gcodeNow = GCodeList.at(Task::posCodeNow);
+    GCodeCommand gcodeNow = GCodeList.at(0);
+
+    for (int i = 0; i < GCodeList.count(); i++) {
+        if(GCodeList.at(i).numberLine == Task::lineCodeNow) {
+            gcodeNow = GCodeList.at(i);
+            break;
+        }
+    }
+
+    //     GCodeCommand gcodeNow = GCodeList.at(Task::posCodeNow);
 
     useHome = checkHome->isChecked();
 
@@ -1375,6 +1386,8 @@ bool MainWindow::runCommand()
     float pointZ = gcodeNow.Z;
     float pointA = gcodeNow.A;
 
+    Task::lineCodeNow = gcodeNow.numberLine;
+
     //moving in G-code
     if (Correction) {
         // proportion
@@ -1399,7 +1412,7 @@ bool MainWindow::runCommand()
     cnc->packCA(pointX, pointY, pointZ, pointA, speed, Task::posCodeNow, 0.0, 0);
 
     Task::posCodeNow++;
-    labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::posCodeNow + 1));
+    labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::lineCodeNow + 1));
 
     refreshElementsForms();
 
@@ -1968,8 +1981,8 @@ void MainWindow::fillListWidget(QStringList listCode)
 
     listGCodeWidget->resizeColumnsToContents();
 
-    Task::posCodeStart = 0;
-    Task::posCodeEnd = listGCodeWidget->rowCount();
+    Task::lineCodeStart = 0;
+    Task::lineCodeEnd = listGCodeWidget->rowCount();
 
     tabWidget->setCurrentIndex(0);
 
