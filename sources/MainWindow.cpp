@@ -1183,18 +1183,20 @@ void MainWindow::onStartTask()
     Task::lineCodeEnd = end;
     Task::lineCodeNow = Task::lineCodeStart;
 
+    Task::instructionStart = -1;
+    Task::instructionNow = -1;
+
     foreach (GCodeCommand c, GCodeList) {
-        if(c.numberLine == Task::lineCodeStart) {
+        if(c.numberLine == Task::lineCodeStart && Task::instructionStart == -1) { // get the first only
             Task::instructionStart = c.numberInstruct;
-//             break;
         }
-//         if(GCodeList.at(i).numberLine == Task::lineCodeEnd) {
-//             Task::instructionEnd = Task::lineCodeEnd;
-//             break;
-//         }
-        if(c.numberLine == Task::lineCodeNow) {
+
+        if(c.numberLine == Task::lineCodeEnd) { // up to last element of this line
+            Task::instructionEnd = c.numberInstruct;
+        }
+
+        if(c.numberLine == Task::lineCodeNow && Task::instructionNow == -1) { // get the first only
             Task::instructionNow = c.numberInstruct;
-//             break;
         }
     }
 
@@ -1254,17 +1256,6 @@ bool MainWindow::runCommand()
         return false;
     }
 
-#if 0
-    GCodeCommand gcodeNow = GCodeList.at(0);
-
-    for (int i = 0; i < GCodeList.count(); i++) {
-        if(GCodeList.at(i).numberLine == Task::lineCodeNow) {
-            gcodeNow = GCodeList.at(i);
-            break;
-        }
-    }
-
-#endif
     GCodeCommand gcodeNow = GCodeList.at(Task::instructionNow);
 
     useHome = checkHome->isChecked();
