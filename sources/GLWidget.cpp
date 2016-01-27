@@ -572,8 +572,13 @@ void GLWidget::drawWorkField()
     // select with 3.0 the current cut of object
     switch (Task::Status) {
         case Waiting: {
-            int numSelectStart = Task::posCodeStart;
-            int numSelectStop = Task::posCodeEnd;
+            int numSelectStart = Task::instructionStart;
+
+            if (numSelectStart < 0) {
+                break;
+            }
+
+            int numSelectStop = Task::instructionEnd;
             glLineWidth(3.0f);
             glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelectStart]);
             glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelectStart]);
@@ -582,10 +587,13 @@ void GLWidget::drawWorkField()
         }
 
         case Stop:  {
-            //         int numSelect = cnc->numberCompleatedInstructions() - 1;
+            if (Task::instructionStart < 0) {
+                break;
+            }
+
             glLineWidth(3.0f);
-            glVertexPointer(3, GL_FLOAT, 0, &coordArray[Task::posCodeStart]);
-            glColorPointer(3, GL_FLOAT, 0, &colorArray[Task::posCodeStart]);
+            glVertexPointer(3, GL_FLOAT, 0, &coordArray[Task::instructionStart]);
+            glColorPointer(3, GL_FLOAT, 0, &colorArray[Task::instructionStart]);
             glDrawArrays(GL_LINE_STRIP, 0, 2);
             break;
         }
@@ -593,12 +601,15 @@ void GLWidget::drawWorkField()
         case Paused: {
             int numSelect = cnc->numberCompleatedInstructions() - 1;
 
-            if (numSelect >= 0 ) {
-                glLineWidth(3.0f);
-                glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
-                glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect]);
-                glDrawArrays(GL_LINE_STRIP, 0, 2);
+            if (numSelect < 0 ) {
+                break;
             }
+
+            glLineWidth(3.0f);
+            glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
+            glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect]);
+            glDrawArrays(GL_LINE_STRIP, 0, 2);
+
 
             break;
         }

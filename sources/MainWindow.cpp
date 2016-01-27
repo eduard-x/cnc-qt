@@ -148,9 +148,9 @@ int MessageBox::exec(void* p, const QString &title, const QString &text, int tic
 
 // because of static
 EStatusTask  Task::Status = Stop;
-int Task::posCodeStart = -1;
-int Task::posCodeEnd = -1;
-int Task::posCodeNow = -1;
+int Task::instructionStart = -1;
+int Task::instructionEnd = -1;
+int Task::instructionNow = -1;
 int Task::lineCodeStart = -1;
 int Task::lineCodeNow = -1;
 int Task::lineCodeEnd = -1;
@@ -1239,6 +1239,7 @@ bool MainWindow::runCommand()
         return false;
     }
 
+#if 0
     GCodeCommand gcodeNow = GCodeList.at(0);
 
     for (int i = 0; i < GCodeList.count(); i++) {
@@ -1248,7 +1249,8 @@ bool MainWindow::runCommand()
         }
     }
 
-    //     GCodeCommand gcodeNow = GCodeList.at(Task::posCodeNow);
+#endif
+    GCodeCommand gcodeNow = GCodeList.at(Task::instructionNow);
 
     useHome = checkHome->isChecked();
 
@@ -1348,7 +1350,7 @@ bool MainWindow::runCommand()
 
 
     //TODO: to add in parameter the value
-    if (Task::posCodeNow > (cnc->numberCompleatedInstructions() + 3)) {
+    if (Task::instructionNow > (cnc->numberCompleatedInstructions() + 3)) {
         return true;    // don't send more than 3 commands
     }
 
@@ -1409,9 +1411,9 @@ bool MainWindow::runCommand()
     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
 
     //     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
-    cnc->packCA(pointX, pointY, pointZ, pointA, speed, Task::posCodeNow, 0.0, 0);
+    cnc->packCA(pointX, pointY, pointZ, pointA, speed, Task::instructionNow++, 0.0, 0);
 
-    Task::posCodeNow++;
+    //     Task::posCodeNow++;
     labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::lineCodeNow + 1));
 
     refreshElementsForms();

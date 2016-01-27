@@ -2105,7 +2105,7 @@
     <string>Info</string>
    </property>
   </action>
-  <action name="actionMist">
+  <!--action name="actionMist">
    <property name="icon">
     <iconset resource="../CNC-Qt.qrc">
      <normaloff>:/images/mist_off.png</normaloff>:/images/mist_off.png</iconset>
@@ -2122,7 +2122,7 @@
    <property name="text">
     <string>Fluid</string>
    </property>
-  </action>
+  </action-->
  </widget>
  <resources>
   <include location="../CNC-Qt.qrc"/>

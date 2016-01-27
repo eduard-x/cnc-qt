@@ -106,10 +106,11 @@ class GCodeCommand
         float Radius;
         // end of curves
 
-        int   speed;       // скорость
-        bool  spindelON;  // spinle on
-        int   numberInstruct;     // g-code
-        int   numberLine;
+        int   speed;          // speed
+        bool  spindelON;      // spinle on
+        int   numberInstruct; // g-code
+        int   numberLine;     // from g-code file
+
         MovingType typeMoving; // NONE, LINE, ARC_CW, ARC_CCW
         bool  workspeed; // true=G1 false=G0
         float diametr; // diameter of tool

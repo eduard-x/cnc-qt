@@ -132,14 +132,9 @@ class Task
     public:
         static EStatusTask Status;
         //
-        // begin of task (command of g-code)
-        static int posCodeStart;
-        //
-        // end of task (command of g-code)
-        static int posCodeEnd;
-        //
-        // current command number
-        static int posCodeNow;
+        static int instructionStart;
+        static int instructionEnd;
+        static int instructionNow;
 
         // gcode line number
         static int lineCodeStart;

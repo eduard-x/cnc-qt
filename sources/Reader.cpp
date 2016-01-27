@@ -1145,6 +1145,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
         }
 
         ncommand.numberInstruct++;
+        // do not change number of line
         ncommand.needPause = false;
         ncommand.changeInstrument = false;
         ncommand.mSeconds = 0;
