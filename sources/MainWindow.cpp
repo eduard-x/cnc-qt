@@ -1183,6 +1183,21 @@ void MainWindow::onStartTask()
     Task::lineCodeEnd = end;
     Task::lineCodeNow = Task::lineCodeStart;
 
+    foreach (GCodeCommand c, GCodeList) {
+        if(c.numberLine == Task::lineCodeStart) {
+            Task::instructionStart = c.numberInstruct;
+//             break;
+        }
+//         if(GCodeList.at(i).numberLine == Task::lineCodeEnd) {
+//             Task::instructionEnd = Task::lineCodeEnd;
+//             break;
+//         }
+        if(c.numberLine == Task::lineCodeNow) {
+            Task::instructionNow = c.numberInstruct;
+//             break;
+        }
+    }
+
     QString s = translate(_FROM_TO).arg( Task::lineCodeStart + 1).arg( Task::lineCodeEnd + 1);
     labelTask->setText( s );
 
