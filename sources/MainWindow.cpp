@@ -1200,6 +1200,7 @@ void MainWindow::onStartTask()
         }
     }
 
+    qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd << "code" << Task::instructionStart << Task::instructionEnd << "size of code" << GCodeList.count();
     QString s = translate(_FROM_TO).arg( Task::lineCodeStart + 1).arg( Task::lineCodeEnd + 1);
     labelTask->setText( s );
 
@@ -2046,6 +2047,12 @@ void MainWindow::fixGCodeList()
             continue;    //первую и последнюю точку не трогаем
         }
 
+        // calculate the number of steps in one direction, if exists
+        if ((GCodeList[numPos - 1].angleVectors == GCodeList[numPos].angleVectors) && (GCodeList[numPos - 1].plane == GCodeList[numPos].plane)) {
+            calculateRestSteps(numPos - 1);
+        }
+
+#if 0
         // получим 3 точки
         float xa = GCodeList[numPos - 1].X - GCodeList[numPos].X;
         float ya = GCodeList[numPos - 1].Y - GCodeList[numPos].Y;
@@ -2058,7 +2065,52 @@ void MainWindow::fixGCodeList()
         float angle1 = angle * 180 / PI;
 
         GCodeList[numPos].angleVectors = (int)angle1;
+#endif
     }
+}
+
+
+void MainWindow::calculateRestSteps(int startPos)
+{
+    int endPos = startPos;
+
+    if (startPos > GCodeList.count()) {
+        return;
+    }
+
+    for(QList<GCodeCommand>::iterator ic = GCodeList.begin() + startPos; ic != GCodeList.end(); ++ic) {
+        if (((*ic).angleVectors == GCodeList[startPos].angleVectors) &&
+                ((*ic).plane == GCodeList[startPos].plane) ) {
+            endPos++;
+        } else {
+            break;
+        }
+    }
+
+    switch (GCodeList[startPos].plane) {
+        case XY: {
+            float dX = fabs(GCodeList[startPos].X - GCodeList[endPos - 1].X);
+            float dY = fabs(GCodeList[startPos].Y - GCodeList[endPos - 1].Y);
+            int numStepsX = dX * cnc->coord[X].pulsePerMm; // per mm
+            int numStepsX = dY * cnc->coord[Y].pulsePerMm; // per mm
+            for (int i = startPos; i < endPos; i++){
+                GCodeList[i].stepsCounter = 0; // TODO
+            }
+            break;
+        }
+
+        case YZ: {
+            break;
+        }
+
+        case ZX: {
+            break;
+        }
+
+        default: {
+        }
+    }
+
 }
 
 

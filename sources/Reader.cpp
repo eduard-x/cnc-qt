@@ -893,7 +893,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 }
 
 
-float Reader::determineAngle(const Vec3 &pos, const Vec3 &pos_center, planeEnum pl)
+float Reader::determineAngle(const Vec3 &pos, const Vec3 &pos_center, PlaneEnum pl)
 {
     float radians = 0.0;
 
@@ -1107,6 +1107,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
             case XY: {
                 float x_new = i + r * c;
                 float y_new = j + r * s;
+                ncommand.angleVectors = atan2(y_new - ncommand.Y, x_new - ncommand.X);
                 ncommand.X = x_new;
                 ncommand.Y = y_new;
                 ncommand.Z = loopPos;
@@ -1119,6 +1120,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
             case YZ: {
                 float y_new = j + r * c;
                 float z_new = k + r * s;
+                ncommand.angleVectors = atan2(z_new - ncommand.Z, y_new - ncommand.Y);
                 ncommand.Y = y_new;
                 ncommand.Z = z_new;
                 ncommand.X = loopPos;
@@ -1131,6 +1133,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
             case ZX: {
                 float z_new = k + r * c;
                 float x_new = i + r * s;
+                ncommand.angleVectors = atan2(x_new - ncommand.X, z_new - ncommand.Z);
                 ncommand.Z = z_new;
                 ncommand.X = x_new;
                 ncommand.Y = loopPos;

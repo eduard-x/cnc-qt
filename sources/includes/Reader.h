@@ -60,7 +60,7 @@ enum MovingType {
 };
 
 
-enum planeEnum {
+enum PlaneEnum {
     NonePlane,
     XY,
     YZ,
@@ -101,7 +101,9 @@ class GCodeCommand
         float J;
         float K;
 
-        planeEnum plane;
+        PlaneEnum plane;
+
+        int stepsCounter; // number of steps in current direction
 
         float Radius;
         // end of curves
@@ -349,7 +351,7 @@ class Reader : public cTranslator
         bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
         bool parseArc(const QString &line, Vec3 &pos, float &R, const float coef);
         bool convertArcToLines(const GCodeCommand *c);
-        float determineAngle(const Vec3 &pos, const Vec3 &pos_c, planeEnum pl);
+        float determineAngle(const Vec3 &pos, const Vec3 &pos_c, PlaneEnum pl);
         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );
         bool readDRL( const QByteArray &gcode );
