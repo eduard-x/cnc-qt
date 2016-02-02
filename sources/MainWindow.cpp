@@ -2092,7 +2092,7 @@ void MainWindow::calculateRestSteps(int startPos)
             float dX = fabs(GCodeList[startPos].X - GCodeList[endPos - 1].X);
             float dY = fabs(GCodeList[startPos].Y - GCodeList[endPos - 1].Y);
             int numStepsX = dX * cnc->coord[X].pulsePerMm; // per mm
-            int numStepsX = dY * cnc->coord[Y].pulsePerMm; // per mm
+            int numStepsY = dY * cnc->coord[Y].pulsePerMm; // per mm
             for (int i = startPos; i < endPos; i++){
                 GCodeList[i].stepsCounter = 0; // TODO
             }
@@ -2100,18 +2100,32 @@ void MainWindow::calculateRestSteps(int startPos)
         }
 
         case YZ: {
+            float dY = fabs(GCodeList[startPos].Y - GCodeList[endPos - 1].Y);
+            float dZ = fabs(GCodeList[startPos].Z - GCodeList[endPos - 1].Z);
+            int numStepsY = dY * cnc->coord[Y].pulsePerMm; // per mm
+            int numStepsZ = dZ * cnc->coord[Z].pulsePerMm; // per mm
+            for (int i = startPos; i < endPos; i++){
+                GCodeList[i].stepsCounter = 0; // TODO
+            }
             break;
         }
 
         case ZX: {
+            float dZ = fabs(GCodeList[startPos].Z - GCodeList[endPos - 1].Z);
+            float dX = fabs(GCodeList[startPos].X - GCodeList[endPos - 1].X);
+            int numStepsZ = dZ * cnc->coord[Z].pulsePerMm; // per mm
+            int numStepsX = dX * cnc->coord[X].pulsePerMm; // per mm
+            for (int i = startPos; i < endPos; i++){
+                GCodeList[i].stepsCounter = 0; // TODO
+            }
             break;
         }
 
         default: {
+            qDebug() << "no plane information: x" << GCodeList[startPos].X << "y" << GCodeList[startPos].Y << "z" << GCodeList[startPos].Z;
         }
     }
-
-}
+} 
 
 
 void MainWindow::onSaveFile()
