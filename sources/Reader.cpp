@@ -80,6 +80,9 @@ GCodeCommand::GCodeCommand()
 
     typeMoving = NoType;
 
+    maxCoeff = 0.0;
+    delayCoeff = 0;
+
 
     angleVectors = 0;
     Distance = 0.0;

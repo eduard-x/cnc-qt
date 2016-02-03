@@ -103,6 +103,9 @@ class GCodeCommand
 
         PlaneEnum plane;
 
+        float maxCoeff; // telegr CA offset
+        int  delayCoeff; //
+
         int stepsCounter; // number of steps in current direction
 
         float Radius;
