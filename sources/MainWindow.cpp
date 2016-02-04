@@ -2100,14 +2100,12 @@ void MainWindow::calculateRestSteps(int startPos)
             float dX = fabs(GCodeList[startPos].X - GCodeList[endPos - 1].X);
             float dY = fabs(GCodeList[startPos].Y - GCodeList[endPos - 1].Y);
             float dH = sqrt(dX * dX + dY * dY);
-            int numStepsX = dX * cnc->coord[X].pulsePerMm; // per mm
-            int numStepsY = dY * cnc->coord[Y].pulsePerMm; // per mm
-            int max = 0;
             float coeff = 0;
 
-            if (numStepsX > numStepsY) {
-                max = numStepsX;
-                coeff = dH / dX;
+            if (dX > dY) {
+                if (dX != 0.0) {
+                    coeff = dH / dX;
+                }
 
                 for (int i = startPos; i < endPos; i++) {
                     GCodeList[i].stepsCounter =  (int) cnc->coord[X].pulsePerMm * fabs(GCodeList[i].X -  GCodeList[endPos - 1].X);
@@ -2120,8 +2118,9 @@ void MainWindow::calculateRestSteps(int startPos)
                     GCodeList[i].maxCoeff = coeff * dnewSpdX; //
                 }
             } else {
-                max = numStepsY;
-                coeff = dH / dY;
+                if (dY != 0.0) {
+                    coeff = dH / dY;
+                }
 
                 for (int i = startPos; i < endPos; i++) {
                     GCodeList[i].stepsCounter =  (int) cnc->coord[Y].pulsePerMm * fabs(GCodeList[i].Y -  GCodeList[endPos - 1].Y);
@@ -2142,14 +2141,12 @@ void MainWindow::calculateRestSteps(int startPos)
             float dY = fabs(GCodeList[startPos].Y - GCodeList[endPos - 1].Y);
             float dZ = fabs(GCodeList[startPos].Z - GCodeList[endPos - 1].Z);
             float dH = sqrt(dZ * dZ + dY * dY);
-            int numStepsY = dY * cnc->coord[Y].pulsePerMm; // per mm
-            int numStepsZ = dZ * cnc->coord[Z].pulsePerMm; // per mm
-            int max = 0;
             float coeff = 0;
 
-            if (numStepsY > numStepsZ) {
-                max = numStepsY;
-                coeff = dH / dY;
+            if (dY > dZ) {
+                if (dY != 0.0) {
+                    coeff = dH / dY;
+                }
 
                 for (int i = startPos; i < endPos; i++) {
                     GCodeList[i].stepsCounter =  (int) cnc->coord[Y].pulsePerMm * fabs(GCodeList[i].Y -  GCodeList[endPos - 1].Y);
@@ -2162,8 +2159,9 @@ void MainWindow::calculateRestSteps(int startPos)
                     GCodeList[i].maxCoeff = coeff * dnewSpdY; //
                 }
             } else {
-                max = numStepsZ;
-                coeff = dH / dZ;
+                if (dZ != 0.0) {
+                    coeff = dH / dZ;
+                }
 
                 for (int i = startPos; i < endPos; i++) {
                     GCodeList[i].stepsCounter =  (int) cnc->coord[Z].pulsePerMm * fabs(GCodeList[i].Z -  GCodeList[endPos - 1].Z);
@@ -2184,14 +2182,12 @@ void MainWindow::calculateRestSteps(int startPos)
             float dZ = fabs(GCodeList[startPos].Z - GCodeList[endPos - 1].Z);
             float dX = fabs(GCodeList[startPos].X - GCodeList[endPos - 1].X);
             float dH = sqrt(dX * dX + dZ * dZ);
-            int numStepsZ = dZ * cnc->coord[Z].pulsePerMm; // per mm
-            int numStepsX = dX * cnc->coord[X].pulsePerMm; // per mm
-            int max = 0;
             float coeff = 0;
 
-            if (numStepsZ > numStepsX) {
-                max = numStepsZ;
-                coeff = dH / dZ;
+            if (dZ > dX) {
+                if (dZ != 0.0) {
+                    coeff = dH / dZ;
+                }
 
                 for (int i = startPos; i < endPos; i++) {
                     GCodeList[i].stepsCounter =  (int) cnc->coord[Z].pulsePerMm * fabs(GCodeList[i].Z -  GCodeList[endPos - 1].Z);
@@ -2204,8 +2200,9 @@ void MainWindow::calculateRestSteps(int startPos)
                     GCodeList[i].maxCoeff = coeff * dnewSpdZ; //
                 }
             } else {
-                max = numStepsX;
-                coeff = dH / dX;
+                if (dX != 0.0) {
+                    coeff = dH / dX;
+                }
 
                 for (int i = startPos; i < endPos; i++) {
                     GCodeList[i].stepsCounter =  (int) cnc->coord[X].pulsePerMm * fabs(GCodeList[i].X -  GCodeList[endPos - 1].X);
