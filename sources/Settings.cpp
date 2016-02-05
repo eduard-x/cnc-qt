@@ -77,7 +77,8 @@ SettingsDialog::SettingsDialog(QWidget *p)
     checkInvertSwitchZplu->setChecked(cnc->coord[Z].invLimitMax);
     checkInvertSwitchAmin->setChecked(cnc->coord[A].invLimitMin);
     checkInvertSwitchAplu->setChecked(cnc->coord[A].invLimitMax);
-
+    
+    spinBoxLookLines->setValue(splitsPerMm);
 
     checkSoftX->setChecked(cnc->coord[X].checkSoftLimits);
     checkSwapX->setChecked(cnc->coord[X].invertDirection);
@@ -134,7 +135,6 @@ SettingsDialog::SettingsDialog(QWidget *p)
     doubleSpinEndZ->setValue(cnc->coord[Z].maxVelo);
     doubleSpinEndA->setValue(cnc->coord[A].maxVelo);
 
-
     doubleSpinAccelX->setValue(cnc->coord[X].acceleration);
     doubleSpinAccelY->setValue(cnc->coord[Y].acceleration);
     doubleSpinAccelZ->setValue(cnc->coord[Z].acceleration);
@@ -159,14 +159,39 @@ void SettingsDialog::translateDialog()
     labelMax->setText(translate(_MAX));
     labelSwap->setText(translate(_SWAP));
     labelSeq->setText(translate(_SEQUENCE));
-    labelSpeed->setText(translate(_VELO));
-    labelPosition->setText(translate(_POSITION));
+    labelSpeed->setText(translate(_SPEED));
+    labelPosition->setText(translate(_POS));
 
-    tabWidget->setTabText(0, translate(_WORKTABLE));
-    tabWidget->setTabText(1, translate(_VELO));
-    tabWidget->setTabText(2, translate(_LIMITS));
-    tabWidget->setTabText(3, translate(_PARKING));
-    tabWidget->setTabText(4, translate(_TOOL));
+    QStringList fList;
+    fList << translate(_WORKTABLE);
+    fList << translate(_SPEED);
+    fList << translate(_LIMITS);
+    fList << translate(_PARKING);
+    fList << translate(_IO);
+    fList << translate(_TOOL);
+    fList << translate(_LOOKAHEAD);
+    fList << translate(_ARC_SPLITTING);
+
+    listWidget->addItems(fList);
+
+    int width = listWidget->sizeHintForColumn(0);
+    listWidget->setFixedWidth(width + 20);
+
+    connect(listWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(onSelection(QListWidgetItem*)));
+    //     connect(listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onSelection(QListWidgetItem*)));
+
+    listWidget->item(0)->setSelected(true);
+
+    tabWidget->setCurrentIndex(0);
+    tabWidget->tabBar()->setFixedHeight(0);
+    tabWidget->tabBar()->setMaximumWidth(500);
+    tabWidget->setStyleSheet("QTabBar::tab { height: 0px; width: 0px; border: 0px solid #333; }" );
+
+    //     tabWidget->setTabText(0, translate(_WORKTABLE));
+    //     tabWidget->setTabText(1, translate(_VELO));
+    //     tabWidget->setTabText(2, translate(_LIMITS));
+    //     tabWidget->setTabText(3, translate(_PARKING));
+    //     tabWidget->setTabText(4, translate(_TOOL));
 
     labelStart->setText(translate(_STARTVELO));
     labelEnd->setText(translate(_ENDVELO));
@@ -178,6 +203,14 @@ void SettingsDialog::translateDialog()
     for(int i = 0; i < l.count(); i++) {
         l[i]->setText(strl.at(i));
     }
+}
+
+
+void SettingsDialog::onSelection(QListWidgetItem* it)
+{
+    int idx = listWidget->currentRow();
+    //     qDebug() << idx;
+    tabWidget->setCurrentIndex(idx);
 }
 
 

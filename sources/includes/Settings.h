@@ -48,6 +48,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
 
     private slots:
         void onSave();
+        void onSelection(QListWidgetItem* it);
 
     private:
         void translateDialog();

@@ -37,6 +37,9 @@
 #include "includes/Translator.h"
 
 
+int programSettings::splitsPerMm = 10;
+float programSettings::maxLookaheadAngle = 170.0;
+
 QVector<QString> cTranslator::translateTable;
 
 
@@ -240,6 +243,9 @@ QString cTranslator::engText[] = {
     "Swap",
     "Motors",
     "Open recent files",
+    "Lookahead",
+    "Arc splitting",
+    "Input/Output",
     ""
 };
 

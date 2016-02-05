@@ -81,7 +81,7 @@ GCodeCommand::GCodeCommand()
     typeMoving = NoType;
 
     maxCoeff = 0.0;
-    delayCoeff = 0;
+    //     delayCoeff = 0;
 
 
     angleVectors = 0;
@@ -154,6 +154,7 @@ GerberData::GerberData()
     Y_min = 100000;
     Y_max = -100000;
 }
+
 
 //
 // Вычисление размерности необходимого массива, для анализа
@@ -1074,7 +1075,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
 
     float bLength = r * alpha;
 
-    int n = qRound(bLength * 10.0); // num segments of arc per mm
+    int n = qRound(bLength * splitsPerMm/*10.0*/); // num segments of arc per mm
 
     if ( n == 0) {
         qDebug() << "wrong, n = 0" << alpha_beg << alpha_end;
@@ -1161,7 +1162,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
 
 #if DEBUG_ARC
 
-    if ((fabs (x2 - GCodeList.last().X) > (bLength / 10.0)) || (fabs (y2 - GCodeList.last().Y) > (bLength / 10.0))) { // wenn zu weit vom ziel...
+    if ((fabs (x2 - GCodeList.last().X) > (bLength / splitsPerMm/*10.0*/)) || (fabs (y2 - GCodeList.last().Y) > (bLength / splitsPerMm/*10.0*/))) { // wenn zu weit vom ziel...
         if (code->typeMoving == ArcCW) {
             qDebug() << "CW";
         } else {

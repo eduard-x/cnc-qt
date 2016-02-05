@@ -670,6 +670,8 @@ void MainWindow::writeGUISettings()
     s->setValue("VelocityMoving", numVeloMoving->value());
     s->setValue("VelocityManual", numVeloManual->value());
 
+    s->setValue("SplitArcPerMM", splitsPerMm);
+    s->setValue("LookaheadAngle", maxLookaheadAngle);
     s->setValue("UnitMM", unitMm);
     s->setValue("ToolDiameter", toolDiameter);
     s->setValue("ToolFlutes", toolFlutes);
@@ -741,6 +743,8 @@ void MainWindow::readGUISettings()
     currentKeyPad = s->value("KeyControl", -1).toInt();
 
     unitMm = s->value("UnitMM", 1.0).toBool();
+    splitsPerMm =   s->value("SplitArcPerMM", 10).toInt();
+    maxLookaheadAngle = s->value("LookaheadAngle", 170.0).toFloat();
     cuttedMaterial = (MATERIAL)s->value("CuttedMaterial", 0).toInt();
 
     toolDiameter = s->value("ToolDiameter", 3.0).toFloat();

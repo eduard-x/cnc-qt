@@ -142,7 +142,7 @@ void ScanSurfaceDialog::translateDialog()
     labelStepX->setText(translate(_STEP_X));
     labelStepY->setText(translate(_STEP_Y));
     checkBoxViewOnly->setText(translate(_VIEW_ONLY));
-    labelVelo->setText(translate(_VELOSCAN));
+    labelVelo->setText(translate(_VELO));
     labelRet->setText(translate(_RET_MM));
     groupBoxZ->setTitle(translate(_ALGORITHM_Z));
     labelGrid->setText(translate(_GRID));

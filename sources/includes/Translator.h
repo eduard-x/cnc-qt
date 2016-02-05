@@ -35,7 +35,38 @@
 #include <QString>
 #include <QVector>
 
-class cTranslator
+
+
+class programSettings
+{
+    public:
+        // current size of free buffer
+        static int splitsPerMm;
+        static float maxLookaheadAngle;
+#if 0
+        static short FreebuffSize;
+
+        // number of current instuction
+        static int NumberCompleatedInstruction;
+
+        axis coord[4]; // array of 4 axis for mk1
+        //         QVector<axis> mk2[9]; // array of 9 axis for mk2
+
+        static bool setSettings;
+        static int spindleMoveSpeed;
+        static bool spindleEnabled;
+        static bool mistEnabled;
+        static bool fluidEnabled;
+
+        static bool Estop;
+
+        // for virtual controller
+        static bool DEMO_DEVICE;
+#endif
+};
+
+
+class cTranslator : public programSettings
 {
     public:
         bool loadTranslation(const QString fname);
@@ -109,7 +140,7 @@ enum TR_CONSTS {
     _VIEW_ONLY, // 55
     _TEST_SCAN, // 56
     _RET_MM, // 57
-    _VELOSCAN, // 58
+    _SPEED, // 58
     _TABLE_POINT, // 59
     _SET_Z, // 60
     _MOVE_TOPOINT, // 61
@@ -246,6 +277,9 @@ enum TR_CONSTS {
     _SWAP, // 192
     _MOTORS, // 193
     _RECENTFILES, // 194
+    _LOOKAHEAD, // 195
+    _ARC_SPLITTING, // 196
+    _IO, //
     _NULL
 };
 
