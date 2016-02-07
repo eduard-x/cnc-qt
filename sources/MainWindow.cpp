@@ -2022,6 +2022,9 @@ void MainWindow::fixGCodeList()
     cnc->coord[Y].softLimitMin = GCodeList[0].Y;
     cnc->coord[Y].softLimitMax = GCodeList[0].Y;
 
+    maxLookaheadAngleRad = maxLookaheadAngle * PI / 180.0;// grad to rad
+    qDebug() << "max angle" << maxLookaheadAngle << " in rad: " << maxLookaheadAngleRad;
+
     // Вычисление угла между отрезками
     for (int numPos = 1; numPos < GCodeList.count(); numPos++) {
         float xn = GCodeList[numPos].X - GCodeList[numPos - 1].X;
@@ -2052,10 +2055,15 @@ void MainWindow::fixGCodeList()
         }
 
         // calculate the number of steps in one direction, if exists
-        if ((GCodeList[numPos - 1].angleVectors == GCodeList[numPos].angleVectors) && (GCodeList[numPos - 1].plane == GCodeList[numPos].plane)) {
+        if (fabs (GCodeList[numPos - 1].angleVectors - GCodeList[numPos].angleVectors) <= maxLookaheadAngleRad) {
+            GCodeList[numPos].changeDirection = false;
+
+            //         if ((GCodeList[numPos - 1].angleVectors == GCodeList[numPos].angleVectors) && (GCodeList[numPos - 1].plane == GCodeList[numPos].plane)) {
             if (GCodeList[numPos - 1].stepsCounter == 0) {
                 calculateRestSteps(numPos - 1);
             }
+        } else {
+            GCodeList[numPos].changeDirection = true;
         }
 
 #if 0
@@ -2091,12 +2099,18 @@ void MainWindow::calculateRestSteps(int startPos)
     //     }
 
     for(QList<GCodeCommand>::iterator ic = GCodeList.begin() + startPos; ic != GCodeList.end(); ++ic) {
-        if (((*ic).angleVectors == GCodeList[startPos].angleVectors) &&
-                ((*ic).plane == GCodeList[startPos].plane) ) {
+        if (fabs ((*ic).angleVectors - GCodeList[startPos].angleVectors) <= maxLookaheadAngleRad) {
+            //         if (((*ic).angleVectors == GCodeList[startPos].angleVectors) &&
+            //                 ((*ic).plane == GCodeList[startPos].plane) ) {
             endPos++;
         } else {
             break;
         }
+    }
+
+    if ((endPos - startPos) == 2){
+        GCodeList[startPos].changeDirection = true;
+        return;
     }
 
     switch (GCodeList[startPos].plane) {

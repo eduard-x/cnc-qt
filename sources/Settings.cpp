@@ -77,7 +77,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
     checkInvertSwitchZplu->setChecked(cnc->coord[Z].invLimitMax);
     checkInvertSwitchAmin->setChecked(cnc->coord[A].invLimitMin);
     checkInvertSwitchAplu->setChecked(cnc->coord[A].invLimitMax);
-    
+
     spinBoxLookLines->setValue(splitsPerMm);
 
     checkSoftX->setChecked(cnc->coord[X].checkSoftLimits);

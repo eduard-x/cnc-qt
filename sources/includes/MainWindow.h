@@ -348,6 +348,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         QActionGroup* filesGroup;
         QFont sysFont;
         short fontSize;
+        float maxLookaheadAngleRad;
         //         QString programStyleSheet;
         QStringList langFiles;
         QString langDir;

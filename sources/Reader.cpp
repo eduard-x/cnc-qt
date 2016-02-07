@@ -53,7 +53,7 @@
 // for debugging information of arc calculations
 // to disable seto to 0
 //
-#define DEBUG_ARC 1
+#define DEBUG_ARC 0
 
 
 GCodeCommand::GCodeCommand()
@@ -74,6 +74,7 @@ GCodeCommand::GCodeCommand()
     K = 0.0;
 
     plane = NonePlane;
+    changeDirection = false;
 
     Radius = 0.0;
     // end of arc
@@ -81,8 +82,6 @@ GCodeCommand::GCodeCommand()
     typeMoving = NoType;
 
     maxCoeff = 0.0;
-    //     delayCoeff = 0;
-
 
     angleVectors = 0;
     Distance = 0.0;
@@ -111,6 +110,8 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
     Radius = _cmd->Radius;
 
     plane = _cmd->plane;
+
+    changeDirection = false;
 
     typeMoving = _cmd->typeMoving;
 
@@ -146,7 +147,6 @@ GerberData::GerberData()
     countPdigX = 0;
     // длина дробной части
     countPdigY = 0;
-
 
     X_min = 100000;
     X_max = -100000;
@@ -397,7 +397,6 @@ bool Reader::readGCode(const QByteArray &gcode)
                 lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);
             }
         }
-
 
         //         while (lineStream.length() > 0 && commentBeg >= 0 && commentEnd >= 0) {
         //             lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);

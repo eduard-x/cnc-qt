@@ -71,7 +71,7 @@ enum PlaneEnum {
 };
 
 
-#define COORD_TOO_BIG 100000.0
+#define COORD_TOO_BIG 10e6
 #define MAX_FILE_SIZE 20e6
 
 //
@@ -84,6 +84,7 @@ class GCodeCommand
         int    numberInstrument; // собственно номер tool
 
         bool   needPause;        // необходимость паузы
+        bool   changeDirection;
         int    mSeconds;         // длительность паузы, если 0 - то ожидание от пользователя о продолжении
 
         //
@@ -104,7 +105,6 @@ class GCodeCommand
         PlaneEnum plane;
 
         float maxCoeff; // telegr CA offset
-        //         int  delayCoeff; //
 
         int stepsCounter; // number of steps in current direction
 
@@ -259,11 +259,9 @@ class DataCollections
         ///
         ///points
     public:
-        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument)
-        {
+        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument) {
             0, 0.0
-        })
-        {
+        }) {
             TypeData = Points;
             points = _Points;
             intrument = _intrument;
