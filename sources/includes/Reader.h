@@ -52,13 +52,6 @@
 
 class cTranslator;
 
-enum MovingType {
-    NoType,
-    Line,
-    ArcCW,
-    ArcCCW
-};
-
 
 enum PlaneEnum {
     NonePlane,
@@ -80,12 +73,19 @@ enum PlaneEnum {
 class GCodeCommand
 {
     public:
-        bool   changeInstrument; // to change the tool
-        int    numberInstrument; // собственно номер tool
+        enum MovingType {
+            NoType,
+            Line,
+            ArcCW,
+            ArcCCW
+        };
 
-        bool   needPause;        // необходимость паузы
-        bool   changeDirection;
-        int    mSeconds;         // длительность паузы, если 0 - то ожидание от пользователя о продолжении
+    public:
+        bool changeInstrument; // to change the tool
+        int  numberInstrument; // собственно номер tool
+
+        //         bool   needPause;      // pause needed
+        int  pauseMSeconds;  // if waiting = 0, no pause = -1. other pause in milliseconds
 
         //
         // coordinates in mm
@@ -104,24 +104,28 @@ class GCodeCommand
 
         PlaneEnum plane;
 
-        float maxCoeff; // telegr CA offset
+        float maxSpeed; // telegr CA offset
 
-        int stepsCounter; // number of steps in current direction
+        bool  changeDirection;
+        int   accelCode;
+        int   stepsCounter; // number of steps in current direction
+        bool  workspeed; // true=G1 false=G0
 
         float Radius;
         // end of curves
 
-        int   speed;          // speed
+        //         int   speed;          // speed
         bool  spindelON;      // spinle on
         int   numberInstruct; // g-code
         int   numberLine;     // from g-code file
 
         MovingType typeMoving; // NONE, LINE, ARC_CW, ARC_CCW
-        bool  workspeed; // true=G1 false=G0
+
+
         float diametr; // diameter of tool
 
-        int   angleVectors; //угол между отрезками, образуемыми этой, предыдущей и следующей точкой
-        float Distance; //растояние данного отрезка в мм.
+        float angleVectors; //угол между отрезками, образуемыми этой, предыдущей и следующей точкой
+        //         float Distance; //растояние данного отрезка в мм.
         //
         // null constructor
         GCodeCommand();
@@ -259,9 +263,11 @@ class DataCollections
         ///
         ///points
     public:
-        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument) {
+        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument)
+        {
             0, 0.0
-        }) {
+        })
+        {
             TypeData = Points;
             points = _Points;
             intrument = _intrument;

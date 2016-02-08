@@ -436,6 +436,7 @@ void ScanThread::run()
     }
 
     // coordinates for moving
+    //     {
     //float px = dataCode.Matrix[indexScanY].X[indexScanX].X;
     float px = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].X;
     //float pz = dataCode.Matrix[indexScanY].X[indexScanX].Z;
@@ -445,7 +446,19 @@ void ScanThread::run()
     float pa = 0;//sParent->numPosA->value();
 
     // move to point
-    cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse( pa), (int)sParent->numSpeed->value(), 0, 0, 0.0);
+    moveParameters mParams;
+    mParams.posX = px;
+    mParams.posY = py;
+    mParams.posZ = pz;
+    mParams.posA = 0;//, userSpeedG0;
+    mParams.speed = (int)sParent->numSpeed->value();
+    mParams.code = 0x39; //gcodeNow.accelCode;
+    mParams.restPulses = 0;//gcodeNow.stepsCounter;
+    mParams.numberInstruction = 0;
+
+    //         cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse( pa), (int)sParent->numSpeed->value(), 0, 0, 0.0);
+    cnc->packCA(&mParams);
+    //     }
 
     usleep(100);
 
@@ -475,7 +488,8 @@ void ScanThread::run()
 
     usleep(100);
     // move to the point
-    cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse(pa), (int)sParent->numSpeed->value(), 0, 0, 0.0);
+    cnc->packCA(&mParams);
+    //     cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse(pa), (int)sParent->numSpeed->value(), 0, 0, 0.0);
 
     usleep(100);
 

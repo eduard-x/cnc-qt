@@ -60,8 +60,8 @@ GCodeCommand::GCodeCommand()
 {
     changeInstrument = false;
     numberInstrument = 0;
-    needPause        = false;
-    mSeconds      = 0;
+    //     needPause        = false;
+    pauseMSeconds      = -1;
 
     X = 0.0;
     Y = 0.0;
@@ -81,15 +81,15 @@ GCodeCommand::GCodeCommand()
 
     typeMoving = NoType;
 
-    maxCoeff = 0.0;
+    maxSpeed = 0.0;
 
-    angleVectors = 0;
-    Distance = 0.0;
+    angleVectors = 0.0;
+    //     Distance = 0.0;
 
     spindelON      = false;
     numberInstruct = 0;
     numberLine = 0;
-    speed          = 0;
+    //     speed          = 0;
     workspeed      = false;
     diametr = 0.0;
 };
@@ -116,18 +116,16 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
     typeMoving = _cmd->typeMoving;
 
     spindelON = _cmd->spindelON;
+    maxSpeed = _cmd->maxSpeed;
     numberInstruct = _cmd->numberInstruct;
     numberLine = _cmd->numberLine;
-    speed = _cmd->speed;
     workspeed = _cmd->workspeed;
 
     angleVectors = _cmd->angleVectors;
-    Distance = _cmd->Distance;
 
     changeInstrument = _cmd->changeInstrument;
     numberInstrument = _cmd->numberInstrument;
-    needPause = _cmd->needPause;
-    mSeconds = _cmd->mSeconds;
+    pauseMSeconds = _cmd->pauseMSeconds;
     diametr = _cmd->diametr;
 };
 
@@ -505,7 +503,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
 
-                    tmpCommand->typeMoving = Line;
+                    tmpCommand->typeMoving = GCodeCommand::Line;
 
                     tmpCommand->workspeed = false;
 
@@ -531,7 +529,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
 
-                    tmpCommand->typeMoving = Line;
+                    tmpCommand->typeMoving = GCodeCommand::Line;
 
                     tmpCommand->workspeed = true;
 
@@ -612,9 +610,9 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->Radius = radius;
 
                     if (cmd == "G02" ) {
-                        tmpCommand->typeMoving = ArcCW;
+                        tmpCommand->typeMoving = GCodeCommand::ArcCW;
                     } else {
-                        tmpCommand->typeMoving = ArcCCW;
+                        tmpCommand->typeMoving = GCodeCommand::ArcCCW;
                     }
 
                     tmpCommand->workspeed = true;
@@ -646,9 +644,9 @@ bool Reader::readGCode(const QByteArray &gcode)
                     QString value1 = lst.at(1).mid(1);
 
                     if (property1 == "P") {
-                        tmpCommand->needPause = true;
+                        //                         tmpCommand->needPause = true;
                         bool res;
-                        tmpCommand->mSeconds = value1.toInt(&res);
+                        tmpCommand->pauseMSeconds = value1.toInt(&res);
 
                         if (res == false) {
                             decoded = false;
@@ -656,9 +654,9 @@ bool Reader::readGCode(const QByteArray &gcode)
                     }
 
                     if (property1 == "X") {
-                        tmpCommand->needPause = true;
+                        //                         tmpCommand->needPause = true;
                         bool res;
-                        tmpCommand->mSeconds = value1.toFloat(&res) * 1000;
+                        tmpCommand->pauseMSeconds = value1.toFloat(&res) * 1000;
 
                         if (res == false) {
                             decoded = false;
@@ -735,7 +733,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
             case 'M':
                 if (cmd == "M00") {
-                    tmpCommand->needPause = true;
+                    tmpCommand->pauseMSeconds = 0; // waiting
                     break;
                 }
 
@@ -763,7 +761,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                             decoded = false;
                         }
 
-                        tmpCommand->mSeconds = value1.toInt(&res);
+                        tmpCommand->pauseMSeconds = value1.toInt(&res);
 
                         if (res == false) {
                             decoded = false;
@@ -820,51 +818,19 @@ bool Reader::readGCode(const QByteArray &gcode)
                 // init of next instuction
                 tmpCommand->numberInstruct++;
                 tmpCommand->numberLine++;
-                tmpCommand->needPause = false;
+
+                //                 tmpCommand->needPause = false;
                 tmpCommand->changeInstrument = false;
-                tmpCommand->mSeconds = 0;
+                tmpCommand->pauseMSeconds = -1; // no pause
             }
+
+          
 
             goodList << line;
         }
 
         index++;
     }
-
-#if 0
-
-    //     if (!checkBoxNewSpped.Checked) {
-    //         return;
-    //     }
-
-    // Вычисление угла между отрезками
-    for (int numPos = 1; numPos < GCodeList.count(); numPos++) {
-        float xn = (float)(GCodeList[numPos].X - GCodeList[numPos - 1].X);
-        float yn = (float)(GCodeList[numPos].Y - GCodeList[numPos - 1].Y);
-        float zn = (float)(GCodeList[numPos].Z - GCodeList[numPos - 1].Z);
-
-        //длина отрезка
-        GCodeList[numPos].Distance = sqrt((xn * xn) + (yn * yn) + (zn * zn));
-
-        if (numPos > GCodeList.count() - 2) {
-            continue;    //первую и последнюю точку не трогаем
-        }
-
-        //получим 3 точки
-        float xa = (float)(GCodeList[numPos - 1].X - GCodeList[numPos].X);
-        float ya = (float)(GCodeList[numPos - 1].Y - GCodeList[numPos].Y);
-        float za = (float)(GCodeList[numPos - 1].Z - GCodeList[numPos].Z);
-        float xb = (float)(GCodeList[numPos + 1].X - GCodeList[numPos].X);
-        float yb = (float)(GCodeList[numPos + 1].Y - GCodeList[numPos].Y);
-        float zb = (float)(GCodeList[numPos + 1].Z - GCodeList[numPos].Z);
-
-        float angle = acos(   (xa * xb + ya * yb + za * zb) /  ( sqrt(xa * xa + ya * ya + za * za) * sqrt(xb * xb + yb * yb + zb * zb )));
-        float angle1 = angle * 180 / PI;
-
-        GCodeList[numPos].angleVectors = (int)angle1;
-    }
-
-#endif
 
     qDebug("read gcode, parsed. Time elapsed: %d ms", t.elapsed());
     //     qDebug() << "data parsed";
@@ -954,7 +920,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
         return false;
     }
 
-    if (!(code->typeMoving == ArcCW || code->typeMoving == ArcCCW) ) { // it's not arc
+    if (!(code->typeMoving == GCodeCommand::ArcCW || code->typeMoving == GCodeCommand::ArcCCW) ) { // it's not arc
         return false;
     }
 
@@ -1049,7 +1015,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
     alpha_beg = determineAngle (pos1, posC, code->plane);
     alpha_end = determineAngle (pos2, posC, code->plane);
 
-    if (code->typeMoving == ArcCW) {
+    if (code->typeMoving == GCodeCommand::ArcCW) {
         if (alpha_beg == alpha_end) {
             alpha_beg += 2.0 * PI;
         }
@@ -1085,7 +1051,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
 
     dPos = dPos / n;
 
-    if (code->typeMoving == ArcCW) {
+    if (code->typeMoving == GCodeCommand::ArcCW) {
         dAlpha = -dAlpha;
     }
 
@@ -1094,6 +1060,8 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
 #endif
     float angle = alpha_beg;
     float loopPos = begPos;
+    
+    GCodeCommand ncommand = *code;
 
     // now split
     for (int step = 0; step < n; ++step) {
@@ -1104,7 +1072,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
         float c = cos(angle);
         float s = sin(angle);
 
-        GCodeCommand ncommand = GCodeCommand(GCodeList.last());
+        GCodeCommand ncommand = new GCodeCommand(ncommand);
 
         switch (code->plane) {
             case XY: {
@@ -1152,15 +1120,14 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
 
         ncommand.numberInstruct++;
         // do not change number of line
-        ncommand.needPause = false;
+        //         ncommand.needPause = false;
         ncommand.changeInstrument = false;
-        ncommand.mSeconds = 0;
-
-        GCodeList << ncommand;
+        ncommand.pauseMSeconds = -1;
+          
+        GCodeList << ncommand;  
     }
 
 #if DEBUG_ARC
-
     if ((fabs (x2 - GCodeList.last().X) > (bLength / splitsPerMm/*10.0*/)) || (fabs (y2 - GCodeList.last().Y) > (bLength / splitsPerMm/*10.0*/))) { // wenn zu weit vom ziel...
         if (code->typeMoving == ArcCW) {
             qDebug() << "CW";
@@ -1173,7 +1140,6 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
         qDebug() << "alpha:" << alpha_beg << "->" << alpha_end << "d alpha: " << dAlpha; // rad
         qDebug() << dbg;
     }
-
 #endif
 
     return true;

@@ -79,6 +79,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
     checkInvertSwitchAplu->setChecked(cnc->coord[A].invLimitMax);
 
     spinBoxLookLines->setValue(splitsPerMm);
+    spinBoxLookLines->setValue(maxLookaheadAngle);
 
     checkSoftX->setChecked(cnc->coord[X].checkSoftLimits);
     checkSwapX->setChecked(cnc->coord[X].invertDirection);

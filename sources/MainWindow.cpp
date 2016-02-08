@@ -672,6 +672,7 @@ void MainWindow::writeGUISettings()
 
     s->setValue("SplitArcPerMM", splitsPerMm);
     s->setValue("LookaheadAngle", maxLookaheadAngle);
+
     s->setValue("UnitMM", unitMm);
     s->setValue("ToolDiameter", toolDiameter);
     s->setValue("ToolFlutes", toolFlutes);
@@ -1296,9 +1297,29 @@ bool MainWindow::runCommand()
 
         //moving to the first point axes X and Y
         //TODO: spindle move higher, now 10 mm
-        cnc->packCA(cnc->coord[X].startPos, cnc->coord[Y].startPos, cnc->coord[Z].startPos + 10.0, cnc->coord[A].startPos, userSpeedG0, 0, 0, 0.0);
+        moveParameters mParams;
+        mParams.posX = cnc->coord[X].startPos;
+        mParams.posY = cnc->coord[Y].startPos;
+        mParams.posZ = cnc->coord[Z].startPos + 10.0;
+        mParams.posA = cnc->coord[A].startPos;//, userSpeedG0;
+        mParams.speed = gcodeNow.maxSpeed;
+        mParams.code = 0x39; //gcodeNow.accelCode;
+        mParams.restPulses = 0;//gcodeNow.stepsCounter;
+        mParams.numberInstruction = 0;
 
-        cnc->packCA(gcodeNow.X, gcodeNow.Y, cnc->coord[Z].startPos + 10.0, gcodeNow.A , userSpeedG0, gcodeNow.angleVectors, gcodeNow.Distance);
+        cnc->packCA(&mParams); // move to init position
+
+        mParams.posX = gcodeNow.X;
+        mParams.posY = gcodeNow.Y;
+        mParams.posZ = gcodeNow.Z + 10.0;
+        mParams.posA = gcodeNow.A;//, userSpeedG0;
+        mParams.speed = gcodeNow.maxSpeed;
+        mParams.code = gcodeNow.accelCode;
+        mParams.restPulses = gcodeNow.stepsCounter;
+        mParams.numberInstruction = Task::instructionNow;
+
+        cnc->packCA(&mParams); // move to init position
+        //         cnc->packCA(gcodeNow.X, gcodeNow.Y, cnc->coord[Z].startPos + 10.0, gcodeNow.A , userSpeedG0, gcodeNow.angleVectors, gcodeNow.Distance);
 
         Task::Status = Working;
 
@@ -1366,17 +1387,17 @@ bool MainWindow::runCommand()
     }
 
     //command G4 or M0
-    if (gcodeNow.needPause) {
-        if (gcodeNow.mSeconds == 0) { // M0 - waiting command
+    if (gcodeNow.pauseMSeconds != -1) {
+        if (gcodeNow.pauseMSeconds == 0) { // M0 - waiting command
             Task::Status = Paused;
 
             //pause before user click
             MessageBox::exec(this, translate(_PAUSE), translate(_RECIEVED_M0), QMessageBox::Information);
         } else {
             QString msg = translate(_PAUSE_G4);
-            statusLabel2->setText( msg.arg(QString::number(gcodeNow.mSeconds)));
+            statusLabel2->setText( msg.arg(QString::number(gcodeNow.pauseMSeconds)));
 
-            QThread().wait(gcodeNow.mSeconds); // pause in msec
+            QThread().wait(gcodeNow.pauseMSeconds); // pause in msec
 
             statusLabel2->setText( "" );
         }
@@ -1418,11 +1439,25 @@ bool MainWindow::runCommand()
         }
     }
 
-    //TODO: additional velocity control manual/automatical
-    int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
+    {
+        //TODO: additional velocity control manual/automatical
+        //     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
 
-    //     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
-    cnc->packCA(pointX, pointY, pointZ, pointA, speed, Task::instructionNow++, 0.0, 0);
+        moveParameters mParams;
+        mParams.posX = pointX;
+        mParams.posY = pointY;
+        mParams.posZ = pointZ;
+        mParams.posA = pointA;//, userSpeedG0;
+        mParams.speed = gcodeNow.maxSpeed;
+        mParams.code = gcodeNow.accelCode; //
+        mParams.restPulses = gcodeNow.stepsCounter;//
+        mParams.numberInstruction = Task::instructionNow++;
+
+        cnc->packCA(&mParams); // move to init position
+        //     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
+        //     cnc->packCA(pointX, pointY, pointZ, pointA, speed, Task::instructionNow++, 0.0, 0);
+
+    }
 
     //     Task::posCodeNow++;
     labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::lineCodeNow + 1));
@@ -1507,7 +1542,20 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
     cnc->packC0();
 
-    cnc->packCA(posX, posY, posZ, posA, speed, 0, 0.0, 0);
+    {
+        moveParameters mParams;
+        mParams.posX = posX;
+        mParams.posY = posY;
+        mParams.posZ = posZ;
+        mParams.posA = posA;//, userSpeedG0;
+        mParams.speed = speed;
+        mParams.code = 0x39; //gcodeNow.accelCode;
+        mParams.restPulses = 0;//gcodeNow.stepsCounter;
+        mParams.numberInstruction = 0;
+
+        //         cnc->packCA(posX, posY, posZ, posA, speed, 0, 0.0, 0);
+        cnc->packCA(&mParams);
+    }
 
     cnc->packFF();
 
@@ -1798,14 +1846,14 @@ void  MainWindow::refreshElementsForms()
 
     byte bb15 = cnc->getByte(15);
 
-    maxXLED->setPixmap( bb15 & (1 << 0) ? redPix : greenPix /*cnc->coord[X].limitMax ? redPix : greenPix*/ );
-    minXLED->setPixmap( bb15 & (1 << 1) ? redPix : greenPix /*cnc->coord[X].limitMin ? redPix : greenPix*/ );
-    maxYLED->setPixmap( bb15 & (1 << 2) ? redPix : greenPix /*cnc->coord[Y].limitMax ? redPix : greenPix*/ );
-    minYLED->setPixmap( bb15 & (1 << 3) ? redPix : greenPix /*cnc->coord[Y].limitMin ? redPix : greenPix*/ );
-    maxZLED->setPixmap( bb15 & (1 << 4) ? redPix : greenPix /* cnc->coord[Z].limitMax ? redPix : greenPix*/ );
-    minZLED->setPixmap( bb15 & (1 << 5) ? redPix : greenPix /*cnc->coord[Z].limitMin ? redPix : greenPix*/ );
-    maxALED->setPixmap( bb15 & (1 << 6) ? redPix : greenPix /*cnc->coord[A].limitMax ? redPix : greenPix */);
-    minALED->setPixmap( bb15 & (1 << 7) ? redPix : greenPix /*cnc->coord[A].limitMin ? redPix : greenPix */);
+    maxXLED->setPixmap( bb15 & (1 << 0) ? redPix : greenPix );
+    minXLED->setPixmap( bb15 & (1 << 1) ? redPix : greenPix );
+    maxYLED->setPixmap( bb15 & (1 << 2) ? redPix : greenPix );
+    minYLED->setPixmap( bb15 & (1 << 3) ? redPix : greenPix );
+    maxZLED->setPixmap( bb15 & (1 << 4) ? redPix : greenPix );
+    minZLED->setPixmap( bb15 & (1 << 5) ? redPix : greenPix );
+    maxALED->setPixmap( bb15 & (1 << 6) ? redPix : greenPix );
+    minALED->setPixmap( bb15 & (1 << 7) ? redPix : greenPix );
 
     //***************
 
@@ -2021,16 +2069,14 @@ void MainWindow::fixGCodeList()
     cnc->coord[X].softLimitMax = GCodeList[0].X;
     cnc->coord[Y].softLimitMin = GCodeList[0].Y;
     cnc->coord[Y].softLimitMax = GCodeList[0].Y;
+    cnc->coord[Z].softLimitMin = GCodeList[0].Z;
+    cnc->coord[Z].softLimitMax = GCodeList[0].Z;
 
     maxLookaheadAngleRad = maxLookaheadAngle * PI / 180.0;// grad to rad
     qDebug() << "max angle" << maxLookaheadAngle << " in rad: " << maxLookaheadAngleRad;
 
-    // Вычисление угла между отрезками
-    for (int numPos = 1; numPos < GCodeList.count(); numPos++) {
-        float xn = GCodeList[numPos].X - GCodeList[numPos - 1].X;
-        float yn = GCodeList[numPos].Y - GCodeList[numPos - 1].Y;
-        float zn = GCodeList[numPos].Z - GCodeList[numPos - 1].Z;
-
+    //
+    for (int numPos = 0; numPos < GCodeList.count() - 2; numPos++) {
         if (GCodeList[numPos].X > cnc->coord[X].softLimitMax) {
             cnc->coord[X].softLimitMax = GCodeList[numPos].X;
         }
@@ -2047,76 +2093,53 @@ void MainWindow::fixGCodeList()
             cnc->coord[Y].softLimitMin = GCodeList[numPos].Y;
         }
 
-        //длина отрезка
-        GCodeList[numPos].Distance = sqrt((xn * xn) + (yn * yn) + (zn * zn));
+        if (GCodeList[numPos].Z > cnc->coord[Z].softLimitMax) {
+            cnc->coord[Z].softLimitMax = GCodeList[numPos].Z;
+        }
 
-        if (numPos > GCodeList.count() - 2) {
-            continue;    //первую и последнюю точку не трогаем
+        if (GCodeList[numPos].Z < cnc->coord[Z].softLimitMin) {
+            cnc->coord[Z].softLimitMin = GCodeList[numPos].Z;
         }
 
         // calculate the number of steps in one direction, if exists
-        if (fabs (GCodeList[numPos - 1].angleVectors - GCodeList[numPos].angleVectors) <= maxLookaheadAngleRad) {
+        if (GCodeList[numPos].angleVectors <= maxLookaheadAngleRad) {
             GCodeList[numPos].changeDirection = false;
 
             //         if ((GCodeList[numPos - 1].angleVectors == GCodeList[numPos].angleVectors) && (GCodeList[numPos - 1].plane == GCodeList[numPos].plane)) {
-            if (GCodeList[numPos - 1].stepsCounter == 0) {
-                calculateRestSteps(numPos - 1);
+            if (GCodeList[numPos].stepsCounter == 0) {
+                numPos = calculateRestSteps(numPos); // and update the pos
             }
         } else {
             GCodeList[numPos].changeDirection = true;
+
+            patchSpeed(numPos, numPos + 1);
+
+            if (GCodeList[numPos].workspeed == true) { // feed
+                GCodeList[numPos].accelCode = 0x31;
+            } else {
+                GCodeList[numPos].accelCode = 0x39;
+            }
         }
-
-#if 0
-        // получим 3 точки
-        float xa = GCodeList[numPos - 1].X - GCodeList[numPos].X;
-        float ya = GCodeList[numPos - 1].Y - GCodeList[numPos].Y;
-        float za = GCodeList[numPos - 1].Z - GCodeList[numPos].Z;
-        float xb = GCodeList[numPos + 1].X - GCodeList[numPos].X;
-        float yb = GCodeList[numPos + 1].Y - GCodeList[numPos].Y;
-        float zb = GCodeList[numPos + 1].Z - GCodeList[numPos].Z;
-
-        float angle = acos(   (xa * xb + ya * yb + za * zb) /  ( sqrt(xa * xa + ya * ya + za * za) * sqrt(xb * xb + yb * yb + zb * zb )));
-        float angle1 = angle * 180 / PI;
-
-        GCodeList[numPos].angleVectors = (int)angle1;
-#endif
     }
+
+#if 1
+
+    // now debug
+    for (int i = 0; i < GCodeList.count(); i++) {
+        qDebug() << i << "instruction" << GCodeList[i].numberInstruct << "line" << GCodeList[i].numberLine << "accel" << GCodeList[i].accelCode 
+        << "steps" << GCodeList[i].stepsCounter << "speed" << GCodeList[i].maxSpeed;
+    }
+
+#endif
 }
 
 
-void MainWindow::calculateRestSteps(int startPos)
+void MainWindow::patchSpeed(int begPos, int endPos)
 {
-    int endPos = startPos;
-
-    if (startPos > GCodeList.count()) {
-        qDebug() << "steps counter bigger than list";
-        return;
-    }
-
-    //     if (GCodeList[startPos].stepsCounter != 0){
-    //         qDebug() << "steps counter already calculated";
-    //         return;
-    //     }
-
-    for(QList<GCodeCommand>::iterator ic = GCodeList.begin() + startPos; ic != GCodeList.end(); ++ic) {
-        if (fabs ((*ic).angleVectors - GCodeList[startPos].angleVectors) <= maxLookaheadAngleRad) {
-            //         if (((*ic).angleVectors == GCodeList[startPos].angleVectors) &&
-            //                 ((*ic).plane == GCodeList[startPos].plane) ) {
-            endPos++;
-        } else {
-            break;
-        }
-    }
-
-    if ((endPos - startPos) == 2){
-        GCodeList[startPos].changeDirection = true;
-        return;
-    }
-
-    switch (GCodeList[startPos].plane) {
+    switch (GCodeList[begPos].plane) {
         case XY: {
-            float dX = fabs(GCodeList[startPos].X - GCodeList[endPos - 1].X);
-            float dY = fabs(GCodeList[startPos].Y - GCodeList[endPos - 1].Y);
+            float dX = fabs(GCodeList[begPos].X - GCodeList[endPos].X);
+            float dY = fabs(GCodeList[begPos].Y - GCodeList[endPos].Y);
             float dH = sqrt(dX * dX + dY * dY);
             float coeff = 0;
 
@@ -2125,39 +2148,47 @@ void MainWindow::calculateRestSteps(int startPos)
                     coeff = dH / dX;
                 }
 
-                for (int i = startPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[X].pulsePerMm * fabs(GCodeList[i].X -  GCodeList[endPos - 1].X);
+                for (int i = begPos; i < endPos; i++) {
+                    GCodeList[i].stepsCounter =  (int) cnc->coord[X].pulsePerMm * fabs(GCodeList[i].X - GCodeList[endPos].X);
                     float dnewSpdX  = 3600; // 3584?
 
                     if (cnc->coord[X].maxVelo != 0 && cnc->coord[X].pulsePerMm != 0) {
                         dnewSpdX = 7.2e8 / ((float)cnc->coord[X].maxVelo * cnc->coord[X].pulsePerMm);
                     }
 
-                    GCodeList[i].maxCoeff = coeff * dnewSpdX; //
+                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdX; //
+                    GCodeList[i].accelCode = 0x1;
                 }
+
+                GCodeList[begPos].accelCode = 0x11;
+                GCodeList[endPos].accelCode = 0x21;
             } else {
                 if (dY != 0.0) {
                     coeff = dH / dY;
                 }
 
-                for (int i = startPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[Y].pulsePerMm * fabs(GCodeList[i].Y -  GCodeList[endPos - 1].Y);
+                for (int i = begPos; i < endPos; i++) {
+                    GCodeList[i].stepsCounter =  (int) cnc->coord[Y].pulsePerMm * fabs(GCodeList[i].Y - GCodeList[endPos].Y);
                     float dnewSpdY  = 3600; // 3584?
 
                     if (cnc->coord[Y].maxVelo != 0 && cnc->coord[Y].pulsePerMm != 0) {
                         dnewSpdY = 7.2e8 / ((float)cnc->coord[Y].maxVelo * cnc->coord[Y].pulsePerMm);
                     }
 
-                    GCodeList[i].maxCoeff = coeff * dnewSpdY; //
+                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdY; //
+                    GCodeList[i].accelCode = 0x1;
                 }
+
+                GCodeList[begPos].accelCode = 0x11;
+                GCodeList[endPos].accelCode = 0x21;
             }
 
             break;
         }
 
         case YZ: {
-            float dY = fabs(GCodeList[startPos].Y - GCodeList[endPos - 1].Y);
-            float dZ = fabs(GCodeList[startPos].Z - GCodeList[endPos - 1].Z);
+            float dY = fabs(GCodeList[begPos].Y - GCodeList[endPos].Y);
+            float dZ = fabs(GCodeList[begPos].Z - GCodeList[endPos].Z);
             float dH = sqrt(dZ * dZ + dY * dY);
             float coeff = 0;
 
@@ -2166,39 +2197,47 @@ void MainWindow::calculateRestSteps(int startPos)
                     coeff = dH / dY;
                 }
 
-                for (int i = startPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[Y].pulsePerMm * fabs(GCodeList[i].Y -  GCodeList[endPos - 1].Y);
+                for (int i = begPos; i < endPos; i++) {
+                    GCodeList[i].stepsCounter =  (int) cnc->coord[Y].pulsePerMm * fabs(GCodeList[i].Y - GCodeList[endPos].Y);
                     float dnewSpdY  = 3600; // 3584?
 
                     if (cnc->coord[Y].maxVelo != 0 && cnc->coord[Y].pulsePerMm != 0) {
                         dnewSpdY = 7.2e8 / ((float)cnc->coord[Y].maxVelo * cnc->coord[Y].pulsePerMm);
                     }
 
-                    GCodeList[i].maxCoeff = coeff * dnewSpdY; //
+                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdY; //
+                    GCodeList[i].accelCode = 0x1;
                 }
+
+                GCodeList[begPos].accelCode = 0x11;
+                GCodeList[endPos].accelCode = 0x21;
             } else {
                 if (dZ != 0.0) {
                     coeff = dH / dZ;
                 }
 
-                for (int i = startPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[Z].pulsePerMm * fabs(GCodeList[i].Z -  GCodeList[endPos - 1].Z);
+                for (int i = begPos; i < endPos; i++) {
+                    GCodeList[i].stepsCounter =  (int) cnc->coord[Z].pulsePerMm * fabs(GCodeList[i].Z - GCodeList[endPos].Z);
                     float dnewSpdZ  = 3600; // 3584?
 
                     if (cnc->coord[Z].maxVelo != 0 && cnc->coord[Z].pulsePerMm != 0) {
                         dnewSpdZ = 7.2e8 / ((float)cnc->coord[Z].maxVelo * cnc->coord[Z].pulsePerMm);
                     }
 
-                    GCodeList[i].maxCoeff = coeff * dnewSpdZ; //
+                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdZ; //
+                    GCodeList[i].accelCode = 0x1;
                 }
+
+                GCodeList[begPos].accelCode = 0x11;
+                GCodeList[endPos].accelCode = 0x21;
             }
 
             break;
         }
 
         case ZX: {
-            float dZ = fabs(GCodeList[startPos].Z - GCodeList[endPos - 1].Z);
-            float dX = fabs(GCodeList[startPos].X - GCodeList[endPos - 1].X);
+            float dZ = fabs(GCodeList[begPos].Z - GCodeList[endPos].Z);
+            float dX = fabs(GCodeList[begPos].X - GCodeList[endPos].X);
             float dH = sqrt(dX * dX + dZ * dZ);
             float coeff = 0;
 
@@ -2207,40 +2246,98 @@ void MainWindow::calculateRestSteps(int startPos)
                     coeff = dH / dZ;
                 }
 
-                for (int i = startPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[Z].pulsePerMm * fabs(GCodeList[i].Z -  GCodeList[endPos - 1].Z);
+                for (int i = begPos; i < endPos; i++) {
+                    GCodeList[i].stepsCounter =  (int) cnc->coord[Z].pulsePerMm * fabs(GCodeList[i].Z - GCodeList[endPos].Z);
                     float dnewSpdZ  = 3600; // 3584?
 
                     if (cnc->coord[Z].maxVelo != 0 && cnc->coord[Z].pulsePerMm != 0) {
                         dnewSpdZ = 7.2e8 / ((float)cnc->coord[Z].maxVelo * cnc->coord[Z].pulsePerMm);
                     }
 
-                    GCodeList[i].maxCoeff = coeff * dnewSpdZ; //
+                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdZ; //
+                    GCodeList[i].accelCode = 0x1;
                 }
+
+                GCodeList[begPos].accelCode = 0x11;
+                GCodeList[endPos].accelCode = 0x21;
             } else {
                 if (dX != 0.0) {
                     coeff = dH / dX;
                 }
 
-                for (int i = startPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[X].pulsePerMm * fabs(GCodeList[i].X -  GCodeList[endPos - 1].X);
+                for (int i = begPos; i < endPos; i++) {
+                    GCodeList[i].stepsCounter =  (int) cnc->coord[X].pulsePerMm * fabs(GCodeList[i].X - GCodeList[endPos].X);
                     float dnewSpdX  = 3600; // 3584?
 
                     if (cnc->coord[X].maxVelo != 0 && cnc->coord[X].pulsePerMm != 0) {
                         dnewSpdX = 7.2e8 / ((float)cnc->coord[X].maxVelo * cnc->coord[X].pulsePerMm);
                     }
 
-                    GCodeList[i].maxCoeff = coeff * dnewSpdX; //
+                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdX; //
+                    GCodeList[i].accelCode = 0x1;
                 }
+
+                GCodeList[begPos].accelCode = 0x11;   // acceleration
+                GCodeList[endPos].accelCode = 0x21; // deceleration
             }
 
             break;
         }
 
         default: {
-            qDebug() << "no plane information: x" << GCodeList[startPos].X << "y" << GCodeList[startPos].Y << "z" << GCodeList[startPos].Z;
+            qDebug() << "no plane information: pos " << begPos << "x" << GCodeList[begPos].X << "y" << GCodeList[begPos].Y << "z" << GCodeList[begPos].Z;
         }
     }
+}
+
+
+int MainWindow::calculateRestSteps(int startPos)
+{
+    int endPos = startPos;
+
+    if (startPos > GCodeList.count()) {
+        qDebug() << "steps counter bigger than list";
+        return -1;
+    }
+
+    //     if (GCodeList[startPos].stepsCounter != 0){
+    //         qDebug() << "steps counter already calculated";
+    //         return;
+    //     }
+
+    for(QList<GCodeCommand>::iterator ic = GCodeList.begin() + startPos; ic != GCodeList.end() - 1; ++ic) {
+//         float currentAngle = (*ic).angleVectors;
+//         ic++;
+//         float nextAngle = (*ic).angleVectors;
+
+        if ((*ic).angleVectors <= maxLookaheadAngleRad) {
+            //         if (((*ic).angleVectors == GCodeList[startPos].angleVectors) &&
+            //                 ((*ic).plane == GCodeList[startPos].plane) ) {
+            endPos++;
+        } else {
+            break;
+        }
+    }
+
+    if ((endPos - startPos) < 2) {
+        GCodeList[startPos].changeDirection = true;
+
+        if (GCodeList[startPos].workspeed == true) { // cutting
+            GCodeList[startPos].accelCode = 0x31;
+        } else {
+            GCodeList[startPos].accelCode = 0x39;
+        }
+
+        patchSpeed(startPos, endPos);
+        GCodeList[startPos].stepsCounter = 0;
+
+        return startPos+1;
+    }
+
+    qDebug() << "rest steps: " << GCodeList[startPos].numberLine << GCodeList[endPos].numberLine;
+    patchSpeed(startPos, endPos);
+    
+    return endPos;
 }
 
 

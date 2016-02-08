@@ -1534,64 +1534,52 @@ void mk1Data::packC8(int x, int y, int z, int a, bool send)
     }
 }
 
+#if 0
 // recalculate from mm/inch to pulses
-void mk1Data::packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, float distance, int _pause, bool send)
+void mk1Data::packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, int _code, bool send)
 {
     int xPulses = coord[X].posPulse(_posX);
     int yPulses = coord[Y].posPulse(_posY);
     int zPulses = coord[Z].posPulse(_posZ);
     int aPulses = coord[A].posPulse(_posA);
 
-    packCA(xPulses, yPulses, zPulses, aPulses, _speed, _NumberInstruction, distance, _pause, send);
+    packCA(xPulses, yPulses, zPulses, aPulses, _speed, _NumberInstruction, _code, send);
 }
-
+#endif
 
 //
 // moving to the point
 //
-void mk1Data::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, float distance, int _pause, bool send)
+// void mk1Data::packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, int _code, bool send)
+void mk1Data::packCA(moveParameters *params, bool send)
 {
-    int newInst = _NumberInstruction;
+    int newInst = params->numberInstruction;
 
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xca;
 
-    //save the number instruction
+    // save the number instruction
     packFourBytes(1, newInst);
 
-    if (distance > 0.0 && distance < 5.0) {
-        writeBuf[5] = 0x03;
-    } else {
-        writeBuf[5] = _pause; //TODO: delay in µs? was 0x39
-    }
+    writeBuf[5] = params->code;
+
+    int pulsesX  = coord[X].posPulse(params->posX);
+    int pulsesY  = coord[Y].posPulse(params->posY);
+    int pulsesZ  = coord[Z].posPulse(params->posZ);
+    int pulsesA  = coord[A].posPulse(params->posA);
 
     //how many pulses
-    packFourBytes(6, _posX);
-    packFourBytes(10, _posY);
-    packFourBytes(14, _posZ);
-    packFourBytes(18, _posA);
-
-
-    //     int inewSpd = 2328; //TODO: default velocity
-    //
-    //     if (_speed != 0) {
-    //         float dnewSpd = (3600.0 / (float)_speed) * 1000.0;
-    //         inewSpd = (int)dnewSpd;
-    //     }
-
-    int inewSpd = 3600;
-
-    if (_speed != 0 && coord[X].pulsePerMm != 0) {
-        inewSpd = 7.2e8 / ((float)_speed * coord[X].pulsePerMm);
-    }
+    packFourBytes(6, pulsesX );
+    packFourBytes(10, pulsesY );
+    packFourBytes(14, pulsesZ );
+    packFourBytes(18, pulsesA );
 
     //axes xspeed
-    packFourBytes(43, inewSpd);
+    packFourBytes(43, params->speed); // vector speed
 
-    // todo: unknown 4 byte from offset 46
-    int unk = 0;
-    packFourBytes(46, unk);
+    // offset 46
+    packFourBytes(46, params->restPulses); // if 0x31 or  0x39 should be zero
 
     writeBuf[54] = 0x40;  //TODO: unknown byte
 

@@ -56,10 +56,22 @@
 class mk1Controller;
 
 
+struct moveParameters {
+    float posX;
+    float posY;
+    float posZ;
+    float posA;
+    int   restPulses; // offset 46
+    int   speed; // vector speed, offset 43
+    int   numberInstruction;
+    int   code; // 0x39, 0x31, 0x21, 0x11, 0x01, offset 5
+};
+
 class usbHotplugThread : public QThread
 {
         Q_OBJECT
-        void run() {
+        void run()
+        {
             /* expensive or blocking operation  */
             while(true) {
                 int r = libusb_handle_events(NULL);
@@ -129,7 +141,7 @@ class mk1Settings
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2
 
         static bool setSettings;
-        static int spindleMoveSpeed;
+        static int  spindleMoveSpeed;
         static bool spindleEnabled;
         static bool mistEnabled;
         static bool fluidEnabled;
@@ -167,8 +179,9 @@ class mk1Data : public mk1Settings
         void pack9E(byte value, bool send = true);
         void pack9F( bool send = true);
         void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
-        void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, float distance, int _pause = 0x39, bool send = true);
-        void packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, float distance, int _pause = 0x39, bool send = true);
+        //         void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, int _code, bool send = true);
+        //         void packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, int _code, bool send = true);
+        void packCA(moveParameters *params, bool send = true);
         void packFF(bool send = true);
         void pack9D(bool send = true);
         void setByte(byte offset, byte data);
@@ -304,10 +317,12 @@ class usbReadThread : public QThread
 {
         Q_OBJECT
     public:
-        usbReadThread(QObject *parent) : QThread(parent) {
+        usbReadThread(QObject *parent) : QThread(parent)
+        {
             p = (mk1Controller*)parent;
         }
-        void run() {
+        void run()
+        {
             // init of read array
             memset( buf, 0x0, BUFFER_SIZE);
 
