@@ -60,88 +60,88 @@ SettingsDialog::SettingsDialog(QWidget *p)
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    checkXmin->setChecked(cnc->coord[X].useLimitMin);
-    checkXplus->setChecked(cnc->coord[X].useLimitMax);
-    checkYmin->setChecked(cnc->coord[Y].useLimitMin);
-    checkYplus->setChecked(cnc->coord[Y].useLimitMax);
-    checkZmin->setChecked(cnc->coord[Z].useLimitMin);
-    checkZplus->setChecked(cnc->coord[Z].useLimitMax);
-    checkAmin->setChecked(cnc->coord[A].useLimitMin);
-    checkAplus->setChecked(cnc->coord[A].useLimitMax);
+    checkXmin->setChecked(Settings::coord[X].useLimitMin);
+    checkXplus->setChecked(Settings::coord[X].useLimitMax);
+    checkYmin->setChecked(Settings::coord[Y].useLimitMin);
+    checkYplus->setChecked(Settings::coord[Y].useLimitMax);
+    checkZmin->setChecked(Settings::coord[Z].useLimitMin);
+    checkZplus->setChecked(Settings::coord[Z].useLimitMax);
+    checkAmin->setChecked(Settings::coord[A].useLimitMin);
+    checkAplus->setChecked(Settings::coord[A].useLimitMax);
 
-    checkInvertSwitchXmin->setChecked(cnc->coord[X].invLimitMin);
-    checkInvertSwitchXplu->setChecked(cnc->coord[X].invLimitMax);
-    checkInvertSwitchYmin->setChecked(cnc->coord[Y].invLimitMin);
-    checkInvertSwitchYplu->setChecked(cnc->coord[Y].invLimitMax);
-    checkInvertSwitchZmin->setChecked(cnc->coord[Z].invLimitMin);
-    checkInvertSwitchZplu->setChecked(cnc->coord[Z].invLimitMax);
-    checkInvertSwitchAmin->setChecked(cnc->coord[A].invLimitMin);
-    checkInvertSwitchAplu->setChecked(cnc->coord[A].invLimitMax);
+    checkInvertSwitchXmin->setChecked(Settings::coord[X].invLimitMin);
+    checkInvertSwitchXplu->setChecked(Settings::coord[X].invLimitMax);
+    checkInvertSwitchYmin->setChecked(Settings::coord[Y].invLimitMin);
+    checkInvertSwitchYplu->setChecked(Settings::coord[Y].invLimitMax);
+    checkInvertSwitchZmin->setChecked(Settings::coord[Z].invLimitMin);
+    checkInvertSwitchZplu->setChecked(Settings::coord[Z].invLimitMax);
+    checkInvertSwitchAmin->setChecked(Settings::coord[A].invLimitMin);
+    checkInvertSwitchAplu->setChecked(Settings::coord[A].invLimitMax);
 
     spinBoxLookLines->setValue(splitsPerMm);
     spinBoxLookLines->setValue(maxLookaheadAngle);
 
-    checkSoftX->setChecked(cnc->coord[X].checkSoftLimits);
-    checkSwapX->setChecked(cnc->coord[X].invertDirection);
-    checkUseX->setChecked(cnc->coord[X].enabled);
-    backlashX->setValue(cnc->coord[X].backlash);
-    doubleXmin->setValue(cnc->coord[X].softLimitMin);
-    doubleXmax->setValue(cnc->coord[X].softLimitMax);
-    doubleRangeMinX->setValue(cnc->coord[X].workAreaMin);
-    doubleRangeMaxX->setValue(cnc->coord[X].workAreaMax);
-    checkInvStepsX->setChecked(cnc->coord[X].invertPulses);
+    checkSoftX->setChecked(Settings::coord[X].checkSoftLimits);
+    checkSwapX->setChecked(Settings::coord[X].invertDirection);
+    checkUseX->setChecked(Settings::coord[X].enabled);
+    backlashX->setValue(Settings::coord[X].backlash);
+    doubleXmin->setValue(Settings::coord[X].softLimitMin);
+    doubleXmax->setValue(Settings::coord[X].softLimitMax);
+    doubleRangeMinX->setValue(Settings::coord[X].workAreaMin);
+    doubleRangeMaxX->setValue(Settings::coord[X].workAreaMax);
+    checkInvStepsX->setChecked(Settings::coord[X].invertPulses);
 
-    checkSoftY->setChecked(cnc->coord[Y].checkSoftLimits);
-    checkSwapY->setChecked(cnc->coord[Y].invertDirection);
-    checkUseY->setChecked(cnc->coord[Y].enabled);
-    backlashY->setValue(cnc->coord[Y].backlash);
-    doubleYmin->setValue(cnc->coord[Y].softLimitMin);
-    doubleYmax->setValue(cnc->coord[Y].softLimitMax);
-    doubleRangeMinY->setValue(cnc->coord[Y].workAreaMin);
-    doubleRangeMaxY->setValue(cnc->coord[Y].workAreaMax);
-    checkInvStepsY->setChecked(cnc->coord[Y].invertPulses);
+    checkSoftY->setChecked(Settings::coord[Y].checkSoftLimits);
+    checkSwapY->setChecked(Settings::coord[Y].invertDirection);
+    checkUseY->setChecked(Settings::coord[Y].enabled);
+    backlashY->setValue(Settings::coord[Y].backlash);
+    doubleYmin->setValue(Settings::coord[Y].softLimitMin);
+    doubleYmax->setValue(Settings::coord[Y].softLimitMax);
+    doubleRangeMinY->setValue(Settings::coord[Y].workAreaMin);
+    doubleRangeMaxY->setValue(Settings::coord[Y].workAreaMax);
+    checkInvStepsY->setChecked(Settings::coord[Y].invertPulses);
 
-    checkSoftZ->setChecked(cnc->coord[Z].checkSoftLimits);
-    checkSwapZ->setChecked(cnc->coord[Z].invertDirection);
-    checkUseZ->setChecked(cnc->coord[Z].enabled);
-    backlashZ->setValue(cnc->coord[Z].backlash);
-    doubleZmin->setValue(cnc->coord[Z].softLimitMin);
-    doubleZmax->setValue(cnc->coord[Z].softLimitMax);
-    doubleRangeMinZ->setValue(cnc->coord[Z].workAreaMin);
-    doubleRangeMaxZ->setValue(cnc->coord[Z].workAreaMax);
-    checkInvStepsZ->setChecked(cnc->coord[Z].invertPulses);
+    checkSoftZ->setChecked(Settings::coord[Z].checkSoftLimits);
+    checkSwapZ->setChecked(Settings::coord[Z].invertDirection);
+    checkUseZ->setChecked(Settings::coord[Z].enabled);
+    backlashZ->setValue(Settings::coord[Z].backlash);
+    doubleZmin->setValue(Settings::coord[Z].softLimitMin);
+    doubleZmax->setValue(Settings::coord[Z].softLimitMax);
+    doubleRangeMinZ->setValue(Settings::coord[Z].workAreaMin);
+    doubleRangeMaxZ->setValue(Settings::coord[Z].workAreaMax);
+    checkInvStepsZ->setChecked(Settings::coord[Z].invertPulses);
 
-    checkSoftA->setChecked(cnc->coord[A].checkSoftLimits);
-    checkSwapA->setChecked(cnc->coord[A].invertDirection);
-    checkUseA->setChecked(cnc->coord[A].enabled);
-    backlashA->setValue(cnc->coord[A].backlash);
-    doubleAmin->setValue(cnc->coord[A].softLimitMin);
-    doubleAmax->setValue(cnc->coord[A].softLimitMax);
-    doubleRangeMinA->setValue(cnc->coord[A].workAreaMin);
-    doubleRangeMaxA->setValue(cnc->coord[A].workAreaMax);
-    checkInvStepsA->setChecked(cnc->coord[A].invertPulses);
+    checkSoftA->setChecked(Settings::coord[A].checkSoftLimits);
+    checkSwapA->setChecked(Settings::coord[A].invertDirection);
+    checkUseA->setChecked(Settings::coord[A].enabled);
+    backlashA->setValue(Settings::coord[A].backlash);
+    doubleAmin->setValue(Settings::coord[A].softLimitMin);
+    doubleAmax->setValue(Settings::coord[A].softLimitMax);
+    doubleRangeMinA->setValue(Settings::coord[A].workAreaMin);
+    doubleRangeMaxA->setValue(Settings::coord[A].workAreaMax);
+    checkInvStepsA->setChecked(Settings::coord[A].invertPulses);
 
-    numPulseX->setValue(cnc->coord[X].pulsePerMm);
-    numPulseY->setValue(cnc->coord[Y].pulsePerMm);
-    numPulseZ->setValue(cnc->coord[Z].pulsePerMm);
-    numPulseA->setValue(cnc->coord[A].pulsePerMm);
+    numPulseX->setValue(Settings::coord[X].pulsePerMm);
+    numPulseY->setValue(Settings::coord[Y].pulsePerMm);
+    numPulseZ->setValue(Settings::coord[Z].pulsePerMm);
+    numPulseA->setValue(Settings::coord[A].pulsePerMm);
 
-    doubleSpinStartX->setValue(cnc->coord[X].minVelo);
-    doubleSpinStartY->setValue(cnc->coord[Y].minVelo);
-    doubleSpinStartZ->setValue(cnc->coord[Z].minVelo);
-    doubleSpinStartA->setValue(cnc->coord[A].minVelo);
+    doubleSpinStartX->setValue(Settings::coord[X].minVelo);
+    doubleSpinStartY->setValue(Settings::coord[Y].minVelo);
+    doubleSpinStartZ->setValue(Settings::coord[Z].minVelo);
+    doubleSpinStartA->setValue(Settings::coord[A].minVelo);
 
-    doubleSpinEndX->setValue(cnc->coord[X].maxVelo);
-    doubleSpinEndY->setValue(cnc->coord[Y].maxVelo);
-    doubleSpinEndZ->setValue(cnc->coord[Z].maxVelo);
-    doubleSpinEndA->setValue(cnc->coord[A].maxVelo);
+    doubleSpinEndX->setValue(Settings::coord[X].maxVelo);
+    doubleSpinEndY->setValue(Settings::coord[Y].maxVelo);
+    doubleSpinEndZ->setValue(Settings::coord[Z].maxVelo);
+    doubleSpinEndA->setValue(Settings::coord[A].maxVelo);
 
-    doubleSpinAccelX->setValue(cnc->coord[X].acceleration);
-    doubleSpinAccelY->setValue(cnc->coord[Y].acceleration);
-    doubleSpinAccelZ->setValue(cnc->coord[Z].acceleration);
-    doubleSpinAccelA->setValue(cnc->coord[A].acceleration);
+    doubleSpinAccelX->setValue(Settings::coord[X].acceleration);
+    doubleSpinAccelY->setValue(Settings::coord[Y].acceleration);
+    doubleSpinAccelZ->setValue(Settings::coord[Z].acceleration);
+    doubleSpinAccelA->setValue(Settings::coord[A].acceleration);
 
-    checkBoxDemoController->setChecked(cnc->DEMO_DEVICE);
+    checkBoxDemoController->setChecked(Settings::DEMO_DEVICE);
 
     translateDialog();
 
@@ -185,7 +185,7 @@ void SettingsDialog::translateDialog()
 
     tabWidget->setCurrentIndex(0);
     tabWidget->tabBar()->setFixedHeight(0);
-    tabWidget->tabBar()->setMaximumWidth(500);
+    //     tabWidget->tabBar()->setMaximumWidth(500);
     tabWidget->setStyleSheet("QTabBar::tab { height: 0px; width: 0px; border: 0px solid #333; }" );
 
     //     tabWidget->setTabText(0, translate(_WORKTABLE));
@@ -217,85 +217,85 @@ void SettingsDialog::onSelection(QListWidgetItem* it)
 
 void SettingsDialog::onSave()
 {
-    cnc->coord[X].useLimitMin = checkXmin->isChecked();
-    cnc->coord[X].useLimitMax = checkXplus->isChecked();
-    cnc->coord[Y].useLimitMin = checkYmin->isChecked();
-    cnc->coord[Y].useLimitMax = checkYplus->isChecked();
-    cnc->coord[Z].useLimitMin = checkZmin->isChecked();
-    cnc->coord[Z].useLimitMax = checkZplus->isChecked();
-    cnc->coord[A].useLimitMin = checkAmin->isChecked();
-    cnc->coord[A].useLimitMax = checkAplus->isChecked();
+    Settings::coord[X].useLimitMin = checkXmin->isChecked();
+    Settings::coord[X].useLimitMax = checkXplus->isChecked();
+    Settings::coord[Y].useLimitMin = checkYmin->isChecked();
+    Settings::coord[Y].useLimitMax = checkYplus->isChecked();
+    Settings::coord[Z].useLimitMin = checkZmin->isChecked();
+    Settings::coord[Z].useLimitMax = checkZplus->isChecked();
+    Settings::coord[A].useLimitMin = checkAmin->isChecked();
+    Settings::coord[A].useLimitMax = checkAplus->isChecked();
 
-    cnc->coord[X].invLimitMin = checkInvertSwitchXmin->isChecked();
-    cnc->coord[X].invLimitMax = checkInvertSwitchXplu->isChecked();
-    cnc->coord[Y].invLimitMin = checkInvertSwitchYmin->isChecked();
-    cnc->coord[Y].invLimitMax = checkInvertSwitchYplu->isChecked();
-    cnc->coord[Z].invLimitMin = checkInvertSwitchZmin->isChecked();
-    cnc->coord[Z].invLimitMax = checkInvertSwitchZplu->isChecked();
-    cnc->coord[A].invLimitMin = checkInvertSwitchAmin->isChecked();
-    cnc->coord[A].invLimitMax = checkInvertSwitchAplu->isChecked();
+    Settings::coord[X].invLimitMin = checkInvertSwitchXmin->isChecked();
+    Settings::coord[X].invLimitMax = checkInvertSwitchXplu->isChecked();
+    Settings::coord[Y].invLimitMin = checkInvertSwitchYmin->isChecked();
+    Settings::coord[Y].invLimitMax = checkInvertSwitchYplu->isChecked();
+    Settings::coord[Z].invLimitMin = checkInvertSwitchZmin->isChecked();
+    Settings::coord[Z].invLimitMax = checkInvertSwitchZplu->isChecked();
+    Settings::coord[A].invLimitMin = checkInvertSwitchAmin->isChecked();
+    Settings::coord[A].invLimitMax = checkInvertSwitchAplu->isChecked();
 
-    cnc->coord[X].checkSoftLimits = checkSoftX->isChecked();
-    cnc->coord[X].invertDirection = checkSwapX->isChecked();
-    cnc->coord[X].invertPulses = checkInvStepsX->isChecked();
-    cnc->coord[X].enabled = checkUseX->isChecked();
-    cnc->coord[X].backlash = backlashX->value();
-    cnc->coord[X].softLimitMin = doubleXmin->value();
-    cnc->coord[X].softLimitMax = doubleXmax->value();
-    cnc->coord[X].workAreaMin = doubleRangeMinX->value();
-    cnc->coord[X].workAreaMax = doubleRangeMaxX->value();
+    Settings::coord[X].checkSoftLimits = checkSoftX->isChecked();
+    Settings::coord[X].invertDirection = checkSwapX->isChecked();
+    Settings::coord[X].invertPulses = checkInvStepsX->isChecked();
+    Settings::coord[X].enabled = checkUseX->isChecked();
+    Settings::coord[X].backlash = backlashX->value();
+    Settings::coord[X].softLimitMin = doubleXmin->value();
+    Settings::coord[X].softLimitMax = doubleXmax->value();
+    Settings::coord[X].workAreaMin = doubleRangeMinX->value();
+    Settings::coord[X].workAreaMax = doubleRangeMaxX->value();
 
-    cnc->coord[Y].checkSoftLimits = checkSoftY->isChecked();
-    cnc->coord[Y].invertDirection = checkSwapY->isChecked();
-    cnc->coord[Y].invertPulses = checkInvStepsY->isChecked();
-    cnc->coord[Y].enabled = checkUseY->isChecked();
-    cnc->coord[Y].backlash = backlashY->value();
-    cnc->coord[Y].softLimitMin = doubleYmin->value();
-    cnc->coord[Y].softLimitMax = doubleYmax->value();
-    cnc->coord[Y].workAreaMin = doubleRangeMinY->value();
-    cnc->coord[Y].workAreaMax = doubleRangeMaxY->value();
+    Settings::coord[Y].checkSoftLimits = checkSoftY->isChecked();
+    Settings::coord[Y].invertDirection = checkSwapY->isChecked();
+    Settings::coord[Y].invertPulses = checkInvStepsY->isChecked();
+    Settings::coord[Y].enabled = checkUseY->isChecked();
+    Settings::coord[Y].backlash = backlashY->value();
+    Settings::coord[Y].softLimitMin = doubleYmin->value();
+    Settings::coord[Y].softLimitMax = doubleYmax->value();
+    Settings::coord[Y].workAreaMin = doubleRangeMinY->value();
+    Settings::coord[Y].workAreaMax = doubleRangeMaxY->value();
 
-    cnc->coord[Z].checkSoftLimits = checkSoftZ->isChecked();
-    cnc->coord[Z].invertDirection = checkSwapZ->isChecked();
-    cnc->coord[Z].invertPulses = checkInvStepsZ->isChecked();
-    cnc->coord[Z].backlash = backlashZ->value();
-    cnc->coord[Z].enabled = checkUseZ->isChecked();
-    cnc->coord[Z].softLimitMin = doubleZmin->value();
-    cnc->coord[Z].softLimitMax = doubleZmax->value();
-    cnc->coord[Z].workAreaMin = doubleRangeMinZ->value();
-    cnc->coord[Z].workAreaMax = doubleRangeMaxZ->value();
+    Settings::coord[Z].checkSoftLimits = checkSoftZ->isChecked();
+    Settings::coord[Z].invertDirection = checkSwapZ->isChecked();
+    Settings::coord[Z].invertPulses = checkInvStepsZ->isChecked();
+    Settings::coord[Z].backlash = backlashZ->value();
+    Settings::coord[Z].enabled = checkUseZ->isChecked();
+    Settings::coord[Z].softLimitMin = doubleZmin->value();
+    Settings::coord[Z].softLimitMax = doubleZmax->value();
+    Settings::coord[Z].workAreaMin = doubleRangeMinZ->value();
+    Settings::coord[Z].workAreaMax = doubleRangeMaxZ->value();
 
-    cnc->coord[A].checkSoftLimits = checkSoftA->isChecked();
-    cnc->coord[A].invertDirection = checkSwapA->isChecked();
-    cnc->coord[A].invertPulses = checkInvStepsA->isChecked();
-    cnc->coord[A].backlash = backlashA->value();
-    cnc->coord[A].enabled = checkUseA->isChecked();
-    cnc->coord[A].softLimitMin = doubleAmin->value();
-    cnc->coord[A].softLimitMax = doubleAmax->value();
-    cnc->coord[A].workAreaMin = doubleRangeMinA->value();
-    cnc->coord[A].workAreaMax = doubleRangeMaxA->value();
+    Settings::coord[A].checkSoftLimits = checkSoftA->isChecked();
+    Settings::coord[A].invertDirection = checkSwapA->isChecked();
+    Settings::coord[A].invertPulses = checkInvStepsA->isChecked();
+    Settings::coord[A].backlash = backlashA->value();
+    Settings::coord[A].enabled = checkUseA->isChecked();
+    Settings::coord[A].softLimitMin = doubleAmin->value();
+    Settings::coord[A].softLimitMax = doubleAmax->value();
+    Settings::coord[A].workAreaMin = doubleRangeMinA->value();
+    Settings::coord[A].workAreaMax = doubleRangeMaxA->value();
 
-    cnc->coord[X].pulsePerMm = numPulseX->value();
-    cnc->coord[Y].pulsePerMm = numPulseY->value();
-    cnc->coord[Z].pulsePerMm = numPulseZ->value();
-    cnc->coord[A].pulsePerMm = numPulseA->value();
+    Settings::coord[X].pulsePerMm = numPulseX->value();
+    Settings::coord[Y].pulsePerMm = numPulseY->value();
+    Settings::coord[Z].pulsePerMm = numPulseZ->value();
+    Settings::coord[A].pulsePerMm = numPulseA->value();
 
-    cnc->coord[X].minVelo = doubleSpinStartX->value();
-    cnc->coord[Y].minVelo = doubleSpinStartY->value();
-    cnc->coord[Z].minVelo = doubleSpinStartZ->value();
-    cnc->coord[A].minVelo = doubleSpinStartA->value();
+    Settings::coord[X].minVelo = doubleSpinStartX->value();
+    Settings::coord[Y].minVelo = doubleSpinStartY->value();
+    Settings::coord[Z].minVelo = doubleSpinStartZ->value();
+    Settings::coord[A].minVelo = doubleSpinStartA->value();
 
-    cnc->coord[X].maxVelo = doubleSpinEndX->value();
-    cnc->coord[Y].maxVelo = doubleSpinEndY->value();
-    cnc->coord[Z].maxVelo = doubleSpinEndZ->value();
-    cnc->coord[A].maxVelo = doubleSpinEndA->value();
+    Settings::coord[X].maxVelo = doubleSpinEndX->value();
+    Settings::coord[Y].maxVelo = doubleSpinEndY->value();
+    Settings::coord[Z].maxVelo = doubleSpinEndZ->value();
+    Settings::coord[A].maxVelo = doubleSpinEndA->value();
 
-    cnc->coord[X].acceleration = doubleSpinAccelX->value();
-    cnc->coord[Y].acceleration = doubleSpinAccelY->value();
-    cnc->coord[Z].acceleration = doubleSpinAccelZ->value();
-    cnc->coord[A].acceleration = doubleSpinAccelA->value();
+    Settings::coord[X].acceleration = doubleSpinAccelX->value();
+    Settings::coord[Y].acceleration = doubleSpinAccelY->value();
+    Settings::coord[Z].acceleration = doubleSpinAccelZ->value();
+    Settings::coord[A].acceleration = doubleSpinAccelA->value();
 
-    cnc->DEMO_DEVICE  = checkBoxDemoController->isChecked();
+    Settings::DEMO_DEVICE  = checkBoxDemoController->isChecked();
 
     accept();
 }

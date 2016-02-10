@@ -87,9 +87,9 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
 
     translateDialog();
 
-    startOffsetX->setValue(cnc->coord[X].posMm());
-    startOffsetY->setValue(cnc->coord[Y].posMm());
-    startOffsetZ->setValue(cnc->coord[Z].posMm());
+    startOffsetX->setValue(Settings::coord[X].posMm());
+    startOffsetY->setValue(Settings::coord[Y].posMm());
+    startOffsetZ->setValue(Settings::coord[Z].posMm());
 
 
     connect(pushOk, SIGNAL(clicked()), this, SLOT(onSave()));
@@ -456,7 +456,7 @@ void ScanThread::run()
     mParams.restPulses = 0;//gcodeNow.stepsCounter;
     mParams.numberInstruction = 0;
 
-    //         cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse( pa), (int)sParent->numSpeed->value(), 0, 0, 0.0);
+    //         cnc->packCA(Settings::coord[X].posPulse( px), Settings::coord[Y].posPulse(py), Settings::coord[Z].posPulse( pz),  Settings::coord[A].posPulse( pa), (int)sParent->numSpeed->value(), 0, 0, 0.0);
     cnc->packCA(&mParams);
     //     }
 
@@ -471,14 +471,14 @@ void ScanThread::run()
 
     usleep(100);
 
-    while (!cnc->coord[Z].actualLimitMax) {
+    while (!Settings::coord[Z].actualLimitMax) {
         //dataCode.Matrix[indexScanY].X[indexScanX].Z = cnc->PositionZmm() - numReturn->value();
         usleep(100);
     }
 
     usleep(300);
     //dataCode.Matrix[indexScanY].X[indexScanX].Z = cnc->PositionZmm;
-    sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (float)cnc->coord[Z].posMm();
+    sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (float)Settings::coord[Z].posMm();
 
     cnc->packC0(0x01); // on
 
@@ -489,7 +489,7 @@ void ScanThread::run()
     usleep(100);
     // move to the point
     cnc->packCA(&mParams);
-    //     cnc->packCA(cnc->coord[X].posPulse( px), cnc->coord[Y].posPulse(py), cnc->coord[Z].posPulse( pz),  cnc->coord[A].posPulse(pa), (int)sParent->numSpeed->value(), 0, 0, 0.0);
+    //     cnc->packCA(Settings::coord[X].posPulse( px), Settings::coord[Y].posPulse(py), Settings::coord[Z].posPulse( pz),  Settings::coord[A].posPulse(pa), (int)sParent->numSpeed->value(), 0, 0, 0.0);
 
     usleep(100);
 
@@ -551,7 +551,7 @@ void ScanSurfaceDialog::buttonSetZ()
         return;
     }
 
-    surfaceArr[selectedY][selectedX].Z = cnc->coord[Z].posMm();
+    surfaceArr[selectedY][selectedX].Z = Settings::coord[Z].posMm();
     dataGridView->item(selectedY, selectedX)->setText( QString().sprintf("Z %4.2f", surfaceArr[selectedY][selectedX].Z));
 
 }

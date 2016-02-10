@@ -55,7 +55,7 @@
 //
 #define DEBUG_ARC 0
 
-
+#if 1
 GCodeCommand::GCodeCommand()
 {
     changeInstrument = false;
@@ -81,16 +81,18 @@ GCodeCommand::GCodeCommand()
 
     typeMoving = NoType;
 
-    maxSpeed = 0.0;
+    accelCode = 0;
 
-    angleVectors = 0.0;
-    //     Distance = 0.0;
+    vectSpeed = 0.0;
 
-    spindelON      = false;
-    numberInstruct = 0;
+    stepsCounter = 0;
+
+    angle = 0.0;
+
+    spindelON = false;
+    splits = 0; // init
     numberLine = 0;
-    //     speed          = 0;
-    workspeed      = false;
+    feed      = false;
     diametr = 0.0;
 };
 
@@ -116,19 +118,24 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
     typeMoving = _cmd->typeMoving;
 
     spindelON = _cmd->spindelON;
-    maxSpeed = _cmd->maxSpeed;
-    numberInstruct = _cmd->numberInstruct;
-    numberLine = _cmd->numberLine;
-    workspeed = _cmd->workspeed;
+    vectSpeed = _cmd->vectSpeed;
 
-    angleVectors = _cmd->angleVectors;
+    splits = _cmd->splits; // if arc, will be splitted
+    stepsCounter = 0; //
+
+    accelCode = _cmd->accelCode;
+    //     numberInstruct = _cmd->numberInstruct;
+    numberLine = _cmd->numberLine;
+    feed = _cmd->feed;
+
+    angle = 0.0;//_cmd->angleVectors;
 
     changeInstrument = _cmd->changeInstrument;
     numberInstrument = _cmd->numberInstrument;
     pauseMSeconds = _cmd->pauseMSeconds;
     diametr = _cmd->diametr;
 };
-
+#endif
 
 //
 // units of messure, mm or inches
@@ -326,9 +333,20 @@ QStringList Reader::getGoodList()
     return goodList;
 }
 
+
 QStringList Reader::getBadList()
 {
     return badList;
+}
+
+
+bool Reader::addLine(GCodeCommand *c)
+{
+}
+
+
+bool Reader::addArc(GCodeCommand *c)
+{
 }
 
 
@@ -336,7 +354,7 @@ QStringList Reader::getBadList()
 bool Reader::readGCode(const QByteArray &gcode)
 {
     //     QMutexLocker mLock(&mutex);
-    GCodeList.clear();
+    gCodeList.clear();
 
     //     lock();
 
@@ -361,11 +379,10 @@ bool Reader::readGCode(const QByteArray &gcode)
 
     QTime t;
     t.start();
-    GCodeCommand *tmpCommand = new GCodeCommand();
 
     bool decoded;
     int index = 0;
-    QStringList gCodeList;
+    QStringList gCodeLines;
     QString lastCmd;
 
     while(!stream.atEnd()) { // restruct lines
@@ -468,16 +485,17 @@ bool Reader::readGCode(const QByteArray &gcode)
         }
 
         index++;
-        gCodeList << lineStream;
+        gCodeLines << lineStream;
     }
 
     qDebug("read gcode, loaded. Time elapsed: %d ms", t.elapsed());
-    //     qDebug() << "data loaded";
 
     t.restart();
 
     index = 0;
-    foreach(QString line, gCodeList) {
+    GCodeCommand *tmpCommand = new GCodeCommand();
+
+    foreach(QString line, gCodeLines) {
         decoded = true;
         QStringList lst = line.simplified().split(" ");
         QString cmd = lst.at(0);
@@ -489,7 +507,7 @@ bool Reader::readGCode(const QByteArray &gcode)
         bool movingCommand = true;
 
         switch(cmd[0].toLatin1()) {
-            case 'G':
+            case 'G': {
                 if (cmd == "G00") { // eilgang
                     Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
                     float E;
@@ -502,10 +520,11 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->X = next_pos.x();
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
+                    tmpCommand->splits = 0;
 
                     tmpCommand->typeMoving = GCodeCommand::Line;
 
-                    tmpCommand->workspeed = false;
+                    tmpCommand->feed = false;
 
                     if (b_absolute) {
                         current_pos = next_pos + origin;
@@ -516,7 +535,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     break;
                 }
 
-                if (cmd == "G01") { // bearbeitung
+                if (cmd == "G01") { // feed
                     Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
                     float E(-1.0);
 
@@ -528,10 +547,11 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->X = next_pos.x();
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
+                    tmpCommand->splits = 0;
 
                     tmpCommand->typeMoving = GCodeCommand::Line;
 
-                    tmpCommand->workspeed = true;
+                    tmpCommand->feed = true;
 
                     if (E > 0.0) {
                         cached_lines.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
@@ -569,7 +589,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->Z = next_pos.z();
 
                     Vec3 arc_center(current_pos);
-                    float E_arc(-1.0);
+                    //                     float E_arc(-1.0);
                     float radius = 0.0;
 
                     if (parseArc(line, arc_center, radius, coef ) == false) {
@@ -615,7 +635,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                         tmpCommand->typeMoving = GCodeCommand::ArcCCW;
                     }
 
-                    tmpCommand->workspeed = true;
+                    tmpCommand->feed = true;
 
                     if (E > 0.0) {
                         //                         cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
@@ -633,13 +653,14 @@ bool Reader::readGCode(const QByteArray &gcode)
                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                     }
 
-                    convertArcToLines(tmpCommand);
-
+                    //                     qDebug() << "line " << tmpCommand->numberLine << "before convertArcToLines()" << gCodeList.count() << "splits" << tmpCommand->splits;
+                    convertArcToLines(tmpCommand); // tmpCommand has data of last point
+                    //                     qDebug() << "after " << gCodeList.count() << "splits" << tmpCommand->splits;
                     break;
                 }
 
                 if (cmd == "G04") {
-                    //нужен следующий параметр
+                    // need next parameter
                     QString property1 = lst.at(1).mid(0, 1);
                     QString value1 = lst.at(1).mid(1);
 
@@ -650,6 +671,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
                         if (res == false) {
                             decoded = false;
+                            break;
                         }
                     }
 
@@ -660,6 +682,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
                         if (res == false) {
                             decoded = false;
+                            break;
                         }
                     }
 
@@ -730,8 +753,9 @@ bool Reader::readGCode(const QByteArray &gcode)
                 }
 
                 break;
+            }
 
-            case 'M':
+            case 'M': {
                 if (cmd == "M00") {
                     tmpCommand->pauseMSeconds = 0; // waiting
                     break;
@@ -748,7 +772,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                 }
 
                 if (cmd == "M06") {
-                    //нужен следующий параметр
+                    // need next parameter
                     QString property1 = lst.at(1).mid(0, 1);
                     QString value1 = lst.at(1).mid(1);
 
@@ -777,6 +801,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
                                 if (res == false) {
                                     decoded = false;
+                                    break;
                                 }
                             }
                         }
@@ -797,6 +822,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                 }
 
                 break;
+            }
 
             case 'F': {
                 decoded = false;
@@ -813,18 +839,17 @@ bool Reader::readGCode(const QByteArray &gcode)
             badList << msg.arg(QString::number(index)) + line;
         } else {
             if (movingCommand == true) {
-                GCodeList << *tmpCommand;
+                gCodeList << *tmpCommand;
 
                 // init of next instuction
-                tmpCommand->numberInstruct++;
+
+                //                 tmpCommand->numberInstruct++;
                 tmpCommand->numberLine++;
 
                 //                 tmpCommand->needPause = false;
                 tmpCommand->changeInstrument = false;
                 tmpCommand->pauseMSeconds = -1; // no pause
             }
-
-          
 
             goodList << line;
         }
@@ -834,7 +859,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
     qDebug("read gcode, parsed. Time elapsed: %d ms", t.elapsed());
     //     qDebug() << "data parsed";
-    gCodeList.clear();
+    gCodeLines.clear();
 
     delete tmpCommand;
 
@@ -909,22 +934,23 @@ float Reader::determineAngle(const Vec3 &pos, const Vec3 &pos_center, PlaneEnum 
     return radians;
 }
 
-
-bool Reader::convertArcToLines(const GCodeCommand *code)
+//
+// 'code' is the pointer of arc start
+void Reader::convertArcToLines(GCodeCommand *code)
 {
-    if (GCodeList.count() == 0) {
-        return false;
+    if (gCodeList.count() == 0) {
+        return;
     }
 
     if (code == 0) {
-        return false;
+        return;
     }
 
     if (!(code->typeMoving == GCodeCommand::ArcCW || code->typeMoving == GCodeCommand::ArcCCW) ) { // it's not arc
-        return false;
+        return;
     }
 
-    GCodeCommand &prev = GCodeList.last();
+    const GCodeCommand &prev = gCodeList.at(gCodeList.count() - 1);
     // arcs
     // translate points to arc
     float a, r; // length of sides
@@ -1007,7 +1033,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
 
     if (r == 0.0) {
         qDebug() << "wrong, r = 0";
-        return false;
+        return;
     }
 
     Vec3 posC(i, j, k);
@@ -1044,7 +1070,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
 
     if ( n == 0) {
         qDebug() << "wrong, n = 0" << alpha_beg << alpha_end;
-        return false;
+        return;
     }
 
     float dAlpha = alpha / n;
@@ -1060,8 +1086,16 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
 #endif
     float angle = alpha_beg;
     float loopPos = begPos;
-    
-    GCodeCommand ncommand = *code;
+
+    GCodeCommand ncommand = new GCodeCommand(code);
+
+    qDebug() << "arc from " << prev.X << prev.Y << prev.Z  << "to" << code->X << code->Y << code->Z << "splits: " << n;
+
+    ncommand.X = prev.X;
+    ncommand.Y = prev.Y;
+    ncommand.Z = prev.Z;
+    ncommand.A = prev.A;
+    ncommand.splits = n;
 
     // now split
     for (int step = 0; step < n; ++step) {
@@ -1072,13 +1106,11 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
         float c = cos(angle);
         float s = sin(angle);
 
-        GCodeCommand ncommand = new GCodeCommand(ncommand);
-
         switch (code->plane) {
             case XY: {
                 float x_new = i + r * c;
                 float y_new = j + r * s;
-                ncommand.angleVectors = atan2(y_new - ncommand.Y, x_new - ncommand.X);
+                ncommand.angle = atan2(y_new - ncommand.Y, x_new - ncommand.X);
                 ncommand.X = x_new;
                 ncommand.Y = y_new;
                 ncommand.Z = loopPos;
@@ -1091,7 +1123,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
             case YZ: {
                 float y_new = j + r * c;
                 float z_new = k + r * s;
-                ncommand.angleVectors = atan2(z_new - ncommand.Z, y_new - ncommand.Y);
+                ncommand.angle = atan2(z_new - ncommand.Z, y_new - ncommand.Y);
                 ncommand.Y = y_new;
                 ncommand.Z = z_new;
                 ncommand.X = loopPos;
@@ -1104,7 +1136,7 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
             case ZX: {
                 float z_new = k + r * c;
                 float x_new = i + r * s;
-                ncommand.angleVectors = atan2(x_new - ncommand.X, z_new - ncommand.Z);
+                ncommand.angle = atan2(x_new - ncommand.X, z_new - ncommand.Z);
                 ncommand.Z = z_new;
                 ncommand.X = x_new;
                 ncommand.Y = loopPos;
@@ -1118,17 +1150,16 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
                 break;
         }
 
-        ncommand.numberInstruct++;
-        // do not change number of line
-        //         ncommand.needPause = false;
-        ncommand.changeInstrument = false;
-        ncommand.pauseMSeconds = -1;
-          
-        GCodeList << ncommand;  
+        gCodeList << ncommand;
     }
 
+    code->splits = 0;
+
+    //     gCodeList << *code;
+
 #if DEBUG_ARC
-    if ((fabs (x2 - GCodeList.last().X) > (bLength / splitsPerMm/*10.0*/)) || (fabs (y2 - GCodeList.last().Y) > (bLength / splitsPerMm/*10.0*/))) { // wenn zu weit vom ziel...
+
+    if ((fabs (x2 - res.last().X) > (bLength / splitsPerMm)) || (fabs (y2 - res.last().Y) > (bLength / splitsPerMm))) { // wenn zu weit vom ziel...
         if (code->typeMoving == ArcCW) {
             qDebug() << "CW";
         } else {
@@ -1140,9 +1171,8 @@ bool Reader::convertArcToLines(const GCodeCommand *code)
         qDebug() << "alpha:" << alpha_beg << "->" << alpha_end << "d alpha: " << dAlpha; // rad
         qDebug() << dbg;
     }
-#endif
 
-    return true;
+#endif
 }
 
 
@@ -1210,32 +1240,6 @@ bool Reader::parseArc(const QString &line, Vec3 &pos, float &R, const float coef
 
                 break;
             }
-
-#if 0
-
-            case 'E': {
-                E = coef * (s.right(s.size() - 1).toDouble(&conv));
-
-                if (conv == true) {
-                    res = true;
-                }
-
-                break;
-            }
-
-            case 'F': {
-                if (F) {
-                    *F = s.right(s.size() - 1).toDouble(&conv);
-                }
-
-                if (conv == true) {
-                    res = true;
-                }
-
-                break;
-            }
-
-#endif
 
             default:
                 break;

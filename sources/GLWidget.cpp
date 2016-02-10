@@ -217,9 +217,9 @@ void GLWidget::surfaceReloaded()
     for (int i = 0; i < coordArray.count(); i++) {
         if (parent->deltaFeed) {
             pointGL p;
-            float pointX = parent->GCodeList.at(i).X;
-            float pointY = parent->GCodeList.at(i).Y;
-            float pointZ = parent->GCodeList.at(i).Z;
+            float pointX = parent->gCodeList.at(i).X;
+            float pointY = parent->gCodeList.at(i).Y;
+            float pointZ = parent->gCodeList.at(i).Z;
             pointZ += parent->GetDeltaZ(pointX, pointY);
 
             p = (pointGL) {
@@ -251,7 +251,7 @@ void GLWidget::matrixReloaded()
 {
     int workNum = 0;
 
-    workNum = parent->GCodeList.count();
+    workNum = parent->gCodeList.count();
 
     coordArray.clear();
     colorArray.clear();
@@ -259,10 +259,10 @@ void GLWidget::matrixReloaded()
     if (workNum > 1) {
         int currWorkPoint = 0;
 
-        foreach (GCodeCommand vv, parent->GCodeList) {
+        foreach (GCodeCommand vv, parent->gCodeList) {
             colorGL cl;
 
-            if (vv.workspeed) {
+            if (vv.feed) {
                 cl = (colorGL) {
                     0, 255, 0
                 };
@@ -572,13 +572,13 @@ void GLWidget::drawWorkField()
     // select with 3.0 the current cut of object
     switch (Task::Status) {
         case Waiting: {
-            int numSelectStart = Task::instructionStart;
+            int numSelectStart = Task::lineCodeStart;
 
             if (numSelectStart < 0) {
                 break;
             }
 
-            int numSelectStop = Task::instructionEnd;
+            int numSelectStop = Task::lineCodeEnd;
             glLineWidth(3.0f);
             glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelectStart]);
             glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelectStart]);
@@ -587,13 +587,13 @@ void GLWidget::drawWorkField()
         }
 
         case Stop:  {
-            if (Task::instructionStart < 0) {
+            if (Task::lineCodeStart < 0) {
                 break;
             }
 
             glLineWidth(3.0f);
-            glVertexPointer(3, GL_FLOAT, 0, &coordArray[Task::instructionStart]);
-            glColorPointer(3, GL_FLOAT, 0, &colorArray[Task::instructionStart]);
+            glVertexPointer(3, GL_FLOAT, 0, &coordArray[Task::lineCodeStart]);
+            glColorPointer(3, GL_FLOAT, 0, &colorArray[Task::lineCodeStart]);
             glDrawArrays(GL_LINE_STRIP, 0, 2);
             break;
         }
@@ -747,9 +747,9 @@ void GLWidget::drawSurface()
 void GLWidget::drawInstrument()
 {
     // instrument
-    float startX = cnc->coord[X].posMm();
-    float startY = cnc->coord[Y].posMm();
-    float startZ = cnc->coord[Z].posMm();
+    float startX =  Settings::coord[X].posMm();
+    float startY =  Settings::coord[Y].posMm();
+    float startZ =  Settings::coord[Z].posMm();
 
     glColor3f(1.000f, 1.000f, 0.000f);
     glLineWidth(3);
@@ -788,11 +788,11 @@ void GLWidget::drawGrate()
 
     glBegin(GL_LINE_STRIP); // normal lines
 
-    glVertex3d(cnc->coord[X].softLimitMin, cnc->coord[Y].softLimitMin, 0);
-    glVertex3d(cnc->coord[X].softLimitMax, cnc->coord[Y].softLimitMin, 0);
-    glVertex3d(cnc->coord[X].softLimitMax, cnc->coord[Y].softLimitMax, 0);
-    glVertex3d(cnc->coord[X].softLimitMin, cnc->coord[Y].softLimitMax, 0);
-    glVertex3d(cnc->coord[X].softLimitMin, cnc->coord[Y].softLimitMin, 0);
+    glVertex3d( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0);
+    glVertex3d( Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin, 0);
+    glVertex3d( Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMax, 0);
+    glVertex3d( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMax, 0);
+    glVertex3d( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0);
 
     glEnd();
 

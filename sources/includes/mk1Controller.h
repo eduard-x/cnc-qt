@@ -37,7 +37,6 @@
 
 #define byte unsigned char
 
-#include <QSettings>
 #include <QObject>
 #include <QStringList>
 #include <QByteArray>
@@ -70,8 +69,7 @@ struct moveParameters {
 class usbHotplugThread : public QThread
 {
         Q_OBJECT
-        void run()
-        {
+        void run() {
             /* expensive or blocking operation  */
             while(true) {
                 int r = libusb_handle_events(NULL);
@@ -128,25 +126,19 @@ class axis
 };
 
 
-class mk1Settings
+class Settings
 {
     public:
-        // current size of free buffer
-        static short FreebuffSize;
-
-        // number of current instuction
-        static int NumberCompleatedInstruction;
-
-        axis coord[4]; // array of 4 axis for mk1
+        static axis coord[4]; // array of 4 axis for mk1
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2
 
-        static bool setSettings;
-        static int  spindleMoveSpeed;
-        static bool spindleEnabled;
-        static bool mistEnabled;
-        static bool fluidEnabled;
-
-        static bool Estop;
+        //         static bool setSettings;
+        //         static int  spindleMoveSpeed;
+        //         static bool spindleEnabled;
+        //         static bool mistEnabled;
+        //         static bool fluidEnabled;
+        //
+        //         static bool Estop;
 
         // for virtual controller
         static bool DEMO_DEVICE;
@@ -154,7 +146,7 @@ class mk1Settings
 
 
 // class for communication with device
-class mk1Data : public mk1Settings
+class mk1Data //: public mk1Settings
 {
     public:
         enum TypeSignal {
@@ -187,6 +179,24 @@ class mk1Data : public mk1Settings
         void setByte(byte offset, byte data);
         byte getByte(byte offset);
         void sendBinaryData(bool checkBuffSize = true);
+        //
+        int  getSpindleMoveSpeed();
+        //         void getSpindleMoveSpeed(int i);
+        void setSpindleMoveSpeed(int i);
+        long numberCompleatedInstructions();
+        void setCompleatedInstructions(long i);
+        bool isSpindelOn();
+        void setSpindelOn(bool b);
+        bool isMistOn();
+        void setMistOn(bool b);
+        bool isFluidOn();
+        void setFluidOn(bool b);
+        bool isEmergencyStopOn();
+        void setEmergencyStopOn(bool b);
+        int  availableBufferSize();
+        void setBufferSize(int n);
+
+
 
     private:
         static void packFourBytes(byte offset, int val);
@@ -200,6 +210,22 @@ class mk1Data : public mk1Settings
         // raw data
         static byte writeBuf[BUFFER_SIZE];
         static byte readBuf[BUFFER_SIZE];
+
+        //
+        bool setSettings;
+
+    private:
+        int  spindleMoveSpeed;
+        bool spindleEnabled;
+        bool mistEnabled;
+        bool fluidEnabled;
+        // number of current instuction
+        int numberCompleatedInstruction;
+
+        bool eStop;
+
+        // current size of free buffer
+        short freebuffSize;
 };
 
 
@@ -240,8 +266,6 @@ class mk1Controller : public QObject, public mk1Data
         bool fluidSetEnable;
         bool mistSetEnable;
 
-        QStringList axisList;
-
         static libusb_hotplug_callback_handle hotplug[2];
 
         usbHotplugThread *hotplugThread;
@@ -251,8 +275,6 @@ class mk1Controller : public QObject, public mk1Data
         //
         // thread for reading from controller
         usbReadThread *readThread;
-
-        QSettings *settingsFile; // main settings file
 
         int _error_code;
 
@@ -283,25 +305,18 @@ class mk1Controller : public QObject, public mk1Data
         static void resetDescription();
         static int getDeviceInfo();
 
-        void loadSettings();
-        void saveSettings();
         void sendSettings();
 
         //         int  getConfiguration();
         bool testAllowActions();
 
         bool isConnected();
-        int  getSpindleMoveSpeed();
-        long numberCompleatedInstructions();
-        bool isSpindelOn();
-        bool isMistOn();
-        bool isFluidOn();
-        bool isEmergencyStopOn();
-        int  availableBufferSize();
+
 
     private:
-        void parseBinaryInfo();
+
         void ADDMessage(int code);
+        void parseBinaryInfo();
 
         Q_DISABLE_COPY(mk1Controller);
 
@@ -317,12 +332,10 @@ class usbReadThread : public QThread
 {
         Q_OBJECT
     public:
-        usbReadThread(QObject *parent) : QThread(parent)
-        {
+        usbReadThread(QObject *parent) : QThread(parent) {
             p = (mk1Controller*)parent;
         }
-        void run()
-        {
+        void run() {
             // init of read array
             memset( buf, 0x0, BUFFER_SIZE);
 

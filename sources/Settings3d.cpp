@@ -32,7 +32,7 @@
 #include <QtGui>
 #include <QUrl>
 
-
+#include "includes/mk1Controller.h"
 #include "includes/Settings3d.h"
 
 
@@ -70,10 +70,10 @@ Settings3dDialog::Settings3dDialog(QWidget *p)
     spinBoxEndY->setValue(parent->GridYend);
 
     groupBoxShowRang->setChecked(parent->ShowGrate);
-    spinBoxMinX->setValue(parent->cnc->coord[X].softLimitMin);
-    spinBoxMaxX->setValue(parent->cnc->coord[X].softLimitMax);
-    spinBoxMinY->setValue(parent->cnc->coord[Y].softLimitMin);
-    spinBoxMaxY->setValue(parent->cnc->coord[Y].softLimitMax);
+    spinBoxMinX->setValue(Settings::coord[X].softLimitMin);
+    spinBoxMaxX->setValue(Settings::coord[X].softLimitMax);
+    spinBoxMinY->setValue(Settings::coord[Y].softLimitMin);
+    spinBoxMaxY->setValue(Settings::coord[Y].softLimitMax);
 
     translateDialog();
 
@@ -120,10 +120,10 @@ void Settings3dDialog::onSave()
     parent->ShowGrate = groupBoxShowRang->isChecked();
     parent->ShowLines = radioButtonLines->isChecked();
     parent->ShowPoints = radioButtonPoints->isChecked();
-    parent->cnc->coord[X].softLimitMin = spinBoxMinX->value();
-    parent->cnc->coord[X].softLimitMax = spinBoxMaxX->value();
-    parent->cnc->coord[Y].softLimitMin = spinBoxMinY->value();
-    parent->cnc->coord[Y].softLimitMax = spinBoxMaxY->value();
+    Settings::coord[X].softLimitMin = spinBoxMinX->value();
+    Settings::coord[X].softLimitMax = spinBoxMaxX->value();
+    Settings::coord[Y].softLimitMin = spinBoxMinY->value();
+    Settings::coord[Y].softLimitMax = spinBoxMaxY->value();
 
     emit accept();
 }

@@ -43,11 +43,6 @@ using namespace std;
 */
 
 
-short mk1Settings::FreebuffSize = 0;
-
-int mk1Settings::NumberCompleatedInstruction = 0;
-
-
 axis::axis()
 {
     acceleration = 50.0;
@@ -83,15 +78,8 @@ int axis::posPulse(float posMm)
 }
 
 
-int mk1Settings::spindleMoveSpeed = 0;
-bool mk1Settings::spindleEnabled = false;
-bool mk1Settings::mistEnabled = false;
-bool mk1Settings::fluidEnabled = false;
-bool mk1Settings::setSettings = false;
-
-bool mk1Settings::Estop = false;
-
-bool mk1Settings::DEMO_DEVICE = false;
+bool Settings::DEMO_DEVICE = false;
+axis Settings::coord[] = { axis(), axis(), axis(), axis() };
 
 
 // static
@@ -106,7 +94,6 @@ QString mk1Controller::devDescriptor;
 
 static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
 {
-
     int rc;
 
     qDebug() << "Device to attache" << mk1Controller::handle;
@@ -197,8 +184,6 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     product_id = 0x2130;
 
     handle = NULL;
-
-    axisList << "X" << "Y" << "Z" << "A";
 
     devConnected = false;
 
@@ -315,8 +300,6 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
             pack9D(); // to get actual info from device
         }
     }
-
-    settingsFile = new QSettings("KarboSoft", "CNC-Qt");
 }
 
 
@@ -474,105 +457,6 @@ void mk1Controller::handleHotplug()
 }
 
 
-//
-// load settings
-//
-void mk1Controller::loadSettings()
-{
-    bool res;
-
-    settingsFile->beginGroup("mk1");
-
-    for (int c = 0; c < axisList.count(); c++) {
-        int i = settingsFile->value("Pulse" + axisList.at(c), 200).toInt( &res);
-        coord[c].pulsePerMm = (res == true) ? i : 200;
-
-        float f = settingsFile->value("Accel" + axisList.at(c), 15).toFloat( &res);
-        coord[c].acceleration = (res == true) ? f : 15;
-
-        f = settingsFile->value("StartVelo" + axisList.at(c), 0).toFloat( &res);
-        coord[c].minVelo = (res == true) ? f : 0;
-
-        f = settingsFile->value("EndVelo" + axisList.at(c), 400).toFloat( &res);
-        coord[c].maxVelo = (res == true) ? f : 400;
-
-        coord[c].checkSoftLimits = settingsFile->value("SoftLimit" + axisList.at(c), false).toBool( );
-
-        f = settingsFile->value("SoftMin" + axisList.at(c), 0).toFloat( &res);
-        coord[c].softLimitMin = (res == true) ? f : 0;
-
-        f = settingsFile->value("SoftMax" + axisList.at(c), 0).toFloat( &res);
-        coord[c].softLimitMax = (res == true) ? f : 0;
-
-        f = settingsFile->value("Home" + axisList.at(c), 0).toFloat( &res);
-        coord[c].home = (res == true) ? f : 0;
-
-        coord[c].useLimitMin = settingsFile->value("HardLimitMin" + axisList.at(c), true).toBool();
-        coord[c].useLimitMax = settingsFile->value("HardLimitMax" + axisList.at(c), true).toBool();
-
-        //
-        coord[c].invertDirection = settingsFile->value("InvDirection" + axisList.at(c), false).toBool();
-        coord[c].invertPulses = settingsFile->value("InvPulses" + axisList.at(c), false).toBool();
-        coord[c].invLimitMax = settingsFile->value("InvLimitMax" + axisList.at(c), false).toBool();
-        coord[c].invLimitMin = settingsFile->value("InvLimitMin" + axisList.at(c), false).toBool();
-        coord[c].enabled = settingsFile->value("Enabled" + axisList.at(c), true).toBool();
-
-        f = settingsFile->value("Backlash" + axisList.at(c), 0).toFloat( &res);
-        coord[c].backlash = (res == true) ? f : 0;
-
-        f = settingsFile->value("WorkAreaMin" + axisList.at(c), 0).toFloat( &res);
-        coord[c].workAreaMin = (res == true) ? f : 0;
-
-        f = settingsFile->value("WorkAreaMax" + axisList.at(c), 0).toFloat( &res);
-        coord[c].workAreaMax = (res == true) ? f : 0;
-        //
-    }
-
-    settingsFile->endGroup();
-}
-
-//
-// save settings
-//
-void mk1Controller::saveSettings()
-{
-    settingsFile->beginGroup("mk1");
-
-    for (int c = 0; c < axisList.count(); c++) {
-        settingsFile->setValue("Pulse" + axisList.at(c), coord[c].pulsePerMm);
-        settingsFile->setValue("Accel" + axisList.at(c), (double)coord[c].acceleration);
-        settingsFile->setValue("StartVelo" + axisList.at(c), (double)coord[c].minVelo);
-        settingsFile->setValue("EndVelo" + axisList.at(c), (double)coord[c].maxVelo);
-
-        //
-        settingsFile->setValue("Backlash" + axisList.at(c), (double)coord[c].backlash);
-        settingsFile->setValue("InvDirection" + axisList.at(c), (bool)coord[c].invertDirection);
-        settingsFile->setValue("InvPulses" + axisList.at(c), (bool)coord[c].invertPulses);
-        settingsFile->setValue("InvLimitMax" + axisList.at(c), (bool)coord[c].invLimitMax);
-        settingsFile->setValue("InvLimitMin" + axisList.at(c), (bool)coord[c].invLimitMin);
-        settingsFile->setValue("WorkAreaMin" + axisList.at(c), (double)coord[c].workAreaMin);
-        settingsFile->setValue("WorkAreaMax" + axisList.at(c), (double)coord[c].workAreaMax);
-        settingsFile->setValue("Enabled" + axisList.at(c), (bool)coord[c].enabled);
-        //
-
-        settingsFile->setValue("HardLimitMin" + axisList.at(c), (bool)coord[c].useLimitMin);
-        settingsFile->setValue("HardLimitMax" + axisList.at(c), (bool)coord[c].useLimitMax);
-
-        settingsFile->setValue("SoftLimit" + axisList.at(c), (bool)coord[c].checkSoftLimits);
-        settingsFile->setValue("SoftMin" + axisList.at(c), (double)coord[c].softLimitMin);
-        settingsFile->setValue("SoftMax" + axisList.at(c), (double)coord[c].softLimitMax);
-
-        settingsFile->setValue("Home" + axisList.at(c), (double)coord[c].home);
-    }
-
-    settingsFile->endGroup();
-
-    settingsFile->sync();
-
-    sendSettings();
-}
-
-
 // send settings to mk
 void mk1Controller::sendSettings()
 {
@@ -586,7 +470,7 @@ void mk1Controller::sendSettings()
     packA0(); // set acceleration
     packA1(); // set allowed limits
 
-    packBF(coord[X].maxVelo, coord[Y].maxVelo, coord[Z].maxVelo, coord[A].maxVelo); // set max velocities
+    packBF(Settings::coord[X].maxVelo, Settings::coord[Y].maxVelo, Settings::coord[Z].maxVelo, Settings::coord[A].maxVelo); // set max velocities
 
     packB5(spindleSetEnable); // spindle off
 
@@ -604,7 +488,6 @@ void mk1Controller::sendSettings()
 }
 
 
-
 // info about connection
 //
 bool mk1Controller::isConnected()
@@ -612,53 +495,91 @@ bool mk1Controller::isConnected()
     return (handle != 0);
 }
 
+
 //
 // velocity of spindle
 //
-int mk1Controller::getSpindleMoveSpeed()
+int mk1Data::getSpindleMoveSpeed()
 {
     return spindleMoveSpeed;
 }
 
+
+void mk1Data::setSpindleMoveSpeed(int i)
+{
+    spindleMoveSpeed = i;
+}
+
+
 //
 // current instruction number
 //
-long mk1Controller::numberCompleatedInstructions()
+long mk1Data::numberCompleatedInstructions()
 {
-    return NumberCompleatedInstruction;
+    return numberCompleatedInstruction;
 }
+
+
+void mk1Data::setCompleatedInstructions(long i)
+{
+    numberCompleatedInstruction = i;
+}
+
 
 //
 // splindle is on?
 //
-bool mk1Controller::isFluidOn()
+bool mk1Data::isFluidOn()
 {
     return fluidEnabled;
+}
+
+void mk1Data::setFluidOn(bool b)
+{
+    fluidEnabled = b;
 }
 
 //
 // mist is on?
 //
-bool mk1Controller::isMistOn()
+bool mk1Data::isMistOn()
 {
     return mistEnabled;
+}
+
+void mk1Data::setMistOn(bool b)
+{
+    mistEnabled = b;
 }
 
 //
 // splindle is on?
 //
-bool mk1Controller::isSpindelOn()
+bool mk1Data::isSpindelOn()
 {
     return spindleEnabled;
 }
 
+void mk1Data::setSpindelOn(bool b)
+{
+    spindleEnabled = b;
+}
+
+
 //
 // was stopped because of emergency?
 //
-bool mk1Controller::isEmergencyStopOn()
+bool mk1Data::isEmergencyStopOn()
 {
-    return Estop;
+    return eStop;
 }
+
+
+void mk1Data::setEmergencyStopOn(bool b)
+{
+    eStop = b;
+}
+
 
 //
 // check connection
@@ -675,9 +596,14 @@ bool mk1Controller::testAllowActions()
 //
 // free buffer size
 //
-int mk1Controller::availableBufferSize()
+int mk1Data::availableBufferSize()
 {
-    return FreebuffSize;
+    return freebuffSize;
+}
+
+void mk1Data::setBufferSize(int i)
+{
+    freebuffSize = (byte)i;
 }
 
 
@@ -686,43 +612,44 @@ int mk1Controller::availableBufferSize()
 //
 void mk1Controller::parseBinaryInfo()
 {
-    FreebuffSize = readBuf[1];
+    /*freebuffSize = */setBufferSize(readBuf[1]);
     int velo = (int)(((/*(readBuf[23] << 24)*/ + (readBuf[22] << 16) + (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
 
     if (velo > 5000) {
         return;
     }
 
-    spindleMoveSpeed = velo;
+    /* spindleMoveSpeed = */setSpindleMoveSpeed (velo);
     // for mk2 instead 2.1 = > 1.341
 
-    coord[X].actualPosPulses = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
-    coord[Y].actualPosPulses = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
-    coord[Z].actualPosPulses = ((readBuf[35] << 24) + (readBuf[34] << 16) + (readBuf[33] << 8) + (readBuf[32]));
-    coord[A].actualPosPulses = ((readBuf[39] << 24) + (readBuf[38] << 16) + (readBuf[37] << 8) + (readBuf[36]));
+    Settings::coord[X].actualPosPulses = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
+    Settings::coord[Y].actualPosPulses = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
+    Settings::coord[Z].actualPosPulses = ((readBuf[35] << 24) + (readBuf[34] << 16) + (readBuf[33] << 8) + (readBuf[32]));
+    Settings::coord[A].actualPosPulses = ((readBuf[39] << 24) + (readBuf[38] << 16) + (readBuf[37] << 8) + (readBuf[36]));
 
     byte bb15 = readBuf[15];
 
-    coord[X].actualLimitMin = (bb15 & 0x01) != 0;
-    coord[X].actualLimitMax = (bb15 & 0x02) != 0;
-    coord[Y].actualLimitMin = (bb15 & 0x04) != 0;
-    coord[Y].actualLimitMax = (bb15 & 0x08) != 0;
-    coord[Z].actualLimitMin = (bb15 & 0x10) != 0;
-    coord[Z].actualLimitMax = (bb15 & 0x20) != 0;
-    coord[A].actualLimitMin = (bb15 & 0x40) != 0;
-    coord[A].actualLimitMax = (bb15 & 0x80) != 0;
+    Settings::coord[X].actualLimitMin = (bb15 & 0x01) != 0;
+    Settings::coord[X].actualLimitMax = (bb15 & 0x02) != 0;
+    Settings::coord[Y].actualLimitMin = (bb15 & 0x04) != 0;
+    Settings::coord[Y].actualLimitMax = (bb15 & 0x08) != 0;
+    Settings::coord[Z].actualLimitMin = (bb15 & 0x10) != 0;
+    Settings::coord[Z].actualLimitMax = (bb15 & 0x20) != 0;
+    Settings::coord[A].actualLimitMin = (bb15 & 0x40) != 0;
+    Settings::coord[A].actualLimitMax = (bb15 & 0x80) != 0;
 
-    NumberCompleatedInstruction = ((readBuf[9] << 24) + (readBuf[8] << 16) + (readBuf[7] << 8) + (readBuf[6]));
+    long num = ((readBuf[9] << 24) + (readBuf[8] << 16) + (readBuf[7] << 8) + (readBuf[6]));
+    setCompleatedInstructions(num);
 
     byte bb19 = readBuf[19];
 
-    spindleEnabled = (bb19 & 0x01) ? true : false;
+    /*spindleEnabled = */setSpindelOn((bb19 & 0x01) ? true : false);
 
     byte bb14 = readBuf[14];
-    Estop = (bb14 & 0x80) ? true : false;
+    /*eStop =*/ setEmergencyStopOn((bb14 & 0x80) ? true : false);
 
-    mistEnabled =  (bb14 & 0x10) ? false : true;
-    fluidEnabled = (bb14 & 0x04) ? false : true;
+    /*mistEnabled = */ setMistOn((bb14 & 0x10) ? false : true);
+    /*fluidEnabled = */setFluidOn((bb14 & 0x04) ? false : true);
 
     emit newDataFromMK1Controller();
 }
@@ -881,7 +808,7 @@ void mk1Controller::deviceNewPosition(float x, float y, float z, float a)
         return;
     }
 
-    packC8(coord[X].posPulse(x), coord[Y].posPulse(y), coord[Z].posPulse(z), coord[A].posPulse(a));
+    packC8(Settings::coord[X].posPulse(x), Settings::coord[Y].posPulse(y), Settings::coord[Z].posPulse(z), Settings::coord[A].posPulse(a));
 }
 
 
@@ -947,7 +874,7 @@ void mk1Data::packFourBytes(byte offset, int val)
 void mk1Data::sendBinaryData(bool checkBuffSize)
 {
     if (checkBuffSize) {
-        if (FreebuffSize < 2) {
+        if (freebuffSize < 2) {
             //тут нужно зависнуть пока буфер не освободится
         }
 
@@ -962,7 +889,7 @@ void mk1Data::sendBinaryData(bool checkBuffSize)
 
     qDebug() << "send" << st;
 
-    if (!DEMO_DEVICE) {
+    if (!Settings::DEMO_DEVICE) {
         //         _error_code = _usb->write(rawData);//, 2000, bytesWritten);
         if (handle != 0) {
             int transferred = 0;
@@ -1035,10 +962,10 @@ void mk1Data::pack9F( bool send)
     writeBuf[4] = 0x80; // settings
     writeBuf[5] = 0xb1; //TODO:unknown
 
-    packFourBytes(6, coord[X].pulsePerMm);
-    packFourBytes(10, coord[Y].pulsePerMm);
-    packFourBytes(14, coord[Z].pulsePerMm);
-    packFourBytes(18, coord[A].pulsePerMm);
+    packFourBytes(6, Settings::coord[X].pulsePerMm);
+    packFourBytes(10, Settings::coord[Y].pulsePerMm);
+    packFourBytes(14, Settings::coord[Z].pulsePerMm);
+    packFourBytes(18, Settings::coord[A].pulsePerMm);
 
     if (send == true) {
         sendBinaryData();
@@ -1058,32 +985,32 @@ void mk1Data::packA0(bool send)
 
     int AccelX = 0;
 
-    if ((coord[X].acceleration > 0) && (coord[X].pulsePerMm > 0)) {
-        AccelX = (int)3186.7 * 3600.0 / sqrt(coord[X].acceleration * coord[X].pulsePerMm);
+    if ((Settings::coord[X].acceleration > 0) && (Settings::coord[X].pulsePerMm > 0)) {
+        AccelX = (int)3186.7 * 3600.0 / sqrt(Settings::coord[X].acceleration * Settings::coord[X].pulsePerMm);
     }
 
     packFourBytes(6, AccelX);
 
     int AccelY = 0;
 
-    if ((coord[Y].acceleration > 0) && (coord[Y].pulsePerMm > 0)) {
-        AccelY = (int)3186.7 * 3600.0  / sqrt(coord[Y].acceleration * coord[Y].pulsePerMm);
+    if ((Settings::coord[Y].acceleration > 0) && (Settings::coord[Y].pulsePerMm > 0)) {
+        AccelY = (int)3186.7 * 3600.0  / sqrt(Settings::coord[Y].acceleration * Settings::coord[Y].pulsePerMm);
     }
 
     packFourBytes(10, AccelY);
 
     int AccelZ = 0;
 
-    if ((coord[Z].acceleration > 0) && (coord[Z].pulsePerMm > 0)) {
-        AccelZ = (int)3186.7 * 3600.0  / sqrt(coord[Z].acceleration * coord[Z].pulsePerMm);
+    if ((Settings::coord[Z].acceleration > 0) && (Settings::coord[Z].pulsePerMm > 0)) {
+        AccelZ = (int)3186.7 * 3600.0  / sqrt(Settings::coord[Z].acceleration * Settings::coord[Z].pulsePerMm);
     }
 
     packFourBytes(14, AccelZ);
 
     int AccelA = 0;
 
-    if ((coord[A].acceleration > 0) && (coord[A].pulsePerMm > 0)) {
-        AccelA = (int)3186.7 * 3600.0 / sqrt(coord[A].acceleration * coord[A].pulsePerMm);
+    if ((Settings::coord[A].acceleration > 0) && (Settings::coord[A].pulsePerMm > 0)) {
+        AccelA = (int)3186.7 * 3600.0 / sqrt(Settings::coord[A].acceleration * Settings::coord[A].pulsePerMm);
     }
 
     packFourBytes(18, AccelA);
@@ -1097,10 +1024,10 @@ void mk1Data::packA0(bool send)
     // reverse of axis.: 0xff no reverse, 0xfe axis x, 0xfd axis y, 0xfb axis z
     byte r = 0xff;
     // reset bits
-    r &= (coord[X].invertDirection == true) ? 0xfe : 0xff;
-    r &= (coord[Y].invertDirection == true) ? 0xfd : 0xff;
-    r &= (coord[Z].invertDirection == true) ? 0xfb : 0xff;
-    r &= (coord[A].invertDirection == true) ? 0xf7 : 0xff;
+    r &= (Settings::coord[X].invertDirection == true) ? 0xfe : 0xff;
+    r &= (Settings::coord[Y].invertDirection == true) ? 0xfd : 0xff;
+    r &= (Settings::coord[Z].invertDirection == true) ? 0xfb : 0xff;
+    r &= (Settings::coord[A].invertDirection == true) ? 0xf7 : 0xff;
 
     writeBuf[57] = r;// reverse axis
     writeBuf[58] = 0x01;// unknown byte
@@ -1108,10 +1035,10 @@ void mk1Data::packA0(bool send)
     // reverse motor steps, bitmask: 0 no inverting, 1 invert step X, 2 invert step Y, 4 invert step Z
     r = 0x0;
     // set bits
-    r |= (coord[X].invertPulses == true) ? 0x01 : 0x00;
-    r |= (coord[Y].invertPulses == true) ? 0x02 : 0x00;
-    r |= (coord[Z].invertPulses == true) ? 0x04 : 0x00;
-    r |= (coord[A].invertPulses == true) ? 0x08 : 0x00;
+    r |= (Settings::coord[X].invertPulses == true) ? 0x01 : 0x00;
+    r |= (Settings::coord[Y].invertPulses == true) ? 0x02 : 0x00;
+    r |= (Settings::coord[Z].invertPulses == true) ? 0x04 : 0x00;
+    r |= (Settings::coord[A].invertPulses == true) ? 0x08 : 0x00;
 
     writeBuf[59] = r; //
     writeBuf[60] = 0x00; // for mk2 ?
@@ -1134,14 +1061,14 @@ void mk1Data::packA1( bool send )
     // allow limits: bit 7 a+; bit 6 a-, bit 5 z+, bit 4 z-, bit 3 y+, bit 2 y-, bit 1 x+, bit 0 x-
     byte limits = 0x0;
     // set bits
-    limits |= (coord[X].useLimitMin == true) ? 0x01 : 0x00;
-    limits |= (coord[X].useLimitMax == true) ? 0x02 : 0x00;
-    limits |= (coord[Y].useLimitMin == true) ? 0x04 : 0x00;
-    limits |= (coord[Y].useLimitMax == true) ? 0x08 : 0x00;
-    limits |= (coord[Z].useLimitMin == true) ? 0x10 : 0x00;
-    limits |= (coord[Z].useLimitMax == true) ? 0x20 : 0x00;
-    limits |= (coord[A].useLimitMin == true) ? 0x40 : 0x00;
-    limits |= (coord[A].useLimitMax == true) ? 0x80 : 0x00;
+    limits |= (Settings::coord[X].useLimitMin == true) ? 0x01 : 0x00;
+    limits |= (Settings::coord[X].useLimitMax == true) ? 0x02 : 0x00;
+    limits |= (Settings::coord[Y].useLimitMin == true) ? 0x04 : 0x00;
+    limits |= (Settings::coord[Y].useLimitMax == true) ? 0x08 : 0x00;
+    limits |= (Settings::coord[Z].useLimitMin == true) ? 0x10 : 0x00;
+    limits |= (Settings::coord[Z].useLimitMax == true) ? 0x20 : 0x00;
+    limits |= (Settings::coord[A].useLimitMin == true) ? 0x40 : 0x00;
+    limits |= (Settings::coord[A].useLimitMax == true) ? 0x80 : 0x00;
 
     writeBuf[42] = limits;
     writeBuf[48] = 0xff; // unknown, for mk2?
@@ -1434,41 +1361,41 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
         writeBuf[4] = 0x80; // settings
     }
 
-    if (coord[X].enabled == true) {
+    if (Settings::coord[X].enabled == true) {
         float dnewSpdX  = 3600; // 3584?
 
-        if (speedLimitX != 0 && coord[X].pulsePerMm != 0) {
-            dnewSpdX = 7.2e8 / ((float)speedLimitX * coord[X].pulsePerMm);
+        if (speedLimitX != 0 && Settings::coord[X].pulsePerMm != 0) {
+            dnewSpdX = 7.2e8 / ((float)speedLimitX * Settings::coord[X].pulsePerMm);
         }
 
         packFourBytes(7, (int)dnewSpdX);
     }
 
-    if (coord[Y].enabled == true) {
+    if (Settings::coord[Y].enabled == true) {
         float dnewSpdY = 3600;
 
-        if (speedLimitY != 0 && coord[Y].pulsePerMm != 0) {
-            dnewSpdY = 7.2e8 / ((float)speedLimitY * coord[Y].pulsePerMm);
+        if (speedLimitY != 0 && Settings::coord[Y].pulsePerMm != 0) {
+            dnewSpdY = 7.2e8 / ((float)speedLimitY * Settings::coord[Y].pulsePerMm);
         }
 
         packFourBytes(11, (int)dnewSpdY);
     }
 
-    if (coord[Z].enabled == true) {
+    if (Settings::coord[Z].enabled == true) {
         float dnewSpdZ = 3600;
 
-        if (speedLimitZ != 0 && coord[Z].pulsePerMm != 0) {
-            dnewSpdZ = 7.2e8 / ((float)speedLimitZ * coord[Z].pulsePerMm);
+        if (speedLimitZ != 0 && Settings::coord[Z].pulsePerMm != 0) {
+            dnewSpdZ = 7.2e8 / ((float)speedLimitZ * Settings::coord[Z].pulsePerMm);
         }
 
         packFourBytes(15, (int)dnewSpdZ);
     }
 
-    if (coord[A].enabled == true) {
+    if (Settings::coord[A].enabled == true) {
         float dnewSpdA = 3600;
 
-        if (speedLimitA != 0 && coord[A].pulsePerMm != 0) {
-            dnewSpdA = 7.2e8 / ((float)speedLimitA * coord[A].pulsePerMm);
+        if (speedLimitA != 0 && Settings::coord[A].pulsePerMm != 0) {
+            dnewSpdA = 7.2e8 / ((float)speedLimitA * Settings::coord[A].pulsePerMm);
         }
 
         packFourBytes(19, (int)dnewSpdA);
@@ -1515,7 +1442,7 @@ void mk1Data::packC2( bool send )
 
 
 //
-// set the coordinates without moving
+// set the Settings::coordinates without moving
 //
 void mk1Data::packC8(int x, int y, int z, int a, bool send)
 {
@@ -1538,10 +1465,10 @@ void mk1Data::packC8(int x, int y, int z, int a, bool send)
 // recalculate from mm/inch to pulses
 void mk1Data::packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, int _code, bool send)
 {
-    int xPulses = coord[X].posPulse(_posX);
-    int yPulses = coord[Y].posPulse(_posY);
-    int zPulses = coord[Z].posPulse(_posZ);
-    int aPulses = coord[A].posPulse(_posA);
+    int xPulses = Settings::coord[X].posPulse(_posX);
+    int yPulses = Settings::coord[Y].posPulse(_posY);
+    int zPulses = Settings::coord[Z].posPulse(_posZ);
+    int aPulses = Settings::coord[A].posPulse(_posA);
 
     packCA(xPulses, yPulses, zPulses, aPulses, _speed, _NumberInstruction, _code, send);
 }
@@ -1564,10 +1491,10 @@ void mk1Data::packCA(moveParameters *params, bool send)
 
     writeBuf[5] = params->code;
 
-    int pulsesX  = coord[X].posPulse(params->posX);
-    int pulsesY  = coord[Y].posPulse(params->posY);
-    int pulsesZ  = coord[Z].posPulse(params->posZ);
-    int pulsesA  = coord[A].posPulse(params->posA);
+    int pulsesX  = Settings::coord[X].posPulse(params->posX);
+    int pulsesY  = Settings::coord[Y].posPulse(params->posY);
+    int pulsesZ  = Settings::coord[Z].posPulse(params->posZ);
+    int pulsesA  = Settings::coord[A].posPulse(params->posA);
 
     //how many pulses
     packFourBytes(6, pulsesX );
@@ -1612,7 +1539,7 @@ void mk1Data::packD2(int speed, float returnDistance, bool send)
     writeBuf[46] = 0x10;
 
     //
-    int inewReturn = (int)(returnDistance * (float)coord[Z].pulsePerMm);
+    int inewReturn = (int)(returnDistance * (float)Settings::coord[Z].pulsePerMm);
 
     //return to position
     packFourBytes(50, inewReturn);

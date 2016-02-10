@@ -45,6 +45,7 @@
 #include <utility>
 #include "vec.h"
 
+#include "GCode.h"
 #include "Translator.h"
 
 
@@ -53,90 +54,8 @@
 class cTranslator;
 
 
-enum PlaneEnum {
-    NonePlane,
-    XY,
-    YZ,
-    ZX,
-    UV,
-    VW,
-    WU
-};
-
-
 #define COORD_TOO_BIG 10e6
 #define MAX_FILE_SIZE 20e6
-
-//
-// g-code instruction
-//
-class GCodeCommand
-{
-    public:
-        enum MovingType {
-            NoType,
-            Line,
-            ArcCW,
-            ArcCCW
-        };
-
-    public:
-        bool changeInstrument; // to change the tool
-        int  numberInstrument; // собственно номер tool
-
-        //         bool   needPause;      // pause needed
-        int  pauseMSeconds;  // if waiting = 0, no pause = -1. other pause in milliseconds
-
-        //
-        // coordinates in mm
-        float X;
-        float Y;
-        float Z;
-
-        //
-        // angle in grad
-        float A;
-
-        // curve settings: G02, G03
-        float I;
-        float J;
-        float K;
-
-        PlaneEnum plane;
-
-        float maxSpeed; // telegr CA offset
-
-        bool  changeDirection;
-        int   accelCode;
-        int   stepsCounter; // number of steps in current direction
-        bool  workspeed; // true=G1 false=G0
-
-        float Radius;
-        // end of curves
-
-        //         int   speed;          // speed
-        bool  spindelON;      // spinle on
-        int   numberInstruct; // g-code
-        int   numberLine;     // from g-code file
-
-        MovingType typeMoving; // NONE, LINE, ARC_CW, ARC_CCW
-
-
-        float diametr; // diameter of tool
-
-        float angleVectors; //угол между отрезками, образуемыми этой, предыдущей и следующей точкой
-        //         float Distance; //растояние данного отрезка в мм.
-        //
-        // null constructor
-        GCodeCommand();
-
-        //         GCodeCommand(int _numberInstruct, bool _spindelON, float _X, float _Y, float _Z, float _A, int _speed,
-        //                      bool _workspeed, bool _changeInstrument = false, int _numberInstrument = 0,
-        //                      bool _needPause = false, int _timeSeconds = 0, float _diametr = 0.0);
-
-        // Конструктор на основе существующей команды
-        GCodeCommand(GCodeCommand *_cmd);
-};
 
 
 //
@@ -263,11 +182,9 @@ class DataCollections
         ///
         ///points
     public:
-        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument)
-        {
+        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument) {
             0, 0.0
-        })
-        {
+        }) {
             TypeData = Points;
             points = _Points;
             intrument = _intrument;
@@ -350,7 +267,8 @@ class Reader : public cTranslator
         std::vector<Vec3f> cached_points;
         std::vector<Vec3f> cached_color;
 
-        QList<GCodeCommand> GCodeList;
+        QList<GCodeCommand> gCodeList;
+
         //             signals:
         //                 void logMessage(const QString &s);
 
@@ -358,7 +276,9 @@ class Reader : public cTranslator
         void Swap(int &p1, int &p2);
         bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
         bool parseArc(const QString &line, Vec3 &pos, float &R, const float coef);
-        bool convertArcToLines(const GCodeCommand *c);
+        bool addLine(GCodeCommand *c);
+        bool addArc(GCodeCommand *c);
+        void convertArcToLines(GCodeCommand *c);
         float determineAngle(const Vec3 &pos, const Vec3 &pos_c, PlaneEnum pl);
         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );

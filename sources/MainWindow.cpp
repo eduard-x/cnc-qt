@@ -148,12 +148,15 @@ int MessageBox::exec(void* p, const QString &title, const QString &text, int tic
 
 // because of static
 EStatusTask  Task::Status = Stop;
-int Task::instructionStart = -1;
-int Task::instructionEnd = -1;
-int Task::instructionNow = -1;
+// int Task::instructionStart = -1;
+// int Task::instructionEnd = -1;
+// int Task::instructionNow = -1;
 int Task::lineCodeStart = -1;
 int Task::lineCodeNow = -1;
 int Task::lineCodeEnd = -1;
+int Task::instrCounter = -1;
+
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), Reader ()
@@ -163,6 +166,8 @@ MainWindow::MainWindow(QWidget *parent)
     textLog->document()->setMaximumBlockCount(4000);
 
     setWindowTitle(translate(_PROG_NAME));
+
+    axisList << "X" << "Y" << "Z" << "A";
 
     currentAppDir = qApp->applicationDirPath();
 
@@ -208,7 +213,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     labelTask->setText("");
 
-    readGUISettings();
+    readSettings();
 
     setWindowIcon(QIcon(QPixmap(":/images/icon.png")));
 
@@ -240,7 +245,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //
     cnc = new mk1Controller();
-    cnc->loadSettings();
+    //     cnc->loadSettings();
 
     // OpenGL area
     if (enableOpenGL == true) {
@@ -657,7 +662,7 @@ QString MainWindow::getLocaleString()
 }
 
 
-void MainWindow::writeGUISettings()
+void MainWindow::writeSettings()
 {
     QSettings* s;
     s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
@@ -721,11 +726,43 @@ void MainWindow::writeGUISettings()
 
     s->setValue("ShowGrate", ShowGrate); // grenzen
 
+
+    s->beginGroup("mk1");
+
+    for (int c = 0; c < axisList.count(); c++) {
+        s->setValue("Pulse" + axisList.at(c), Settings::coord[c].pulsePerMm);
+        s->setValue("Accel" + axisList.at(c), (double)Settings::coord[c].acceleration);
+        s->setValue("StartVelo" + axisList.at(c), (double)Settings::coord[c].minVelo);
+        s->setValue("EndVelo" + axisList.at(c), (double)Settings::coord[c].maxVelo);
+
+        //
+        s->setValue("Backlash" + axisList.at(c), (double)Settings::coord[c].backlash);
+        s->setValue("InvDirection" + axisList.at(c), (bool)Settings::coord[c].invertDirection);
+        s->setValue("InvPulses" + axisList.at(c), (bool)Settings::coord[c].invertPulses);
+        s->setValue("InvLimitMax" + axisList.at(c), (bool)Settings::coord[c].invLimitMax);
+        s->setValue("InvLimitMin" + axisList.at(c), (bool)Settings::coord[c].invLimitMin);
+        s->setValue("WorkAreaMin" + axisList.at(c), (double)Settings::coord[c].workAreaMin);
+        s->setValue("WorkAreaMax" + axisList.at(c), (double)Settings::coord[c].workAreaMax);
+        s->setValue("Enabled" + axisList.at(c), (bool)Settings::coord[c].enabled);
+        //
+
+        s->setValue("HardLimitMin" + axisList.at(c), (bool)Settings::coord[c].useLimitMin);
+        s->setValue("HardLimitMax" + axisList.at(c), (bool)Settings::coord[c].useLimitMax);
+
+        s->setValue("SoftLimit" + axisList.at(c), (bool)Settings::coord[c].checkSoftLimits);
+        s->setValue("SoftMin" + axisList.at(c), (double)Settings::coord[c].softLimitMin);
+        s->setValue("SoftMax" + axisList.at(c), (double)Settings::coord[c].softLimitMax);
+
+        s->setValue("Home" + axisList.at(c), (double)Settings::coord[c].home);
+    }
+
+    s->endGroup();
+
     s->sync();
 }
 
 
-void MainWindow::readGUISettings()
+void MainWindow::readSettings()
 {
     QSettings* s;
     s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
@@ -839,6 +876,58 @@ void MainWindow::readGUISettings()
     GridYend = s->value("GridYend", 100).toInt();
 
     ShowGrate = s->value("ShowGrate", true).toBool(); // grenzen
+
+    bool res;
+
+    s->beginGroup("mk1");
+
+    for (int c = 0; c < axisList.count(); c++) {
+        int i = s->value("Pulse" + axisList.at(c), 200).toInt( &res);
+        Settings::coord[c].pulsePerMm = (res == true) ? i : 200;
+
+        float f = s->value("Accel" + axisList.at(c), 15).toFloat( &res);
+        Settings::coord[c].acceleration = (res == true) ? f : 15;
+
+        f = s->value("StartVelo" + axisList.at(c), 0).toFloat( &res);
+        Settings::coord[c].minVelo = (res == true) ? f : 0;
+
+        f = s->value("EndVelo" + axisList.at(c), 400).toFloat( &res);
+        Settings::coord[c].maxVelo = (res == true) ? f : 400;
+
+        Settings::coord[c].checkSoftLimits = s->value("SoftLimit" + axisList.at(c), false).toBool( );
+
+        f = s->value("SoftMin" + axisList.at(c), 0).toFloat( &res);
+        Settings::coord[c].softLimitMin = (res == true) ? f : 0;
+
+        f = s->value("SoftMax" + axisList.at(c), 0).toFloat( &res);
+        Settings::coord[c].softLimitMax = (res == true) ? f : 0;
+
+        f = s->value("Home" + axisList.at(c), 0).toFloat( &res);
+        Settings::coord[c].home = (res == true) ? f : 0;
+
+        Settings::coord[c].useLimitMin = s->value("HardLimitMin" + axisList.at(c), true).toBool();
+        Settings::coord[c].useLimitMax = s->value("HardLimitMax" + axisList.at(c), true).toBool();
+
+        //
+        Settings::coord[c].invertDirection = s->value("InvDirection" + axisList.at(c), false).toBool();
+        Settings::coord[c].invertPulses = s->value("InvPulses" + axisList.at(c), false).toBool();
+        Settings::coord[c].invLimitMax = s->value("InvLimitMax" + axisList.at(c), false).toBool();
+        Settings::coord[c].invLimitMin = s->value("InvLimitMin" + axisList.at(c), false).toBool();
+        Settings::coord[c].enabled = s->value("Enabled" + axisList.at(c), true).toBool();
+
+        f = s->value("Backlash" + axisList.at(c), 0).toFloat( &res);
+        Settings::coord[c].backlash = (res == true) ? f : 0;
+
+        f = s->value("WorkAreaMin" + axisList.at(c), 0).toFloat( &res);
+        Settings::coord[c].workAreaMin = (res == true) ? f : 0;
+
+        f = s->value("WorkAreaMax" + axisList.at(c), 0).toFloat( &res);
+        Settings::coord[c].workAreaMax = (res == true) ? f : 0;
+        //
+    }
+
+    s->endGroup();
+
 }
 
 
@@ -1002,7 +1091,7 @@ void MainWindow::closeEvent(QCloseEvent* ce)
 
     disconnect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 
-    writeGUISettings();
+    writeSettings();
 
     delete cnc;
 
@@ -1026,7 +1115,7 @@ void MainWindow::onExit()
 
     disconnect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 
-    writeGUISettings();
+    writeSettings();
 
     delete cnc;
 
@@ -1139,7 +1228,7 @@ void MainWindow::onStartTask()
         return;
     }
 
-    if (GCodeList.count() == 0) {
+    if (gCodeList.count() == 0) {
         // no data
         MessageBox::exec(this, translate(_ERR), translate(_MSG_NO_DATA), QMessageBox::Critical);
         return;
@@ -1188,10 +1277,12 @@ void MainWindow::onStartTask()
     Task::lineCodeEnd = end;
     Task::lineCodeNow = Task::lineCodeStart;
 
+    Task::instrCounter = 0;
+#if 0
     Task::instructionStart = -1;
     Task::instructionNow = -1;
 
-    foreach (GCodeCommand c, GCodeList) {
+    foreach (GCodeCommand c, gCodeList) {
         if(c.numberLine == Task::lineCodeStart && Task::instructionStart == -1) { // get the first only
             Task::instructionStart = c.numberInstruct;
         }
@@ -1204,8 +1295,9 @@ void MainWindow::onStartTask()
             Task::instructionNow = c.numberInstruct;
         }
     }
+#endif
 
-    qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd << "code" << Task::instructionStart << Task::instructionEnd << "size of code" << GCodeList.count();
+    qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd /*<< "code" << Task::instructionStart << Task::instructionEnd*/ << "size of code" << gCodeList.count();
     QString s = translate(_FROM_TO).arg( Task::lineCodeStart + 1).arg( Task::lineCodeEnd + 1);
     labelTask->setText( s );
 
@@ -1262,20 +1354,20 @@ bool MainWindow::runCommand()
         return false;
     }
 
-    GCodeCommand gcodeNow = GCodeList.at(Task::instructionNow);
+    GCodeCommand gcodeNow = gCodeList.at(Task::instrCounter);
 
     useHome = checkHome->isChecked();
 
     if (useHome == true) {
-        cnc->coord[X].startPos = doubleSpinHomeX->value();
-        cnc->coord[Y].startPos = doubleSpinHomeY->value();
-        cnc->coord[Z].startPos = doubleSpinHomeZ->value();
-        cnc->coord[A].startPos = 0.0;
+        Settings::coord[X].startPos = doubleSpinHomeX->value();
+        Settings::coord[Y].startPos = doubleSpinHomeY->value();
+        Settings::coord[Z].startPos = doubleSpinHomeZ->value();
+        Settings::coord[A].startPos = 0.0;
     } else {
-        cnc->coord[X].startPos = cnc->coord[X].actualPosmm;
-        cnc->coord[Y].startPos = cnc->coord[Y].actualPosmm;
-        cnc->coord[Z].startPos = cnc->coord[Z].actualPosmm;
-        cnc->coord[A].startPos = 0.0;
+        Settings::coord[X].startPos = Settings::coord[X].actualPosmm;
+        Settings::coord[Y].startPos = Settings::coord[Y].actualPosmm;
+        Settings::coord[Z].startPos = Settings::coord[Z].actualPosmm;
+        Settings::coord[A].startPos = 0.0;
     }
 
     // Start
@@ -1298,11 +1390,11 @@ bool MainWindow::runCommand()
         //moving to the first point axes X and Y
         //TODO: spindle move higher, now 10 mm
         moveParameters mParams;
-        mParams.posX = cnc->coord[X].startPos;
-        mParams.posY = cnc->coord[Y].startPos;
-        mParams.posZ = cnc->coord[Z].startPos + 10.0;
-        mParams.posA = cnc->coord[A].startPos;//, userSpeedG0;
-        mParams.speed = gcodeNow.maxSpeed;
+        mParams.posX = Settings::coord[X].startPos;
+        mParams.posY = Settings::coord[Y].startPos;
+        mParams.posZ = Settings::coord[Z].startPos + 10.0;
+        mParams.posA = Settings::coord[A].startPos;//, userSpeedG0;
+        mParams.speed = gcodeNow.vectSpeed;
         mParams.code = 0x39; //gcodeNow.accelCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
         mParams.numberInstruction = 0;
@@ -1313,13 +1405,13 @@ bool MainWindow::runCommand()
         mParams.posY = gcodeNow.Y;
         mParams.posZ = gcodeNow.Z + 10.0;
         mParams.posA = gcodeNow.A;//, userSpeedG0;
-        mParams.speed = gcodeNow.maxSpeed;
+        mParams.speed = gcodeNow.vectSpeed;
         mParams.code = gcodeNow.accelCode;
         mParams.restPulses = gcodeNow.stepsCounter;
-        mParams.numberInstruction = Task::instructionNow;
+        mParams.numberInstruction = Task::instrCounter;
 
         cnc->packCA(&mParams); // move to init position
-        //         cnc->packCA(gcodeNow.X, gcodeNow.Y, cnc->coord[Z].startPos + 10.0, gcodeNow.A , userSpeedG0, gcodeNow.angleVectors, gcodeNow.Distance);
+        //         cnc->packCA(gcodeNow.X, gcodeNow.Y, Settings::coord[Z].startPos + 10.0, gcodeNow.A , userSpeedG0, gcodeNow.angleVectors, gcodeNow.Distance);
 
         Task::Status = Working;
 
@@ -1382,7 +1474,7 @@ bool MainWindow::runCommand()
 
 
     //TODO: to add in parameter the value
-    if (Task::instructionNow > (cnc->numberCompleatedInstructions() + 3)) {
+    if (Task::instrCounter > (cnc->numberCompleatedInstructions() + 3)) {
         return true;    // don't send more than 3 commands
     }
 
@@ -1448,10 +1540,10 @@ bool MainWindow::runCommand()
         mParams.posY = pointY;
         mParams.posZ = pointZ;
         mParams.posA = pointA;//, userSpeedG0;
-        mParams.speed = gcodeNow.maxSpeed;
+        mParams.speed = gcodeNow.vectSpeed;
         mParams.code = gcodeNow.accelCode; //
         mParams.restPulses = gcodeNow.stepsCounter;//
-        mParams.numberInstruction = Task::instructionNow++;
+        mParams.numberInstruction = Task::instrCounter++;
 
         cnc->packCA(&mParams); // move to init position
         //     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
@@ -1710,20 +1802,20 @@ void MainWindow::onCncNewData()
 
     //сдвинем границы
     //     if (ShowGrate) {
-    //         if (cnc->coord[X].posMm() < grateXmin) {
-    //             grateXmin = cnc->coord[X].posMm();
+    //         if (Settings::coord[X].posMm() < grateXmin) {
+    //             grateXmin = Settings::coord[X].posMm();
     //         }
     //
-    //         if (cnc->coord[X].posMm() > grateXmax) {
-    //             grateXmax = cnc->coord[X].posMm();
+    //         if (Settings::coord[X].posMm() > grateXmax) {
+    //             grateXmax = Settings::coord[X].posMm();
     //         }
     //
-    //         if (cnc->coord[Y].posMm() < grateYmin) {
-    //             grateYmin = cnc->coord[Y].posMm();
+    //         if (Settings::coord[Y].posMm() < grateYmin) {
+    //             grateYmin = Settings::coord[Y].posMm();
     //         }
     //
-    //         if (cnc->coord[Y].posMm() > grateYmax) {
-    //             grateYmax = cnc->coord[Y].posMm();
+    //         if (Settings::coord[Y].posMm() > grateYmax) {
+    //             grateYmax = Settings::coord[Y].posMm();
     //         }
     //     }
 }
@@ -1809,9 +1901,9 @@ void  MainWindow::refreshElementsForms()
         }
     }
 
-    numPosX->setValue( cnc->coord[X].posMm());
-    numPosY->setValue( cnc->coord[Y].posMm());
-    numPosZ->setValue( cnc->coord[Z].posMm());
+    numPosX->setValue( Settings::coord[X].posMm());
+    numPosY->setValue( Settings::coord[Y].posMm());
+    numPosZ->setValue( Settings::coord[Z].posMm());
 
 #if 0
 
@@ -1867,7 +1959,6 @@ void  MainWindow::refreshElementsForms()
     labelB14B5->setPixmap( bb14 & (1 << 5) ? redPix : greenPix );
     labelB14B6->setPixmap( bb14 & (1 << 6) ? redPix : greenPix );
     labelB14B7->setPixmap( bb14 & (1 << 7) ? redPix : greenPix );
-
 
 
     labelB15B0->setPixmap( bb15 & (1 << 0) ? redPix : greenPix );
@@ -2065,69 +2156,77 @@ void MainWindow::fillListWidget(QStringList listCode)
 
 void MainWindow::fixGCodeList()
 {
-    cnc->coord[X].softLimitMin = GCodeList[0].X;
-    cnc->coord[X].softLimitMax = GCodeList[0].X;
-    cnc->coord[Y].softLimitMin = GCodeList[0].Y;
-    cnc->coord[Y].softLimitMax = GCodeList[0].Y;
-    cnc->coord[Z].softLimitMin = GCodeList[0].Z;
-    cnc->coord[Z].softLimitMax = GCodeList[0].Z;
+    if (gCodeList.count() < 2) {
+        return;
+    }
+
+    Settings::coord[X].softLimitMin = gCodeList[0].X;
+    Settings::coord[X].softLimitMax = gCodeList[0].X;
+    Settings::coord[Y].softLimitMin = gCodeList[0].Y;
+    Settings::coord[Y].softLimitMax = gCodeList[0].Y;
+    Settings::coord[Z].softLimitMin = gCodeList[0].Z;
+    Settings::coord[Z].softLimitMax = gCodeList[0].Z;
 
     maxLookaheadAngleRad = maxLookaheadAngle * PI / 180.0;// grad to rad
     qDebug() << "max angle" << maxLookaheadAngle << " in rad: " << maxLookaheadAngleRad;
 
     //
-    for (int numPos = 0; numPos < GCodeList.count() - 2; numPos++) {
-        if (GCodeList[numPos].X > cnc->coord[X].softLimitMax) {
-            cnc->coord[X].softLimitMax = GCodeList[numPos].X;
+    for (int numPos = 1; numPos < gCodeList.size() - 2; numPos++) {
+        if (gCodeList[numPos].X > Settings::coord[X].softLimitMax) {
+            Settings::coord[X].softLimitMax = gCodeList[numPos].X;
         }
 
-        if (GCodeList[numPos].X < cnc->coord[X].softLimitMin) {
-            cnc->coord[X].softLimitMin = GCodeList[numPos].X;
+        if (gCodeList[numPos].X < Settings::coord[X].softLimitMin) {
+            Settings::coord[X].softLimitMin = gCodeList[numPos].X;
         }
 
-        if (GCodeList[numPos].Y > cnc->coord[Y].softLimitMax) {
-            cnc->coord[Y].softLimitMax = GCodeList[numPos].Y;
+        if (gCodeList[numPos].Y > Settings::coord[Y].softLimitMax) {
+            Settings::coord[Y].softLimitMax = gCodeList[numPos].Y;
         }
 
-        if (GCodeList[numPos].Y < cnc->coord[Y].softLimitMin) {
-            cnc->coord[Y].softLimitMin = GCodeList[numPos].Y;
+        if (gCodeList[numPos].Y < Settings::coord[Y].softLimitMin) {
+            Settings::coord[Y].softLimitMin = gCodeList[numPos].Y;
         }
 
-        if (GCodeList[numPos].Z > cnc->coord[Z].softLimitMax) {
-            cnc->coord[Z].softLimitMax = GCodeList[numPos].Z;
+        if (gCodeList[numPos].Z > Settings::coord[Z].softLimitMax) {
+            Settings::coord[Z].softLimitMax = gCodeList[numPos].Z;
         }
 
-        if (GCodeList[numPos].Z < cnc->coord[Z].softLimitMin) {
-            cnc->coord[Z].softLimitMin = GCodeList[numPos].Z;
+        if (gCodeList[numPos].Z < Settings::coord[Z].softLimitMin) {
+            Settings::coord[Z].softLimitMin = gCodeList[numPos].Z;
         }
 
         // calculate the number of steps in one direction, if exists
-        if (GCodeList[numPos].angleVectors <= maxLookaheadAngleRad) {
-            GCodeList[numPos].changeDirection = false;
+        if (fabs(gCodeList[numPos].angle - gCodeList[numPos + 1].angle) < fabs(PI - maxLookaheadAngleRad)) {
+            gCodeList[numPos].changeDirection = false;
 
-            //         if ((GCodeList[numPos - 1].angleVectors == GCodeList[numPos].angleVectors) && (GCodeList[numPos - 1].plane == GCodeList[numPos].plane)) {
-            if (GCodeList[numPos].stepsCounter == 0) {
-                numPos = calculateRestSteps(numPos); // and update the pos
+            //         if ((gCodeList[numPos - 1].angleVectors == gCodeList[numPos].angleVectors) && (gCodeList[numPos - 1].plane == gCodeList[numPos].plane)) {
+            if (gCodeList[numPos].stepsCounter == 0) {
+                int endPos = calculateRestSteps(numPos); // and update the pos
+
+                qDebug() << "rest steps: " << gCodeList[numPos].numberLine << gCodeList[endPos].numberLine;
+                patchSpeed(numPos, endPos);
+                numPos = endPos;
             }
         } else {
-            GCodeList[numPos].changeDirection = true;
+            gCodeList[numPos].changeDirection = true;
 
             patchSpeed(numPos, numPos + 1);
 
-            if (GCodeList[numPos].workspeed == true) { // feed
-                GCodeList[numPos].accelCode = 0x31;
+            if (gCodeList[numPos].feed == true) { // feed
+                gCodeList[numPos].accelCode = 0x31;
             } else {
-                GCodeList[numPos].accelCode = 0x39;
+                gCodeList[numPos].accelCode = 0x39;
             }
         }
     }
 
-#if 1
+#if 0
 
     // now debug
-    for (int i = 0; i < GCodeList.count(); i++) {
-        qDebug() << i << "instruction" << GCodeList[i].numberInstruct << "line" << GCodeList[i].numberLine << "accel" << GCodeList[i].accelCode 
-        << "steps" << GCodeList[i].stepsCounter << "speed" << GCodeList[i].maxSpeed;
+    for (int i = 0; i < gCodeList.count(); i++) {
+        qDebug() << i << "line" << gCodeList[i].numberLine << "accel" << gCodeList[i].accelCode
+                 << "cuts" <<  gCodeList[i].splits << "steps" << gCodeList[i].stepsCounter << "speed" << gCodeList[i].vectSpeed;
     }
 
 #endif
@@ -2136,156 +2235,140 @@ void MainWindow::fixGCodeList()
 
 void MainWindow::patchSpeed(int begPos, int endPos)
 {
-    switch (GCodeList[begPos].plane) {
+    qDebug() << "patch speed " << begPos << endPos;
+
+    switch (gCodeList[begPos].plane) {
         case XY: {
-            float dX = fabs(GCodeList[begPos].X - GCodeList[endPos].X);
-            float dY = fabs(GCodeList[begPos].Y - GCodeList[endPos].Y);
-            float dH = sqrt(dX * dX + dY * dY);
-            float coeff = 0;
+            for (int i = begPos; i < begPos + gCodeList[begPos].splits; i++) {
+                gCodeList[i].stepsCounter =  (int) Settings::coord[X].pulsePerMm * fabs(gCodeList[i].X - gCodeList[endPos].X);
+                float dX = fabs(gCodeList[i].X - gCodeList[i + 1].X);
+                float dY = fabs(gCodeList[i].Y - gCodeList[i + 1].Y);
+                float dH = sqrt(dX * dX + dY * dY);
+                float coeff = 1.0;
 
-            if (dX > dY) {
-                if (dX != 0.0) {
-                    coeff = dH / dX;
-                }
+                if (dX > dY) {
+                    if (dX != 0.0) {
+                        coeff = dH / dX;
+                    }
 
-                for (int i = begPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[X].pulsePerMm * fabs(GCodeList[i].X - GCodeList[endPos].X);
                     float dnewSpdX  = 3600; // 3584?
 
-                    if (cnc->coord[X].maxVelo != 0 && cnc->coord[X].pulsePerMm != 0) {
-                        dnewSpdX = 7.2e8 / ((float)cnc->coord[X].maxVelo * cnc->coord[X].pulsePerMm);
+                    if (Settings::coord[X].maxVelo != 0 && Settings::coord[X].pulsePerMm != 0) {
+                        dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
                     }
 
-                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdX; //
-                    GCodeList[i].accelCode = 0x1;
-                }
+                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdX; //
+                } else {
+                    if (dY != 0.0) {
+                        coeff = dH / dY;
+                    }
 
-                GCodeList[begPos].accelCode = 0x11;
-                GCodeList[endPos].accelCode = 0x21;
-            } else {
-                if (dY != 0.0) {
-                    coeff = dH / dY;
-                }
-
-                for (int i = begPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[Y].pulsePerMm * fabs(GCodeList[i].Y - GCodeList[endPos].Y);
                     float dnewSpdY  = 3600; // 3584?
 
-                    if (cnc->coord[Y].maxVelo != 0 && cnc->coord[Y].pulsePerMm != 0) {
-                        dnewSpdY = 7.2e8 / ((float)cnc->coord[Y].maxVelo * cnc->coord[Y].pulsePerMm);
+                    if (Settings::coord[Y].maxVelo != 0 && Settings::coord[Y].pulsePerMm != 0) {
+                        dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
                     }
 
-                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdY; //
-                    GCodeList[i].accelCode = 0x1;
+                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdY; //
                 }
 
-                GCodeList[begPos].accelCode = 0x11;
-                GCodeList[endPos].accelCode = 0x21;
+                gCodeList[i].accelCode = 0x1;
             }
+
+            gCodeList[begPos].accelCode = 0x11;
+            gCodeList[endPos - 1].accelCode = 0x21;
 
             break;
         }
 
         case YZ: {
-            float dY = fabs(GCodeList[begPos].Y - GCodeList[endPos].Y);
-            float dZ = fabs(GCodeList[begPos].Z - GCodeList[endPos].Z);
-            float dH = sqrt(dZ * dZ + dY * dY);
-            float coeff = 0;
+            for (int i = begPos; i < begPos + gCodeList[begPos].splits; i++) {
+                gCodeList[i].stepsCounter =  (int) Settings::coord[Y].pulsePerMm * fabs(gCodeList[i].Y - gCodeList[endPos].Y);
+                float dY = fabs(gCodeList[i].Y - gCodeList[i + 1].Y);
+                float dZ = fabs(gCodeList[i].Z - gCodeList[i + i].Z);
+                float dH = sqrt(dZ * dZ + dY * dY);
+                float coeff = 1.0;
 
-            if (dY > dZ) {
-                if (dY != 0.0) {
-                    coeff = dH / dY;
-                }
+                if (dY > dZ) {
+                    if (dY != 0.0) {
+                        coeff = dH / dY;
+                    }
 
-                for (int i = begPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[Y].pulsePerMm * fabs(GCodeList[i].Y - GCodeList[endPos].Y);
                     float dnewSpdY  = 3600; // 3584?
 
-                    if (cnc->coord[Y].maxVelo != 0 && cnc->coord[Y].pulsePerMm != 0) {
-                        dnewSpdY = 7.2e8 / ((float)cnc->coord[Y].maxVelo * cnc->coord[Y].pulsePerMm);
+                    if (Settings::coord[Y].maxVelo != 0 && Settings::coord[Y].pulsePerMm != 0) {
+                        dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
                     }
 
-                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdY; //
-                    GCodeList[i].accelCode = 0x1;
-                }
+                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdY; //
+                } else {
+                    if (dZ != 0.0) {
+                        coeff = dH / dZ;
+                    }
 
-                GCodeList[begPos].accelCode = 0x11;
-                GCodeList[endPos].accelCode = 0x21;
-            } else {
-                if (dZ != 0.0) {
-                    coeff = dH / dZ;
-                }
-
-                for (int i = begPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[Z].pulsePerMm * fabs(GCodeList[i].Z - GCodeList[endPos].Z);
                     float dnewSpdZ  = 3600; // 3584?
 
-                    if (cnc->coord[Z].maxVelo != 0 && cnc->coord[Z].pulsePerMm != 0) {
-                        dnewSpdZ = 7.2e8 / ((float)cnc->coord[Z].maxVelo * cnc->coord[Z].pulsePerMm);
+                    if (Settings::coord[Z].maxVelo != 0 && Settings::coord[Z].pulsePerMm != 0) {
+                        dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
                     }
 
-                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdZ; //
-                    GCodeList[i].accelCode = 0x1;
+                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdZ; //
                 }
 
-                GCodeList[begPos].accelCode = 0x11;
-                GCodeList[endPos].accelCode = 0x21;
+                gCodeList[i].accelCode = 0x1;
             }
+
+            gCodeList[begPos].accelCode = 0x11;
+            gCodeList[endPos - 1].accelCode = 0x21;
 
             break;
         }
 
         case ZX: {
-            float dZ = fabs(GCodeList[begPos].Z - GCodeList[endPos].Z);
-            float dX = fabs(GCodeList[begPos].X - GCodeList[endPos].X);
-            float dH = sqrt(dX * dX + dZ * dZ);
-            float coeff = 0;
+            for (int i = begPos; i < begPos + gCodeList[begPos].splits; i++) {
+                gCodeList[i].stepsCounter =  (int) Settings::coord[Z].pulsePerMm * fabs(gCodeList[i].Z - gCodeList[endPos].Z);
+                float dZ = fabs(gCodeList[i].Z - gCodeList[i + 1].Z);
+                float dX = fabs(gCodeList[i].X - gCodeList[i + 1].X);
+                float dH = sqrt(dX * dX + dZ * dZ);
+                float coeff = 1.0;
 
-            if (dZ > dX) {
-                if (dZ != 0.0) {
-                    coeff = dH / dZ;
-                }
+                if (dZ > dX) {
+                    if (dZ != 0.0) {
+                        coeff = dH / dZ;
+                    }
 
-                for (int i = begPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[Z].pulsePerMm * fabs(GCodeList[i].Z - GCodeList[endPos].Z);
                     float dnewSpdZ  = 3600; // 3584?
 
-                    if (cnc->coord[Z].maxVelo != 0 && cnc->coord[Z].pulsePerMm != 0) {
-                        dnewSpdZ = 7.2e8 / ((float)cnc->coord[Z].maxVelo * cnc->coord[Z].pulsePerMm);
+                    if (Settings::coord[Z].maxVelo != 0 && Settings::coord[Z].pulsePerMm != 0) {
+                        dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
                     }
 
-                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdZ; //
-                    GCodeList[i].accelCode = 0x1;
-                }
+                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdZ; //
+                } else {
+                    if (dX != 0.0) {
+                        coeff = dH / dX;
+                    }
 
-                GCodeList[begPos].accelCode = 0x11;
-                GCodeList[endPos].accelCode = 0x21;
-            } else {
-                if (dX != 0.0) {
-                    coeff = dH / dX;
-                }
-
-                for (int i = begPos; i < endPos; i++) {
-                    GCodeList[i].stepsCounter =  (int) cnc->coord[X].pulsePerMm * fabs(GCodeList[i].X - GCodeList[endPos].X);
                     float dnewSpdX  = 3600; // 3584?
 
-                    if (cnc->coord[X].maxVelo != 0 && cnc->coord[X].pulsePerMm != 0) {
-                        dnewSpdX = 7.2e8 / ((float)cnc->coord[X].maxVelo * cnc->coord[X].pulsePerMm);
+                    if (Settings::coord[X].maxVelo != 0 && Settings::coord[X].pulsePerMm != 0) {
+                        dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
                     }
 
-                    GCodeList[i].maxSpeed = (int)coeff * dnewSpdX; //
-                    GCodeList[i].accelCode = 0x1;
+                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdX; //
                 }
 
-                GCodeList[begPos].accelCode = 0x11;   // acceleration
-                GCodeList[endPos].accelCode = 0x21; // deceleration
+                gCodeList[i].accelCode = 0x1;
             }
+
+            gCodeList[begPos].accelCode = 0x11;
+            gCodeList[endPos - 1].accelCode = 0x21;
 
             break;
         }
 
         default: {
-            qDebug() << "no plane information: pos " << begPos << "x" << GCodeList[begPos].X << "y" << GCodeList[begPos].Y << "z" << GCodeList[begPos].Z;
+            qDebug() << "no plane information: pos " << begPos << "x" << gCodeList[begPos].X << "y" << gCodeList[begPos].Y << "z" << gCodeList[begPos].Z;
         }
     }
 }
@@ -2295,24 +2378,20 @@ int MainWindow::calculateRestSteps(int startPos)
 {
     int endPos = startPos;
 
-    if (startPos > GCodeList.count()) {
+    if (startPos > gCodeList.count()) {
         qDebug() << "steps counter bigger than list";
         return -1;
     }
 
-    //     if (GCodeList[startPos].stepsCounter != 0){
-    //         qDebug() << "steps counter already calculated";
-    //         return;
-    //     }
+    for(QList<GCodeCommand>::iterator ic = gCodeList.begin() + startPos; ic != gCodeList.end() - 1;) {
+        float a1 = (*ic).angle;
+        ic++;
+        float a2 = (*ic).angle;
 
-    for(QList<GCodeCommand>::iterator ic = GCodeList.begin() + startPos; ic != GCodeList.end() - 1; ++ic) {
-//         float currentAngle = (*ic).angleVectors;
-//         ic++;
-//         float nextAngle = (*ic).angleVectors;
-
-        if ((*ic).angleVectors <= maxLookaheadAngleRad) {
-            //         if (((*ic).angleVectors == GCodeList[startPos].angleVectors) &&
-            //                 ((*ic).plane == GCodeList[startPos].plane) ) {
+        //         if ((*ic).angle <= maxLookaheadAngleRad) {
+        if (fabs(a1 - a2) < fabs(PI - maxLookaheadAngleRad)) {
+            //         if (((*ic).angleVectors == gCodeList[startPos].angleVectors) &&
+            //                 ((*ic).plane == gCodeList[startPos].plane) ) {
             endPos++;
         } else {
             break;
@@ -2320,24 +2399,21 @@ int MainWindow::calculateRestSteps(int startPos)
     }
 
     if ((endPos - startPos) < 2) {
-        GCodeList[startPos].changeDirection = true;
+        gCodeList[startPos].changeDirection = true;
 
-        if (GCodeList[startPos].workspeed == true) { // cutting
-            GCodeList[startPos].accelCode = 0x31;
+        if (gCodeList[startPos].feed == true) { // cutting
+            gCodeList[startPos].accelCode = 0x31;
         } else {
-            GCodeList[startPos].accelCode = 0x39;
+            gCodeList[startPos].accelCode = 0x39;
         }
 
         patchSpeed(startPos, endPos);
-        GCodeList[startPos].stepsCounter = 0;
+        gCodeList[startPos].stepsCounter = 0;
 
-        return startPos+1;
+        return startPos + 1;
     }
 
-    qDebug() << "rest steps: " << GCodeList[startPos].numberLine << GCodeList[endPos].numberLine;
-    patchSpeed(startPos, endPos);
-    
-    return endPos;
+    return (endPos - 1);
 }
 
 
@@ -2386,7 +2462,7 @@ void MainWindow::onCalcVelocity()
     int dlgResult = setfrm->exec();
 
     if (dlgResult == QMessageBox::Accepted) {
-        writeGUISettings();
+        writeSettings();
         QStringList m = translate(_MATERIAL_LIST).split("\n");
 
         if (m.count() > 0) {
@@ -2409,7 +2485,8 @@ void MainWindow::onSettings()
     int dlgResult = setfrm->exec();
 
     if (dlgResult == QMessageBox::Accepted) {
-        cnc->saveSettings();
+        cnc->sendSettings();
+        writeSettings();
     }
 }
 
@@ -2545,28 +2622,28 @@ void MainWindow::onEditGCode(int row, int col)
 
 void MainWindow::onButtonXtoZero()
 {
-    cnc->deviceNewPosition(0, cnc->coord[Y].actualPosPulses, cnc->coord[Z].actualPosPulses, cnc->coord[A].actualPosPulses);
+    cnc->deviceNewPosition(0, Settings::coord[Y].actualPosPulses, Settings::coord[Z].actualPosPulses, Settings::coord[A].actualPosPulses);
     numPosX->setValue(0.0);
 }
 
 
 void MainWindow::onButtonYtoZero()
 {
-    cnc->deviceNewPosition(cnc->coord[X].actualPosPulses, 0, cnc->coord[Z].actualPosPulses, cnc->coord[A].actualPosPulses);
+    cnc->deviceNewPosition(Settings::coord[X].actualPosPulses, 0, Settings::coord[Z].actualPosPulses, Settings::coord[A].actualPosPulses);
     numPosY->setValue(0.0);
 }
 
 
 void MainWindow::onButtonZtoZero()
 {
-    cnc->deviceNewPosition(cnc->coord[X].actualPosPulses, cnc->coord[Y].actualPosPulses, 0, cnc->coord[A].actualPosPulses);
+    cnc->deviceNewPosition(Settings::coord[X].actualPosPulses, Settings::coord[Y].actualPosPulses, 0, Settings::coord[A].actualPosPulses);
     numPosZ->setValue(0.0);
 }
 
 
 void MainWindow::onButtonAtoZero()
 {
-    cnc->deviceNewPosition(cnc->coord[X].actualPosPulses, cnc->coord[Y].actualPosPulses, cnc->coord[Z].actualPosPulses, 0);
+    cnc->deviceNewPosition(Settings::coord[X].actualPosPulses, Settings::coord[Y].actualPosPulses, Settings::coord[Z].actualPosPulses, 0);
     numAngleGrad->setValue(0.0);
 }
 

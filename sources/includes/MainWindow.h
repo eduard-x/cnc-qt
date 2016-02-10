@@ -132,9 +132,9 @@ class Task
     public:
         static EStatusTask Status;
         //
-        static int instructionStart;
-        static int instructionEnd;
-        static int instructionNow;
+        //         static int instructionStart;
+        //         static int instructionEnd;
+        static int instrCounter;
 
         // gcode line number
         static int lineCodeStart;
@@ -324,16 +324,17 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 
         void AddLog(QString _text = "");
         void SendSignal();
-        void readGUISettings();
-        void writeGUISettings();
-        void readSettings(bool global);
-        void writeSettings(bool global);
+        void readSettings();
+        void writeSettings();
+        //         void readSettings(bool global);
+        //         void writeSettings(bool global);
         QString selectedLang;
 
     protected:
         void closeEvent(QCloseEvent *event);
 
     private:
+        QStringList axisList;
         QTimer  mainTaskTimer;
         QStringList lastFiles;
         QLabel *statusLabel1;
