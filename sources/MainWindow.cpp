@@ -2153,6 +2153,46 @@ void MainWindow::fillListWidget(QStringList listCode)
 #endif
 }
 
+void MainWindow::detectMinMax(int pos)
+{
+    if (pos >=0 && pos < gCodeList.size()){
+        if (gCodeList[pos].X > Settings::coord[X].softLimitMax) {
+            Settings::coord[X].softLimitMax = gCodeList[pos].X;
+        }
+
+        if (gCodeList[pos].X < Settings::coord[X].softLimitMin) {
+            Settings::coord[X].softLimitMin = gCodeList[pos].X;
+        }
+
+        if (gCodeList[pos].Y > Settings::coord[Y].softLimitMax) {
+            Settings::coord[Y].softLimitMax = gCodeList[pos].Y;
+        }
+
+        if (gCodeList[pos].Y < Settings::coord[Y].softLimitMin) {
+            Settings::coord[Y].softLimitMin = gCodeList[pos].Y;
+        }
+
+        if (gCodeList[pos].Z > Settings::coord[Z].softLimitMax) {
+            Settings::coord[Z].softLimitMax = gCodeList[pos].Z;
+        }
+
+        if (gCodeList[pos].Z < Settings::coord[Z].softLimitMin) {
+            Settings::coord[Z].softLimitMin = gCodeList[pos].Z;
+        }
+    }
+}
+
+
+void MainWindow::resetMinMax()
+{
+    Settings::coord[X].softLimitMin = 0.0;
+    Settings::coord[X].softLimitMax = 0.0;
+    Settings::coord[Y].softLimitMin = 0.0;
+    Settings::coord[Y].softLimitMax = 0.0;
+    Settings::coord[Z].softLimitMin = 0.0;
+    Settings::coord[Z].softLimitMax = 0.0;
+}
+
 
 void MainWindow::fixGCodeList()
 {
@@ -2160,42 +2200,16 @@ void MainWindow::fixGCodeList()
         return;
     }
 
-    Settings::coord[X].softLimitMin = gCodeList[0].X;
-    Settings::coord[X].softLimitMax = gCodeList[0].X;
-    Settings::coord[Y].softLimitMin = gCodeList[0].Y;
-    Settings::coord[Y].softLimitMax = gCodeList[0].Y;
-    Settings::coord[Z].softLimitMin = gCodeList[0].Z;
-    Settings::coord[Z].softLimitMax = gCodeList[0].Z;
+    resetMinMax();
+  
+    detectMinMax(0);
 
     maxLookaheadAngleRad = maxLookaheadAngle * PI / 180.0;// grad to rad
-    qDebug() << "max angle" << maxLookaheadAngle << " in rad: " << maxLookaheadAngleRad;
+//     qDebug() << "max angle" << maxLookaheadAngle << " in rad: " << maxLookaheadAngleRad;
 
     //
     for (int numPos = 1; numPos < gCodeList.size() - 2; numPos++) {
-        if (gCodeList[numPos].X > Settings::coord[X].softLimitMax) {
-            Settings::coord[X].softLimitMax = gCodeList[numPos].X;
-        }
-
-        if (gCodeList[numPos].X < Settings::coord[X].softLimitMin) {
-            Settings::coord[X].softLimitMin = gCodeList[numPos].X;
-        }
-
-        if (gCodeList[numPos].Y > Settings::coord[Y].softLimitMax) {
-            Settings::coord[Y].softLimitMax = gCodeList[numPos].Y;
-        }
-
-        if (gCodeList[numPos].Y < Settings::coord[Y].softLimitMin) {
-            Settings::coord[Y].softLimitMin = gCodeList[numPos].Y;
-        }
-
-        if (gCodeList[numPos].Z > Settings::coord[Z].softLimitMax) {
-            Settings::coord[Z].softLimitMax = gCodeList[numPos].Z;
-        }
-
-        if (gCodeList[numPos].Z < Settings::coord[Z].softLimitMin) {
-            Settings::coord[Z].softLimitMin = gCodeList[numPos].Z;
-        }
-
+      detectMinMax(numPos);
         // calculate the number of steps in one direction, if exists
         if (fabs(gCodeList[numPos].angle - gCodeList[numPos + 1].angle) < fabs(PI - maxLookaheadAngleRad)) {
             gCodeList[numPos].changeDirection = false;
@@ -2239,7 +2253,8 @@ void MainWindow::patchSpeed(int begPos, int endPos)
 
     switch (gCodeList[begPos].plane) {
         case XY: {
-            for (int i = begPos; i < begPos + gCodeList[begPos].splits; i++) {
+            for (int i = begPos; i < endPos; i++) {
+                detectMinMax(i);
                 gCodeList[i].stepsCounter =  (int) Settings::coord[X].pulsePerMm * fabs(gCodeList[i].X - gCodeList[endPos].X);
                 float dX = fabs(gCodeList[i].X - gCodeList[i + 1].X);
                 float dY = fabs(gCodeList[i].Y - gCodeList[i + 1].Y);
@@ -2282,7 +2297,8 @@ void MainWindow::patchSpeed(int begPos, int endPos)
         }
 
         case YZ: {
-            for (int i = begPos; i < begPos + gCodeList[begPos].splits; i++) {
+            for (int i = begPos; i < endPos; i++) {
+                detectMinMax(i);
                 gCodeList[i].stepsCounter =  (int) Settings::coord[Y].pulsePerMm * fabs(gCodeList[i].Y - gCodeList[endPos].Y);
                 float dY = fabs(gCodeList[i].Y - gCodeList[i + 1].Y);
                 float dZ = fabs(gCodeList[i].Z - gCodeList[i + i].Z);
@@ -2325,7 +2341,8 @@ void MainWindow::patchSpeed(int begPos, int endPos)
         }
 
         case ZX: {
-            for (int i = begPos; i < begPos + gCodeList[begPos].splits; i++) {
+            for (int i = begPos; i < endPos; i++) {
+                detectMinMax(i);
                 gCodeList[i].stepsCounter =  (int) Settings::coord[Z].pulsePerMm * fabs(gCodeList[i].Z - gCodeList[endPos].Z);
                 float dZ = fabs(gCodeList[i].Z - gCodeList[i + 1].Z);
                 float dX = fabs(gCodeList[i].X - gCodeList[i + 1].X);

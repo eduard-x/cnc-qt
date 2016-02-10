@@ -310,6 +310,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void patchSpeed(int begPos, int endPos);
         void Feed();
         void fixGCodeList();
+        void detectMinMax(int pos);
+        void resetMinMax();
         bool runCommand();
         void fillListWidget(QStringList listCode);
         QString getLocaleString();
