@@ -182,9 +182,11 @@ class DataCollections
         ///
         ///points
     public:
-        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument) {
+        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument)
+        {
             0, 0.0
-        }) {
+        })
+        {
             TypeData = Points;
             points = _Points;
             intrument = _intrument;

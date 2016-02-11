@@ -2155,7 +2155,7 @@ void MainWindow::fillListWidget(QStringList listCode)
 
 void MainWindow::detectMinMax(int pos)
 {
-    if (pos >=0 && pos < gCodeList.size()){
+    if (pos > 0 && pos < gCodeList.size()) {
         if (gCodeList[pos].X > Settings::coord[X].softLimitMax) {
             Settings::coord[X].softLimitMax = gCodeList[pos].X;
         }
@@ -2179,18 +2179,18 @@ void MainWindow::detectMinMax(int pos)
         if (gCodeList[pos].Z < Settings::coord[Z].softLimitMin) {
             Settings::coord[Z].softLimitMin = gCodeList[pos].Z;
         }
+
+        return;
     }
-}
 
-
-void MainWindow::resetMinMax()
-{
-    Settings::coord[X].softLimitMin = 0.0;
-    Settings::coord[X].softLimitMax = 0.0;
-    Settings::coord[Y].softLimitMin = 0.0;
-    Settings::coord[Y].softLimitMax = 0.0;
-    Settings::coord[Z].softLimitMin = 0.0;
-    Settings::coord[Z].softLimitMax = 0.0;
+    if (pos == 0) {
+        Settings::coord[X].softLimitMax = gCodeList[pos].X;
+        Settings::coord[X].softLimitMin = gCodeList[pos].X;
+        Settings::coord[Y].softLimitMax = gCodeList[pos].Y;
+        Settings::coord[Y].softLimitMin = gCodeList[pos].Y;
+        Settings::coord[Z].softLimitMax = gCodeList[pos].Z;
+        Settings::coord[Z].softLimitMin = gCodeList[pos].Z;
+    }
 }
 
 
@@ -2200,28 +2200,27 @@ void MainWindow::fixGCodeList()
         return;
     }
 
-    resetMinMax();
-  
     detectMinMax(0);
 
     maxLookaheadAngleRad = maxLookaheadAngle * PI / 180.0;// grad to rad
-//     qDebug() << "max angle" << maxLookaheadAngle << " in rad: " << maxLookaheadAngleRad;
+    //     qDebug() << "max angle" << maxLookaheadAngle << " in rad: " << maxLookaheadAngleRad;
 
     //
     for (int numPos = 1; numPos < gCodeList.size() - 2; numPos++) {
-      detectMinMax(numPos);
+        detectMinMax(numPos);
+
         // calculate the number of steps in one direction, if exists
         if (fabs(gCodeList[numPos].angle - gCodeList[numPos + 1].angle) < fabs(PI - maxLookaheadAngleRad)) {
             gCodeList[numPos].changeDirection = false;
 
             //         if ((gCodeList[numPos - 1].angleVectors == gCodeList[numPos].angleVectors) && (gCodeList[numPos - 1].plane == gCodeList[numPos].plane)) {
-            if (gCodeList[numPos].stepsCounter == 0) {
-                int endPos = calculateRestSteps(numPos); // and update the pos
+            //             if (gCodeList[numPos].stepsCounter == 0) {
+            int endPos = calculateRestSteps(numPos); // and update the pos
 
-                qDebug() << "rest steps: " << gCodeList[numPos].numberLine << gCodeList[endPos].numberLine;
-                patchSpeed(numPos, endPos);
-                numPos = endPos;
-            }
+            //                 qDebug() << "rest steps: " << gCodeList[numPos].numberLine << gCodeList[endPos].numberLine << "splits" << gCodeList[numPos].splits;
+            patchSpeed(numPos, endPos);
+            numPos = endPos;
+            //             }
         } else {
             gCodeList[numPos].changeDirection = true;
 
@@ -2235,12 +2234,12 @@ void MainWindow::fixGCodeList()
         }
     }
 
-#if 0
+#if 1
 
     // now debug
-    for (int i = 0; i < gCodeList.count(); i++) {
+    for (int i = 0; i < gCodeList.size(); i++) {
         qDebug() << i << "line" << gCodeList[i].numberLine << "accel" << gCodeList[i].accelCode
-                 << "cuts" <<  gCodeList[i].splits << "steps" << gCodeList[i].stepsCounter << "speed" << gCodeList[i].vectSpeed;
+                 << "cuts" <<  gCodeList[i].splits << "steps" << gCodeList[i].stepsCounter << "speed" << gCodeList[i].vectSpeed << "coords" << gCodeList[i].X << gCodeList[i].Y;
     }
 
 #endif
@@ -2249,7 +2248,7 @@ void MainWindow::fixGCodeList()
 
 void MainWindow::patchSpeed(int begPos, int endPos)
 {
-    qDebug() << "patch speed " << begPos << endPos;
+    qDebug() << "patch speed " << begPos << endPos << "from coords:" << gCodeList[begPos].X  << gCodeList[begPos].Y  << "to " << gCodeList[endPos].X  << gCodeList[endPos].Y ;
 
     switch (gCodeList[begPos].plane) {
         case XY: {
@@ -2400,18 +2399,22 @@ int MainWindow::calculateRestSteps(int startPos)
         return -1;
     }
 
-    for(QList<GCodeCommand>::iterator ic = gCodeList.begin() + startPos; ic != gCodeList.end() - 1;) {
-        float a1 = (*ic).angle;
-        ic++;
-        float a2 = (*ic).angle;
+    if (gCodeList[startPos].splits > 0) { // it's arc
+        endPos += gCodeList[startPos].splits;
+    } else { // or for lines
+        for(QList<GCodeCommand>::iterator ic = gCodeList.begin() + startPos; ic != gCodeList.end() - 1;) {
+            float a1 = (*ic).angle;
+            ic++;
+            float a2 = (*ic).angle;
 
-        //         if ((*ic).angle <= maxLookaheadAngleRad) {
-        if (fabs(a1 - a2) < fabs(PI - maxLookaheadAngleRad)) {
-            //         if (((*ic).angleVectors == gCodeList[startPos].angleVectors) &&
-            //                 ((*ic).plane == gCodeList[startPos].plane) ) {
-            endPos++;
-        } else {
-            break;
+            //         if ((*ic).angle <= maxLookaheadAngleRad) {
+            if (fabs(a1 - a2) < fabs(PI - maxLookaheadAngleRad)) {
+                //         if (((*ic).angleVectors == gCodeList[startPos].angleVectors) &&
+                //                 ((*ic).plane == gCodeList[startPos].plane) ) {
+                endPos++;
+            } else {
+                break;
+            }
         }
     }
 
@@ -2430,7 +2433,7 @@ int MainWindow::calculateRestSteps(int startPos)
         return startPos + 1;
     }
 
-    return (endPos - 1);
+    return endPos;
 }
 
 

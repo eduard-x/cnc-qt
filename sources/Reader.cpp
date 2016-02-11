@@ -120,8 +120,8 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
     spindelON = _cmd->spindelON;
     vectSpeed = _cmd->vectSpeed;
 
-    splits = _cmd->splits; // if arc, will be splitted
-    stepsCounter = 0; //
+    splits = 0; // if arc, will be splitted
+    stepsCounter = 0; // should calculated
 
     accelCode = _cmd->accelCode;
     //     numberInstruct = _cmd->numberInstruct;
@@ -655,6 +655,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
                     //                     qDebug() << "line " << tmpCommand->numberLine << "before convertArcToLines()" << gCodeList.count() << "splits" << tmpCommand->splits;
                     convertArcToLines(tmpCommand); // tmpCommand has data of last point
+
                     //                     qDebug() << "after " << gCodeList.count() << "splits" << tmpCommand->splits;
                     break;
                 }
@@ -839,16 +840,21 @@ bool Reader::readGCode(const QByteArray &gcode)
             badList << msg.arg(QString::number(index)) + line;
         } else {
             if (movingCommand == true) {
-                gCodeList << *tmpCommand;
-
+                if (cmd != "G02" && cmd != "G03"){
+                    gCodeList << *tmpCommand;
                 // init of next instuction
+               
+                    tmpCommand = new GCodeCommand(tmpCommand);
+                }
+
 
                 //                 tmpCommand->numberInstruct++;
-                tmpCommand->numberLine++;
+                tmpCommand->numberLine = index;
 
                 //                 tmpCommand->needPause = false;
                 tmpCommand->changeInstrument = false;
                 tmpCommand->pauseMSeconds = -1; // no pause
+
             }
 
             goodList << line;
@@ -861,7 +867,7 @@ bool Reader::readGCode(const QByteArray &gcode)
     //     qDebug() << "data parsed";
     gCodeLines.clear();
 
-    delete tmpCommand;
+    //     delete tmpCommand;
 
     // qDebug() << "LIst" << goodList.count();
     for(size_t i = 0 ; i < cached_lines.size() ; ++i) {
@@ -950,7 +956,7 @@ void Reader::convertArcToLines(GCodeCommand *code)
         return;
     }
 
-    const GCodeCommand &prev = gCodeList.at(gCodeList.count() - 1);
+    GCodeCommand &prev = gCodeList.last();
     // arcs
     // translate points to arc
     float a, r; // length of sides
@@ -1066,7 +1072,7 @@ void Reader::convertArcToLines(GCodeCommand *code)
 
     float bLength = r * alpha;
 
-    int n = qRound(bLength * splitsPerMm/*10.0*/); // num segments of arc per mm
+    int n = (int)(bLength * splitsPerMm); // num segments of arc per mm
 
     if ( n == 0) {
         qDebug() << "wrong, n = 0" << alpha_beg << alpha_end;
@@ -1087,18 +1093,23 @@ void Reader::convertArcToLines(GCodeCommand *code)
     float angle = alpha_beg;
     float loopPos = begPos;
 
-    GCodeCommand ncommand = new GCodeCommand(code);
+    GCodeCommand *ncommand = new GCodeCommand(*code);
 
+#if DEBUG_ARC
     qDebug() << "arc from " << prev.X << prev.Y << prev.Z  << "to" << code->X << code->Y << code->Z << "splits: " << n;
+#endif
 
-    ncommand.X = prev.X;
-    ncommand.Y = prev.Y;
-    ncommand.Z = prev.Z;
-    ncommand.A = prev.A;
-    ncommand.splits = n;
+    prev.splits = n;
+
+    ncommand->X = prev.X;
+    ncommand->Y = prev.Y;
+    ncommand->Z = prev.Z;
+    ncommand->A = prev.A;
+    ncommand->splits = 0;
+    ncommand->accelCode = 0x11;
 
     // now split
-    for (int step = 0; step < n; ++step) {
+    for (int step = 1; step <= n; ++step) {
         //coordinates of next arc point
         angle += dAlpha;
         loopPos += dPos;
@@ -1110,10 +1121,10 @@ void Reader::convertArcToLines(GCodeCommand *code)
             case XY: {
                 float x_new = i + r * c;
                 float y_new = j + r * s;
-                ncommand.angle = atan2(y_new - ncommand.Y, x_new - ncommand.X);
-                ncommand.X = x_new;
-                ncommand.Y = y_new;
-                ncommand.Z = loopPos;
+                ncommand->angle = atan2(y_new - ncommand->Y, x_new - ncommand->X);
+                ncommand->X = x_new;
+                ncommand->Y = y_new;
+                ncommand->Z = loopPos;
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d x=%f y=%f angle=%f sin=%f cos=%f\n", step, x_new, y_new, angle, s, c);
 #endif
@@ -1123,10 +1134,10 @@ void Reader::convertArcToLines(GCodeCommand *code)
             case YZ: {
                 float y_new = j + r * c;
                 float z_new = k + r * s;
-                ncommand.angle = atan2(z_new - ncommand.Z, y_new - ncommand.Y);
-                ncommand.Y = y_new;
-                ncommand.Z = z_new;
-                ncommand.X = loopPos;
+                ncommand->angle = atan2(z_new - ncommand->Z, y_new - ncommand->Y);
+                ncommand->Y = y_new;
+                ncommand->Z = z_new;
+                ncommand->X = loopPos;
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d y=%f z=%f angle=%f sin=%f cos=%f\n", step, y_new, z_new, angle, s, c);
 #endif
@@ -1136,10 +1147,10 @@ void Reader::convertArcToLines(GCodeCommand *code)
             case ZX: {
                 float z_new = k + r * c;
                 float x_new = i + r * s;
-                ncommand.angle = atan2(x_new - ncommand.X, z_new - ncommand.Z);
-                ncommand.Z = z_new;
-                ncommand.X = x_new;
-                ncommand.Y = loopPos;
+                ncommand->angle = atan2(x_new - ncommand->X, z_new - ncommand->Z);
+                ncommand->Z = z_new;
+                ncommand->X = x_new;
+                ncommand->Y = loopPos;
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d z=%f x=%f angle=%f sin=%f cos=%f\n", step, z_new, x_new, angle, s, c);
 #endif
@@ -1150,10 +1161,13 @@ void Reader::convertArcToLines(GCodeCommand *code)
                 break;
         }
 
-        gCodeList << ncommand;
+        gCodeList << *ncommand;
+        ncommand = new GCodeCommand(*ncommand);
+        ncommand->accelCode = 0x01;
     }
 
-    code->splits = 0;
+    code->accelCode = 0x021; // 
+    //     code->splits = 0;
 
     //     gCodeList << *code;
 
@@ -1250,6 +1264,7 @@ bool Reader::parseArc(const QString &line, Vec3 &pos, float &R, const float coef
 
     return res;
 }
+
 
 // if anything is detected, return true
 bool Reader::parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F)
@@ -1360,8 +1375,9 @@ bool Reader::readPLT( const QByteArray &arr )
 
     while (!stream.atEnd()) {
         QString s = stream.readLine();
-        qDebug() << "анализ файла строка " + QString::number(index);
 
+        //         qDebug() << "анализ файла строка " + QString::number(index);
+        //
         //начальная точка
         if (s.trimmed().mid(0, 2) == "PU") {
             int pos1 = s.indexOf('U');
