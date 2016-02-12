@@ -840,12 +840,12 @@ bool Reader::readGCode(const QByteArray &gcode)
             badList << msg.arg(QString::number(index)) + line;
         } else {
             if (movingCommand == true) {
-                if (cmd != "G02" && cmd != "G03"){
+//                 if (cmd != "G02" && cmd != "G03"){
                     gCodeList << *tmpCommand;
                 // init of next instuction
                
                     tmpCommand = new GCodeCommand(tmpCommand);
-                }
+//                 }
 
 
                 //                 tmpCommand->numberInstruct++;
@@ -1107,9 +1107,11 @@ void Reader::convertArcToLines(GCodeCommand *code)
     ncommand->A = prev.A;
     ncommand->splits = 0;
     ncommand->accelCode = 0x11;
+    
+    // stepsCounter
 
     // now split
-    for (int step = 1; step <= n; ++step) {
+    for (int step = 0; step < n; ++step) {
         //coordinates of next arc point
         angle += dAlpha;
         loopPos += dPos;
@@ -1166,6 +1168,7 @@ void Reader::convertArcToLines(GCodeCommand *code)
         ncommand->accelCode = 0x01;
     }
 
+    // last
     code->accelCode = 0x021; // 
     //     code->splits = 0;
 

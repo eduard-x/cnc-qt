@@ -2389,7 +2389,7 @@ void MainWindow::patchSpeed(int begPos, int endPos)
     }
 }
 
-
+// for lines and short cuts only
 int MainWindow::calculateRestSteps(int startPos)
 {
     int endPos = startPos;
