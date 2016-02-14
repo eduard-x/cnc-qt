@@ -840,12 +840,12 @@ bool Reader::readGCode(const QByteArray &gcode)
             badList << msg.arg(QString::number(index)) + line;
         } else {
             if (movingCommand == true) {
-//                 if (cmd != "G02" && cmd != "G03"){
-                    gCodeList << *tmpCommand;
+                //                 if (cmd != "G02" && cmd != "G03"){
+                gCodeList << *tmpCommand;
                 // init of next instuction
-               
-                    tmpCommand = new GCodeCommand(tmpCommand);
-//                 }
+
+                tmpCommand = new GCodeCommand(tmpCommand);
+                //                 }
 
 
                 //                 tmpCommand->numberInstruct++;
@@ -1072,7 +1072,7 @@ void Reader::convertArcToLines(GCodeCommand *code)
 
     float bLength = r * alpha;
 
-    int n = (int)(bLength * splitsPerMm); // num segments of arc per mm
+    int n = (int)(bLength * Settings::splitsPerMm); // num segments of arc per mm
 
     if ( n == 0) {
         qDebug() << "wrong, n = 0" << alpha_beg << alpha_end;
@@ -1107,7 +1107,7 @@ void Reader::convertArcToLines(GCodeCommand *code)
     ncommand->A = prev.A;
     ncommand->splits = 0;
     ncommand->accelCode = 0x11;
-    
+
     // stepsCounter
 
     // now split
@@ -1169,7 +1169,7 @@ void Reader::convertArcToLines(GCodeCommand *code)
     }
 
     // last
-    code->accelCode = 0x021; // 
+    code->accelCode = 0x021; //
     //     code->splits = 0;
 
     //     gCodeList << *code;
@@ -1932,8 +1932,8 @@ bool Reader::readGBR( const QByteArray &arr)
                 //TODO: для овала....
                 //овал это линия из круглых сплейнов
 
-                int sized1 = (int)(splaynNow.size1 * 100);
-                int sized2 = (int)(splaynNow.size2 * 100);
+                int sized1 = (int)(splaynNow.size1 * 100.0);
+                int sized2 = (int)(splaynNow.size2 * 100.0);
 
                 if (sized1 > sized2) {
                     //овал горизонтальный

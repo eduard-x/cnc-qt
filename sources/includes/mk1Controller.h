@@ -69,8 +69,7 @@ struct moveParameters {
 class usbHotplugThread : public QThread
 {
         Q_OBJECT
-        void run()
-        {
+        void run() {
             /* expensive or blocking operation  */
             while(true) {
                 int r = libusb_handle_events(NULL);
@@ -131,6 +130,8 @@ class Settings
 {
     public:
         static axis coord[4]; // array of 4 axis for mk1
+        static int splitsPerMm;
+        static float maxLookaheadAngle;
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2
 
         //         static bool setSettings;
@@ -333,12 +334,10 @@ class usbReadThread : public QThread
 {
         Q_OBJECT
     public:
-        usbReadThread(QObject *parent) : QThread(parent)
-        {
+        usbReadThread(QObject *parent) : QThread(parent) {
             p = (mk1Controller*)parent;
         }
-        void run()
-        {
+        void run() {
             // init of read array
             memset( buf, 0x0, BUFFER_SIZE);
 

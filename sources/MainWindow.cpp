@@ -675,8 +675,8 @@ void MainWindow::writeSettings()
     s->setValue("VelocityMoving", numVeloMoving->value());
     s->setValue("VelocityManual", numVeloManual->value());
 
-    s->setValue("SplitArcPerMM", splitsPerMm);
-    s->setValue("LookaheadAngle", maxLookaheadAngle);
+    s->setValue("SplitArcPerMM", Settings::splitsPerMm);
+    s->setValue("LookaheadAngle", Settings::maxLookaheadAngle);
 
     s->setValue("UnitMM", unitMm);
     s->setValue("ToolDiameter", toolDiameter);
@@ -781,8 +781,8 @@ void MainWindow::readSettings()
     currentKeyPad = s->value("KeyControl", -1).toInt();
 
     unitMm = s->value("UnitMM", 1.0).toBool();
-    splitsPerMm =   s->value("SplitArcPerMM", 10).toInt();
-    maxLookaheadAngle = s->value("LookaheadAngle", 170.0).toFloat();
+    Settings::splitsPerMm =   s->value("SplitArcPerMM", 10).toInt();
+    Settings::maxLookaheadAngle = s->value("LookaheadAngle", 170.0).toFloat();
     cuttedMaterial = (MATERIAL)s->value("CuttedMaterial", 0).toInt();
 
     toolDiameter = s->value("ToolDiameter", 3.0).toFloat();
@@ -2202,35 +2202,38 @@ void MainWindow::fixGCodeList()
 
     detectMinMax(0);
 
-    maxLookaheadAngleRad = maxLookaheadAngle * PI / 180.0;// grad to rad
+    maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;// grad to rad
     //     qDebug() << "max angle" << maxLookaheadAngle << " in rad: " << maxLookaheadAngleRad;
 
-    //
+    // calculate the number of steps in one direction, if exists
     for (int numPos = 1; numPos < gCodeList.size() - 2; numPos++) {
         detectMinMax(numPos);
 
-        // calculate the number of steps in one direction, if exists
-        if (fabs(gCodeList[numPos].angle - gCodeList[numPos + 1].angle) < fabs(PI - maxLookaheadAngleRad)) {
+        if (gCodeList[numPos].accelCode == 0x11) { // begin of arc
             gCodeList[numPos].changeDirection = false;
 
-            //         if ((gCodeList[numPos - 1].angleVectors == gCodeList[numPos].angleVectors) && (gCodeList[numPos - 1].plane == gCodeList[numPos].plane)) {
-            //             if (gCodeList[numPos].stepsCounter == 0) {
             int endPos = calculateRestSteps(numPos); // and update the pos
 
             //                 qDebug() << "rest steps: " << gCodeList[numPos].numberLine << gCodeList[endPos].numberLine << "splits" << gCodeList[numPos].splits;
-            patchSpeed(numPos, endPos);
+            patchSpeedAndAccelCode(numPos, endPos);
+
             numPos = endPos;
-            //             }
-        } else {
+            continue;
+        }
+
+        // detection of small angle betw. the lines
+        if (fabs(gCodeList[numPos].angle - gCodeList[numPos + 1].angle) < fabs(PI - maxLookaheadAngleRad)) {
+            gCodeList[numPos].changeDirection = false;
+            int endPos = calculateRestSteps(numPos); // and update the pos
+
+            //                 qDebug() << "rest steps: " << gCodeList[numPos].numberLine << gCodeList[endPos].numberLine << "splits" << gCodeList[numPos].splits;
+            patchSpeedAndAccelCode(numPos, endPos);
+
+            numPos = endPos;
+        } else { // lines
             gCodeList[numPos].changeDirection = true;
 
-            patchSpeed(numPos, numPos + 1);
-
-            if (gCodeList[numPos].feed == true) { // feed
-                gCodeList[numPos].accelCode = 0x31;
-            } else {
-                gCodeList[numPos].accelCode = 0x39;
-            }
+            patchSpeedAndAccelCode(numPos, numPos + 1);
         }
     }
 
@@ -2246,15 +2249,31 @@ void MainWindow::fixGCodeList()
 }
 
 
-void MainWindow::patchSpeed(int begPos, int endPos)
+void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 {
     qDebug() << "patch speed " << begPos << endPos << "from coords:" << gCodeList[begPos].X  << gCodeList[begPos].Y  << "to " << gCodeList[endPos].X  << gCodeList[endPos].Y ;
 
+    if (gCodeList[begPos].changeDirection == true) {
+        if (gCodeList[begPos].feed == true) { // feed
+            gCodeList[begPos].accelCode = 0x31;
+        } else {
+            gCodeList[begPos].accelCode = 0x39;
+        }
+
+        return;
+    }
+
     switch (gCodeList[begPos].plane) {
         case XY: {
+            //             qDebug() << "x" << Settings::coord[X].maxVelo << Settings::coord[X].pulsePerMm << "y" << Settings::coord[Y].maxVelo << Settings::coord[Y].pulsePerMm;
+
+            int splits = gCodeList[begPos].splits;
+            float bLeng = splits / (float)Settings::splitsPerMm;
+
             for (int i = begPos; i < endPos; i++) {
                 detectMinMax(i);
-                gCodeList[i].stepsCounter =  (int) Settings::coord[X].pulsePerMm * fabs(gCodeList[i].X - gCodeList[endPos].X);
+
+                //                 gCodeList[i].stepsCounter =  (int) Settings::coord[X].pulsePerMm * fabs(gCodeList[i].X - gCodeList[endPos].X);
                 float dX = fabs(gCodeList[i].X - gCodeList[i + 1].X);
                 float dY = fabs(gCodeList[i].Y - gCodeList[i + 1].Y);
                 float dH = sqrt(dX * dX + dY * dY);
@@ -2267,11 +2286,13 @@ void MainWindow::patchSpeed(int begPos, int endPos)
 
                     float dnewSpdX  = 3600; // 3584?
 
-                    if (Settings::coord[X].maxVelo != 0 && Settings::coord[X].pulsePerMm != 0) {
+                    if ((Settings::coord[X].maxVelo != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
                         dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
                     }
 
-                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdX; //
+                    // calculation of vect speed
+                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdX); //
+                    gCodeList[i].stepsCounter = (int)(bLeng * (float)Settings::coord[X].pulsePerMm);
                 } else {
                     if (dY != 0.0) {
                         coeff = dH / dY;
@@ -2279,26 +2300,33 @@ void MainWindow::patchSpeed(int begPos, int endPos)
 
                     float dnewSpdY  = 3600; // 3584?
 
-                    if (Settings::coord[Y].maxVelo != 0 && Settings::coord[Y].pulsePerMm != 0) {
+                    if ((Settings::coord[Y].maxVelo != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
                         dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
                     }
 
-                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdY; //
+                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdY); //
+                    gCodeList[i].stepsCounter = (int)(bLeng * (float)Settings::coord[Y].pulsePerMm);
                 }
 
+                splits--;
+                bLeng = splits / (float)Settings::splitsPerMm;
                 gCodeList[i].accelCode = 0x1;
             }
 
             gCodeList[begPos].accelCode = 0x11;
-            gCodeList[endPos - 1].accelCode = 0x21;
+            gCodeList[endPos].accelCode = 0x21;
 
             break;
         }
 
         case YZ: {
+            int splits = gCodeList[begPos].splits;
+            float bLeng = splits / (float)Settings::splitsPerMm;
+
             for (int i = begPos; i < endPos; i++) {
                 detectMinMax(i);
-                gCodeList[i].stepsCounter =  (int) Settings::coord[Y].pulsePerMm * fabs(gCodeList[i].Y - gCodeList[endPos].Y);
+
+                //                 gCodeList[i].stepsCounter =  (int) Settings::coord[Y].pulsePerMm * fabs(gCodeList[i].Y - gCodeList[endPos].Y);
                 float dY = fabs(gCodeList[i].Y - gCodeList[i + 1].Y);
                 float dZ = fabs(gCodeList[i].Z - gCodeList[i + i].Z);
                 float dH = sqrt(dZ * dZ + dY * dY);
@@ -2311,11 +2339,12 @@ void MainWindow::patchSpeed(int begPos, int endPos)
 
                     float dnewSpdY  = 3600; // 3584?
 
-                    if (Settings::coord[Y].maxVelo != 0 && Settings::coord[Y].pulsePerMm != 0) {
+                    if ((Settings::coord[Y].maxVelo != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
                         dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
                     }
 
-                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdY; //
+                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdY); //
+                    gCodeList[i].stepsCounter = (int)(bLeng * (float)Settings::coord[Y].pulsePerMm);
                 } else {
                     if (dZ != 0.0) {
                         coeff = dH / dZ;
@@ -2323,26 +2352,33 @@ void MainWindow::patchSpeed(int begPos, int endPos)
 
                     float dnewSpdZ  = 3600; // 3584?
 
-                    if (Settings::coord[Z].maxVelo != 0 && Settings::coord[Z].pulsePerMm != 0) {
+                    if ((Settings::coord[Z].maxVelo != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
                         dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
                     }
 
-                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdZ; //
+                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdZ); //
+                    gCodeList[i].stepsCounter = (int)(bLeng * (float)Settings::coord[Z].pulsePerMm);
                 }
 
+                splits--;
+                bLeng = splits / (float)Settings::splitsPerMm;
                 gCodeList[i].accelCode = 0x1;
             }
 
             gCodeList[begPos].accelCode = 0x11;
-            gCodeList[endPos - 1].accelCode = 0x21;
+            gCodeList[endPos].accelCode = 0x21;
 
             break;
         }
 
         case ZX: {
+            int splits = gCodeList[begPos].splits;
+            float bLeng = splits / (float)Settings::splitsPerMm;
+
             for (int i = begPos; i < endPos; i++) {
                 detectMinMax(i);
-                gCodeList[i].stepsCounter =  (int) Settings::coord[Z].pulsePerMm * fabs(gCodeList[i].Z - gCodeList[endPos].Z);
+
+                //                 gCodeList[i].stepsCounter =  (int) Settings::coord[Z].pulsePerMm * fabs(gCodeList[i].Z - gCodeList[endPos].Z);
                 float dZ = fabs(gCodeList[i].Z - gCodeList[i + 1].Z);
                 float dX = fabs(gCodeList[i].X - gCodeList[i + 1].X);
                 float dH = sqrt(dX * dX + dZ * dZ);
@@ -2355,11 +2391,12 @@ void MainWindow::patchSpeed(int begPos, int endPos)
 
                     float dnewSpdZ  = 3600; // 3584?
 
-                    if (Settings::coord[Z].maxVelo != 0 && Settings::coord[Z].pulsePerMm != 0) {
+                    if ((Settings::coord[Z].maxVelo != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
                         dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
                     }
 
-                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdZ; //
+                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdZ); //
+                    gCodeList[i].stepsCounter = (int)(bLeng * (float)Settings::coord[Z].pulsePerMm);
                 } else {
                     if (dX != 0.0) {
                         coeff = dH / dX;
@@ -2367,18 +2404,21 @@ void MainWindow::patchSpeed(int begPos, int endPos)
 
                     float dnewSpdX  = 3600; // 3584?
 
-                    if (Settings::coord[X].maxVelo != 0 && Settings::coord[X].pulsePerMm != 0) {
+                    if ((Settings::coord[X].maxVelo != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
                         dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
                     }
 
-                    gCodeList[i].vectSpeed = (int)coeff * dnewSpdX; //
+                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdX); //
+                    gCodeList[i].stepsCounter = (int)(bLeng * (float)Settings::coord[X].pulsePerMm);
                 }
 
+                splits--;
+                bLeng = splits / (float)Settings::splitsPerMm;
                 gCodeList[i].accelCode = 0x1;
             }
 
             gCodeList[begPos].accelCode = 0x11;
-            gCodeList[endPos - 1].accelCode = 0x21;
+            gCodeList[endPos].accelCode = 0x21;
 
             break;
         }
@@ -2419,15 +2459,15 @@ int MainWindow::calculateRestSteps(int startPos)
     }
 
     if ((endPos - startPos) < 2) {
-        gCodeList[startPos].changeDirection = true;
-
-        if (gCodeList[startPos].feed == true) { // cutting
-            gCodeList[startPos].accelCode = 0x31;
-        } else {
-            gCodeList[startPos].accelCode = 0x39;
-        }
-
-        patchSpeed(startPos, endPos);
+        //         gCodeList[startPos].changeDirection = true;
+        //
+        //         if (gCodeList[startPos].feed == true) { // cutting
+        //             gCodeList[startPos].accelCode = 0x31;
+        //         } else {
+        //             gCodeList[startPos].accelCode = 0x39;
+        //         }
+        //
+        //         patchSpeed(startPos, endPos);
         gCodeList[startPos].stepsCounter = 0;
 
         return startPos + 1;

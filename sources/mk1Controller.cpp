@@ -79,6 +79,9 @@ int axis::posPulse(float posMm)
 
 
 bool Settings::DEMO_DEVICE = false;
+int  Settings::splitsPerMm = 10;
+float Settings::maxLookaheadAngle = 170.0;
+
 axis Settings::coord[] = { axis(), axis(), axis(), axis() };
 
 

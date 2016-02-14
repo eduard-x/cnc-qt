@@ -306,8 +306,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 
     private:
         void reloadRecentList();
-        int calculateRestSteps(int pos);
-        void patchSpeed(int begPos, int endPos);
+        int  calculateRestSteps(int pos);
+        void patchSpeedAndAccelCode(int begPos, int endPos);
         void Feed();
         void fixGCodeList();
         void detectMinMax(int pos);

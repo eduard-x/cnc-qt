@@ -58,6 +58,14 @@ class cTranslator;
 #define MAX_FILE_SIZE 20e6
 
 
+
+#define ACCELERAT_CODE  0x11
+#define DECELERAT_CODE  0x21
+#define CONSTSPEED_CODE 0x01
+#define FEED_LINE_CODE  0x31
+#define RAPID_CODE      0x39
+
+
 //
 // result parsing of g-code
 //
@@ -182,11 +190,9 @@ class DataCollections
         ///
         ///points
     public:
-        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument)
-        {
+        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument) {
             0, 0.0
-        })
-        {
+        }) {
             TypeData = Points;
             points = _Points;
             intrument = _intrument;

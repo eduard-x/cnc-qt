@@ -37,36 +37,7 @@
 
 
 
-class programSettings
-{
-    public:
-        // current size of free buffer
-        static int splitsPerMm;
-        static float maxLookaheadAngle;
-#if 0
-        static short FreebuffSize;
-
-        // number of current instuction
-        static int NumberCompleatedInstruction;
-
-        axis coord[4]; // array of 4 axis for mk1
-        //         QVector<axis> mk2[9]; // array of 9 axis for mk2
-
-        static bool setSettings;
-        static int spindleMoveSpeed;
-        static bool spindleEnabled;
-        static bool mistEnabled;
-        static bool fluidEnabled;
-
-        static bool Estop;
-
-        // for virtual controller
-        static bool DEMO_DEVICE;
-#endif
-};
-
-
-class cTranslator : public programSettings
+class cTranslator
 {
     public:
         bool loadTranslation(const QString fname);
