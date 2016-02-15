@@ -1282,7 +1282,7 @@ void MainWindow::onStartTask()
     Task::instructionStart = -1;
     Task::instructionNow = -1;
 
-    foreach (GCodeCommand c, gCodeList) {
+    foreach (GCodeData c, gCodeList) {
         if(c.numberLine == Task::lineCodeStart && Task::instructionStart == -1) { // get the first only
             Task::instructionStart = c.numberInstruct;
         }
@@ -1354,7 +1354,7 @@ bool MainWindow::runCommand()
         return false;
     }
 
-    GCodeCommand gcodeNow = gCodeList.at(Task::instrCounter);
+    GCodeData gcodeNow = gCodeList.at(Task::instrCounter);
 
     useHome = checkHome->isChecked();
 
@@ -2209,7 +2209,7 @@ void MainWindow::fixGCodeList()
     for (int numPos = 1; numPos < gCodeList.size() - 2; numPos++) {
         detectMinMax(numPos);
 
-        if (gCodeList[numPos].accelCode == 0x11) { // begin of arc
+        if (gCodeList[numPos].accelCode == ACCELERAT_CODE) { // begin of arc
             gCodeList[numPos].changeDirection = false;
 
             int endPos = calculateRestSteps(numPos); // and update the pos
@@ -2310,11 +2310,17 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
                 splits--;
                 bLeng = splits / (float)Settings::splitsPerMm;
-                gCodeList[i].accelCode = 0x1;
+                if (gCodeList[i].accelCode == NO_CODE){
+                    gCodeList[i].accelCode = CONSTSPEED_CODE;
+                }
             }
-
-            gCodeList[begPos].accelCode = 0x11;
-            gCodeList[endPos].accelCode = 0x21;
+           
+            if (gCodeList[begPos].accelCode == NO_CODE){
+                gCodeList[begPos].accelCode = ACCELERAT_CODE;
+            }
+            if (gCodeList[endPos].accelCode == NO_CODE){
+                gCodeList[endPos].accelCode = DECELERAT_CODE;
+            }
 
             break;
         }
@@ -2362,12 +2368,17 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
                 splits--;
                 bLeng = splits / (float)Settings::splitsPerMm;
-                gCodeList[i].accelCode = 0x1;
+                if (gCodeList[i].accelCode == NO_CODE){
+                gCodeList[i].accelCode = CONSTSPEED_CODE;
+                }
             }
-
-            gCodeList[begPos].accelCode = 0x11;
-            gCodeList[endPos].accelCode = 0x21;
-
+            
+            if (gCodeList[begPos].accelCode == NO_CODE){
+                gCodeList[begPos].accelCode = ACCELERAT_CODE;
+            }
+            if (gCodeList[endPos].accelCode == NO_CODE){
+                gCodeList[endPos].accelCode = DECELERAT_CODE;
+            }
             break;
         }
 
@@ -2414,11 +2425,17 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
                 splits--;
                 bLeng = splits / (float)Settings::splitsPerMm;
-                gCodeList[i].accelCode = 0x1;
+                if (gCodeList[i].accelCode == NO_CODE){
+                    gCodeList[i].accelCode = CONSTSPEED_CODE;
+                }
             }
 
-            gCodeList[begPos].accelCode = 0x11;
-            gCodeList[endPos].accelCode = 0x21;
+            if (gCodeList[begPos].accelCode == NO_CODE){
+                gCodeList[begPos].accelCode = ACCELERAT_CODE;
+            }
+            if (gCodeList[endPos].accelCode == NO_CODE){
+                gCodeList[endPos].accelCode = DECELERAT_CODE;
+            }
 
             break;
         }
@@ -2428,6 +2445,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         }
     }
 }
+
 
 // for lines and short cuts only
 int MainWindow::calculateRestSteps(int startPos)
@@ -2442,7 +2460,7 @@ int MainWindow::calculateRestSteps(int startPos)
     if (gCodeList[startPos].splits > 0) { // it's arc
         endPos += gCodeList[startPos].splits;
     } else { // or for lines
-        for(QList<GCodeCommand>::iterator ic = gCodeList.begin() + startPos; ic != gCodeList.end() - 1;) {
+        for(QList<GCodeData>::iterator ic = gCodeList.begin() + startPos; ic != gCodeList.end() - 1;) {
             float a1 = (*ic).angle;
             ic++;
             float a2 = (*ic).angle;

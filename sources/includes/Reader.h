@@ -59,6 +59,7 @@ class cTranslator;
 
 
 
+#define NO_CODE         0x00
 #define ACCELERAT_CODE  0x11
 #define DECELERAT_CODE  0x21
 #define CONSTSPEED_CODE 0x01
@@ -275,7 +276,7 @@ class Reader : public cTranslator
         std::vector<Vec3f> cached_points;
         std::vector<Vec3f> cached_color;
 
-        QList<GCodeCommand> gCodeList;
+        QList<GCodeData> gCodeList;
 
         //             signals:
         //                 void logMessage(const QString &s);
@@ -284,9 +285,9 @@ class Reader : public cTranslator
         void Swap(int &p1, int &p2);
         bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
         bool parseArc(const QString &line, Vec3 &pos, float &R, const float coef);
-        bool addLine(GCodeCommand *c);
-        bool addArc(GCodeCommand *c);
-        void convertArcToLines(GCodeCommand *c);
+        bool addLine(GCodeData *c);
+        bool addArc(GCodeData *c);
+        void convertArcToLines(GCodeData *c);
         float determineAngle(const Vec3 &pos, const Vec3 &pos_c, PlaneEnum pl);
         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );

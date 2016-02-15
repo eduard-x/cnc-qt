@@ -259,7 +259,7 @@ void GLWidget::matrixReloaded()
     if (workNum > 1) {
         int currWorkPoint = 0;
 
-        foreach (GCodeCommand vv, parent->gCodeList) {
+        foreach (GCodeData vv, parent->gCodeList) {
             colorGL cl;
 
             if (vv.feed) {

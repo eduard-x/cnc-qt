@@ -56,11 +56,11 @@
 #define DEBUG_ARC 0
 
 #if 1
-GCodeCommand::GCodeCommand()
+GCodeData::GCodeData()
 {
     changeInstrument = false;
     numberInstrument = 0;
-    //     needPause        = false;
+    //  needPause        = false;
     pauseMSeconds      = -1;
 
     X = 0.0;
@@ -81,7 +81,7 @@ GCodeCommand::GCodeCommand()
 
     typeMoving = NoType;
 
-    accelCode = 0;
+    accelCode =  NO_CODE;
 
     vectSpeed = 0.0;
 
@@ -98,7 +98,7 @@ GCodeCommand::GCodeCommand()
 
 
 // constructor based on existing command
-GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
+GCodeData::GCodeData(GCodeData *_cmd)
 {
     X = _cmd->X;
     Y = _cmd->Y;
@@ -124,7 +124,7 @@ GCodeCommand::GCodeCommand(GCodeCommand *_cmd)
     stepsCounter = 0; // should calculated
 
     accelCode = _cmd->accelCode;
-    //     numberInstruct = _cmd->numberInstruct;
+    //  numberInstruct = _cmd->numberInstruct;
     numberLine = _cmd->numberLine;
     feed = _cmd->feed;
 
@@ -199,7 +199,7 @@ void GerberData::CalculateGatePoints(int _accuracy)
 
 
 Reader::Reader()
-//     : mutex(QMutex::Recursive)
+//  : mutex(QMutex::Recursive)
 {
     TypeFile = None;
 }
@@ -207,13 +207,13 @@ Reader::Reader()
 
 // void Reader::lock() const
 // {
-//     mutex.lock();
+//  mutex.lock();
 // }
 //
 //
 // void Reader::unlock() const
 // {
-//     mutex.unlock();
+//  mutex.unlock();
 // }
 
 
@@ -340,23 +340,23 @@ QStringList Reader::getBadList()
 }
 
 
-bool Reader::addLine(GCodeCommand *c)
+bool Reader::addLine(GCodeData *c)
 {
 }
 
 
-bool Reader::addArc(GCodeCommand *c)
+bool Reader::addArc(GCodeData *c)
 {
 }
 
 
-// read and parse into GCodeCommand list and OpenGL list
+// read and parse into GCodeData list and OpenGL list
 bool Reader::readGCode(const QByteArray &gcode)
 {
-    //     QMutexLocker mLock(&mutex);
+    //  QMutexLocker mLock(&mutex);
     gCodeList.clear();
 
-    //     lock();
+    //  lock();
 
     cached_lines.clear();
     cached_points.clear();
@@ -365,7 +365,7 @@ bool Reader::readGCode(const QByteArray &gcode)
     goodList.clear();
     badList.clear();
 
-    //     unlock();
+    //  unlock();
 
     QTextStream stream(gcode);
     stream.setLocale(QLocale("C"));
@@ -413,19 +413,19 @@ bool Reader::readGCode(const QByteArray &gcode)
             }
         }
 
-        //         while (lineStream.length() > 0 && commentBeg >= 0 && commentEnd >= 0) {
-        //             lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);
-        //             if (lineStream.length() > 0){
-        //                 commentBeg = lineStream.indexOf('(');
-        //                 commentEnd = lineStream.lastIndexOf(')');
-        //             }
-        //         }
+        //      while (lineStream.length() > 0 && commentBeg >= 0 && commentEnd >= 0) {
+        //  lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);
+        //  if (lineStream.length() > 0){
+        //   commentBeg = lineStream.indexOf('(');
+        //   commentEnd = lineStream.lastIndexOf(')');
+        //  }
+        //      }
 
         if (lineStream.length() == 0) {
             continue;
         }
 
-        //         lineStream = lineStream.remove(' ');
+        //      lineStream = lineStream.remove(' ');
 
         lineStream = lineStream.replace(fromDecimalPoint, toDecimalPoint);
 #if 0
@@ -493,7 +493,7 @@ bool Reader::readGCode(const QByteArray &gcode)
     t.restart();
 
     index = 0;
-    GCodeCommand *tmpCommand = new GCodeCommand();
+    GCodeData *tmpCommand = new GCodeData();
 
     foreach(QString line, gCodeLines) {
         decoded = true;
@@ -522,7 +522,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->Z = next_pos.z();
                     tmpCommand->splits = 0;
 
-                    tmpCommand->typeMoving = GCodeCommand::Line;
+                    tmpCommand->typeMoving = GCodeData::Line;
 
                     tmpCommand->feed = false;
 
@@ -531,6 +531,15 @@ bool Reader::readGCode(const QByteArray &gcode)
                     } else {
                         current_pos += next_pos;
                     }
+
+                    gCodeList << *tmpCommand;
+                    // init of next instuction
+                    tmpCommand = new GCodeData(tmpCommand);
+
+                    tmpCommand->numberLine = index;
+
+                    tmpCommand->changeInstrument = false;
+                    tmpCommand->pauseMSeconds = -1; // no pause
 
                     break;
                 }
@@ -549,7 +558,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->Z = next_pos.z();
                     tmpCommand->splits = 0;
 
-                    tmpCommand->typeMoving = GCodeCommand::Line;
+                    tmpCommand->typeMoving = GCodeData::Line;
 
                     tmpCommand->feed = true;
 
@@ -568,6 +577,15 @@ bool Reader::readGCode(const QByteArray &gcode)
                         cached_lines.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                     }
+                    
+                    gCodeList << *tmpCommand;
+                    // init of next instuction
+                    tmpCommand = new GCodeData(tmpCommand);
+
+                    tmpCommand->numberLine = index;
+
+                    tmpCommand->changeInstrument = false;
+                    tmpCommand->pauseMSeconds = -1; // no pause
 
                     break;
                 }
@@ -589,7 +607,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->Z = next_pos.z();
 
                     Vec3 arc_center(current_pos);
-                    //                     float E_arc(-1.0);
+                    // float E_arc(-1.0);
                     float radius = 0.0;
 
                     if (parseArc(line, arc_center, radius, coef ) == false) {
@@ -630,15 +648,15 @@ bool Reader::readGCode(const QByteArray &gcode)
                     tmpCommand->Radius = radius;
 
                     if (cmd == "G02" ) {
-                        tmpCommand->typeMoving = GCodeCommand::ArcCW;
+                        tmpCommand->typeMoving = GCodeData::ArcCW;
                     } else {
-                        tmpCommand->typeMoving = GCodeCommand::ArcCCW;
+                        tmpCommand->typeMoving = GCodeData::ArcCCW;
                     }
 
                     tmpCommand->feed = true;
 
                     if (E > 0.0) {
-                        //                         cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                        //  cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                     }
 
@@ -649,14 +667,23 @@ bool Reader::readGCode(const QByteArray &gcode)
                     }
 
                     if (E > 0.0) {
-                        //                         cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
+                        //  cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                     }
 
-                    //                     qDebug() << "line " << tmpCommand->numberLine << "before convertArcToLines()" << gCodeList.count() << "splits" << tmpCommand->splits;
+                    // qDebug() << "line " << tmpCommand->numberLine << "before convertArcToLines()" << gCodeList.count() << "splits" << tmpCommand->splits;
                     convertArcToLines(tmpCommand); // tmpCommand has data of last point
 
-                    //                     qDebug() << "after " << gCodeList.count() << "splits" << tmpCommand->splits;
+                    gCodeList << *tmpCommand;
+                    // init of next instuction
+                    tmpCommand = new GCodeData(tmpCommand);
+
+                    tmpCommand->numberLine = index;
+
+                    tmpCommand->changeInstrument = false;
+                    tmpCommand->pauseMSeconds = -1; // no pause
+                    
+                    // qDebug() << "after " << gCodeList.count() << "splits" << tmpCommand->splits;
                     break;
                 }
 
@@ -666,7 +693,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     QString value1 = lst.at(1).mid(1);
 
                     if (property1 == "P") {
-                        //                         tmpCommand->needPause = true;
+                        //  tmpCommand->needPause = true;
                         bool res;
                         tmpCommand->pauseMSeconds = value1.toInt(&res);
 
@@ -677,7 +704,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                     }
 
                     if (property1 == "X") {
-                        //                         tmpCommand->needPause = true;
+                        //  tmpCommand->needPause = true;
                         bool res;
                         tmpCommand->pauseMSeconds = value1.toFloat(&res) * 1000;
 
@@ -839,24 +866,25 @@ bool Reader::readGCode(const QByteArray &gcode)
             QString msg = translate(_NOT_DECODED);
             badList << msg.arg(QString::number(index)) + line;
         } else {
+#if 0
             if (movingCommand == true) {
-                //                 if (cmd != "G02" && cmd != "G03"){
+                //   if (cmd != "G02" && cmd != "G03"){
                 gCodeList << *tmpCommand;
                 // init of next instuction
 
-                tmpCommand = new GCodeCommand(tmpCommand);
-                //                 }
+                tmpCommand = new GCodeData(tmpCommand);
+                //   }
 
 
-                //                 tmpCommand->numberInstruct++;
+                //   tmpCommand->numberInstruct++;
                 tmpCommand->numberLine = index;
 
-                //                 tmpCommand->needPause = false;
+                //   tmpCommand->needPause = false;
                 tmpCommand->changeInstrument = false;
                 tmpCommand->pauseMSeconds = -1; // no pause
 
             }
-
+#endif
             goodList << line;
         }
 
@@ -864,30 +892,30 @@ bool Reader::readGCode(const QByteArray &gcode)
     }
 
     qDebug("read gcode, parsed. Time elapsed: %d ms", t.elapsed());
-    //     qDebug() << "data parsed";
+    //  qDebug() << "data parsed";
     gCodeLines.clear();
 
-    //     delete tmpCommand;
+    //  delete tmpCommand;
 
     // qDebug() << "LIst" << goodList.count();
     for(size_t i = 0 ; i < cached_lines.size() ; ++i) {
         cached_color.push_back(Vec3f(1, 1, 1) * (float(i) / cached_lines.size()));
     }
 
-    //     std::pair<Vec3, Vec3> bbox(Vec3(std::numeric_limits<float>::infinity(),
-    //                                     std::numeric_limits<float>::infinity(),
-    //                                     std::numeric_limits<float>::infinity()),
-    //                                -Vec3(std::numeric_limits<float>::infinity(),
-    //                                      std::numeric_limits<float>::infinity(),
-    //                                      std::numeric_limits<float>::infinity()));
+    //  std::pair<Vec3, Vec3> bbox(Vec3(std::numeric_limits<float>::infinity(),
+    //   std::numeric_limits<float>::infinity(),
+    //   std::numeric_limits<float>::infinity()),
+    // -Vec3(std::numeric_limits<float>::infinity(),
+    //    std::numeric_limits<float>::infinity(),
+    //    std::numeric_limits<float>::infinity()));
     //
-    //     for(const auto &p : cached_points) {
-    //         for(size_t i = 0 ; i < 3 ; ++i) {
-    //             bbox.first[i] = std::min<float>(bbox.first[i], p[i]);
-    //             bbox.second[i] = std::max<float>(bbox.second[i], p[i]);
-    //         }
-    //     }
-    //     unlock();
+    //  for(const auto &p : cached_points) {
+    //      for(size_t i = 0 ; i < 3 ; ++i) {
+    //  bbox.first[i] = std::min<float>(bbox.first[i], p[i]);
+    //  bbox.second[i] = std::max<float>(bbox.second[i], p[i]);
+    //      }
+    //  }
+    //  unlock();
 
     return true;
 }
@@ -941,40 +969,40 @@ float Reader::determineAngle(const Vec3 &pos, const Vec3 &pos_center, PlaneEnum 
 }
 
 //
-// 'code' is the pointer of arc start
-void Reader::convertArcToLines(GCodeCommand *code)
+// 'endData' is the pointer of arc start
+void Reader::convertArcToLines(GCodeData *endData)
 {
     if (gCodeList.count() == 0) {
         return;
     }
 
-    if (code == 0) {
+    if (endData == 0) {
         return;
     }
 
-    if (!(code->typeMoving == GCodeCommand::ArcCW || code->typeMoving == GCodeCommand::ArcCCW) ) { // it's not arc
+    if (!(endData->typeMoving == GCodeData::ArcCW || endData->typeMoving == GCodeData::ArcCCW) ) { // it's not arc
         return;
     }
 
-    GCodeCommand &prev = gCodeList.last();
+    GCodeData &begData = gCodeList.last();
     // arcs
     // translate points to arc
     float a, r; // length of sides
     float x2, x1, y2, y1, z2, z1;
 
-    x1 = prev.X;;
-    x2 = code->X;
+    x1 = begData.X;;
+    x2 = endData->X;
 
-    y1 = prev.Y;
-    y2 = code->Y;
+    y1 = begData.Y;
+    y2 = endData->Y;
 
-    z1 = prev.Z;
-    z2 = code->Z;
+    z1 = begData.Z;
+    z2 = endData->Z;
 
     float i, j, k;
-    i = code->I;
-    j = code->J;
-    k = code->K;
+    i = endData->I;
+    j = endData->J;
+    k = endData->K;
 
     Vec3 pos1(x1, y1, z1);
     Vec3 pos2(x2, y2, z2);
@@ -982,16 +1010,16 @@ void Reader::convertArcToLines(GCodeCommand *code)
     float dPos = 0.0;
     float begPos = 0.0;
 
-    switch (code->plane) {
+    switch (endData->plane) {
         case XY: {
             a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 
-            if (code->Radius == 0.0) {
+            if (endData->Radius == 0.0) {
                 r = sqrt(pow(x1 - i, 2) + pow(y1 - j, 2));
             } else {
-                r = code->Radius;
+                r = endData->Radius;
                 // compute i, j
-                float a = determineAngle (pos1, pos2, code->plane) + PI;
+                float a = determineAngle (pos1, pos2, endData->plane) + PI;
                 qDebug() << "radius " << r << "alpha" << a << "xy point 1" << x1 << y1 << "xy point 2" << x2 << y2;
             }
 
@@ -1003,10 +1031,10 @@ void Reader::convertArcToLines(GCodeCommand *code)
         case YZ: {
             a = sqrt(pow(y2 - y1, 2) + pow(z2 - z1, 2));
 
-            if (code->Radius == 0.0) {
+            if (endData->Radius == 0.0) {
                 r = sqrt(pow(y1 - j, 2) + pow(z1 - k, 2));
             } else {
-                r = code->Radius;
+                r = endData->Radius;
                 // compute j, k
             }
 
@@ -1018,10 +1046,10 @@ void Reader::convertArcToLines(GCodeCommand *code)
         case ZX: {
             a = sqrt(pow(z2 - z1, 2) + pow(x2 - x1, 2));
 
-            if (code->Radius == 0.0) {
+            if (endData->Radius == 0.0) {
                 r = sqrt(pow(z1 - k, 2) + pow(x1 - i, 2));
             } else {
-                r = code->Radius;
+                r = endData->Radius;
                 // compute k, i
             }
 
@@ -1044,10 +1072,10 @@ void Reader::convertArcToLines(GCodeCommand *code)
 
     Vec3 posC(i, j, k);
 
-    alpha_beg = determineAngle (pos1, posC, code->plane);
-    alpha_end = determineAngle (pos2, posC, code->plane);
+    alpha_beg = determineAngle (pos1, posC, endData->plane);
+    alpha_end = determineAngle (pos2, posC, endData->plane);
 
-    if (code->typeMoving == GCodeCommand::ArcCW) {
+    if (endData->typeMoving == GCodeData::ArcCW) {
         if (alpha_beg == alpha_end) {
             alpha_beg += 2.0 * PI;
         }
@@ -1072,7 +1100,8 @@ void Reader::convertArcToLines(GCodeCommand *code)
 
     float bLength = r * alpha;
 
-    int n = (int)(bLength * Settings::splitsPerMm); // num segments of arc per mm
+    int n = (int)(bLength * Settings::splitsPerMm) - 1; // num segments of arc per mm
+    float splitLen = 1.0 /(float)Settings::splitsPerMm;
 
     if ( n == 0) {
         qDebug() << "wrong, n = 0" << alpha_beg << alpha_end;
@@ -1083,7 +1112,7 @@ void Reader::convertArcToLines(GCodeCommand *code)
 
     dPos = dPos / n;
 
-    if (code->typeMoving == GCodeCommand::ArcCW) {
+    if (endData->typeMoving == GCodeData::ArcCW) {
         dAlpha = -dAlpha;
     }
 
@@ -1093,24 +1122,25 @@ void Reader::convertArcToLines(GCodeCommand *code)
     float angle = alpha_beg;
     float loopPos = begPos;
 
-    GCodeCommand *ncommand = new GCodeCommand(*code);
+    GCodeData *ncommand = new GCodeData(*endData);
 
 #if DEBUG_ARC
-    qDebug() << "arc from " << prev.X << prev.Y << prev.Z  << "to" << code->X << code->Y << code->Z << "splits: " << n;
+    qDebug() << "arc from " << begData.X << begData.Y << begData.Z  << "to" << endData->X << endData->Y << endData->Z << "splits: " << n;
 #endif
 
-    prev.splits = n;
+    begData.splits = n;
 
-    ncommand->X = prev.X;
-    ncommand->Y = prev.Y;
-    ncommand->Z = prev.Z;
-    ncommand->A = prev.A;
+    ncommand->X = begData.X;
+    ncommand->Y = begData.Y;
+    ncommand->Z = begData.Z;
+    ncommand->A = begData.A;
     ncommand->splits = 0;
-    ncommand->accelCode = 0x11;
+    ncommand->accelCode = ACCELERAT_CODE;
 
     // stepsCounter
 
     // now split
+    bool endLoop = false;
     for (int step = 0; step < n; ++step) {
         //coordinates of next arc point
         angle += dAlpha;
@@ -1119,7 +1149,7 @@ void Reader::convertArcToLines(GCodeCommand *code)
         float c = cos(angle);
         float s = sin(angle);
 
-        switch (code->plane) {
+        switch (endData->plane) {
             case XY: {
                 float x_new = i + r * c;
                 float y_new = j + r * s;
@@ -1162,22 +1192,26 @@ void Reader::convertArcToLines(GCodeCommand *code)
             default:
                 break;
         }
+        
+        if (endLoop == true){
+            break;
+        }
 
         gCodeList << *ncommand;
-        ncommand = new GCodeCommand(*ncommand);
-        ncommand->accelCode = 0x01;
+        ncommand = new GCodeData(*ncommand);
+        ncommand->accelCode = CONSTSPEED_CODE;
     }
 
     // last
-    code->accelCode = 0x021; //
-    //     code->splits = 0;
+    endData->accelCode = DECELERAT_CODE; //
+    //  endData->splits = 0;
 
-    //     gCodeList << *code;
+    //  gCodeList << *endData;
 
 #if DEBUG_ARC
 
     if ((fabs (x2 - res.last().X) > (bLength / splitsPerMm)) || (fabs (y2 - res.last().Y) > (bLength / splitsPerMm))) { // wenn zu weit vom ziel...
-        if (code->typeMoving == ArcCW) {
+        if (endData->typeMoving == ArcCW) {
             qDebug() << "CW";
         } else {
             qDebug() << "CCW";
@@ -1200,7 +1234,7 @@ bool Reader::parseArc(const QString &line, Vec3 &pos, float &R, const float coef
         return false;
     }
 
-    //     qDebug() << line;
+    //  qDebug() << line;
     const QStringList &chunks = line.toUpper().simplified().split(' ');
 
     Vec3 arc(COORD_TOO_BIG, COORD_TOO_BIG, COORD_TOO_BIG); // too big coordinates
@@ -1276,7 +1310,7 @@ bool Reader::parseCoord(const QString &line, Vec3 &pos, float &E, const float co
         return false;
     }
 
-    //     qDebug() << line;
+    //  qDebug() << line;
     const QStringList &chunks = line.toUpper().simplified().split(' ');
 
     if (chunks.count() == 0) {
@@ -1364,12 +1398,12 @@ bool Reader::readPLT( const QByteArray &arr )
     data.clear();
     //checkedListBox1.Items.clear();
 
-    //     parent->treeView1.Nodes.clear();
+    //  parent->treeView1.Nodes.clear();
 
-    //     TreeNode trc;// = new TreeNode("");
+    //  TreeNode trc;// = new TreeNode("");
 
 
-    //     qDebug() << "анализ файла";
+    //  qDebug() << "анализ файла";
 
     int index = 0;
 
@@ -1379,7 +1413,7 @@ bool Reader::readPLT( const QByteArray &arr )
     while (!stream.atEnd()) {
         QString s = stream.readLine();
 
-        //         qDebug() << "анализ файла строка " + QString::number(index);
+        //      qDebug() << "анализ файла строка " + QString::number(index);
         //
         //начальная точка
         if (s.trimmed().mid(0, 2) == "PU") {
@@ -1396,20 +1430,20 @@ bool Reader::readPLT( const QByteArray &arr )
 
             if (data.count() > 0) {
                 //первый раз
-                //                 indexList++;
-                //             } else {
-                //                 indexList++;
+                //   indexList++;
+                //  } else {
+                //   indexList++;
                 //checkedListBox1.Items.Add("линия - " + QString::number(indexList) + ", " + QString::number(points.count()) + " точек");
-                //                 trc.Text = "линия - " + QString::number(indexList) + ", " + QString::number(points.count()) + " точек";
+                //   trc.Text = "линия - " + QString::number(indexList) + ", " + QString::number(points.count()) + " точек";
 
-                //                 data.last().Points <<  points;
+                //   data.last().Points <<  points;
                 data << DataCollections(points);
 
                 points.clear();
-                //                 points = new QList<Point>();
+                //   points = new QList<Point>();
 
-                //                 treeView1.Nodes.Add(trc);
-                //                 trc = new TreeNode("");
+                //   treeView1.Nodes.Add(trc);
+                //   trc = new TreeNode("");
             }
 
             points <<  (Point) {
@@ -1433,32 +1467,32 @@ bool Reader::readPLT( const QByteArray &arr )
             points <<  (Point) {
                 posX, posY
             };
-            //             trc.Nodes.Add("Точка - X: " + QString::number(posX) + "  Y: " + QString::number(posY));
+            //  trc.Nodes.Add("Точка - X: " + QString::number(posX) + "  Y: " + QString::number(posY));
 
         }
 
-        //         s = fs.ReadLine();
+        //      s = fs.ReadLine();
         index++;
     }
 
-    //     fl.close();
+    //  fl.close();
 
-    //     indexList++;
-    //     Instument instr = {0, 0.0}; // number, diameter
+    //  indexList++;
+    //  Instument instr = {0, 0.0}; // number, diameter
     data <<  DataCollections(points);
     //checkedListBox1.Items.Add("линия - " + QString::number(indexList) + ", " + QString::number(points.count()) + " точек");
-    //     trc.Text = "линия - " + QString::number(indexList) + ", " + QString::number(points.count()) + " точек";
-    //     data <<  points;
-    //     points = new QList<Point>();
+    //  trc.Text = "линия - " + QString::number(indexList) + ", " + QString::number(points.count()) + " точек";
+    //  data <<  points;
+    //  points = new QList<Point>();
 
-    //     points.clear();
+    //  points.clear();
 
-    //     treeView1.Nodes.Add(trc);
-    //     trc = new TreeNode("");
+    //  treeView1.Nodes.Add(trc);
+    //  trc = new TreeNode("");
 
 
-    //     qDebug() << "загружено!!!!!!!!";
-    //     fs = null;
+    //  qDebug() << "загружено!!!!!!!!";
+    //  fs = null;
 
     return true;
 
@@ -1489,8 +1523,8 @@ bool Reader::readDRL( const QByteArray &arr)
 
     QList<Point> points;
 
-    //     StreamReader fs = new StreamReader(tbFile.Text);
-    //     QString s = fs.ReadLine();
+    //  StreamReader fs = new StreamReader(tbFile.Text);
+    //  QString s = fs.ReadLine();
 
     bool isDataDrill = false; //определение того какие сейчас данные, всё что до строки с % параметры инструментов, после - дырки для сверлений
 
@@ -1541,22 +1575,22 @@ bool Reader::readDRL( const QByteArray &arr)
             };
         }
 
-        //         s = fs.ReadLine();
+        //      s = fs.ReadLine();
     }
 
-    //     fs = null;
-    //     fl.close();
+    //  fs = null;
+    //  fl.close();
 
-    //     treeView1.Nodes.clear();
+    //  treeView1.Nodes.clear();
     //
-    //     foreach (DataCollections VARIABLE, data) {
-    //         TreeNode trc = new TreeNode("Сверловка - " + QString::number(VARIABLE.intrument.Diametr));
+    //  foreach (DataCollections VARIABLE, data) {
+    //      TreeNode trc = new TreeNode("Сверловка - " + QString::number(VARIABLE.intrument.Diametr));
     //
-    //         foreach (Point VARIABLE2, VARIABLE.Points) {
-    //             trc.Nodes.Add("Точка - X: " + QString::number(VARIABLE2.X) + "  Y: " + QString::number(VARIABLE2.Y));
-    //         }
-    //         treeView1.Nodes.Add(trc);
-    //     }
+    //      foreach (Point VARIABLE2, VARIABLE.Points) {
+    //  trc.Nodes.Add("Точка - X: " + QString::number(VARIABLE2.X) + "  Y: " + QString::number(VARIABLE2.Y));
+    //      }
+    //      treeView1.Nodes.Add(trc);
+    //  }
 
     //TreeNode trc = new TreeNode("");
     //qDebug() << "анализ файла";
@@ -1624,8 +1658,8 @@ void Reader::BresenhamCircle(QVector<QVector< byte > > &arrayPoint,  int x0, int
 void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, int x1, int y1, typeSpline _Splane)
 {
     //матрицу сплайна
-    //     byte[,] spArray = new byte[1, 1];
-    //     spArray[0, 0] = 1; //просто обычная точка
+    //  byte[,] spArray = new byte[1, 1];
+    //  spArray[0, 0] = 1; //просто обычная точка
     QVector<QVector<byte> > spArray;
 
     int sizeMatrixX = 0;
@@ -1646,7 +1680,7 @@ void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, 
         spArray.push_back(QVector< byte > ());
 
         for (int x = 0; x <= sizeMatrixX; x++) {
-            //             parent->surfaceMatrix[x][y] = new dobPoint(posX + (x * stepX), posY + (y * stepY), posZ);
+            //  parent->surfaceMatrix[x][y] = new dobPoint(posX + (x * stepX), posY + (y * stepY), posZ);
             byte v = 0;//{0.0, 0.0, 0.0, 0.0 };
             spArray[y].push_back(v);
             //matrixline.X.Add(new matrixPoint(numPosX->value() + (x * numStep->value()), numPosZ->value(), true));
@@ -1667,7 +1701,7 @@ void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, 
     //{
     //    for (int dxx = 0; dxx < sizeMatrixX; dxx++)
     //    {
-    //        debugstr += QString::number(spArray[dxx, dyy]);
+    //     debugstr += QString::number(spArray[dxx, dyy]);
     //    }
     //    debugstr += "\n";
     //}
@@ -1848,7 +1882,7 @@ bool Reader::readGBR( const QByteArray &arr)
         }
 
 #endif
-        //         s = fs.ReadLine();
+        //      s = fs.ReadLine();
     }
 
 
@@ -1866,7 +1900,7 @@ bool Reader::readGBR( const QByteArray &arr)
         arrayPoint.push_back(QVector< byte > ());
 
         for (int x = 0; x <= grb.X_max; x++) {
-            //             parent->surfaceMatrix[x][y] = new dobPoint(posX + (x * stepX), posY + (y * stepY), posZ);
+            //  parent->surfaceMatrix[x][y] = new dobPoint(posX + (x * stepX), posY + (y * stepY), posZ);
             byte v = 0;//{0.0, 0.0, 0.0, 0.0 };
             arrayPoint[y].push_back(v);
             //matrixline.X.Add(new matrixPoint(numPosX->value() + (x * numStep->value()), numPosZ->value(), true));
@@ -1981,7 +2015,7 @@ bool Reader::readGBR( const QByteArray &arr)
     qDebug() << "Готово!";
 
     return true;
-    //     arrayPoint = null;
+    //  arrayPoint = null;
 
     //System.Diagnostics.Process proc = System.Diagnostics.Process.Start("mspaint.exe", "d:\sample.bmp"); //Запускаем блокнот
     //proc.WaitForExit();//и ждем, когда он завершит свою работу
