@@ -69,7 +69,8 @@ struct moveParameters {
 class usbHotplugThread : public QThread
 {
         Q_OBJECT
-        void run() {
+        void run()
+        {
             /* expensive or blocking operation  */
             while(true) {
                 int r = libusb_handle_events(NULL);
@@ -334,10 +335,12 @@ class usbReadThread : public QThread
 {
         Q_OBJECT
     public:
-        usbReadThread(QObject *parent) : QThread(parent) {
+        usbReadThread(QObject *parent) : QThread(parent)
+        {
             p = (mk1Controller*)parent;
         }
-        void run() {
+        void run()
+        {
             // init of read array
             memset( buf, 0x0, BUFFER_SIZE);
 

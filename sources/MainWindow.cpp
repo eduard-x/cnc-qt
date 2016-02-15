@@ -2241,8 +2241,8 @@ void MainWindow::fixGCodeList()
 
     // now debug
     for (int i = 0; i < gCodeList.size(); i++) {
-        qDebug() << i << "line" << gCodeList[i].numberLine << "accel" << gCodeList[i].accelCode
-                 << "cuts" <<  gCodeList[i].splits << "steps" << gCodeList[i].stepsCounter << "speed" << gCodeList[i].vectSpeed << "coords" << gCodeList[i].X << gCodeList[i].Y;
+        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << gCodeList[i].accelCode
+                 << "splits:" <<  gCodeList[i].splits << "steps:" << gCodeList[i].stepsCounter << "vector speed:" << gCodeList[i].vectSpeed << "coords:" << gCodeList[i].X << gCodeList[i].Y;
     }
 
 #endif
@@ -2310,15 +2310,17 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
                 splits--;
                 bLeng = splits / (float)Settings::splitsPerMm;
-                if (gCodeList[i].accelCode == NO_CODE){
+
+                if (gCodeList[i].accelCode == NO_CODE) {
                     gCodeList[i].accelCode = CONSTSPEED_CODE;
                 }
             }
-           
-            if (gCodeList[begPos].accelCode == NO_CODE){
+
+            if (gCodeList[begPos].accelCode == NO_CODE) {
                 gCodeList[begPos].accelCode = ACCELERAT_CODE;
             }
-            if (gCodeList[endPos].accelCode == NO_CODE){
+
+            if (gCodeList[endPos].accelCode == NO_CODE) {
                 gCodeList[endPos].accelCode = DECELERAT_CODE;
             }
 
@@ -2368,17 +2370,20 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
                 splits--;
                 bLeng = splits / (float)Settings::splitsPerMm;
-                if (gCodeList[i].accelCode == NO_CODE){
-                gCodeList[i].accelCode = CONSTSPEED_CODE;
+
+                if (gCodeList[i].accelCode == NO_CODE) {
+                    gCodeList[i].accelCode = CONSTSPEED_CODE;
                 }
             }
-            
-            if (gCodeList[begPos].accelCode == NO_CODE){
+
+            if (gCodeList[begPos].accelCode == NO_CODE) {
                 gCodeList[begPos].accelCode = ACCELERAT_CODE;
             }
-            if (gCodeList[endPos].accelCode == NO_CODE){
+
+            if (gCodeList[endPos].accelCode == NO_CODE) {
                 gCodeList[endPos].accelCode = DECELERAT_CODE;
             }
+
             break;
         }
 
@@ -2425,15 +2430,17 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
                 splits--;
                 bLeng = splits / (float)Settings::splitsPerMm;
-                if (gCodeList[i].accelCode == NO_CODE){
+
+                if (gCodeList[i].accelCode == NO_CODE) {
                     gCodeList[i].accelCode = CONSTSPEED_CODE;
                 }
             }
 
-            if (gCodeList[begPos].accelCode == NO_CODE){
+            if (gCodeList[begPos].accelCode == NO_CODE) {
                 gCodeList[begPos].accelCode = ACCELERAT_CODE;
             }
-            if (gCodeList[endPos].accelCode == NO_CODE){
+
+            if (gCodeList[endPos].accelCode == NO_CODE) {
                 gCodeList[endPos].accelCode = DECELERAT_CODE;
             }
 

@@ -577,7 +577,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                         cached_lines.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                     }
-                    
+
                     gCodeList << *tmpCommand;
                     // init of next instuction
                     tmpCommand = new GCodeData(tmpCommand);
@@ -682,7 +682,7 @@ bool Reader::readGCode(const QByteArray &gcode)
 
                     tmpCommand->changeInstrument = false;
                     tmpCommand->pauseMSeconds = -1; // no pause
-                    
+
                     // qDebug() << "after " << gCodeList.count() << "splits" << tmpCommand->splits;
                     break;
                 }
@@ -867,6 +867,7 @@ bool Reader::readGCode(const QByteArray &gcode)
             badList << msg.arg(QString::number(index)) + line;
         } else {
 #if 0
+
             if (movingCommand == true) {
                 //   if (cmd != "G02" && cmd != "G03"){
                 gCodeList << *tmpCommand;
@@ -884,6 +885,7 @@ bool Reader::readGCode(const QByteArray &gcode)
                 tmpCommand->pauseMSeconds = -1; // no pause
 
             }
+
 #endif
             goodList << line;
         }
@@ -1101,7 +1103,7 @@ void Reader::convertArcToLines(GCodeData *endData)
     float bLength = r * alpha;
 
     int n = (int)(bLength * Settings::splitsPerMm) - 1; // num segments of arc per mm
-    float splitLen = 1.0 /(float)Settings::splitsPerMm;
+    float splitLen = 1.0 / (float)Settings::splitsPerMm;
 
     if ( n == 0) {
         qDebug() << "wrong, n = 0" << alpha_beg << alpha_end;
@@ -1128,19 +1130,20 @@ void Reader::convertArcToLines(GCodeData *endData)
     qDebug() << "arc from " << begData.X << begData.Y << begData.Z  << "to" << endData->X << endData->Y << endData->Z << "splits: " << n;
 #endif
 
-    begData.splits = n;
+//     begData.splits = n;
 
     ncommand->X = begData.X;
     ncommand->Y = begData.Y;
     ncommand->Z = begData.Z;
     ncommand->A = begData.A;
-    ncommand->splits = 0;
+    ncommand->splits = n;
     ncommand->accelCode = ACCELERAT_CODE;
 
     // stepsCounter
 
     // now split
     bool endLoop = false;
+
     for (int step = 0; step < n; ++step) {
         //coordinates of next arc point
         angle += dAlpha;
@@ -1192,14 +1195,15 @@ void Reader::convertArcToLines(GCodeData *endData)
             default:
                 break;
         }
-        
-        if (endLoop == true){
+
+        if (endLoop == true) {
             break;
         }
 
         gCodeList << *ncommand;
         ncommand = new GCodeData(*ncommand);
         ncommand->accelCode = CONSTSPEED_CODE;
+        ncommand->splits =0;
     }
 
     // last
