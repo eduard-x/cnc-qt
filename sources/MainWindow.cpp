@@ -1395,7 +1395,7 @@ bool MainWindow::runCommand()
         mParams.posZ = Settings::coord[Z].startPos + 10.0;
         mParams.posA = Settings::coord[A].startPos;//, userSpeedG0;
         mParams.speed = gcodeNow.vectSpeed;
-        mParams.code = 0x39; //gcodeNow.accelCode;
+        mParams.code = RAPID_LINE_CODE; //gcodeNow.accelCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
         mParams.numberInstruction = 0;
 
@@ -1641,7 +1641,7 @@ void MainWindow::moveToPoint(bool surfaceScan)
         mParams.posZ = posZ;
         mParams.posA = posA;//, userSpeedG0;
         mParams.speed = speed;
-        mParams.code = 0x39; //gcodeNow.accelCode;
+        mParams.code = RAPID_LINE_CODE; //gcodeNow.accelCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
         mParams.numberInstruction = 0;
 
@@ -2241,7 +2241,7 @@ void MainWindow::fixGCodeList()
 
     // now debug
     for (int i = 0; i < gCodeList.size(); i++) {
-        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << gCodeList[i].accelCode
+        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << gCodeList[i].accelCode << "max coeff:" << gCodeList[i].vectorCoeff
                  << "splits:" <<  gCodeList[i].splits << "steps:" << gCodeList[i].stepsCounter << "vector speed:" << gCodeList[i].vectSpeed << "coords:" << gCodeList[i].X << gCodeList[i].Y;
     }
 
@@ -2255,9 +2255,9 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
     if (gCodeList[begPos].changeDirection == true) {
         if (gCodeList[begPos].feed == true) { // feed
-            gCodeList[begPos].accelCode = 0x31;
+            gCodeList[begPos].accelCode = FEED_LINE_CODE;
         } else {
-            gCodeList[begPos].accelCode = 0x39;
+            gCodeList[begPos].accelCode = RAPID_LINE_CODE;
         }
 
         return;
@@ -2310,6 +2310,8 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
                 splits--;
                 bLeng = splits / (float)Settings::splitsPerMm;
+
+                gCodeList[i].vectorCoeff = coeff;
 
                 if (gCodeList[i].accelCode == NO_CODE) {
                     gCodeList[i].accelCode = CONSTSPEED_CODE;
@@ -2371,6 +2373,8 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                 splits--;
                 bLeng = splits / (float)Settings::splitsPerMm;
 
+                gCodeList[i].vectorCoeff = coeff;
+
                 if (gCodeList[i].accelCode == NO_CODE) {
                     gCodeList[i].accelCode = CONSTSPEED_CODE;
                 }
@@ -2430,6 +2434,8 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
                 splits--;
                 bLeng = splits / (float)Settings::splitsPerMm;
+
+                gCodeList[i].vectorCoeff = coeff;
 
                 if (gCodeList[i].accelCode == NO_CODE) {
                     gCodeList[i].accelCode = CONSTSPEED_CODE;

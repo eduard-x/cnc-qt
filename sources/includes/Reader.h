@@ -60,11 +60,11 @@ class cTranslator;
 
 
 #define NO_CODE         0x00
+#define CONSTSPEED_CODE 0x01
 #define ACCELERAT_CODE  0x11
 #define DECELERAT_CODE  0x21
-#define CONSTSPEED_CODE 0x01
 #define FEED_LINE_CODE  0x31
-#define RAPID_CODE      0x39
+#define RAPID_LINE_CODE 0x39
 
 
 //
@@ -273,10 +273,10 @@ class Reader : public cTranslator
     public:
         QList<DataCollections> data;
         std::deque<std::pair<float, std::vector<Vec2d> > > layers;
-        std::vector<Vec3f> cached_lines;
+        //         std::vector<Vec3f> cached_lines;
         //         std::vector<Vec3f> cached_arcs;
-        std::vector<Vec3f> cached_points;
-        std::vector<Vec3f> cached_color;
+        //         std::vector<Vec3f> cached_points;
+        //         std::vector<Vec3f> cached_color;
 
         QList<GCodeData> gCodeList;
 

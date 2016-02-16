@@ -5,6 +5,7 @@ IF(${QT_USE_QTOPENGL})
                  ${CMAKE_CURRENT_SOURCE_DIR}/mk1Controller.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Settings.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Reader.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/GCode.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Settings3d.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/About.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Geometry.cpp
@@ -20,6 +21,7 @@ ELSE()
   SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/mk1Controller.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Settings.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/GCode.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Reader.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/About.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Geometry.cpp
@@ -38,6 +40,7 @@ IF(${QT_USE_QTOPENGL})
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Translator.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Settings.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Reader.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/GCode.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/About.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/vec.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Geometry.h
@@ -54,6 +57,7 @@ ELSE()
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Translator.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Settings.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Reader.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/GCode.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/About.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/vec.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Geometry.h
