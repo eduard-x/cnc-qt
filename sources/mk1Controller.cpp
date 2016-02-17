@@ -32,6 +32,7 @@
 #include <QDebug>
 #include <QIODevice>
 
+#include "includes/Settings.h"
 #include "includes/mk1Controller.h"
 
 #include <QString>
@@ -42,47 +43,6 @@ using namespace std;
 ** mk1Controller
 */
 
-
-axis::axis()
-{
-    acceleration = 50.0;
-    actualLimitMax = false;
-    actualLimitMin = false;
-    enabled = true;
-    backlash = 0.0;
-    invertDirection = false;
-    invertPulses = false;
-    invLimitMax = false;
-    invLimitMin = false;
-    workAreaMax = 100.0;
-    workAreaMin = -100.0;
-    pulsePerMm = 200;
-    actualPosPulses = 0;
-    wrong = false;
-}
-
-
-float axis::posMm()
-{
-    if (pulsePerMm != 0) {
-        return (float)(actualPosPulses / (float) pulsePerMm);
-    } else {
-        return 0.0;
-    }
-}
-
-
-int axis::posPulse(float posMm)
-{
-    return (int)(posMm * (float)pulsePerMm);
-}
-
-
-bool Settings::DEMO_DEVICE = false;
-int  Settings::splitsPerMm = 10;
-float Settings::maxLookaheadAngle = 170.0;
-
-axis Settings::coord[] = { axis(), axis(), axis(), axis() };
 
 
 // static

@@ -31,6 +31,7 @@
 
 #include <QtGui>
 
+#include "includes/Settings.h"
 #include "includes/mk1Controller.h"
 #include "includes/ScanSurface.h"
 
@@ -54,9 +55,9 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
 
     Scan = false;
 
-    QString n = QString::number(1.01);
-    toDecimalPoint = (n.indexOf(",") > 0) ? ',' : '.';
-    fromDecimalPoint = (toDecimalPoint == ',') ? '.' : ',';
+    //     QString n = QString::number(1.01);
+    //     toDecimalPoint = (n.indexOf(",") > 0) ? ',' : '.';
+    //     fromDecimalPoint = (toDecimalPoint == ',') ? '.' : ',';
 
     indexScanX = 0;
     indexScanY = 0;
@@ -332,7 +333,7 @@ void ScanSurfaceDialog::itemChanged( QTableWidgetItem * item)
 
     QString ss = dataGridView->item(y, x)->text();
     bool res;
-    float val = ss.replace(fromDecimalPoint, toDecimalPoint).toDouble(&res);
+    float val = ss.replace(Settings::fromDecimalPoint, Settings::toDecimalPoint).toDouble(&res);
 
     if (res == true) {
         surfaceArr[y][x].Z = val;

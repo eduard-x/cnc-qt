@@ -52,6 +52,7 @@
 #define byte unsigned char
 
 class cTranslator;
+class GCodeParser;
 
 
 #define COORD_TOO_BIG 10e6
@@ -250,7 +251,7 @@ class GerberData
 
 // class for reading of different formats
 
-class Reader : public cTranslator
+class Reader : public GCodeParser , public cTranslator
 {
     public:
         Reader();
@@ -267,8 +268,7 @@ class Reader : public cTranslator
         //         bool parserGCodeLine(const QString &value);
         bool OpenFile(QString &name);
         void SaveFile();
-        QStringList getGoodList();
-        QStringList getBadList();
+
 
     public:
         QList<DataCollections> data;
@@ -278,20 +278,15 @@ class Reader : public cTranslator
         //         std::vector<Vec3f> cached_points;
         //         std::vector<Vec3f> cached_color;
 
-        QList<GCodeData> gCodeList;
+
 
         //             signals:
         //                 void logMessage(const QString &s);
 
     private:
         void Swap(int &p1, int &p2);
-        bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
-        bool parseArc(const QString &line, Vec3 &pos, float &R, const float coef);
-        bool addLine(GCodeData *c);
-        bool addArc(GCodeData *c);
-        void convertArcToLines(GCodeData *c);
-        float determineAngle(const Vec3 &pos, const Vec3 &pos_c, PlaneEnum pl);
-        bool readGCode( const QByteArray &gcode );
+
+        //         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );
         bool readDRL( const QByteArray &gcode );
         bool readDXF( const QByteArray &gcode );
@@ -303,11 +298,8 @@ class Reader : public cTranslator
         //         GCode_resultParse parseStringGCode(const QString &value);
 
     private:
-        QChar fromDecimalPoint;
-        QChar toDecimalPoint;
         typeFileLoad TypeFile;// = typeFileLoad.None;
-        QStringList goodList; // only decoded G-code
-        QStringList badList;
+
 
         //         mutable QMutex mutex;
 };

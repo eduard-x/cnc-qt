@@ -32,6 +32,7 @@
 #include <QtGui>
 #include <QUrl>
 
+#include "includes/Settings.h"
 #include "includes/mk1Controller.h"
 #include "includes/Settings3d.h"
 

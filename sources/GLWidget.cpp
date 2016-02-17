@@ -38,6 +38,7 @@
 #include <utility>
 #include "includes/vec.h"
 
+#include "includes/Settings.h"
 #include "includes/MainWindow.h"
 #include "includes/mk1Controller.h"
 #include "includes/GLWidget.h"

@@ -40,6 +40,75 @@ class cTranslator;
 class MainWindow;
 
 
+
+enum AxisNames { X = 0, Y, Z, A, B, C, U, V, W };
+
+
+class axis
+{
+    public:
+        axis(); // constructor
+        float posMm();
+        int posPulse(float posMm);
+
+    public:
+        float minVelo;
+        float maxVelo;
+        float acceleration;
+        int   pulsePerMm;
+        float actualPosmm;
+        int   actualPosPulses;
+        bool  invertDirection;
+        bool  invertPulses;
+
+        bool  useLimitMin; // set HW
+        bool  useLimitMax; // set HW
+        bool  invLimitMin; // set HW
+        bool  invLimitMax; // set HW
+
+        bool  actualLimitMax; // get from HW
+        bool  actualLimitMin; // get from HW
+
+        float startPos;
+        bool  checkSoftLimits;
+
+        float softLimitMax;
+        float softLimitMin;
+        float backlash;
+        float workAreaMin;
+        float workAreaMax;
+        bool  enabled;
+        float home;
+        bool  wrong;
+};
+
+
+class Settings
+{
+    public:
+        static axis coord[4]; // array of 4 axis for mk1
+        static int splitsPerMm;
+        static float maxLookaheadAngle;
+
+        static QChar fromDecimalPoint;
+        static QChar toDecimalPoint;
+        //         QVector<axis> mk2[9]; // array of 9 axis for mk2
+
+        //         static bool setSettings;
+        //         static int  spindleMoveSpeed;
+        //         static bool spindleEnabled;
+        //         static bool mistEnabled;
+        //         static bool fluidEnabled;
+        //
+        //         static bool Estop;
+
+        // for virtual controller
+        static bool DEMO_DEVICE;
+};
+
+
+
+
 class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTranslator
 {
         Q_OBJECT
