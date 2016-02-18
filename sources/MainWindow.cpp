@@ -2260,11 +2260,20 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
     if (gCodeList[begPos].changeDirection == true) {
         if (gCodeList[begPos].feed == true) { // feed
-            gCodeList[begPos].accelCode = FEED_LINE_CODE;
+            if (gCodeList[begPos].accelCode == NO_CODE) {
+                gCodeList[begPos].accelCode = FEED_LINE_CODE;
+            }
         } else {
-            gCodeList[begPos].accelCode = RAPID_LINE_CODE;
+            if (gCodeList[begPos].accelCode == NO_CODE) {
+                gCodeList[begPos].accelCode = RAPID_LINE_CODE;
+            }
         }
 
+        return;
+    }
+
+    if (begPos < 1) {
+        qDebug() << "wrong potionion number patchSpeedAndAccelCode()" << begPos;
         return;
     }
 
@@ -2276,10 +2285,10 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             float bLeng = splits / (float)Settings::splitsPerMm;
             int sumSteps = 0;
 
-            for (int i = begPos; i < endPos; i++) {
+            for (int i = begPos; i <= endPos; i++) {
                 detectMinMax(i);
-                float dX = fabs(gCodeList[i].X - gCodeList[i + 1].X);
-                float dY = fabs(gCodeList[i].Y - gCodeList[i + 1].Y);
+                float dX = fabs(gCodeList.at(i - 1).X - gCodeList.at(i).X);
+                float dY = fabs(gCodeList.at(i - 1).Y - gCodeList.at(i).Y);
                 float dH = sqrt(dX * dX + dY * dY);
                 float coeff = 1.0;
 
@@ -2325,7 +2334,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             }
 
             // now for steps
-            for (int i = begPos; i < endPos; i++) {
+            for (int i = begPos; i <= endPos; i++) {
                 int tmpStps;
                 tmpStps = gCodeList[i].stepsCounter;
                 gCodeList[i].stepsCounter = sumSteps;
@@ -2349,11 +2358,11 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
             int sumSteps = 0;
 
-            for (int i = begPos; i < endPos; i++) {
+            for (int i = begPos; i <= endPos; i++) {
                 detectMinMax(i);
 
-                float dY = fabs(gCodeList[i].Y - gCodeList[i + 1].Y);
-                float dZ = fabs(gCodeList[i].Z - gCodeList[i + i].Z);
+                float dY = fabs(gCodeList.at(i - 1).Y - gCodeList.at(i).Y);
+                float dZ = fabs(gCodeList.at(i - 1).Z - gCodeList.at(i).Z);
                 float dH = sqrt(dZ * dZ + dY * dY);
                 float coeff = 1.0;
 
@@ -2398,7 +2407,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             }
 
             // now for steps
-            for (int i = begPos; i < endPos; i++) {
+            for (int i = begPos; i <= endPos; i++) {
                 int tmpStps;
                 tmpStps = gCodeList[i].stepsCounter;
                 gCodeList[i].stepsCounter = sumSteps;
@@ -2422,11 +2431,11 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
             int sumSteps = 0;
 
-            for (int i = begPos; i < endPos; i++) {
+            for (int i = begPos; i <= endPos; i++) {
                 detectMinMax(i);
 
-                float dZ = fabs(gCodeList[i].Z - gCodeList[i + 1].Z);
-                float dX = fabs(gCodeList[i].X - gCodeList[i + 1].X);
+                float dZ = fabs(gCodeList.at(i - 1).Z - gCodeList.at(i).Z);
+                float dX = fabs(gCodeList.at(i - 1).X - gCodeList.at(i).X);
                 float dH = sqrt(dX * dX + dZ * dZ);
                 float coeff = 1.0;
 
@@ -2471,7 +2480,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             }
 
             // now for steps
-            for (int i = begPos; i < endPos; i++) {
+            for (int i = begPos; i <= endPos; i++) {
                 int tmpStps;
                 tmpStps = gCodeList[i].stepsCounter;
                 gCodeList[i].stepsCounter = sumSteps;
@@ -2540,7 +2549,7 @@ int MainWindow::calculateRestSteps(int startPos)
         return startPos + 1;
     }
 
-    return endPos -1;
+    return endPos;
 }
 
 
