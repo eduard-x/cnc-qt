@@ -89,7 +89,7 @@ class GCodeData
         int   vectSpeed; // telegr CA offset
         float vectorCoeff; // for the max from dH / dX of dH / dY ratio, in case XY plane
 
-        bool  changeDirection;
+//         bool  changeDirection;
         int   accelCode;
         int   stepsCounter; // number of steps in current direction
         bool  feed; // true=G1 false=G0
@@ -136,6 +136,7 @@ class GCodeParser
     private:
         float determineAngle(const Vec3 &pos, const Vec3 &pos_center, PlaneEnum pl);
         void convertArcToLines(GCodeData *endData);
+        void calcAngleOfLines(int pos);
         bool parseArc(const QString &line, Vec3 &pos, float &R, const float coef);
         bool addLine(GCodeData* param);
         bool addArc(GCodeData* param);

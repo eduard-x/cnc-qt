@@ -2211,13 +2211,16 @@ void MainWindow::fixGCodeList()
     //     qDebug() << "max angle" << maxLookaheadAngle << " in rad: " << maxLookaheadAngleRad;
 
     // calculate the number of steps in one direction, if exists
-    for (int numPos = 1; numPos < gCodeList.size() - 2; numPos++) {
+    for (int numPos = 1; numPos < gCodeList.size() - 1; numPos++) {
         detectMinMax(numPos);
 
         if (gCodeList[numPos].accelCode == ACCELERAT_CODE) { // begin of arc
-            gCodeList[numPos].changeDirection = false;
+//             gCodeList[numPos].changeDirection = false;
 
             int endPos = calculateRestSteps(numPos); // and update the pos
+            if (endPos == -1){
+                continue;
+            }
 
             //                 qDebug() << "rest steps: " << gCodeList[numPos].numberLine << gCodeList[endPos].numberLine << "splits" << gCodeList[numPos].splits;
             patchSpeedAndAccelCode(numPos, endPos);
@@ -2227,16 +2230,19 @@ void MainWindow::fixGCodeList()
         }
 
         // detection of small angle betw. the lines
-        if (fabs(gCodeList[numPos].angle - gCodeList[numPos + 1].angle) < fabs(PI - maxLookaheadAngleRad)) {
-            gCodeList[numPos].changeDirection = false;
+        if (fabs(gCodeList[numPos-1].angle - gCodeList[numPos].angle) < fabs(PI - maxLookaheadAngleRad)) {
+//             gCodeList[numPos].changeDirection = false;
             int endPos = calculateRestSteps(numPos); // and update the pos
 
+            if (endPos == -1){
+                continue;
+            }
             //                 qDebug() << "rest steps: " << gCodeList[numPos].numberLine << gCodeList[endPos].numberLine << "splits" << gCodeList[numPos].splits;
             patchSpeedAndAccelCode(numPos, endPos);
 
             numPos = endPos;
         } else { // lines
-            gCodeList[numPos].changeDirection = true;
+//             gCodeList[numPos].changeDirection = true;
 
             patchSpeedAndAccelCode(numPos, numPos + 1);
         }
@@ -2257,7 +2263,7 @@ void MainWindow::fixGCodeList()
 void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 {
     qDebug() << "patch speed " << begPos << endPos << "from coords:" << gCodeList[begPos].X  << gCodeList[begPos].Y  << "to " << gCodeList[endPos].X  << gCodeList[endPos].Y ;
-
+#if 0
     if (gCodeList[begPos].changeDirection == true) {
         if (gCodeList[begPos].feed == true) { // feed
             if (gCodeList[begPos].accelCode == NO_CODE) {
@@ -2271,7 +2277,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
         return;
     }
-
+#endif
     if (begPos < 1) {
         qDebug() << "wrong potionion number patchSpeedAndAccelCode()" << begPos;
         return;
@@ -2510,7 +2516,7 @@ int MainWindow::calculateRestSteps(int startPos)
 {
     int endPos = startPos;
 
-    if (startPos > gCodeList.count()) {
+    if (startPos > gCodeList.count() || startPos < 1) {
         qDebug() << "steps counter bigger than list";
         return -1;
     }
@@ -2518,20 +2524,17 @@ int MainWindow::calculateRestSteps(int startPos)
     if (gCodeList[startPos].splits > 0) { // it's arc
         endPos += gCodeList[startPos].splits;
     } else { // or for lines
-        for(QList<GCodeData>::iterator ic = gCodeList.begin() + startPos; ic != gCodeList.end() - 1;) {
-            float a1 = (*ic).angle;
-            ic++;
-            float a2 = (*ic).angle;
+//         for(QList<GCodeData>::iterator ic = gCodeList.begin() + startPos; ic != gCodeList.end() - 1;) {
+        for (endPos = startPos; endPos < gCodeList.count(); endPos++){
+            float a1 = gCodeList[endPos-1].angle;
+            float a2 = gCodeList[endPos].angle;
 
             //         if ((*ic).angle <= maxLookaheadAngleRad) {
-            if (fabs(a1 - a2) < fabs(PI - maxLookaheadAngleRad)) {
-                //         if (((*ic).angleVectors == gCodeList[startPos].angleVectors) &&
-                //                 ((*ic).plane == gCodeList[startPos].plane) ) {
-                endPos++;
-            } else {
+            if (fabs(a1 - a2) > fabs(PI - maxLookaheadAngleRad)) {
                 break;
             }
         }
+        qDebug() << "lines" << startPos << endPos;
     }
 
     if ((endPos - startPos) < 2) {

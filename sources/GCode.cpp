@@ -62,7 +62,7 @@ GCodeData::GCodeData()
     K = 0.0;
 
     plane = NonePlane;
-    changeDirection = false;
+//     changeDirection = false;
 
     Radius = 0.0;
     vectorCoeff = 0.0;
@@ -102,7 +102,7 @@ GCodeData::GCodeData(GCodeData *d)
 
     plane = d->plane;
 
-    changeDirection = false;
+//     changeDirection = false;
     vectorCoeff = 0.0;
 
     typeMoving = d->typeMoving;
@@ -374,6 +374,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     //                     }
 
                     gCodeList << *tmpCommand;
+                    calcAngleOfLines(gCodeList.count()-1);
+                    
                     // init of next instuction
                     tmpCommand = new GCodeData(tmpCommand);
 
@@ -764,6 +766,32 @@ float GCodeParser::determineAngle(const Vec3 &pos, const Vec3 &pos_center, Plane
     }
 
     return radians;
+}
+
+// 'endData' is the pointer of arc start
+void GCodeParser::calcAngleOfLines(int pos)
+{
+    if (pos < 1){
+        return;
+    }
+    
+    switch (gCodeList[pos].plane) {
+        case XY: {
+            gCodeList[pos].angle = atan2(gCodeList[pos-1].Y - gCodeList[pos].Y, gCodeList[pos-1].X - gCodeList[pos].X);
+            break;
+        }
+        case YZ: {
+            gCodeList[pos].angle = atan2(gCodeList[pos-1].Z - gCodeList[pos].Z, gCodeList[pos-1].Y - gCodeList[pos].Y);
+            break;
+        }
+        case ZX: {
+            gCodeList[pos].angle = atan2(gCodeList[pos-1].X - gCodeList[pos].X, gCodeList[pos-1].Z - gCodeList[pos].Z);
+            break;
+        }
+        default:{
+            break;
+        }
+    }
 }
 
 //
