@@ -43,7 +43,10 @@
 #include "includes/MainWindow.h"
 
 
-
+/**
+ * @brief
+ * 
+ */
 GCodeData::GCodeData()
 {
     changeInstrument = false;
@@ -86,6 +89,10 @@ GCodeData::GCodeData()
 };
 
 
+/**
+ * @brief
+ * 
+ */
 // constructor based on existing command
 GCodeData::GCodeData(GCodeData *d)
 {
@@ -127,23 +134,38 @@ GCodeData::GCodeData(GCodeData *d)
 };
 
 
-
+/**
+ * @brief
+ * 
+ */
 GCodeParser::GCodeParser() // constructor
 {
 
 }
 
 
+/**
+ * @brief
+ * 
+ */
 bool GCodeParser::addLine(GCodeData *c)
 {
 }
 
 
+/**
+ * @brief
+ * 
+ */
 bool GCodeParser::addArc(GCodeData *c)
 {
 }
 
 
+/**
+ * @brief
+ * 
+ */
 // read and parse into GCodeData list and OpenGL list
 bool GCodeParser::readGCode(const QByteArray &gcode)
 {
@@ -368,12 +390,26 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                         current_pos += next_pos;
                     }
 
+                    if (current_pos.x() == next_pos.x() && current_pos.y() == next_pos.y()) {
+                            tmpCommand->plane = XY;
+                    } else if (current_pos.y() == next_pos.y() && current_pos.z() == next_pos.z()) {
+                        tmpCommand->plane = YZ;
+                    } else if (current_pos.z() == next_pos.z() && current_pos.x() == next_pos.x()) {
+                        tmpCommand->plane = ZX;
+                    } else if((current_pos.x() != next_pos.x() || current_pos.y() != next_pos.y()) && current_pos.z() == next_pos.z()) {
+                        tmpCommand->plane = XY;
+                    } else if((current_pos.y() != next_pos.y() || current_pos.z() != next_pos.z()) && current_pos.x() == next_pos.x()) {
+                        tmpCommand->plane = YZ;
+                    } else if((current_pos.z() != next_pos.z() || current_pos.x() != next_pos.x()) && current_pos.y() == next_pos.y()) {
+                        tmpCommand->plane = ZX;
+                    }
                     //                     if (E > 0.0) {
                     //                         cached_lines.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                     //                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
                     //                     }
 
                     gCodeList << *tmpCommand;
+                    
                     calcAngleOfLines(gCodeList.count()-1);
                     
                     // init of next instuction
@@ -721,6 +757,10 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 float GCodeParser::determineAngle(const Vec3 &pos, const Vec3 &pos_center, PlaneEnum pl)
 {
     float radians = 0.0;
@@ -768,6 +808,11 @@ float GCodeParser::determineAngle(const Vec3 &pos, const Vec3 &pos_center, Plane
     return radians;
 }
 
+
+/**
+ * @brief calculates the diffenerce between two points
+ * 
+ */
 // 'endData' is the pointer of arc start
 void GCodeParser::calcAngleOfLines(int pos)
 {
@@ -777,24 +822,29 @@ void GCodeParser::calcAngleOfLines(int pos)
     
     switch (gCodeList[pos].plane) {
         case XY: {
-            gCodeList[pos].angle = atan2(gCodeList[pos-1].Y - gCodeList[pos].Y, gCodeList[pos-1].X - gCodeList[pos].X);
+            gCodeList[pos].angle = atan2(gCodeList[pos].Y - gCodeList[pos-1].Y, gCodeList[pos].X - gCodeList[pos-1].X);
             break;
         }
         case YZ: {
-            gCodeList[pos].angle = atan2(gCodeList[pos-1].Z - gCodeList[pos].Z, gCodeList[pos-1].Y - gCodeList[pos].Y);
+            gCodeList[pos].angle = atan2(gCodeList[pos].Z - gCodeList[pos-1].Z, gCodeList[pos].Y - gCodeList[pos-1].Y);
             break;
         }
         case ZX: {
-            gCodeList[pos].angle = atan2(gCodeList[pos-1].X - gCodeList[pos].X, gCodeList[pos-1].Z - gCodeList[pos].Z);
+            gCodeList[pos].angle = atan2(gCodeList[pos].X - gCodeList[pos-1].X, gCodeList[pos].Z - gCodeList[pos-1].Z);
             break;
         }
         default:{
+            qDebug() << "calcAngleOfLines(): no plane information";
             break;
         }
     }
 }
 
-//
+
+/**
+ * @brief
+ * 
+ */
 // 'endData' is the pointer of arc start
 void GCodeParser::convertArcToLines(GCodeData *endData)
 {
@@ -1080,6 +1130,10 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 // if anything is detected, return true
 bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float coef)
 {
@@ -1156,6 +1210,10 @@ bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float
 }
 
 
+/**
+ * @brief
+ * 
+ */
 // if anything is detected, return true
 bool GCodeParser::parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F)
 {
@@ -1244,12 +1302,20 @@ bool GCodeParser::parseCoord(const QString &line, Vec3 &pos, float &E, const flo
 }
 
 
+/**
+ * @brief
+ * 
+ */
 QStringList GCodeParser::getGoodList()
 {
     return goodList;
 }
 
 
+/**
+ * @brief
+ * 
+ */
 QStringList GCodeParser::getBadList()
 {
     return badList;

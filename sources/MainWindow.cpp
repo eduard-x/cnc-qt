@@ -64,7 +64,10 @@
 
 class MainWindow;
 
-
+/**
+ * @brief
+ * 
+ */
 void MessageTimerBox::showEvent ( QShowEvent * event )
 {
     currentTime = 0;
@@ -75,18 +78,30 @@ void MessageTimerBox::showEvent ( QShowEvent * event )
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MessageTimerBox::setDefaultText(const QString &t)
 {
     defaultText = t;
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MessageTimerBox::setAutoClose(bool b)
 {
     autoClose = b;
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MessageTimerBox::setTimeout(int t)
 {
     timeout = t;
@@ -98,6 +113,10 @@ void MessageTimerBox::setTimeout(int t)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MessageTimerBox::timerEvent(QTimerEvent *event)
 {
     QString t;
@@ -113,6 +132,10 @@ void MessageTimerBox::timerEvent(QTimerEvent *event)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 int MessageBox::exec(void* p, const QString &title, const QString &text, int ticon)
 {
     int ret;
@@ -157,7 +180,10 @@ int Task::lineCodeEnd = -1;
 int Task::instrCounter = -1;
 
 
-
+/**
+ * @brief
+ * 
+ */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), Reader ()
 {
@@ -348,6 +374,10 @@ MainWindow::MainWindow(QWidget *parent)
 };
 
 
+/**
+ * @brief
+ * 
+ */
 bool MainWindow::getLangTable()
 {
     QString lang = currentLang;
@@ -376,6 +406,10 @@ bool MainWindow::getLangTable()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::addConnections()
 {
     // connect menu actions
@@ -474,6 +508,10 @@ void MainWindow::addConnections()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onDeviceInfo()
 {
     QDialog *gamatosdialog = new QDialog(this);
@@ -486,6 +524,10 @@ void MainWindow::onDeviceInfo()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onChangeFix(bool checked)
 {
     QRadioButton* b  = static_cast<QRadioButton*>(sender());
@@ -518,6 +560,10 @@ void MainWindow::onChangeFix(bool checked)
 
 }
 
+/**
+ * @brief
+ * 
+ */
 bool MainWindow::readLangDir()
 {
     bool found = false;
@@ -639,6 +685,10 @@ bool MainWindow::readLangDir()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 // to get locale and convert to internal string
 QString MainWindow::getLocaleString()
 {
@@ -667,6 +717,10 @@ QString MainWindow::getLocaleString()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::writeSettings()
 {
     QSettings* s;
@@ -936,6 +990,10 @@ void MainWindow::readSettings()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::reloadRecentList()
 {
     if (filesMenu != 0) {
@@ -981,6 +1039,10 @@ void MainWindow::reloadRecentList()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::setFile(QAction* a)
 {
     QString fileStr;
@@ -1007,6 +1069,10 @@ void MainWindow::setFile(QAction* a)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::setLang(QAction* mnu)
 {
     QString lngStr;
@@ -1031,6 +1097,10 @@ void MainWindow::setLang(QAction* mnu)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::getZRotation(int z)
 {
     zAngle = z;
@@ -1038,12 +1108,20 @@ void MainWindow::getZRotation(int z)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::getFPS(int f)
 {
     statusLabel2->setText( "OpenGL, FPS: " + QString::number(f));
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::getXRotation(int x)
 {
     xAngle = x;
@@ -1051,6 +1129,10 @@ void MainWindow::getXRotation(int x)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::getYRotation(int y)
 {
     yAngle = y;
@@ -1058,6 +1140,10 @@ void MainWindow::getYRotation(int y)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::getScale(int s)
 {
     scale = s;
@@ -1065,6 +1151,10 @@ void MainWindow::getScale(int s)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::displayRotation()
 {
     posAngleX->setText( QString().sprintf("%d°", xAngle));
@@ -1078,6 +1168,10 @@ MainWindow::~MainWindow()
 };
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::closeEvent(QCloseEvent* ce)
 {
     if (Task::Status != Stop) {
@@ -1106,6 +1200,10 @@ void MainWindow::closeEvent(QCloseEvent* ce)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onExit()
 {
     if (Task::Status != Stop) {
@@ -1128,6 +1226,10 @@ void MainWindow::onExit()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::translateGUI()
 {
     groupB14->setTitle(translate(_BYTE_14));
@@ -1222,6 +1324,10 @@ void MainWindow::translateGUI()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onStartTask()
 {
     if (mainTaskTimer.isActive()) {
@@ -1318,6 +1424,10 @@ void MainWindow::onStartTask()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onPauseTask()
 {
     if (Task::Status == Start) {
@@ -1332,6 +1442,10 @@ void MainWindow::onPauseTask()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onStopTask()
 {
     if (Task::Status == Waiting) {
@@ -1343,6 +1457,10 @@ void MainWindow::onStopTask()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 // return value: false if timer to stop
 bool MainWindow::runCommand()
 {
@@ -1565,6 +1683,10 @@ bool MainWindow::runCommand()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onMainTaskTimer()
 {
     if (!cnc->isConnected()) {
@@ -1585,6 +1707,10 @@ void MainWindow::onMainTaskTimer()
 
 // OTHER
 
+/**
+ * @brief
+ * 
+ */
 // log output
 void MainWindow::AddLog(QString _text)
 {
@@ -1596,7 +1722,10 @@ void MainWindow::AddLog(QString _text)
 }
 
 
-//
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onStatus()
 {
     // clean message
@@ -1604,6 +1733,10 @@ void MainWindow::onStatus()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::moveToPoint(bool surfaceScan)
 {
     int speed = 0;
@@ -1672,6 +1805,10 @@ void MainWindow::moveToPoint(bool surfaceScan)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 // moving to the point
 void MainWindow::onRunToPoint()
 {
@@ -1683,6 +1820,10 @@ void MainWindow::onRunToPoint()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 //DEBUGGING generator PWM
 void MainWindow::SendSignal()
 {
@@ -1711,7 +1852,10 @@ void MainWindow::SendSignal()
     cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), tSign, (int)spinBoxVelo->value());
 }
 
-
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onSendCommand()
 {
     SendSignal();
@@ -1724,6 +1868,10 @@ void MainWindow::onSendCommand()
 // }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::addStatusWidgets()
 {
     //
@@ -1744,6 +1892,10 @@ void MainWindow::addStatusWidgets()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onGeneratorCode()
 {
     //     GeneratorCodeDialog *frm = new GeneratorCodeDialog(this);
@@ -1751,7 +1903,10 @@ void MainWindow::onGeneratorCode()
 }
 
 
-
+/**
+ * @brief
+ * 
+ */
 float MainWindow::GetDeltaZ(float _x, float _y)
 {
     //point to calculate
@@ -1793,6 +1948,10 @@ float MainWindow::GetDeltaZ(float _x, float _y)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 // slot for logging signal
 void MainWindow::onCncMessage(int n_msg)
 {
@@ -1800,6 +1959,10 @@ void MainWindow::onCncMessage(int n_msg)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 // slot FROM COMTROLLER, new data
 void MainWindow::onCncNewData()
 {
@@ -1826,6 +1989,10 @@ void MainWindow::onCncNewData()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onCncHotplug()
 {
     //     RefreshElementsForms();
@@ -1843,6 +2010,10 @@ void MainWindow::onCncHotplug()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void  MainWindow::refreshElementsForms()
 {
     bool cncConnected = cnc->isConnected();
@@ -2100,6 +2271,10 @@ void  MainWindow::refreshElementsForms()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onManualControlDialog()
 {
     ManualControlDialog *mc = new ManualControlDialog(this);
@@ -2108,9 +2283,11 @@ void MainWindow::onManualControlDialog()
 }
 
 
-//
+/**
+ * @brief
+ * 
+ */
 //  the table widget with data
-//
 void MainWindow::fillListWidget(QStringList listCode)
 {
     listGCodeWidget->clear();
@@ -2158,6 +2335,11 @@ void MainWindow::fillListWidget(QStringList listCode)
 #endif
 }
 
+
+/**
+ * @brief set the min and max ranges
+ * 
+ */
 void MainWindow::detectMinMax(int pos)
 {
     if (pos > 0 && pos < gCodeList.size()) {
@@ -2199,6 +2381,12 @@ void MainWindow::detectMinMax(int pos)
 }
 
 
+/**
+ * @brief function fixGCodeList() patches the data list before running
+ *
+ * the data list will be patched dependend from current user settings:
+ * speed, steps per mm and other. we need to patch data in case of settings changing
+ */
 void MainWindow::fixGCodeList()
 {
     if (gCodeList.count() < 2) {
@@ -2217,7 +2405,7 @@ void MainWindow::fixGCodeList()
         if (gCodeList[numPos].accelCode == ACCELERAT_CODE) { // begin of arc
 //             gCodeList[numPos].changeDirection = false;
 
-            int endPos = calculateRestSteps(numPos); // and update the pos
+            int endPos = calculateMinAngleSteps(numPos); // and update the pos
             if (endPos == -1){
                 continue;
             }
@@ -2232,7 +2420,7 @@ void MainWindow::fixGCodeList()
         // detection of small angle betw. the lines
         if (fabs(gCodeList[numPos-1].angle - gCodeList[numPos].angle) < fabs(PI - maxLookaheadAngleRad)) {
 //             gCodeList[numPos].changeDirection = false;
-            int endPos = calculateRestSteps(numPos); // and update the pos
+            int endPos = calculateMinAngleSteps(numPos); // and update the pos
 
             if (endPos == -1){
                 continue;
@@ -2248,7 +2436,7 @@ void MainWindow::fixGCodeList()
         }
     }
 
-#if 1
+#if 0
 
     // now debug
     for (int i = 0; i < gCodeList.size(); i++) {
@@ -2260,9 +2448,19 @@ void MainWindow::fixGCodeList()
 }
 
 
+/**
+ * @brief function patchSpeedAndAccelCode() set the vector speed and acceleration code before sending data to controller
+ * 
+ * before sending data to microcontroller we need to calculate the vector speed and acceleration code
+ * acceleration codes: ACCELERAT_CODE, DECELERAT_CODE, CONSTSPEED_CODE or FEED_LINE_CODE
+ * 
+ * @param begPos 
+ * @param endPos 
+ * 
+ */
 void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 {
-    qDebug() << "patch speed " << begPos << endPos << "from coords:" << gCodeList[begPos].X  << gCodeList[begPos].Y  << "to " << gCodeList[endPos].X  << gCodeList[endPos].Y ;
+    
 #if 0
     if (gCodeList[begPos].changeDirection == true) {
         if (gCodeList[begPos].feed == true) { // feed
@@ -2278,10 +2476,11 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         return;
     }
 #endif
-    if (begPos < 1) {
-        qDebug() << "wrong potionion number patchSpeedAndAccelCode()" << begPos;
+    if (begPos < 1 || begPos >= gCodeList.count()-1) {
+        qDebug() << "wrong position number patchSpeedAndAccelCode()" << begPos;
         return;
     }
+    qDebug() << "patch speed " << begPos << endPos << "from coords:" << gCodeList[begPos].X  << gCodeList[begPos].Y  << "to " << gCodeList[endPos-1].X  << gCodeList[endPos-1].Y ;
 
     switch (gCodeList[begPos].plane) {
         case XY: {
@@ -2340,7 +2539,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             }
 
             // now for steps
-            for (int i = begPos; i <= endPos; i++) {
+            for (int i = begPos; i < endPos; i++) {
                 int tmpStps;
                 tmpStps = gCodeList[i].stepsCounter;
                 gCodeList[i].stepsCounter = sumSteps;
@@ -2511,8 +2710,16 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 }
 
 
-// for lines and short cuts only
-int MainWindow::calculateRestSteps(int startPos)
+/**
+ * @brief function calculateMinAngleSteps() determines, how many steps from actual position the g-code object has to the last point with angle up to maxLookaheadAngleRad
+ * 
+ * the angle maxLookaheadAngle is recommended from 150 to 179 grad. it well be converted to radians 
+ * 
+ * @param startPos begin pos of searching
+ * 
+ * @return the end position of polygon with angle difference up to maxLookaheadAngle
+ */
+int MainWindow::calculateMinAngleSteps(int startPos)
 {
     int endPos = startPos;
 
@@ -2520,12 +2727,20 @@ int MainWindow::calculateRestSteps(int startPos)
         qDebug() << "steps counter bigger than list";
         return -1;
     }
+    
+    QString dbg;
 
     if (gCodeList[startPos].splits > 0) { // it's arc
         endPos += gCodeList[startPos].splits;
-    } else { // or for lines
-//         for(QList<GCodeData>::iterator ic = gCodeList.begin() + startPos; ic != gCodeList.end() - 1;) {
+        return endPos;
+    }
+    
+    { // or for lines
         for (endPos = startPos; endPos < gCodeList.count(); endPos++){
+            if(gCodeList[endPos-1].accelCode != NO_CODE || gCodeList[endPos].accelCode != NO_CODE){
+                break;
+            }
+            
             float a1 = gCodeList[endPos-1].angle;
             float a2 = gCodeList[endPos].angle;
 
@@ -2533,35 +2748,39 @@ int MainWindow::calculateRestSteps(int startPos)
             if (fabs(a1 - a2) > fabs(PI - maxLookaheadAngleRad)) {
                 break;
             }
+            
+            dbg.sprintf("angle %f ", fabs(a1-a2));
         }
-        qDebug() << "lines" << startPos << endPos;
+        qDebug() << "lines" << startPos << endPos << "max angle rad:" << maxLookaheadAngleRad << dbg;
     }
 
     if ((endPos - startPos) < 2) {
-        //         gCodeList[startPos].changeDirection = true;
-        //
-        //         if (gCodeList[startPos].feed == true) { // cutting
-        //             gCodeList[startPos].accelCode = 0x31;
-        //         } else {
-        //             gCodeList[startPos].accelCode = 0x39;
-        //         }
-        //
-        //         patchSpeed(startPos, endPos);
         gCodeList[startPos].stepsCounter = 0;
 
-        return startPos + 1;
+        return startPos;
     }
+    
+    gCodeList[startPos].stepsCounter = endPos - startPos;
+    qDebug() << "gefunden" << startPos << endPos;
 
     return endPos;
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onSaveFile()
 {
     SaveFile();
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onOpenFile()
 {
     QString nm;
@@ -2594,7 +2813,10 @@ void MainWindow::onOpenFile()
     }
 }
 
-
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onCalcVelocity()
 {
     CuttingCalc *setfrm = new CuttingCalc(this);
@@ -2617,6 +2839,10 @@ void MainWindow::onCalcVelocity()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onSettings()
 {
     //   qDebug() << "onSetting";
@@ -2630,6 +2856,10 @@ void MainWindow::onSettings()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onCopyHome()
 {
     doubleSpinHomeX->setValue( numPosX->value() );
@@ -2638,11 +2868,19 @@ void MainWindow::onCopyHome()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onSetHome()
 {
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onCopyPos()
 {
     doubleSpinMoveX->setValue( numPosX->value() );
@@ -2651,12 +2889,20 @@ void MainWindow::onCopyPos()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onLogClear()
 {
     textLog->clear();
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onAbout()
 {
     AboutDialog *dlg = new AboutDialog(this);
@@ -2666,6 +2912,10 @@ void MainWindow::onAbout()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onMist()
 {
     if (cnc->isMistOn()) {
@@ -2678,6 +2928,10 @@ void MainWindow::onMist()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onFluid()
 {
     if (cnc->isFluidOn()) {
@@ -2689,7 +2943,10 @@ void MainWindow::onFluid()
     }
 }
 
-
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onSpindel()
 {
     if (cnc->isSpindelOn()) {
@@ -2702,12 +2959,20 @@ void MainWindow::onSpindel()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onEmergyStop()
 {
     cnc->emergyStop();
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::Feed()
 {
     ShowSurface = true;
@@ -2719,6 +2984,10 @@ void MainWindow::Feed()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::on3dSettings()
 {
 #if USE_OPENGL == true
@@ -2737,6 +3006,10 @@ void MainWindow::on3dSettings()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onScanSurface()
 {
     //scan surfcae
@@ -2744,11 +3017,19 @@ void MainWindow::onScanSurface()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onCellSelect(int row, int col)
 {
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onEditGCode(int row, int col)
 {
     EditGCodeDialog *dlg = new EditGCodeDialog(this);
@@ -2759,6 +3040,10 @@ void MainWindow::onEditGCode(int row, int col)
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onButtonXtoZero()
 {
     cnc->deviceNewPosition(0, Settings::coord[Y].actualPosPulses, Settings::coord[Z].actualPosPulses, Settings::coord[A].actualPosPulses);
@@ -2766,6 +3051,10 @@ void MainWindow::onButtonXtoZero()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onButtonYtoZero()
 {
     cnc->deviceNewPosition(Settings::coord[X].actualPosPulses, 0, Settings::coord[Z].actualPosPulses, Settings::coord[A].actualPosPulses);
@@ -2773,6 +3062,10 @@ void MainWindow::onButtonYtoZero()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onButtonZtoZero()
 {
     cnc->deviceNewPosition(Settings::coord[X].actualPosPulses, Settings::coord[Y].actualPosPulses, 0, Settings::coord[A].actualPosPulses);
@@ -2780,12 +3073,21 @@ void MainWindow::onButtonZtoZero()
 }
 
 
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onButtonAtoZero()
 {
     cnc->deviceNewPosition(Settings::coord[X].actualPosPulses, Settings::coord[Y].actualPosPulses, Settings::coord[Z].actualPosPulses, 0);
     numAngleGrad->setValue(0.0);
 }
 
+
+/**
+ * @brief
+ * 
+ */
 void MainWindow::onAboutQt()
 {
     QMessageBox::aboutQt(this, tr("About Qt"));
