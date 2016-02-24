@@ -842,7 +842,7 @@ void GCodeParser::calcAngleOfLines(int pos)
 
 
 /**
- * @brief
+ * @brief this function converts the arc to short lines: mk1 do not support the arc commands
  * 
  */
 // 'endData' is the pointer of arc start
@@ -1039,6 +1039,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 dbg += QString().sprintf("n=%d x=%f y=%f angle=%f sin=%f cos=%f\n", step, x_new, y_new, angle, s, c);
 #endif
 
+                /** detection of end because of rounding */
                 if (sqrt((x_new - endData->X) * (x_new - endData->X) + (y_new - endData->Y) * (y_new - endData->Y)) <= splitLen) {
                     ncommand->angle = atan2(y_new - endData->Y, x_new - endData->X);
                     endLoop = true;
@@ -1057,6 +1058,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 dbg += QString().sprintf("n=%d y=%f z=%f angle=%f sin=%f cos=%f\n", step, y_new, z_new, angle, s, c);
 #endif
 
+                /** detection of end because of rounding */
                 if (sqrt((y_new - endData->Y) * (y_new - endData->Y) + (z_new - endData->Z) * (z_new - endData->Z)) <= splitLen) {
                     ncommand->angle = atan2(z_new - endData->Z, y_new - endData->Y);
                     endLoop = true;
@@ -1075,6 +1077,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 dbg += QString().sprintf("n=%d z=%f x=%f angle=%f sin=%f cos=%f\n", step, z_new, x_new, angle, s, c);
 #endif
 
+                /** detection of end because of rounding */
                 if (sqrt((x_new - endData->X) * (x_new - endData->X) + (z_new - endData->Z) * (z_new - endData->Z)) <= splitLen) {
                     ncommand->angle = atan2(x_new - endData->X, z_new - endData->Z);
                     endLoop = true;
@@ -1131,10 +1134,11 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
 
 /**
- * @brief
+ * @brief parsing of I, J, K, R parameters of G-Code
  * 
+ * @param 
+ * @return if anything is detected, return true
  */
-// if anything is detected, return true
 bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float coef)
 {
     if (line.isEmpty() == true) {
@@ -1211,10 +1215,12 @@ bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float
 
 
 /**
- * @brief
+ * @brief parsing X, Y, Z, E, F of G-Code parameters 
+ * rotation parameters A, B, C are not implemented
  * 
+ * @param 
+ * @return if anything is detected, return true
  */
-// if anything is detected, return true
 bool GCodeParser::parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F)
 {
     if (line.isEmpty() == true) {

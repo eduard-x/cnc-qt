@@ -1460,8 +1460,8 @@ void MainWindow::onStopTask()
 /**
  * @brief
  * 
+ * @return false if timer to stop
  */
-// return value: false if timer to stop
 bool MainWindow::runCommand()
 {
     // Velocity from main form
@@ -2337,7 +2337,9 @@ void MainWindow::fillListWidget(QStringList listCode)
 
 
 /**
- * @brief set the min and max ranges
+ * @brief detect the min and max ranges
+ * 
+ * @param pos actual index in GCode data list, if pos is 0: init of min/max
  * 
  */
 void MainWindow::detectMinMax(int pos)
@@ -2449,7 +2451,7 @@ void MainWindow::fixGCodeList()
 
 
 /**
- * @brief function patchSpeedAndAccelCode() set the vector speed and acceleration code before sending data to controller
+ * @brief function set the vector speed and acceleration code before sending data to controller
  * 
  * before sending data to microcontroller we need to calculate the vector speed and acceleration code
  * acceleration codes: ACCELERAT_CODE, DECELERAT_CODE, CONSTSPEED_CODE or FEED_LINE_CODE
@@ -2737,9 +2739,9 @@ int MainWindow::calculateMinAngleSteps(int startPos)
     
     { // or for lines
         for (endPos = startPos; endPos < gCodeList.count(); endPos++){
-            if(gCodeList[endPos-1].accelCode != NO_CODE || gCodeList[endPos].accelCode != NO_CODE){
-                break;
-            }
+//             if(gCodeList[endPos-1].accelCode != NO_CODE || gCodeList[endPos].accelCode != NO_CODE){
+//                 break;
+//             }
             
             float a1 = gCodeList[endPos-1].angle;
             float a2 = gCodeList[endPos].angle;
