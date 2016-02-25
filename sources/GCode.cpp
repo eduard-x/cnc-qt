@@ -120,7 +120,7 @@ GCodeData::GCodeData(GCodeData *d)
     splits = 0; // if arc, will be splitted
     stepsCounter = 0; // should calculated
 
-    accelCode = d->accelCode;
+    accelCode = NO_CODE;
     //  numberInstruct = d->numberInstruct;
     numberLine = d->numberLine;
     feed = d->feed;
