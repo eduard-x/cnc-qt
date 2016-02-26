@@ -140,6 +140,7 @@ class GCodeParser
         bool parseArc(const QString &line, Vec3 &pos, float &R, const float coef);
         bool addLine(GCodeData* param);
         bool addArc(GCodeData* param);
+        PlaneEnum detectPlane(Vec3 a, Vec3 b);
         //         bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F);
 
         bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);

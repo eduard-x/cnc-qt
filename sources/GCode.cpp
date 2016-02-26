@@ -162,6 +162,30 @@ bool GCodeParser::addArc(GCodeData *c)
 }
 
 
+PlaneEnum GCodeParser::detectPlane(Vec3 a, Vec3 b)
+{
+    if (a.x() == b.x() && a.y() == b.y()) {
+        return XY;
+    } 
+    if (a.y() == b.y() && a.z() == b.z()) {
+        return YZ;
+    } 
+    if (a.z() == b.z() && a.x() == b.x()) {
+        return ZX;
+    } 
+    if((a.x() != b.x() || a.y() != b.y()) && a.z() == b.z()) {
+        return XY;
+    } 
+    if((a.y() != b.y() || a.z() != b.z()) && a.x() == b.x()) {
+        return YZ;
+    } 
+    if((a.z() != b.z() || a.x() != b.x()) && a.y() == b.y()) {
+        return ZX;
+    }
+    
+    return XY;
+}
+
 /**
  * @brief
  * 
@@ -310,6 +334,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     t.restart();
 
     index = 0;
+    PlaneEnum currentPlane;
+    currentPlane = XY;
+    
     GCodeData *tmpCommand = new GCodeData();
 
     foreach(QString line, gCodeLines) {
@@ -337,11 +364,13 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->X = next_pos.x();
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
+                    
                     tmpCommand->splits = 0;
 
                     tmpCommand->typeMoving = GCodeData::Line;
 
                     tmpCommand->feed = false;
+                    tmpCommand->plane = currentPlane;
 
                     if (b_absolute) {
                         current_pos = next_pos + origin;
@@ -379,34 +408,13 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     tmpCommand->feed = true;
 
-                    //                     if (E > 0.0) {
-                    //                         cached_lines.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
-                    //                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
-                    //                     }
-
                     if (b_absolute) {
                         current_pos = next_pos + origin;
                     } else {
                         current_pos += next_pos;
                     }
 
-                    if (current_pos.x() == next_pos.x() && current_pos.y() == next_pos.y()) {
-                            tmpCommand->plane = XY;
-                    } else if (current_pos.y() == next_pos.y() && current_pos.z() == next_pos.z()) {
-                        tmpCommand->plane = YZ;
-                    } else if (current_pos.z() == next_pos.z() && current_pos.x() == next_pos.x()) {
-                        tmpCommand->plane = ZX;
-                    } else if((current_pos.x() != next_pos.x() || current_pos.y() != next_pos.y()) && current_pos.z() == next_pos.z()) {
-                        tmpCommand->plane = XY;
-                    } else if((current_pos.y() != next_pos.y() || current_pos.z() != next_pos.z()) && current_pos.x() == next_pos.x()) {
-                        tmpCommand->plane = YZ;
-                    } else if((current_pos.z() != next_pos.z() || current_pos.x() != next_pos.x()) && current_pos.y() == next_pos.y()) {
-                        tmpCommand->plane = ZX;
-                    }
-                    //                     if (E > 0.0) {
-                    //                         cached_lines.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
-                    //                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
-                    //                     }
+                    tmpCommand->plane = currentPlane;
 
                     gCodeList << *tmpCommand;
                     
@@ -433,8 +441,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                         break;
                     }
 
-                    tmpCommand->plane = NonePlane;
-
                     tmpCommand->X = next_pos.x();
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
@@ -448,34 +454,13 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                         break;
                     }
 
+                    tmpCommand->plane = currentPlane;
+                    
                     if (radius == 0.0) {
                         // the arc center coordinateds
                         tmpCommand->I = arc_center.x();
                         tmpCommand->J = arc_center.y();
                         tmpCommand->K = arc_center.z();
-
-                        if (tmpCommand->K == COORD_TOO_BIG) {
-                            tmpCommand->plane = XY;
-                        } else if (tmpCommand->I == COORD_TOO_BIG) {
-                            tmpCommand->plane = YZ;
-                        } else if (tmpCommand->J == COORD_TOO_BIG) {
-                            tmpCommand->plane = ZX;
-                        }
-                    } else { // radius detected, ijk should be calculated
-                        // circle ?
-                        if (current_pos.x() == next_pos.x() && current_pos.y() == next_pos.y()) {
-                            tmpCommand->plane = XY;
-                        } else if (current_pos.y() == next_pos.y() && current_pos.z() == next_pos.z()) {
-                            tmpCommand->plane = YZ;
-                        } else if (current_pos.z() == next_pos.z() && current_pos.x() == next_pos.x()) {
-                            tmpCommand->plane = ZX;
-                        } else if((current_pos.x() != next_pos.x() || current_pos.y() != next_pos.y()) && current_pos.z() == next_pos.z()) {
-                            tmpCommand->plane = XY;
-                        } else if((current_pos.y() != next_pos.y() || current_pos.z() != next_pos.z()) && current_pos.x() == next_pos.x()) {
-                            tmpCommand->plane = YZ;
-                        } else if((current_pos.z() != next_pos.z() || current_pos.x() != next_pos.x()) && current_pos.y() == next_pos.y()) {
-                            tmpCommand->plane = ZX;
-                        }
                     }
 
                     tmpCommand->Radius = radius;
@@ -488,22 +473,12 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     tmpCommand->feed = true;
 
-                    //                     if (E > 0.0) {
-                    //                         //  cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
-                    //                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
-                    //                     }
-
                     if (b_absolute) {
                         current_pos = next_pos + origin;
                     } else {
                         current_pos += next_pos;
                     }
-
-                    //                     if (E > 0.0) {
-                    //                         //  cached_arcs.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
-                    //                         cached_points.push_back(Vec3f(current_pos.x(), current_pos.y(), current_pos.z()));
-                    //                     }
-
+                    
                     // qDebug() << "line " << tmpCommand->numberLine << "before convertArcToLines()" << gCodeList.count() << "splits" << tmpCommand->splits;
                     convertArcToLines(tmpCommand); // tmpCommand has data of last point
 #if 0
@@ -549,7 +524,22 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     break;
                 }
-
+                
+                if (cmd == "G17") {
+                    currentPlane = XY;
+                    break;
+                }
+                
+                if (cmd == "G18") {
+                    currentPlane = YZ;
+                    break;
+                }
+                                
+                if (cmd == "G19") {
+                    currentPlane = ZX;
+                    break;
+                }
+                
                 if (cmd == "G28") {
                     Vec3 next_pos(std::numeric_limits<float>::infinity(),
                                   std::numeric_limits<float>::infinity(),
