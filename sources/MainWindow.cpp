@@ -2398,21 +2398,22 @@ void MainWindow::fixGCodeList()
     detectMinMax(0);
 
     maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;// grad to rad
-    //     qDebug() << "max angle" << maxLookaheadAngle << " in rad: " << maxLookaheadAngleRad;
 
     // calculate the number of steps in one direction, if exists
     for (int idx = 1; idx < gCodeList.size() - 1; idx++) {
         detectMinMax(idx);
+        
+        if (gCodeList[idx].feed == false){
+            continue;
+        }
 
         if (gCodeList[idx].accelCode == ACCELERAT_CODE) { // begin of arc
-//             gCodeList[idx].changeDirection = false;
 
             int endPos = calculateMinAngleSteps(idx); // and update the pos
             if (endPos == -1){
                 continue;
             }
 
-            //                 qDebug() << "rest steps: " << gCodeList[idx].numberLine << gCodeList[endPos].numberLine << "splits" << gCodeList[idx].splits;
             patchSpeedAndAccelCode(idx, endPos);
 
             idx = endPos+1;
@@ -2421,19 +2422,16 @@ void MainWindow::fixGCodeList()
 
         // detection of small angle betw. the lines
         if (fabs(gCodeList[idx].angle - gCodeList[idx+1].angle) < fabs(PI - maxLookaheadAngleRad)) {
-//             gCodeList[idx].changeDirection = false;
             int endPos = calculateMinAngleSteps(idx); // and update the pos
 
             if (endPos == -1){
                 continue;
             }
-            //                 qDebug() << "rest steps: " << gCodeList[idx].numberLine << gCodeList[endPos].numberLine << "splits" << gCodeList[idx].splits;
+
             patchSpeedAndAccelCode(idx, endPos);
 
             idx = endPos+1;
         } else { // lines
-//             gCodeList[idx].changeDirection = true;
-
             patchSpeedAndAccelCode(idx, idx + 1);
         }
     }
@@ -2463,22 +2461,6 @@ void MainWindow::fixGCodeList()
  */
 void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 {
-    
-#if 0
-    if (gCodeList[begPos].changeDirection == true) {
-        if (gCodeList[begPos].feed == true) { // feed
-            if (gCodeList[begPos].accelCode == NO_CODE) {
-                gCodeList[begPos].accelCode = FEED_LINE_CODE;
-            }
-        } else {
-            if (gCodeList[begPos].accelCode == NO_CODE) {
-                gCodeList[begPos].accelCode = RAPID_LINE_CODE;
-            }
-        }
-
-        return;
-    }
-#endif
     if (begPos < 1 || begPos >= gCodeList.count()-1) {
         qDebug() << "wrong position number patchSpeedAndAccelCode()" << begPos;
         return;
@@ -2487,8 +2469,6 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
     if (begPos == endPos){
         return;
     }
-    
-//     qDebug() << "patch speed " << begPos << endPos << "from coords:" << gCodeList[begPos].X  << gCodeList[begPos].Y  << "to " << gCodeList[endPos-1].X  << gCodeList[endPos-1].Y ;
 
     switch (gCodeList[begPos].plane) {
         case XY: {
@@ -2497,6 +2477,17 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             int splits = gCodeList[begPos].splits;
             float bLeng = splits / (float)Settings::splitsPerMm;
             int sumSteps = 0;
+
+            float dnewSpdX  = 3600; // 3584?
+            float dnewSpdY  = 3600; // 3584?
+
+            if ((Settings::coord[X].maxVelo != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
+                dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
+            }
+
+            if ((Settings::coord[Y].maxVelo != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
+                dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
+            }
 
             for (int i = begPos; i <= endPos; i++) {
                 detectMinMax(i);
@@ -2509,40 +2500,30 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                     if (dX != 0.0) {
                         coeff = dH / dX;
                     }
-
-                    float dnewSpdX  = 3600; // 3584?
-
-                    if ((Settings::coord[X].maxVelo != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
-                        dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
-                    }
-
                     // calculation of vect speed
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdX); //
                     gCodeList[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
-                    sumSteps += gCodeList[i].stepsCounter;
                 } else {
                     if (dY != 0.0) {
                         coeff = dH / dY;
                     }
 
-                    float dnewSpdY  = 3600; // 3584?
-
-                    if ((Settings::coord[Y].maxVelo != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
-                        dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
-                    }
-
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdY); //
                     gCodeList[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
-                    sumSteps += gCodeList[i].stepsCounter;
                 }
 
+                sumSteps += gCodeList[i].stepsCounter;
+                
                 splits--;
+                
                 bLeng = splits / (float)Settings::splitsPerMm;
 
                 gCodeList[i].vectorCoeff = coeff;
 
                 if (gCodeList[i].accelCode == NO_CODE) {
-                    gCodeList[i].accelCode = CONSTSPEED_CODE;
+                    if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
+                        gCodeList[i].accelCode = CONSTSPEED_CODE;
+                    }
                 }
             }
 
@@ -2570,7 +2551,18 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             float bLeng = splits / (float)Settings::splitsPerMm;
 
             int sumSteps = 0;
+            
+            float dnewSpdY  = 3600; // 3584?
+            float dnewSpdZ  = 3600; // 3584?
 
+            if ((Settings::coord[Y].maxVelo != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
+                dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
+            }
+
+            if ((Settings::coord[Z].maxVelo != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
+                dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
+            }
+            
             for (int i = begPos; i <= endPos; i++) {
                 detectMinMax(i);
 
@@ -2584,38 +2576,29 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dY;
                     }
 
-                    float dnewSpdY  = 3600; // 3584?
-
-                    if ((Settings::coord[Y].maxVelo != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
-                        dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
-                    }
-
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdY); //
                     gCodeList[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
-                    sumSteps += gCodeList[i].stepsCounter;
                 } else {
                     if (dZ != 0.0) {
                         coeff = dH / dZ;
                     }
 
-                    float dnewSpdZ  = 3600; // 3584?
-
-                    if ((Settings::coord[Z].maxVelo != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
-                        dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
-                    }
-
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdZ); //
                     gCodeList[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
-                    sumSteps += gCodeList[i].stepsCounter;
                 }
 
+                sumSteps += gCodeList[i].stepsCounter;
+                
                 splits--;
+                
                 bLeng = splits / (float)Settings::splitsPerMm;
 
                 gCodeList[i].vectorCoeff = coeff;
 
                 if (gCodeList[i].accelCode == NO_CODE) {
-                    gCodeList[i].accelCode = CONSTSPEED_CODE;
+                    if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
+                        gCodeList[i].accelCode = CONSTSPEED_CODE;
+                    }
                 }
             }
 
@@ -2643,7 +2626,18 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             float bLeng = splits / (float)Settings::splitsPerMm;
 
             int sumSteps = 0;
+            
+            float dnewSpdZ  = 3600; // 3584?
+            float dnewSpdX  = 3600; // 3584?
+            
+            if ((Settings::coord[Z].maxVelo != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
+                dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
+            }
 
+            if ((Settings::coord[X].maxVelo != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
+                dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
+            }
+                    
             for (int i = begPos; i <= endPos; i++) {
                 detectMinMax(i);
 
@@ -2657,38 +2651,29 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dZ;
                     }
 
-                    float dnewSpdZ  = 3600; // 3584?
-
-                    if ((Settings::coord[Z].maxVelo != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
-                        dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
-                    }
-
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdZ); //
                     gCodeList[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
-                    sumSteps += gCodeList[i].stepsCounter;
                 } else {
                     if (dX != 0.0) {
                         coeff = dH / dX;
                     }
 
-                    float dnewSpdX  = 3600; // 3584?
-
-                    if ((Settings::coord[X].maxVelo != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
-                        dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
-                    }
-
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdX); //
                     gCodeList[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
-                    sumSteps +=  gCodeList[i].stepsCounter;
                 }
 
+                sumSteps += gCodeList[i].stepsCounter;
+                
                 splits--;
+                
                 bLeng = splits / (float)Settings::splitsPerMm;
 
                 gCodeList[i].vectorCoeff = coeff;
 
                 if (gCodeList[i].accelCode == NO_CODE) {
-                    gCodeList[i].accelCode = CONSTSPEED_CODE;
+                    if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
+                        gCodeList[i].accelCode = CONSTSPEED_CODE;
+                    }
                 }
             }
 
@@ -2735,8 +2720,6 @@ int MainWindow::calculateMinAngleSteps(int startPos)
         qDebug() << "steps counter bigger than list";
         return -1;
     }
-    
-    QString dbg;
 
     if (gCodeList[startPos].splits > 0) { // it's arc
         idx += gCodeList[startPos].splits;
@@ -2755,21 +2738,17 @@ int MainWindow::calculateMinAngleSteps(int startPos)
                     return idx+1;
                 }
                 
-                qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).accelCode << gCodeList[idx+1].accelCode;
+                qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).accelCode << gCodeList[idx+1].accelCode 
+                 << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx+1].X << gCodeList[idx+1].Y;
                 return idx+1;
             }
             
             float a1 = gCodeList[idx].angle;
             float a2 = gCodeList[idx+1].angle;
-
-            //         if ((*ic).angle <= maxLookaheadAngleRad) {
             if (fabs(a1 - a2) > fabs(PI - maxLookaheadAngleRad)) {
                 break;
             }
-            
-            dbg += QString().sprintf("angle %f %f ", a1, a2);
         }
-//         qDebug() << "lines" << startPos << idx << "max angle rad:" << maxLookaheadAngleRad << dbg;
     }
     
     if (idx == startPos){
@@ -2778,27 +2757,27 @@ int MainWindow::calculateMinAngleSteps(int startPos)
 
     if ((idx - startPos) == 1) {
         gCodeList[startPos].stepsCounter = 0;
-         qDebug() << "found 1 step" << startPos << idx << dbg;
+         qDebug() << "found 1 step from " << gCodeList[startPos].X << gCodeList[startPos].Y << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
 
         return startPos;
     }
     
     if ((idx - startPos) == 2) {
         gCodeList[startPos].stepsCounter = 0;
-        qDebug() << "found 2 steps" << startPos << idx << dbg;
+        qDebug() << "found 2 steps from" << gCodeList[startPos].X << gCodeList[startPos].Y  << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
 
         return startPos;
     }
     
     gCodeList[startPos].stepsCounter = idx - startPos;
-    qDebug() << "found many" << startPos << idx << dbg;
+    qDebug() << "found " << idx - startPos << " steps from" << gCodeList[startPos].X << gCodeList[startPos].Y  << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
     
     return idx;
 }
 
 
 /**
- * @brief
+ * @brief save the g-code file 
  * 
  */
 void MainWindow::onSaveFile()
@@ -2808,7 +2787,7 @@ void MainWindow::onSaveFile()
 
 
 /**
- * @brief
+ * @brief open g-code file
  * 
  */
 void MainWindow::onOpenFile()
@@ -2870,7 +2849,7 @@ void MainWindow::onCalcVelocity()
 
 
 /**
- * @brief
+ * @brief slot for saving of settings file
  * 
  */
 void MainWindow::onSettings()
@@ -2887,7 +2866,7 @@ void MainWindow::onSettings()
 
 
 /**
- * @brief
+ * @brief slot for copying of actual coordinates into home 
  * 
  */
 void MainWindow::onCopyHome()
@@ -2899,7 +2878,7 @@ void MainWindow::onCopyHome()
 
 
 /**
- * @brief
+ * @brief // TODO
  * 
  */
 void MainWindow::onSetHome()
@@ -2908,7 +2887,7 @@ void MainWindow::onSetHome()
 
 
 /**
- * @brief
+ * @brief slot for copying of actual coordinates into move to coordinates 
  * 
  */
 void MainWindow::onCopyPos()
@@ -2920,7 +2899,7 @@ void MainWindow::onCopyPos()
 
 
 /**
- * @brief
+ * @brief slot for cleaning of logging widget
  * 
  */
 void MainWindow::onLogClear()
@@ -2930,7 +2909,7 @@ void MainWindow::onLogClear()
 
 
 /**
- * @brief
+ * @brief slot for about popup window
  * 
  */
 void MainWindow::onAbout()
@@ -2943,7 +2922,7 @@ void MainWindow::onAbout()
 
 
 /**
- * @brief
+ * @brief slot for enabling/disabling of mist coolant on mk1
  * 
  */
 void MainWindow::onMist()
@@ -2959,7 +2938,7 @@ void MainWindow::onMist()
 
 
 /**
- * @brief
+ * @brief slot for enabling/disabling of fluid coolant on mk1
  * 
  */
 void MainWindow::onFluid()
@@ -2974,7 +2953,7 @@ void MainWindow::onFluid()
 }
 
 /**
- * @brief
+ * @brief slot for enabling/disabling of spindle on mk1
  * 
  */
 void MainWindow::onSpindel()
@@ -2990,7 +2969,7 @@ void MainWindow::onSpindel()
 
 
 /**
- * @brief
+ * @brief slot for emergy stop on mk1
  * 
  */
 void MainWindow::onEmergyStop()
@@ -3015,7 +2994,7 @@ void MainWindow::Feed()
 
 
 /**
- * @brief
+ * @brief  slot for 3d settings of program 
  * 
  */
 void MainWindow::on3dSettings()
