@@ -162,30 +162,6 @@ bool GCodeParser::addArc(GCodeData *c)
 }
 
 
-PlaneEnum GCodeParser::detectPlane(Vec3 a, Vec3 b)
-{
-    if (a.x() == b.x() && a.y() == b.y()) {
-        return XY;
-    } 
-    if (a.y() == b.y() && a.z() == b.z()) {
-        return YZ;
-    } 
-    if (a.z() == b.z() && a.x() == b.x()) {
-        return ZX;
-    } 
-    if((a.x() != b.x() || a.y() != b.y()) && a.z() == b.z()) {
-        return XY;
-    } 
-    if((a.y() != b.y() || a.z() != b.z()) && a.x() == b.x()) {
-        return YZ;
-    } 
-    if((a.z() != b.z() || a.x() != b.x()) && a.y() == b.y()) {
-        return ZX;
-    }
-    
-    return XY;
-}
-
 /**
  * @brief
  * 
@@ -527,19 +503,34 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                 
                 if (cmd == "G17") {
                     currentPlane = XY;
+                    movingCommand = false;
                     break;
                 }
                 
                 if (cmd == "G18") {
                     currentPlane = YZ;
+                    movingCommand = false;
                     break;
                 }
                                 
                 if (cmd == "G19") {
                     currentPlane = ZX;
+                    movingCommand = false;
                     break;
                 }
-                
+
+                if (cmd == "G20") {
+                    movingCommand = false;
+                    coef = 25.4;
+                    break;
+                }
+
+                if (cmd == "G21") {
+                    movingCommand = false;
+                    coef = 1.0;
+                    break;
+                }
+                   
                 if (cmd == "G28") {
                     Vec3 next_pos(std::numeric_limits<float>::infinity(),
                                   std::numeric_limits<float>::infinity(),
@@ -566,19 +557,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     break;
                 }
-
-                if (cmd == "G20") {
-                    movingCommand = false;
-                    coef = 25.4;
-                    break;
-                }
-
-                if (cmd == "G21") {
-                    movingCommand = false;
-                    coef = 1.0;
-                    break;
-                }
-
+                
                 if (cmd == "G90") {
                     movingCommand = false;
                     b_absolute = true;

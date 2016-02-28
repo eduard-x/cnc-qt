@@ -2384,7 +2384,7 @@ void MainWindow::detectMinMax(int pos)
 
 
 /**
- * @brief function fixGCodeList() patches the data list before running
+ * @brief function patches the data list before running
  *
  * the data list will be patched dependend from current user settings:
  * speed, steps per mm and other. we need to patch data in case of settings changing
@@ -2400,14 +2400,15 @@ void MainWindow::fixGCodeList()
     maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;// grad to rad
 
     // calculate the number of steps in one direction, if exists
-    for (int idx = 1; idx < gCodeList.size() - 1; idx++) {
+    for (int idx = 0; idx < gCodeList.size() - 1; idx++) {
         detectMinMax(idx);
         
         if (gCodeList[idx].feed == false){
+            gCodeList[idx].accelCode = RAPID_LINE_CODE;
             continue;
         }
 
-        if (gCodeList[idx].accelCode == ACCELERAT_CODE) { // begin of arc
+        if (gCodeList[idx].accelCode == ACCELERAT_CODE) { // begin of patched arc
 
             int endPos = calculateMinAngleSteps(idx); // and update the pos
             if (endPos == -1){
@@ -2704,13 +2705,13 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
 
 /**
- * @brief function calculateMinAngleSteps() determines, how many steps from actual position the g-code object has to the last point with angle up to maxLookaheadAngleRad
+ * @brief function determines, how many steps from actual position the g-code object has to the last point with angle up to maxLookaheadAngleRad
  * 
  * the angle maxLookaheadAngle is recommended from 150 to 179 grad. it well be converted to radians 
  * 
  * @param startPos begin pos of searching
  * 
- * @return the end position of polygon with angle difference up to maxLookaheadAngle
+ * @return the end position of polygon with angle difference less than maxLookaheadAngle
  */
 int MainWindow::calculateMinAngleSteps(int startPos)
 {
@@ -2723,24 +2724,24 @@ int MainWindow::calculateMinAngleSteps(int startPos)
 
     if (gCodeList[startPos].splits > 0) { // it's arc
         idx += gCodeList[startPos].splits;
-        return idx+1;
+        return idx;
     }
     
     { // or for lines
         for (idx = startPos; idx < gCodeList.count(); idx++){
             if (gCodeList[idx].accelCode != gCodeList[idx+1].accelCode){
-                if (gCodeList[idx].accelCode == ACCELERAT_CODE){
+                if (gCodeList[idx].accelCode == ACCELERAT_CODE && gCodeList[idx].splits > 0){
                     idx += gCodeList[idx].splits;
-                    return idx+1;
+                    return idx;
                 }
                 
                 if (gCodeList[idx+1].accelCode == DECELERAT_CODE){
-                    return idx+1;
+                    return idx;
                 }
                 
                 qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).accelCode << gCodeList[idx+1].accelCode 
                  << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx+1].X << gCodeList[idx+1].Y;
-                return idx+1;
+                return idx;
             }
             
             float a1 = gCodeList[idx].angle;
@@ -2750,26 +2751,26 @@ int MainWindow::calculateMinAngleSteps(int startPos)
             }
         }
     }
-    
+#if 0
     if (idx == startPos){
-        return startPos;
+        return idx;
     }
 
     if ((idx - startPos) == 1) {
-        gCodeList[startPos].stepsCounter = 0;
+//         gCodeList[startPos].stepsCounter = 0;
          qDebug() << "found 1 step from " << gCodeList[startPos].X << gCodeList[startPos].Y << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
 
-        return startPos;
+        return idx;
     }
     
     if ((idx - startPos) == 2) {
-        gCodeList[startPos].stepsCounter = 0;
+//         gCodeList[startPos].stepsCounter = 0;
         qDebug() << "found 2 steps from" << gCodeList[startPos].X << gCodeList[startPos].Y  << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
 
-        return startPos;
+        return idx;
     }
-    
-    gCodeList[startPos].stepsCounter = idx - startPos;
+#endif 
+//     gCodeList[startPos].stepsCounter = idx - startPos;
     qDebug() << "found " << idx - startPos << " steps from" << gCodeList[startPos].X << gCodeList[startPos].Y  << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
     
     return idx;
@@ -2823,7 +2824,7 @@ void MainWindow::onOpenFile()
 }
 
 /**
- * @brief
+ * @brief slot for calling of feed speed calculation pop up window
  * 
  */
 void MainWindow::onCalcVelocity()
@@ -2887,7 +2888,7 @@ void MainWindow::onSetHome()
 
 
 /**
- * @brief slot for copying of actual coordinates into move to coordinates 
+ * @brief slot for copying of actual coordinates into the "move to coordinates"
  * 
  */
 void MainWindow::onCopyPos()
@@ -3027,7 +3028,7 @@ void MainWindow::onScanSurface()
 
 
 /**
- * @brief
+ * @brief // TODO
  * 
  */
 void MainWindow::onCellSelect(int row, int col)
@@ -3050,7 +3051,7 @@ void MainWindow::onEditGCode(int row, int col)
 
 
 /**
- * @brief
+ * @brief slot for resetting of "x" coordinate
  * 
  */
 void MainWindow::onButtonXtoZero()
@@ -3061,7 +3062,7 @@ void MainWindow::onButtonXtoZero()
 
 
 /**
- * @brief
+ * @brief slot for resetting of "y" coordinate
  * 
  */
 void MainWindow::onButtonYtoZero()
@@ -3072,7 +3073,7 @@ void MainWindow::onButtonYtoZero()
 
 
 /**
- * @brief
+ * @brief slot for resetting of "z" coordinate
  * 
  */
 void MainWindow::onButtonZtoZero()
@@ -3083,7 +3084,7 @@ void MainWindow::onButtonZtoZero()
 
 
 /**
- * @brief
+ * @brief slot for resetting of "a" angle
  * 
  */
 void MainWindow::onButtonAtoZero()
