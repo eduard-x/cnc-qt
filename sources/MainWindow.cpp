@@ -1152,7 +1152,7 @@ void MainWindow::getScale(int s)
 
 
 /**
- * @brief
+ * @brief change the information about rotations on the push buttons
  * 
  */
 void MainWindow::displayRotation()
@@ -1169,7 +1169,7 @@ MainWindow::~MainWindow()
 
 
 /**
- * @brief
+ * @brief close event of program
  * 
  */
 void MainWindow::closeEvent(QCloseEvent* ce)
@@ -1708,10 +1708,9 @@ void MainWindow::onMainTaskTimer()
 // OTHER
 
 /**
- * @brief
+ * @brief log output
  * 
  */
-// log output
 void MainWindow::AddLog(QString _text)
 {
     if (_text == NULL) {
@@ -1960,32 +1959,13 @@ void MainWindow::onCncMessage(int n_msg)
 
 
 /**
- * @brief
+ * @brief slot from mk1 controller, new data
  * 
  */
-// slot FROM COMTROLLER, new data
+// 
 void MainWindow::onCncNewData()
 {
     refreshElementsForms();
-
-    //сдвинем границы
-    //     if (ShowGrate) {
-    //         if (Settings::coord[X].posMm() < grateXmin) {
-    //             grateXmin = Settings::coord[X].posMm();
-    //         }
-    //
-    //         if (Settings::coord[X].posMm() > grateXmax) {
-    //             grateXmax = Settings::coord[X].posMm();
-    //         }
-    //
-    //         if (Settings::coord[Y].posMm() < grateYmin) {
-    //             grateYmin = Settings::coord[Y].posMm();
-    //         }
-    //
-    //         if (Settings::coord[Y].posMm() > grateYmax) {
-    //             grateYmax = Settings::coord[Y].posMm();
-    //         }
-    //     }
 }
 
 
@@ -2284,10 +2264,9 @@ void MainWindow::onManualControlDialog()
 
 
 /**
- * @brief
+ * @brief fill the table widget with text data
  * 
  */
-//  the table widget with data
 void MainWindow::fillListWidget(QStringList listCode)
 {
     listGCodeWidget->clear();
@@ -2456,10 +2435,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
     switch (gCodeList[begPos].plane) {
         case XY: {
-            //             qDebug() << "x" << Settings::coord[X].maxVelo << Settings::coord[X].pulsePerMm << "y" << Settings::coord[Y].maxVelo << Settings::coord[Y].pulsePerMm;
-
             int splits = gCodeList[begPos].splits;
-            float bLeng = splits / (float)Settings::splitsPerMm;
             int sumSteps = 0;
 
             float dnewSpdX  = 3600; // 3584?
@@ -2485,7 +2461,6 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dX;
                     }
                     // calculation of vect speed
-                    sumSteps += gCodeList[i].stepsCounter;
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdX); //
                     gCodeList[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
                 } else {
@@ -2493,22 +2468,16 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dY;
                     }
 
-                    sumSteps += gCodeList[i].stepsCounter;
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdY); //
                     gCodeList[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
                 }
 
                 splits--;
-
-                bLeng = splits / (float)Settings::splitsPerMm;
-
+                
+                sumSteps += gCodeList[i].stepsCounter;
+                
                 gCodeList[i].vectorCoeff = coeff;
-
-//                 if (gCodeList[i].accelCode == NO_CODE) {
-//                     if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
-                        gCodeList[i].accelCode = CONSTSPEED_CODE;
-//                     }
-//                 }
+                gCodeList[i].accelCode = CONSTSPEED_CODE;
             }
 
             // now for steps
@@ -2519,21 +2488,14 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                 sumSteps -= tmpStps;
             }
 
-//             if (gCodeList[begPos].accelCode == NO_CODE) {
-                gCodeList[begPos].accelCode = ACCELERAT_CODE;
-//             }
-
-//             if (gCodeList[endPos].accelCode == NO_CODE) {
-                gCodeList[endPos].accelCode = DECELERAT_CODE;
-//             }
+            gCodeList[begPos].accelCode = ACCELERAT_CODE;
+            gCodeList[endPos].accelCode = DECELERAT_CODE;
 
             break;
         }
 
         case YZ: {
             int splits = gCodeList[begPos].splits;
-            float bLeng = splits / (float)Settings::splitsPerMm;
-
             int sumSteps = 0;
             
             float dnewSpdY  = 3600; // 3584?
@@ -2560,7 +2522,6 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dY;
                     }
 
-                    sumSteps += gCodeList[i].stepsCounter;
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdY); //
                     gCodeList[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
                 } else {
@@ -2568,22 +2529,16 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dZ;
                     }
 
-                    sumSteps += gCodeList[i].stepsCounter;
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdZ); //
                     gCodeList[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
                 }
 
                 splits--;
-
-                bLeng = splits / (float)Settings::splitsPerMm;
-
+                
+                sumSteps += gCodeList[i].stepsCounter;
+                
                 gCodeList[i].vectorCoeff = coeff;
-
-//                 if (gCodeList[i].accelCode == NO_CODE) {
-//                     if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
-                        gCodeList[i].accelCode = CONSTSPEED_CODE;
-//                     }
-//                 }
+                gCodeList[i].accelCode = CONSTSPEED_CODE;
             }
 
             // now for steps
@@ -2594,21 +2549,14 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                 sumSteps -= tmpStps;
             }
 
-//             if (gCodeList[begPos].accelCode == NO_CODE) {
-                gCodeList[begPos].accelCode = ACCELERAT_CODE;
-//             }
-
-//             if (gCodeList[endPos].accelCode == NO_CODE) {
-                gCodeList[endPos].accelCode = DECELERAT_CODE;
-//             }
+            gCodeList[begPos].accelCode = ACCELERAT_CODE;
+            gCodeList[endPos].accelCode = DECELERAT_CODE;
 
             break;
         }
 
         case ZX: {
             int splits = gCodeList[begPos].splits;
-            float bLeng = splits / (float)Settings::splitsPerMm;
-
             int sumSteps = 0;
             
             float dnewSpdZ  = 3600; // 3584?
@@ -2635,7 +2583,6 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dZ;
                     }
 
-                    sumSteps += gCodeList[i].stepsCounter;
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdZ); //
                     gCodeList[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
                 } else {
@@ -2643,22 +2590,16 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dX;
                     }
 
-                    sumSteps += gCodeList[i].stepsCounter;
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdX); //
                     gCodeList[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
                 }
                 
                 splits--;
                 
-                bLeng = splits / (float)Settings::splitsPerMm;
-
+                sumSteps += gCodeList[i].stepsCounter;
+                
                 gCodeList[i].vectorCoeff = coeff;
-
-//                 if (gCodeList[i].accelCode == NO_CODE) {
-//                     if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
-                        gCodeList[i].accelCode = CONSTSPEED_CODE;
-//                     }
-//                 }
+                gCodeList[i].accelCode = CONSTSPEED_CODE;
             }
 
             // now for steps
@@ -2669,13 +2610,8 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                 sumSteps -= tmpStps;
             }
 
-//             if (gCodeList[begPos].accelCode == NO_CODE) {
-                gCodeList[begPos].accelCode = ACCELERAT_CODE;
-//             }
-
-//             if (gCodeList[endPos].accelCode == NO_CODE) {
-                gCodeList[endPos].accelCode = DECELERAT_CODE;
-//             }
+            gCodeList[begPos].accelCode = ACCELERAT_CODE;
+            gCodeList[endPos].accelCode = DECELERAT_CODE;
 
             break;
         }
@@ -2705,38 +2641,35 @@ int MainWindow::calculateMinAngleSteps(int startPos)
         return -1;
     }
 
-    if (gCodeList[startPos].splits > 0) { // it's arc, splits inforamtion already calculated
-        idx += gCodeList[startPos].splits;
+    if (gCodeList.at(startPos).splits > 0) { // it's arc, splits inforamtion already calculated
+        idx += gCodeList.at(startPos).splits;
         return idx;
     }
     
     // or for lines
     for (idx = startPos; idx < gCodeList.count(); idx++){
-//         if (gCodeList[idx].accelCode != gCodeList[idx+1].accelCode){
-            if (gCodeList[idx].accelCode == ACCELERAT_CODE && gCodeList[idx].splits > 0){
-                idx += gCodeList[idx].splits;
-                return idx;
-            }
-            
-            if (gCodeList[idx+1].accelCode == DECELERAT_CODE){
-                return idx;
-            }
+        if (gCodeList.at(idx).accelCode == ACCELERAT_CODE && gCodeList.at(idx).splits > 0){
+            idx += gCodeList.at(idx).splits;
+            return idx;
+        }
+        
+        if (gCodeList.at(idx+1).feed == false){
+            return idx;
+        }
 #if 0
-            qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).accelCode << gCodeList[idx+1].accelCode 
+        qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).accelCode << gCodeList[idx+1].accelCode 
                 << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx+1].X << gCodeList[idx+1].Y;
 #endif 
-//             return idx;
-//         }
         
-        float a1 = gCodeList[idx].angle;
-        float a2 = gCodeList[idx+1].angle;
+        float a1 = gCodeList.at(idx).angle;
+        float a2 = gCodeList.at(idx+1).angle;
         if (fabs(a1 - a2) > fabs(PI - maxLookaheadAngleRad)) {
             break;
         }
     }
 
     if ((idx - startPos) != 0){
-        gCodeList[idx].splits = (idx - startPos)+1;
+        gCodeList[startPos].splits = idx - startPos;
         qDebug() << "found in pos:" << startPos << ", steps: " << idx - startPos << " from" << gCodeList[startPos].X << gCodeList[startPos].Y  << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
     }
     

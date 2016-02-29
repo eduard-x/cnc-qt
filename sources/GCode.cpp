@@ -118,7 +118,7 @@ GCodeData::GCodeData(GCodeData *d)
     vectSpeed = d->vectSpeed;
 
     splits = 0; // if arc, will be splitted
-    stepsCounter = 0; // should calculated
+    stepsCounter = 0; // should be calculated
 
     accelCode = NO_CODE;
     //  numberInstruct = d->numberInstruct;
@@ -346,6 +346,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->typeMoving = GCodeData::Line;
 
                     tmpCommand->feed = false;
+                    tmpCommand->accelCode = RAPID_LINE_CODE;
                     tmpCommand->plane = currentPlane;
 
                     if (b_absolute) {
@@ -359,6 +360,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand = new GCodeData(tmpCommand);
 
                     tmpCommand->numberLine = index;
+
 
                     tmpCommand->changeInstrument = false;
                     tmpCommand->pauseMSeconds = -1; // no pause
@@ -383,7 +385,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->typeMoving = GCodeData::Line;
 
                     tmpCommand->feed = true;
-
+                    tmpCommand->accelCode = FEED_LINE_CODE;
+                    
                     if (b_absolute) {
                         current_pos = next_pos + origin;
                     } else {
