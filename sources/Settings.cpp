@@ -123,7 +123,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
     checkInvertSwitchAmin->setChecked(Settings::coord[A].invLimitMin);
     checkInvertSwitchAplu->setChecked(Settings::coord[A].invLimitMax);
 
-    spinBoxLookLines->setValue(Settings::splitsPerMm);
+    spinArcSplitPermm->setValue(Settings::splitsPerMm);
     spinBoxLookLines->setValue(Settings::maxLookaheadAngle);
 
     checkSoftX->setChecked(Settings::coord[X].checkSoftLimits);
@@ -339,6 +339,9 @@ void SettingsDialog::onSave()
     Settings::coord[Y].acceleration = doubleSpinAccelY->value();
     Settings::coord[Z].acceleration = doubleSpinAccelZ->value();
     Settings::coord[A].acceleration = doubleSpinAccelA->value();
+    
+    Settings::splitsPerMm = spinArcSplitPermm->value();
+    Settings::maxLookaheadAngle = spinBoxLookLines->value();
 
     Settings::DEMO_DEVICE  = checkBoxDemoController->isChecked();
 

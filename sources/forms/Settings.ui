@@ -84,7 +84,7 @@
         <set>Qt::ImhNone</set>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>7</number>
        </property>
        <property name="iconSize">
         <size>
@@ -2222,7 +2222,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_3">
+            <widget class="QSpinBox" name="spinArcSplitPermm">
              <property name="maximumSize">
               <size>
                <width>75</width>

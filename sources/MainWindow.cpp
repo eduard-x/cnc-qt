@@ -2400,48 +2400,30 @@ void MainWindow::fixGCodeList()
     maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;// grad to rad
 
     // calculate the number of steps in one direction, if exists
-    for (int idx = 0; idx < gCodeList.size() - 1; idx++) {
+    for (int idx = 0; idx < gCodeList.size(); idx++) {
         detectMinMax(idx);
         
         if (gCodeList[idx].feed == false){
             gCodeList[idx].accelCode = RAPID_LINE_CODE;
             continue;
         }
-
-        if (gCodeList[idx].accelCode == ACCELERAT_CODE) { // begin of patched arc
-
-            int endPos = calculateMinAngleSteps(idx); // and update the pos
-            if (endPos == -1){
-                continue;
-            }
-
-            patchSpeedAndAccelCode(idx, endPos);
-
-            idx = endPos+1;
-            continue;
+        else {
+            gCodeList[idx].accelCode = FEED_LINE_CODE;
         }
-
-        // detection of small angle betw. the lines
-        if (fabs(gCodeList[idx].angle - gCodeList[idx+1].angle) < fabs(PI - maxLookaheadAngleRad)) {
-            int endPos = calculateMinAngleSteps(idx); // and update the pos
-
-            if (endPos == -1){
-                continue;
-            }
-
+        
+        int endPos = calculateMinAngleSteps(idx); // and update the pos
+        if (endPos >= 1){
             patchSpeedAndAccelCode(idx, endPos);
-
-            idx = endPos+1;
-        } else { // lines
-            patchSpeedAndAccelCode(idx, idx + 1);
+            idx = endPos;
+            continue;
         }
     }
 
-#if 0
+#if 1
 
     // now debug
     for (int i = 0; i < gCodeList.size(); i++) {
-        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << gCodeList[i].accelCode << "max coeff:" << gCodeList[i].vectorCoeff
+        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << (hex) << gCodeList[i].accelCode << (dec) <<"max coeff:" << gCodeList[i].vectorCoeff
                  << "splits:" <<  gCodeList[i].splits << "steps:" << gCodeList[i].stepsCounter << "vector speed:" << gCodeList[i].vectSpeed << "coords:" << gCodeList[i].X << gCodeList[i].Y;
     }
 
@@ -2456,6 +2438,7 @@ void MainWindow::fixGCodeList()
  * acceleration codes: ACCELERAT_CODE, DECELERAT_CODE, CONSTSPEED_CODE or FEED_LINE_CODE
  * 
  * gCodeList [begPos .. endPos]
+ * 
  * @param begPos from this position in gcode list 
  * @param endPos inclusively end position 
  * 
@@ -2521,11 +2504,11 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
                 gCodeList[i].vectorCoeff = coeff;
 
-                if (gCodeList[i].accelCode == NO_CODE) {
-                    if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
+//                 if (gCodeList[i].accelCode == NO_CODE) {
+//                     if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
                         gCodeList[i].accelCode = CONSTSPEED_CODE;
-                    }
-                }
+//                     }
+//                 }
             }
 
             // now for steps
@@ -2536,13 +2519,13 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                 sumSteps -= tmpStps;
             }
 
-            if (gCodeList[begPos].accelCode == NO_CODE) {
+//             if (gCodeList[begPos].accelCode == NO_CODE) {
                 gCodeList[begPos].accelCode = ACCELERAT_CODE;
-            }
+//             }
 
-            if (gCodeList[endPos].accelCode == NO_CODE) {
+//             if (gCodeList[endPos].accelCode == NO_CODE) {
                 gCodeList[endPos].accelCode = DECELERAT_CODE;
-            }
+//             }
 
             break;
         }
@@ -2596,11 +2579,11 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
                 gCodeList[i].vectorCoeff = coeff;
 
-                if (gCodeList[i].accelCode == NO_CODE) {
-                    if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
+//                 if (gCodeList[i].accelCode == NO_CODE) {
+//                     if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
                         gCodeList[i].accelCode = CONSTSPEED_CODE;
-                    }
-                }
+//                     }
+//                 }
             }
 
             // now for steps
@@ -2611,13 +2594,13 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                 sumSteps -= tmpStps;
             }
 
-            if (gCodeList[begPos].accelCode == NO_CODE) {
+//             if (gCodeList[begPos].accelCode == NO_CODE) {
                 gCodeList[begPos].accelCode = ACCELERAT_CODE;
-            }
+//             }
 
-            if (gCodeList[endPos].accelCode == NO_CODE) {
+//             if (gCodeList[endPos].accelCode == NO_CODE) {
                 gCodeList[endPos].accelCode = DECELERAT_CODE;
-            }
+//             }
 
             break;
         }
@@ -2671,11 +2654,11 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 
                 gCodeList[i].vectorCoeff = coeff;
 
-                if (gCodeList[i].accelCode == NO_CODE) {
-                    if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
+//                 if (gCodeList[i].accelCode == NO_CODE) {
+//                     if (gCodeList[i-1].accelCode == CONSTSPEED_CODE || gCodeList[i-1].accelCode == ACCELERAT_CODE){
                         gCodeList[i].accelCode = CONSTSPEED_CODE;
-                    }
-                }
+//                     }
+//                 }
             }
 
             // now for steps
@@ -2686,13 +2669,13 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                 sumSteps -= tmpStps;
             }
 
-            if (gCodeList[begPos].accelCode == NO_CODE) {
+//             if (gCodeList[begPos].accelCode == NO_CODE) {
                 gCodeList[begPos].accelCode = ACCELERAT_CODE;
-            }
+//             }
 
-            if (gCodeList[endPos].accelCode == NO_CODE) {
+//             if (gCodeList[endPos].accelCode == NO_CODE) {
                 gCodeList[endPos].accelCode = DECELERAT_CODE;
-            }
+//             }
 
             break;
         }
@@ -2722,56 +2705,40 @@ int MainWindow::calculateMinAngleSteps(int startPos)
         return -1;
     }
 
-    if (gCodeList[startPos].splits > 0) { // it's arc
+    if (gCodeList[startPos].splits > 0) { // it's arc, splits inforamtion already calculated
         idx += gCodeList[startPos].splits;
         return idx;
     }
     
-    { // or for lines
-        for (idx = startPos; idx < gCodeList.count(); idx++){
-            if (gCodeList[idx].accelCode != gCodeList[idx+1].accelCode){
-                if (gCodeList[idx].accelCode == ACCELERAT_CODE && gCodeList[idx].splits > 0){
-                    idx += gCodeList[idx].splits;
-                    return idx;
-                }
-                
-                if (gCodeList[idx+1].accelCode == DECELERAT_CODE){
-                    return idx;
-                }
-                
-                qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).accelCode << gCodeList[idx+1].accelCode 
-                 << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx+1].X << gCodeList[idx+1].Y;
+    // or for lines
+    for (idx = startPos; idx < gCodeList.count(); idx++){
+//         if (gCodeList[idx].accelCode != gCodeList[idx+1].accelCode){
+            if (gCodeList[idx].accelCode == ACCELERAT_CODE && gCodeList[idx].splits > 0){
+                idx += gCodeList[idx].splits;
                 return idx;
             }
             
-            float a1 = gCodeList[idx].angle;
-            float a2 = gCodeList[idx+1].angle;
-            if (fabs(a1 - a2) > fabs(PI - maxLookaheadAngleRad)) {
-                break;
+            if (gCodeList[idx+1].accelCode == DECELERAT_CODE){
+                return idx;
             }
+#if 0
+            qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).accelCode << gCodeList[idx+1].accelCode 
+                << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx+1].X << gCodeList[idx+1].Y;
+#endif 
+//             return idx;
+//         }
+        
+        float a1 = gCodeList[idx].angle;
+        float a2 = gCodeList[idx+1].angle;
+        if (fabs(a1 - a2) > fabs(PI - maxLookaheadAngleRad)) {
+            break;
         }
     }
-#if 0
-    if (idx == startPos){
-        return idx;
-    }
 
-    if ((idx - startPos) == 1) {
-//         gCodeList[startPos].stepsCounter = 0;
-         qDebug() << "found 1 step from " << gCodeList[startPos].X << gCodeList[startPos].Y << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
-
-        return idx;
+    if ((idx - startPos) != 0){
+        gCodeList[idx].splits = (idx - startPos)+1;
+        qDebug() << "found in pos:" << startPos << ", steps: " << idx - startPos << " from" << gCodeList[startPos].X << gCodeList[startPos].Y  << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
     }
-    
-    if ((idx - startPos) == 2) {
-//         gCodeList[startPos].stepsCounter = 0;
-        qDebug() << "found 2 steps from" << gCodeList[startPos].X << gCodeList[startPos].Y  << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
-
-        return idx;
-    }
-#endif 
-//     gCodeList[startPos].stepsCounter = idx - startPos;
-    qDebug() << "found " << idx - startPos << " steps from" << gCodeList[startPos].X << gCodeList[startPos].Y  << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
     
     return idx;
 }
