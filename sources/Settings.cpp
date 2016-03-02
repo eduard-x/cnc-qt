@@ -229,7 +229,7 @@ void SettingsDialog::translateDialog()
     listWidget->item(0)->setSelected(true);
 
     tabWidget->setCurrentIndex(0);
-    tabWidget->tabBar()->setFixedHeight(0);
+//     tabWidget->tabBar()->setFixedHeight(0);
     //     tabWidget->tabBar()->setMaximumWidth(500);
     tabWidget->setStyleSheet("QTabBar::tab { height: 0px; width: 0px; border: 0px solid #333; }" );
 

@@ -7,7 +7,7 @@ CMAKE_POLICY(SET CMP0015 OLD)
 
 # in case of Qt5 set to 5
 # or for Qt4 set to 4
-SET(USE_QT_VERSION 5)
+SET(USE_QT_VERSION 4)
 
 #enable or disable profiling info
 SET(USE_PROFILER false)
