@@ -66,7 +66,7 @@ class MainWindow;
 
 /**
  * @brief
- * 
+ *
  */
 void MessageTimerBox::showEvent ( QShowEvent * event )
 {
@@ -80,7 +80,7 @@ void MessageTimerBox::showEvent ( QShowEvent * event )
 
 /**
  * @brief
- * 
+ *
  */
 void MessageTimerBox::setDefaultText(const QString &t)
 {
@@ -90,7 +90,7 @@ void MessageTimerBox::setDefaultText(const QString &t)
 
 /**
  * @brief
- * 
+ *
  */
 void MessageTimerBox::setAutoClose(bool b)
 {
@@ -100,7 +100,7 @@ void MessageTimerBox::setAutoClose(bool b)
 
 /**
  * @brief
- * 
+ *
  */
 void MessageTimerBox::setTimeout(int t)
 {
@@ -115,7 +115,7 @@ void MessageTimerBox::setTimeout(int t)
 
 /**
  * @brief
- * 
+ *
  */
 void MessageTimerBox::timerEvent(QTimerEvent *event)
 {
@@ -134,7 +134,7 @@ void MessageTimerBox::timerEvent(QTimerEvent *event)
 
 /**
  * @brief
- * 
+ *
  */
 int MessageBox::exec(void* p, const QString &title, const QString &text, int ticon)
 {
@@ -182,7 +182,7 @@ int Task::instrCounter = -1;
 
 /**
  * @brief
- * 
+ *
  */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), Reader ()
@@ -376,7 +376,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 /**
  * @brief
- * 
+ *
  */
 bool MainWindow::getLangTable()
 {
@@ -408,7 +408,7 @@ bool MainWindow::getLangTable()
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::addConnections()
 {
@@ -509,8 +509,8 @@ void MainWindow::addConnections()
 
 
 /**
- * @brief
- * 
+ * @brief slot for popup window with mk1 device information
+ *
  */
 void MainWindow::onDeviceInfo()
 {
@@ -525,8 +525,8 @@ void MainWindow::onDeviceInfo()
 
 
 /**
- * @brief
- * 
+ * @brief slot for selecting of fixed axis: X, Y, Z. unselect other radiobuttons
+ *
  */
 void MainWindow::onChangeFix(bool checked)
 {
@@ -561,8 +561,8 @@ void MainWindow::onChangeFix(bool checked)
 }
 
 /**
- * @brief
- * 
+ * @brief scan the directory with translations. language files are with .utf extentions
+ *
  */
 bool MainWindow::readLangDir()
 {
@@ -686,8 +686,8 @@ bool MainWindow::readLangDir()
 
 
 /**
- * @brief
- * 
+ * @brief get the system locale for selection of language, if exists
+ *
  */
 // to get locale and convert to internal string
 QString MainWindow::getLocaleString()
@@ -718,8 +718,8 @@ QString MainWindow::getLocaleString()
 
 
 /**
- * @brief
- * 
+ * @brief save settings of program
+ *
  */
 void MainWindow::writeSettings()
 {
@@ -821,6 +821,10 @@ void MainWindow::writeSettings()
 }
 
 
+/**
+ * @brief load settings of program
+ *
+ */
 void MainWindow::readSettings()
 {
     QSettings* s;
@@ -991,8 +995,8 @@ void MainWindow::readSettings()
 
 
 /**
- * @brief
- * 
+ * @brief refresh the recent list after loading of file
+ *
  */
 void MainWindow::reloadRecentList()
 {
@@ -1041,7 +1045,7 @@ void MainWindow::reloadRecentList()
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::setFile(QAction* a)
 {
@@ -1070,8 +1074,8 @@ void MainWindow::setFile(QAction* a)
 
 
 /**
- * @brief
- * 
+ * @brief set GUI to selected language and do the translation of all GUI widgets
+ *
  */
 void MainWindow::setLang(QAction* mnu)
 {
@@ -1099,7 +1103,7 @@ void MainWindow::setLang(QAction* mnu)
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::getZRotation(int z)
 {
@@ -1109,8 +1113,8 @@ void MainWindow::getZRotation(int z)
 
 
 /**
- * @brief
- * 
+ * @brief display in status text label the actual FPS
+ *
  */
 void MainWindow::getFPS(int f)
 {
@@ -1120,7 +1124,7 @@ void MainWindow::getFPS(int f)
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::getXRotation(int x)
 {
@@ -1131,7 +1135,7 @@ void MainWindow::getXRotation(int x)
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::getYRotation(int y)
 {
@@ -1142,7 +1146,7 @@ void MainWindow::getYRotation(int y)
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::getScale(int s)
 {
@@ -1153,7 +1157,7 @@ void MainWindow::getScale(int s)
 
 /**
  * @brief change the information about rotations on the push buttons
- * 
+ *
  */
 void MainWindow::displayRotation()
 {
@@ -1170,7 +1174,7 @@ MainWindow::~MainWindow()
 
 /**
  * @brief close event of program
- * 
+ *
  */
 void MainWindow::closeEvent(QCloseEvent* ce)
 {
@@ -1202,7 +1206,7 @@ void MainWindow::closeEvent(QCloseEvent* ce)
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::onExit()
 {
@@ -1227,8 +1231,8 @@ void MainWindow::onExit()
 
 
 /**
- * @brief
- * 
+ * @brief translate the GUI widgets
+ *
  */
 void MainWindow::translateGUI()
 {
@@ -1325,8 +1329,8 @@ void MainWindow::translateGUI()
 
 
 /**
- * @brief
- * 
+ * @brief slot for task start after "play" button
+ *
  */
 void MainWindow::onStartTask()
 {
@@ -1406,6 +1410,7 @@ void MainWindow::onStartTask()
             Task::instructionNow = c.numberInstruct;
         }
     }
+
 #endif
 
     qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd /*<< "code" << Task::instructionStart << Task::instructionEnd*/ << "size of code" << gCodeList.count();
@@ -1425,8 +1430,8 @@ void MainWindow::onStartTask()
 
 
 /**
- * @brief
- * 
+ * @brief  slot for task pause after "pause" button
+ *
  */
 void MainWindow::onPauseTask()
 {
@@ -1443,8 +1448,8 @@ void MainWindow::onPauseTask()
 
 
 /**
- * @brief
- * 
+ * @brief slot for task stop after "stop" button
+ *
  */
 void MainWindow::onStopTask()
 {
@@ -1459,7 +1464,7 @@ void MainWindow::onStopTask()
 
 /**
  * @brief
- * 
+ *
  * @return false if timer to stop
  */
 bool MainWindow::runCommand()
@@ -1518,7 +1523,7 @@ bool MainWindow::runCommand()
         mParams.posZ = Settings::coord[Z].startPos + 10.0;
         mParams.posA = Settings::coord[A].startPos;//, userSpeedG0;
         mParams.speed = gcodeNow.vectSpeed;
-        mParams.code = RAPID_LINE_CODE; //gcodeNow.accelCode;
+        mParams.code = RAPID_LINE_CODE; //gcodeNow.movingCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
         mParams.numberInstruction = 0;
 
@@ -1529,7 +1534,7 @@ bool MainWindow::runCommand()
         mParams.posZ = gcodeNow.Z + 10.0;
         mParams.posA = gcodeNow.A;//, userSpeedG0;
         mParams.speed = gcodeNow.vectSpeed;
-        mParams.code = gcodeNow.accelCode;
+        mParams.code = gcodeNow.movingCode;
         mParams.restPulses = gcodeNow.stepsCounter;
         mParams.numberInstruction = Task::instrCounter;
 
@@ -1664,7 +1669,7 @@ bool MainWindow::runCommand()
         mParams.posZ = pointZ;
         mParams.posA = pointA;//, userSpeedG0;
         mParams.speed = gcodeNow.vectSpeed;
-        mParams.code = gcodeNow.accelCode; //
+        mParams.code = gcodeNow.movingCode; //
         mParams.restPulses = gcodeNow.stepsCounter;//
         mParams.numberInstruction = Task::instrCounter++;
 
@@ -1685,7 +1690,7 @@ bool MainWindow::runCommand()
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::onMainTaskTimer()
 {
@@ -1709,7 +1714,7 @@ void MainWindow::onMainTaskTimer()
 
 /**
  * @brief log output
- * 
+ *
  */
 void MainWindow::AddLog(QString _text)
 {
@@ -1723,7 +1728,7 @@ void MainWindow::AddLog(QString _text)
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::onStatus()
 {
@@ -1734,7 +1739,7 @@ void MainWindow::onStatus()
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::moveToPoint(bool surfaceScan)
 {
@@ -1778,7 +1783,7 @@ void MainWindow::moveToPoint(bool surfaceScan)
         mParams.posZ = posZ;
         mParams.posA = posA;//, userSpeedG0;
         mParams.speed = speed;
-        mParams.code = RAPID_LINE_CODE; //gcodeNow.accelCode;
+        mParams.code = RAPID_LINE_CODE; //gcodeNow.movingCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
         mParams.numberInstruction = 0;
 
@@ -1806,7 +1811,7 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
 /**
  * @brief
- * 
+ *
  */
 // moving to the point
 void MainWindow::onRunToPoint()
@@ -1821,7 +1826,7 @@ void MainWindow::onRunToPoint()
 
 /**
  * @brief
- * 
+ *
  */
 //DEBUGGING generator PWM
 void MainWindow::SendSignal()
@@ -1852,8 +1857,8 @@ void MainWindow::SendSignal()
 }
 
 /**
- * @brief
- * 
+ * @brief slot for sending of one signal
+ *
  */
 void MainWindow::onSendCommand()
 {
@@ -1868,8 +1873,8 @@ void MainWindow::onSendCommand()
 
 
 /**
- * @brief
- * 
+ * @brief add in the status bar of three widgets
+ *
  */
 void MainWindow::addStatusWidgets()
 {
@@ -1893,7 +1898,7 @@ void MainWindow::addStatusWidgets()
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::onGeneratorCode()
 {
@@ -1904,7 +1909,7 @@ void MainWindow::onGeneratorCode()
 
 /**
  * @brief
- * 
+ *
  */
 float MainWindow::GetDeltaZ(float _x, float _y)
 {
@@ -1949,7 +1954,7 @@ float MainWindow::GetDeltaZ(float _x, float _y)
 
 /**
  * @brief
- * 
+ *
  */
 // slot for logging signal
 void MainWindow::onCncMessage(int n_msg)
@@ -1960,9 +1965,9 @@ void MainWindow::onCncMessage(int n_msg)
 
 /**
  * @brief slot from mk1 controller, new data
- * 
+ *
  */
-// 
+//
 void MainWindow::onCncNewData()
 {
     refreshElementsForms();
@@ -1970,8 +1975,8 @@ void MainWindow::onCncNewData()
 
 
 /**
- * @brief
- * 
+ * @brief slot for signals from usb connector: detach or hotplug of controller
+ *
  */
 void MainWindow::onCncHotplug()
 {
@@ -1991,8 +1996,8 @@ void MainWindow::onCncHotplug()
 
 
 /**
- * @brief
- * 
+ * @brief update the widgtes after new data from microcontroller
+ *
  */
 void  MainWindow::refreshElementsForms()
 {
@@ -2252,8 +2257,8 @@ void  MainWindow::refreshElementsForms()
 
 
 /**
- * @brief
- * 
+ * @brief slot for popup window for manual moving of device
+ *
  */
 void MainWindow::onManualControlDialog()
 {
@@ -2265,7 +2270,7 @@ void MainWindow::onManualControlDialog()
 
 /**
  * @brief fill the table widget with text data
- * 
+ *
  */
 void MainWindow::fillListWidget(QStringList listCode)
 {
@@ -2317,47 +2322,47 @@ void MainWindow::fillListWidget(QStringList listCode)
 
 /**
  * @brief detect the min and max ranges
- * 
- * @param pos actual index in GCode data list, if pos is 0: init of min/max
- * 
+ *
+ * @param[in] pos actual index in GCode data list, if pos is 0: init of min/max
+ *
  */
 void MainWindow::detectMinMax(int pos)
 {
     if (pos > 0 && pos < gCodeList.size()) {
-        if (gCodeList[pos].X > Settings::coord[X].softLimitMax) {
-            Settings::coord[X].softLimitMax = gCodeList[pos].X;
+        if (gCodeList.at(pos).X > Settings::coord[X].softLimitMax) {
+            Settings::coord[X].softLimitMax = gCodeList.at(pos).X;
         }
 
-        if (gCodeList[pos].X < Settings::coord[X].softLimitMin) {
-            Settings::coord[X].softLimitMin = gCodeList[pos].X;
+        if (gCodeList.at(pos).X < Settings::coord[X].softLimitMin) {
+            Settings::coord[X].softLimitMin = gCodeList.at(pos).X;
         }
 
-        if (gCodeList[pos].Y > Settings::coord[Y].softLimitMax) {
-            Settings::coord[Y].softLimitMax = gCodeList[pos].Y;
+        if (gCodeList.at(pos).Y > Settings::coord[Y].softLimitMax) {
+            Settings::coord[Y].softLimitMax = gCodeList.at(pos).Y;
         }
 
-        if (gCodeList[pos].Y < Settings::coord[Y].softLimitMin) {
-            Settings::coord[Y].softLimitMin = gCodeList[pos].Y;
+        if (gCodeList.at(pos).Y < Settings::coord[Y].softLimitMin) {
+            Settings::coord[Y].softLimitMin = gCodeList.at(pos).Y;
         }
 
-        if (gCodeList[pos].Z > Settings::coord[Z].softLimitMax) {
-            Settings::coord[Z].softLimitMax = gCodeList[pos].Z;
+        if (gCodeList.at(pos).Z > Settings::coord[Z].softLimitMax) {
+            Settings::coord[Z].softLimitMax = gCodeList.at(pos).Z;
         }
 
-        if (gCodeList[pos].Z < Settings::coord[Z].softLimitMin) {
-            Settings::coord[Z].softLimitMin = gCodeList[pos].Z;
+        if (gCodeList.at(pos).Z < Settings::coord[Z].softLimitMin) {
+            Settings::coord[Z].softLimitMin = gCodeList.at(pos).Z;
         }
 
         return;
     }
 
     if (pos == 0) {
-        Settings::coord[X].softLimitMax = gCodeList[pos].X;
-        Settings::coord[X].softLimitMin = gCodeList[pos].X;
-        Settings::coord[Y].softLimitMax = gCodeList[pos].Y;
-        Settings::coord[Y].softLimitMin = gCodeList[pos].Y;
-        Settings::coord[Z].softLimitMax = gCodeList[pos].Z;
-        Settings::coord[Z].softLimitMin = gCodeList[pos].Z;
+        Settings::coord[X].softLimitMax = gCodeList.at(pos).X;
+        Settings::coord[X].softLimitMin = gCodeList.at(pos).X;
+        Settings::coord[Y].softLimitMax = gCodeList.at(pos).Y;
+        Settings::coord[Y].softLimitMin = gCodeList.at(pos).Y;
+        Settings::coord[Z].softLimitMax = gCodeList.at(pos).Z;
+        Settings::coord[Z].softLimitMin = gCodeList.at(pos).Z;
     }
 }
 
@@ -2381,28 +2386,26 @@ void MainWindow::fixGCodeList()
     // calculate the number of steps in one direction, if exists
     for (int idx = 0; idx < gCodeList.size(); idx++) {
         detectMinMax(idx);
-        
-        if (gCodeList[idx].feed == false){
-            gCodeList[idx].accelCode = RAPID_LINE_CODE;
+
+        if (gCodeList[idx].movingCode == RAPID_LINE_CODE) {
+            //             gCodeList[idx].movingCode = RAPID_LINE_CODE;
             continue;
         }
-        else {
-            gCodeList[idx].accelCode = FEED_LINE_CODE;
-        }
-        
+
         int endPos = calculateMinAngleSteps(idx); // and update the pos
-        if (endPos >= 1){
+
+        if (endPos >= 1) {
             patchSpeedAndAccelCode(idx, endPos);
             idx = endPos;
             continue;
         }
     }
 
-#if 1
+#if 0
 
     // now debug
     for (int i = 0; i < gCodeList.size(); i++) {
-        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << (hex) << gCodeList[i].accelCode << (dec) <<"max coeff:" << gCodeList[i].vectorCoeff
+        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << (hex) << gCodeList[i].movingCode << (dec) << "max coeff:" << gCodeList[i].vectorCoeff
                  << "splits:" <<  gCodeList[i].splits << "steps:" << gCodeList[i].stepsCounter << "vector speed:" << gCodeList[i].vectSpeed << "coords:" << gCodeList[i].X << gCodeList[i].Y;
     }
 
@@ -2412,43 +2415,48 @@ void MainWindow::fixGCodeList()
 
 /**
  * @brief function set the vector speed and acceleration code before sending data to controller
- * 
+ *
  * before sending data to microcontroller we need to calculate the vector speed and acceleration code
  * acceleration codes: ACCELERAT_CODE, DECELERAT_CODE, CONSTSPEED_CODE or FEED_LINE_CODE
- * 
+ *
  * gCodeList [begPos .. endPos]
- * 
- * @param begPos from this position in gcode list 
- * @param endPos inclusively end position 
- * 
+ *
+ * @param[in] begPos from this position in gcode list
+ * @param[in] endPos inclusively end position
+ *
  */
 void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 {
-    if (begPos < 1 || begPos >= gCodeList.count()-1) {
+    if (begPos < 1 || begPos >= gCodeList.count() - 1) {
         qDebug() << "wrong position number patchSpeedAndAccelCode()" << begPos;
         return;
     }
-    
-    if (begPos == endPos){
+
+    if (begPos == endPos) {
         return;
+    }
+
+    int sumSteps = 0;
+
+    float dnewSpdX  = 3600; // 3584?
+    float dnewSpdY  = 3600; // 3584?
+    float dnewSpdZ  = 3600; // 3584?
+
+    if ((Settings::coord[X].maxVelo != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
+        dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
+    }
+
+    if ((Settings::coord[Y].maxVelo != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
+        dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
+    }
+
+    if ((Settings::coord[Z].maxVelo != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
+        dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
     }
 
     switch (gCodeList[begPos].plane) {
         case XY: {
-            int splits = gCodeList[begPos].splits;
-            int sumSteps = 0;
-
-            float dnewSpdX  = 3600; // 3584?
-            float dnewSpdY  = 3600; // 3584?
-
-            if ((Settings::coord[X].maxVelo != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
-                dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
-            }
-
-            if ((Settings::coord[Y].maxVelo != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
-                dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
-            }
-
+            //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
                 detectMinMax(i);
                 float dX = fabs(gCodeList.at(i - 1).X - gCodeList.at(i).X);
@@ -2460,6 +2468,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                     if (dX != 0.0) {
                         coeff = dH / dX;
                     }
+
                     // calculation of vect speed
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdX); //
                     gCodeList[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
@@ -2472,43 +2481,16 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                     gCodeList[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
                 }
 
-                splits--;
-                
                 sumSteps += gCodeList[i].stepsCounter;
-                
+
                 gCodeList[i].vectorCoeff = coeff;
-                gCodeList[i].accelCode = CONSTSPEED_CODE;
             }
-
-            // now for steps
-            for (int i = begPos; i < endPos; i++) {
-                int tmpStps;
-                tmpStps = gCodeList[i].stepsCounter;
-                gCodeList[i].stepsCounter = sumSteps;
-                sumSteps -= tmpStps;
-            }
-
-            gCodeList[begPos].accelCode = ACCELERAT_CODE;
-            gCodeList[endPos].accelCode = DECELERAT_CODE;
 
             break;
         }
 
         case YZ: {
-            int splits = gCodeList[begPos].splits;
-            int sumSteps = 0;
-            
-            float dnewSpdY  = 3600; // 3584?
-            float dnewSpdZ  = 3600; // 3584?
-
-            if ((Settings::coord[Y].maxVelo != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
-                dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
-            }
-
-            if ((Settings::coord[Z].maxVelo != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
-                dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
-            }
-
+            //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
                 detectMinMax(i);
 
@@ -2533,43 +2515,16 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                     gCodeList[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
                 }
 
-                splits--;
-                
                 sumSteps += gCodeList[i].stepsCounter;
-                
+
                 gCodeList[i].vectorCoeff = coeff;
-                gCodeList[i].accelCode = CONSTSPEED_CODE;
             }
-
-            // now for steps
-            for (int i = begPos; i <= endPos; i++) {
-                int tmpStps;
-                tmpStps = gCodeList[i].stepsCounter;
-                gCodeList[i].stepsCounter = sumSteps;
-                sumSteps -= tmpStps;
-            }
-
-            gCodeList[begPos].accelCode = ACCELERAT_CODE;
-            gCodeList[endPos].accelCode = DECELERAT_CODE;
 
             break;
         }
 
         case ZX: {
-            int splits = gCodeList[begPos].splits;
-            int sumSteps = 0;
-            
-            float dnewSpdZ  = 3600; // 3584?
-            float dnewSpdX  = 3600; // 3584?
-            
-            if ((Settings::coord[Z].maxVelo != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
-                dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
-            }
-
-            if ((Settings::coord[X].maxVelo != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
-                dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
-            }
-                    
+            //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
                 detectMinMax(i);
 
@@ -2593,25 +2548,11 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                     gCodeList[i].vectSpeed = (int)(coeff * dnewSpdX); //
                     gCodeList[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
                 }
-                
-                splits--;
-                
+
                 sumSteps += gCodeList[i].stepsCounter;
-                
+
                 gCodeList[i].vectorCoeff = coeff;
-                gCodeList[i].accelCode = CONSTSPEED_CODE;
             }
-
-            // now for steps
-            for (int i = begPos; i <= endPos; i++) {
-                int tmpStps;
-                tmpStps = gCodeList[i].stepsCounter;
-                gCodeList[i].stepsCounter = sumSteps;
-                sumSteps -= tmpStps;
-            }
-
-            gCodeList[begPos].accelCode = ACCELERAT_CODE;
-            gCodeList[endPos].accelCode = DECELERAT_CODE;
 
             break;
         }
@@ -2620,23 +2561,37 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             qDebug() << "no plane information: pos " << begPos << "x" << gCodeList[begPos].X << "y" << gCodeList[begPos].Y << "z" << gCodeList[begPos].Z;
         }
     }
+
+    if (sumSteps > 0) {
+        // now for steps
+        for (int i = begPos; i < endPos; i++) {
+            int tmpStps;
+            tmpStps = gCodeList[i].stepsCounter;
+            gCodeList[i].stepsCounter = sumSteps;
+            sumSteps -= tmpStps;
+            gCodeList[i].movingCode = CONSTSPEED_CODE;
+        }
+
+        gCodeList[begPos].movingCode = ACCELERAT_CODE;
+        gCodeList[endPos].movingCode = DECELERAT_CODE;
+    }
 }
 
 
 /**
  * @brief function determines, how many steps from actual position the g-code object has to the last point with angle up to maxLookaheadAngleRad
- * 
- * the angle maxLookaheadAngle is recommended from 150 to 179 grad. it well be converted to radians 
- * 
- * @param startPos begin pos of searching
- * 
+ *
+ * the angle maxLookaheadAngle is recommended from 150 to 179 grad. it well be converted to radians
+ *
+ * @param[in] startPos begin pos of searching
+ *
  * @return the end position of polygon with angle difference less than maxLookaheadAngle
  */
 int MainWindow::calculateMinAngleSteps(int startPos)
 {
     int idx = startPos;
 
-    if (startPos > gCodeList.count()-1 || startPos < 1) {
+    if (startPos > gCodeList.count() - 1 || startPos < 1) {
         qDebug() << "steps counter bigger than list";
         return -1;
     }
@@ -2645,41 +2600,47 @@ int MainWindow::calculateMinAngleSteps(int startPos)
         idx += gCodeList.at(startPos).splits;
         return idx;
     }
-    
+
     // or for lines
-    for (idx = startPos; idx < gCodeList.count(); idx++){
-        if (gCodeList.at(idx).accelCode == ACCELERAT_CODE && gCodeList.at(idx).splits > 0){
+    for (idx = startPos; idx < gCodeList.count(); idx++) {
+        if (gCodeList.at(idx).movingCode == ACCELERAT_CODE && gCodeList.at(idx).splits > 0) {
             idx += gCodeList.at(idx).splits;
             return idx;
         }
-        
-        if (gCodeList.at(idx+1).feed == false){
+
+        if (gCodeList.at(idx + 1).movingCode == RAPID_LINE_CODE) {
             return idx;
         }
+
 #if 0
-        qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).accelCode << gCodeList[idx+1].accelCode 
-                << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx+1].X << gCodeList[idx+1].Y;
-#endif 
-        
+        qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).movingCode << gCodeList[idx + 1].movingCode
+                 << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx + 1].X << gCodeList[idx + 1].Y;
+#endif
+
         float a1 = gCodeList.at(idx).angle;
-        float a2 = gCodeList.at(idx+1).angle;
+        float a2 = gCodeList.at(idx + 1).angle;
+
         if (fabs(a1 - a2) > fabs(PI - maxLookaheadAngleRad)) {
             break;
         }
     }
 
-    if ((idx - startPos) != 0){
+#if 0
+
+    if ((idx - startPos) != 0) {
         gCodeList[startPos].splits = idx - startPos;
         qDebug() << "found in pos:" << startPos << ", steps: " << idx - startPos << " from" << gCodeList[startPos].X << gCodeList[startPos].Y  << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
     }
-    
+
+#endif
+
     return idx;
 }
 
 
 /**
- * @brief save the g-code file 
- * 
+ * @brief save the g-code file
+ *
  */
 void MainWindow::onSaveFile()
 {
@@ -2689,7 +2650,7 @@ void MainWindow::onSaveFile()
 
 /**
  * @brief open g-code file
- * 
+ *
  */
 void MainWindow::onOpenFile()
 {
@@ -2725,7 +2686,7 @@ void MainWindow::onOpenFile()
 
 /**
  * @brief slot for calling of feed speed calculation pop up window
- * 
+ *
  */
 void MainWindow::onCalcVelocity()
 {
@@ -2751,7 +2712,7 @@ void MainWindow::onCalcVelocity()
 
 /**
  * @brief slot for saving of settings file
- * 
+ *
  */
 void MainWindow::onSettings()
 {
@@ -2767,8 +2728,8 @@ void MainWindow::onSettings()
 
 
 /**
- * @brief slot for copying of actual coordinates into home 
- * 
+ * @brief slot for copying of actual coordinates into home
+ *
  */
 void MainWindow::onCopyHome()
 {
@@ -2780,7 +2741,7 @@ void MainWindow::onCopyHome()
 
 /**
  * @brief // TODO
- * 
+ *
  */
 void MainWindow::onSetHome()
 {
@@ -2789,7 +2750,7 @@ void MainWindow::onSetHome()
 
 /**
  * @brief slot for copying of actual coordinates into the "move to coordinates"
- * 
+ *
  */
 void MainWindow::onCopyPos()
 {
@@ -2801,7 +2762,7 @@ void MainWindow::onCopyPos()
 
 /**
  * @brief slot for cleaning of logging widget
- * 
+ *
  */
 void MainWindow::onLogClear()
 {
@@ -2811,7 +2772,7 @@ void MainWindow::onLogClear()
 
 /**
  * @brief slot for about popup window
- * 
+ *
  */
 void MainWindow::onAbout()
 {
@@ -2824,7 +2785,7 @@ void MainWindow::onAbout()
 
 /**
  * @brief slot for enabling/disabling of mist coolant on mk1
- * 
+ *
  */
 void MainWindow::onMist()
 {
@@ -2840,7 +2801,7 @@ void MainWindow::onMist()
 
 /**
  * @brief slot for enabling/disabling of fluid coolant on mk1
- * 
+ *
  */
 void MainWindow::onFluid()
 {
@@ -2855,7 +2816,7 @@ void MainWindow::onFluid()
 
 /**
  * @brief slot for enabling/disabling of spindle on mk1
- * 
+ *
  */
 void MainWindow::onSpindel()
 {
@@ -2871,7 +2832,7 @@ void MainWindow::onSpindel()
 
 /**
  * @brief slot for emergy stop on mk1
- * 
+ *
  */
 void MainWindow::onEmergyStop()
 {
@@ -2881,7 +2842,7 @@ void MainWindow::onEmergyStop()
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::Feed()
 {
@@ -2895,8 +2856,8 @@ void MainWindow::Feed()
 
 
 /**
- * @brief  slot for 3d settings of program 
- * 
+ * @brief  slot for 3d settings of program
+ *
  */
 void MainWindow::on3dSettings()
 {
@@ -2918,7 +2879,7 @@ void MainWindow::on3dSettings()
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::onScanSurface()
 {
@@ -2929,7 +2890,7 @@ void MainWindow::onScanSurface()
 
 /**
  * @brief // TODO
- * 
+ *
  */
 void MainWindow::onCellSelect(int row, int col)
 {
@@ -2938,7 +2899,7 @@ void MainWindow::onCellSelect(int row, int col)
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::onEditGCode(int row, int col)
 {
@@ -2952,7 +2913,7 @@ void MainWindow::onEditGCode(int row, int col)
 
 /**
  * @brief slot for resetting of "x" coordinate
- * 
+ *
  */
 void MainWindow::onButtonXtoZero()
 {
@@ -2963,7 +2924,7 @@ void MainWindow::onButtonXtoZero()
 
 /**
  * @brief slot for resetting of "y" coordinate
- * 
+ *
  */
 void MainWindow::onButtonYtoZero()
 {
@@ -2974,7 +2935,7 @@ void MainWindow::onButtonYtoZero()
 
 /**
  * @brief slot for resetting of "z" coordinate
- * 
+ *
  */
 void MainWindow::onButtonZtoZero()
 {
@@ -2985,7 +2946,7 @@ void MainWindow::onButtonZtoZero()
 
 /**
  * @brief slot for resetting of "a" angle
- * 
+ *
  */
 void MainWindow::onButtonAtoZero()
 {
@@ -2996,7 +2957,7 @@ void MainWindow::onButtonAtoZero()
 
 /**
  * @brief
- * 
+ *
  */
 void MainWindow::onAboutQt()
 {

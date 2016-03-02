@@ -45,7 +45,7 @@
 
 /**
  * @brief
- * 
+ *
  */
 GCodeData::GCodeData()
 {
@@ -65,7 +65,7 @@ GCodeData::GCodeData()
     K = 0.0;
 
     plane = NonePlane;
-//     changeDirection = false;
+    //     changeDirection = false;
 
     Radius = 0.0;
     vectorCoeff = 0.0;
@@ -73,7 +73,7 @@ GCodeData::GCodeData()
 
     typeMoving = NoType;
 
-    accelCode =  NO_CODE;
+    movingCode =  NO_CODE;
 
     vectSpeed = 0.0;
 
@@ -84,14 +84,14 @@ GCodeData::GCodeData()
     spindelON = false;
     splits = 0; // init
     numberLine = 0;
-    feed      = false;
+    //     feed      = false;
     diametr = 0.0;
 };
 
 
 /**
  * @brief
- * 
+ *
  */
 // constructor based on existing command
 GCodeData::GCodeData(GCodeData *d)
@@ -109,7 +109,7 @@ GCodeData::GCodeData(GCodeData *d)
 
     plane = d->plane;
 
-//     changeDirection = false;
+    //     changeDirection = false;
     vectorCoeff = 0.0;
 
     typeMoving = d->typeMoving;
@@ -120,10 +120,10 @@ GCodeData::GCodeData(GCodeData *d)
     splits = 0; // if arc, will be splitted
     stepsCounter = 0; // should be calculated
 
-    accelCode = NO_CODE;
+    movingCode = NO_CODE;
     //  numberInstruct = d->numberInstruct;
     numberLine = d->numberLine;
-    feed = d->feed;
+    //     feed = d->feed;
 
     angle = 0.0;//d->angleVectors;
 
@@ -136,7 +136,7 @@ GCodeData::GCodeData(GCodeData *d)
 
 /**
  * @brief
- * 
+ *
  */
 GCodeParser::GCodeParser() // constructor
 {
@@ -146,7 +146,7 @@ GCodeParser::GCodeParser() // constructor
 
 /**
  * @brief
- * 
+ *
  */
 bool GCodeParser::addLine(GCodeData *c)
 {
@@ -155,7 +155,7 @@ bool GCodeParser::addLine(GCodeData *c)
 
 /**
  * @brief
- * 
+ *
  */
 bool GCodeParser::addArc(GCodeData *c)
 {
@@ -164,7 +164,7 @@ bool GCodeParser::addArc(GCodeData *c)
 
 /**
  * @brief
- * 
+ *
  */
 // read and parse into GCodeData list and OpenGL list
 bool GCodeParser::readGCode(const QByteArray &gcode)
@@ -250,6 +250,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         foreach(QChar c, tmp) {
             if (c
         }
+
 #else
         int pos = lineStream.indexOf(QRegExp("N(\\d+)"));
 
@@ -312,7 +313,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     index = 0;
     PlaneEnum currentPlane;
     currentPlane = XY;
-    
+
     GCodeData *tmpCommand = new GCodeData();
 
     foreach(QString line, gCodeLines) {
@@ -324,7 +325,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             continue;
         }
 
-        bool movingCommand = true;
+        //         bool movingCommand = true;
 
         switch(cmd[0].toLatin1()) {
             case 'G': {
@@ -340,13 +341,12 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->X = next_pos.x();
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
-                    
+
                     tmpCommand->splits = 0;
 
                     tmpCommand->typeMoving = GCodeData::Line;
 
-                    tmpCommand->feed = false;
-                    tmpCommand->accelCode = RAPID_LINE_CODE;
+                    tmpCommand->movingCode = RAPID_LINE_CODE;
                     tmpCommand->plane = currentPlane;
 
                     if (b_absolute) {
@@ -384,9 +384,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     tmpCommand->typeMoving = GCodeData::Line;
 
-                    tmpCommand->feed = true;
-                    tmpCommand->accelCode = FEED_LINE_CODE;
-                    
+                    //                     tmpCommand->feed = true;
+                    tmpCommand->movingCode = FEED_LINE_CODE;
+
                     if (b_absolute) {
                         current_pos = next_pos + origin;
                     } else {
@@ -396,9 +396,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->plane = currentPlane;
 
                     gCodeList << *tmpCommand;
-                    
-                    calcAngleOfLines(gCodeList.count()-1);
-                    
+
+                    calcAngleOfLines(gCodeList.count() - 1);
+
                     // init of next instuction
                     tmpCommand = new GCodeData(tmpCommand);
 
@@ -434,7 +434,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     }
 
                     tmpCommand->plane = currentPlane;
-                    
+
                     if (radius == 0.0) {
                         // the arc center coordinateds
                         tmpCommand->I = arc_center.x();
@@ -450,14 +450,15 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                         tmpCommand->typeMoving = GCodeData::ArcCCW;
                     }
 
-                    tmpCommand->feed = true;
+                    //                     tmpCommand->feed = true;
+                    tmpCommand->movingCode = FEED_LINE_CODE;
 
                     if (b_absolute) {
                         current_pos = next_pos + origin;
                     } else {
                         current_pos += next_pos;
                     }
-                    
+
                     // qDebug() << "line " << tmpCommand->numberLine << "before convertArcToLines()" << gCodeList.count() << "splits" << tmpCommand->splits;
                     convertArcToLines(tmpCommand); // tmpCommand has data of last point
 #if 0
@@ -503,37 +504,37 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     break;
                 }
-                
+
                 if (cmd == "G17") {
                     currentPlane = XY;
-                    movingCommand = false;
+                    //                     movingCommand = false;
                     break;
                 }
-                
+
                 if (cmd == "G18") {
                     currentPlane = YZ;
-                    movingCommand = false;
+                    //                     movingCommand = false;
                     break;
                 }
-                                
+
                 if (cmd == "G19") {
                     currentPlane = ZX;
-                    movingCommand = false;
+                    //                     movingCommand = false;
                     break;
                 }
 
                 if (cmd == "G20") {
-                    movingCommand = false;
+                    //                     movingCommand = false;
                     coef = 25.4;
                     break;
                 }
 
                 if (cmd == "G21") {
-                    movingCommand = false;
+                    //                     movingCommand = false;
                     coef = 1.0;
                     break;
                 }
-                   
+
                 if (cmd == "G28") {
                     Vec3 next_pos(std::numeric_limits<float>::infinity(),
                                   std::numeric_limits<float>::infinity(),
@@ -560,15 +561,15 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     break;
                 }
-                
+
                 if (cmd == "G90") {
-                    movingCommand = false;
+                    //                     movingCommand = false;
                     b_absolute = true;
                     break;
                 }
 
                 if (cmd == "G91") {
-                    movingCommand = false;
+                    //                     movingCommand = false;
                     b_absolute = false;
                     break;
                 }
@@ -668,31 +669,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         }
 
         if (decoded == false) {
-            //             QString msg = translate(_NOT_DECODED);
-            //             badList << msg.arg(QString::number(index)) + line;
             badList << QString::number(index) + ": " + line;
         } else {
-#if 0
-
-            if (movingCommand == true) {
-                //   if (cmd != "G02" && cmd != "G03"){
-                gCodeList << *tmpCommand;
-                // init of next instuction
-
-                tmpCommand = new GCodeData(tmpCommand);
-                //   }
-
-
-                //   tmpCommand->numberInstruct++;
-                tmpCommand->numberLine = index;
-
-                //   tmpCommand->needPause = false;
-                tmpCommand->changeInstrument = false;
-                tmpCommand->pauseMSeconds = -1; // no pause
-
-            }
-
-#endif
             goodList << line;
         }
 
@@ -700,29 +678,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     }
 
     qDebug("read gcode, parsed. Time elapsed: %d ms", t.elapsed());
-    //  qDebug() << "data parsed";
+
     gCodeLines.clear();
-
-    //  delete tmpCommand;
-
-    // qDebug() << "LIst" << goodList.count();
-    //     for(size_t i = 0 ; i < cached_lines.size() ; ++i) {
-    //         cached_color.push_back(Vec3f(1, 1, 1) * (float(i) / cached_lines.size()));
-    //     }
-
-    //  std::pair<Vec3, Vec3> bbox(Vec3(std::numeric_limits<float>::infinity(),
-    //   std::numeric_limits<float>::infinity(),
-    //   std::numeric_limits<float>::infinity()),
-    // -Vec3(std::numeric_limits<float>::infinity(),
-    //    std::numeric_limits<float>::infinity(),
-    //    std::numeric_limits<float>::infinity()));
-    //
-    //  for(const auto &p : cached_points) {
-    //      for(size_t i = 0 ; i < 3 ; ++i) {
-    //  bbox.first[i] = std::min<float>(bbox.first[i], p[i]);
-    //  bbox.second[i] = std::max<float>(bbox.second[i], p[i]);
-    //      }
-    //  }
     //  unlock();
 
     return true;
@@ -730,40 +687,43 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
 
 /**
- * @brief
- * 
+ * @brief calculate angle between two points
+ *
+ * @param[in] pos1 first point
+ * @param[in] pos2 second point
+ *
  */
-float GCodeParser::determineAngle(const Vec3 &pos, const Vec3 &pos_center, PlaneEnum pl)
+float GCodeParser::determineAngle(const Vec3 &pos1, const Vec3 &pos2, PlaneEnum pl)
 {
     float radians = 0.0;
 
     switch (pl) {
         case XY: {
-            if (pos[0] == pos_center[0] && pos[1] == pos_center[1]) { // if diff is 0
+            if (pos1[X] == pos2[X] && pos1[Y] == pos2[Y]) { // if diff is 0
                 return 0.0;
             }
 
-            radians = atan2(pos[1] - pos_center[1], pos[0] - pos_center[0]);
+            radians = atan2(pos1[Y] - pos2[Y], pos1[X] - pos2[X]);
 
             break;
         }
 
         case YZ: {
-            if (pos[1] == pos_center[1] && pos[2] == pos_center[2]) {
+            if (pos1[Y] == pos2[Y] && pos1[Z] == pos2[Z]) {
                 return 0.0;
             }
 
-            radians = atan2(pos[2] - pos_center[2], pos[1] - pos_center[1]);
+            radians = atan2(pos1[Z] - pos2[Z], pos1[Y] - pos2[Y]);
 
             break;
         }
 
         case ZX: {
-            if (pos[2] == pos_center[2] && pos[0] == pos_center[0]) {
+            if (pos1[Z] == pos2[Z] && pos1[X] == pos2[X]) {
                 return 0.0;
             }
 
-            radians = atan2(pos[0] - pos_center[0], pos[2] - pos_center[2]);
+            radians = atan2(pos1[X] - pos2[X], pos1[Z] - pos2[Z]);
 
             break;
         }
@@ -782,30 +742,34 @@ float GCodeParser::determineAngle(const Vec3 &pos, const Vec3 &pos_center, Plane
 
 
 /**
- * @brief calculates the diffenerce between two points
- * 
+ * @brief calculates the angle diffenerce between two points
+ *
+ * @param[in] pos the actual position
+ *
  */
-// 'endData' is the pointer of arc start
 void GCodeParser::calcAngleOfLines(int pos)
 {
-    if (pos < 1){
+    if (pos < 1 || pos > gCodeList.count() - 1) {
         return;
     }
-    
-    switch (gCodeList[pos].plane) {
+
+    switch (gCodeList.at(pos).plane) {
         case XY: {
-            gCodeList[pos].angle = atan2(gCodeList[pos].Y - gCodeList[pos-1].Y, gCodeList[pos].X - gCodeList[pos-1].X);
+            gCodeList[pos].angle = atan2(gCodeList.at(pos).Y - gCodeList.at(pos - 1).Y, gCodeList.at(pos).X - gCodeList.at(pos - 1).X);
             break;
         }
+
         case YZ: {
-            gCodeList[pos].angle = atan2(gCodeList[pos].Z - gCodeList[pos-1].Z, gCodeList[pos].Y - gCodeList[pos-1].Y);
+            gCodeList[pos].angle = atan2(gCodeList.at(pos).Z - gCodeList.at(pos - 1).Z, gCodeList.at(pos).Y - gCodeList.at(pos - 1).Y);
             break;
         }
+
         case ZX: {
-            gCodeList[pos].angle = atan2(gCodeList[pos].X - gCodeList[pos-1].X, gCodeList[pos].Z - gCodeList[pos-1].Z);
+            gCodeList[pos].angle = atan2(gCodeList.at(pos).X - gCodeList.at(pos - 1).X, gCodeList.at(pos).Z - gCodeList.at(pos - 1).Z);
             break;
         }
-        default:{
+
+        default: {
             qDebug() << "calcAngleOfLines(): no plane information";
             break;
         }
@@ -815,9 +779,10 @@ void GCodeParser::calcAngleOfLines(int pos)
 
 /**
  * @brief this function converts the arc to short lines: mk1 do not support the arc commands
- * 
+ *
+ * @param endData pointer to the list with decoded coordinates of endpoint
+ *
  */
-// 'endData' is the pointer of arc start
 void GCodeParser::convertArcToLines(GCodeData *endData)
 {
     if (gCodeList.count() == 0) {
@@ -986,23 +951,22 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
     ncommand->A = begData.A;
 
     ncommand->splits = n;
-    ncommand->accelCode = ACCELERAT_CODE;
+    ncommand->movingCode = ACCELERAT_CODE;
 
     // now split
-    bool endLoop = false;
+    switch (endData->plane) {
+        case XY: {
+            for (int step = 0; step < n; ++step) {
+                //coordinates of next arc point
+                angle += dAlpha;
+                loopPos += dPos;
 
-    for (int step = 0; step < n; ++step) {
-        //coordinates of next arc point
-        angle += dAlpha;
-        loopPos += dPos;
+                float c = cos(angle);
+                float s = sin(angle);
 
-        float c = cos(angle);
-        float s = sin(angle);
-
-        switch (endData->plane) {
-            case XY: {
                 float x_new = i + r * c;
                 float y_new = j + r * s;
+
                 ncommand->angle = atan2(y_new - ncommand->Y, x_new - ncommand->X);
                 ncommand->X = x_new;
                 ncommand->Y = y_new;
@@ -1014,14 +978,38 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 /** detection of end because of rounding */
                 if (sqrt((x_new - endData->X) * (x_new - endData->X) + (y_new - endData->Y) * (y_new - endData->Y)) <= splitLen) {
                     ncommand->angle = atan2(y_new - endData->Y, x_new - endData->X);
-                    endLoop = true;
-                }
-            }
-            break;
+                    //                     endLoop = true;
+                    ncommand->X = endData->X;
+                    ncommand->Y = endData->Y;
+                    ncommand->Z = endData->Z;
 
-            case YZ: {
+                    n = step;
+
+                    tmpList << *ncommand;
+
+                    break;
+                }
+
+                tmpList << *ncommand;
+                ncommand = new GCodeData(*ncommand);
+                ncommand->movingCode = CONSTSPEED_CODE;
+                ncommand->splits = 0;
+            }
+        }
+        break;
+
+        case YZ: {
+            for (int step = 0; step < n; ++step) {
+                //coordinates of next arc point
+                angle += dAlpha;
+                loopPos += dPos;
+
+                float c = cos(angle);
+                float s = sin(angle);
+
                 float y_new = j + r * c;
                 float z_new = k + r * s;
+
                 ncommand->angle = atan2(z_new - ncommand->Z, y_new - ncommand->Y);
                 ncommand->Y = y_new;
                 ncommand->Z = z_new;
@@ -1033,14 +1021,38 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 /** detection of end because of rounding */
                 if (sqrt((y_new - endData->Y) * (y_new - endData->Y) + (z_new - endData->Z) * (z_new - endData->Z)) <= splitLen) {
                     ncommand->angle = atan2(z_new - endData->Z, y_new - endData->Y);
-                    endLoop = true;
-                }
-            }
-            break;
+                    //                     endLoop = true;
+                    ncommand->X = endData->X;
+                    ncommand->Y = endData->Y;
+                    ncommand->Z = endData->Z;
 
-            case ZX: {
+                    n = step;
+
+                    tmpList << *ncommand;
+
+                    break;
+                }
+
+                tmpList << *ncommand;
+                ncommand = new GCodeData(*ncommand);
+                ncommand->movingCode = CONSTSPEED_CODE;
+                ncommand->splits = 0;
+            }
+        }
+        break;
+
+        case ZX: {
+            for (int step = 0; step < n; ++step) {
+                //coordinates of next arc point
+                angle += dAlpha;
+                loopPos += dPos;
+
+                float c = cos(angle);
+                float s = sin(angle);
+
                 float z_new = k + r * c;
                 float x_new = i + r * s;
+
                 ncommand->angle = atan2(x_new - ncommand->X, z_new - ncommand->Z);
                 ncommand->Z = z_new;
                 ncommand->X = x_new;
@@ -1052,41 +1064,36 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 /** detection of end because of rounding */
                 if (sqrt((x_new - endData->X) * (x_new - endData->X) + (z_new - endData->Z) * (z_new - endData->Z)) <= splitLen) {
                     ncommand->angle = atan2(x_new - endData->X, z_new - endData->Z);
-                    endLoop = true;
+                    //                     endLoop = true;
+                    ncommand->X = endData->X;
+                    ncommand->Y = endData->Y;
+                    ncommand->Z = endData->Z;
+
+                    n = step;
+
+                    tmpList << *ncommand;
+
+                    break;
                 }
+
+                tmpList << *ncommand;
+                ncommand = new GCodeData(*ncommand);
+                ncommand->movingCode = CONSTSPEED_CODE;
+                ncommand->splits = 0;
             }
-            break;
-
-            default:
-                qDebug() << "no plane info!";
-                break;
         }
+        break;
 
-        if (endLoop == true) {
-            //             ncommand->accelCode = DECELERAT_CODE; //
-            ncommand->X = endData->X;
-            ncommand->Y = endData->Y;
-            ncommand->Z = endData->Z;
-
-            n = step;
-
-            tmpList << *ncommand;
-
+        default:
+            qDebug() << "no plane info!";
             break;
-        }
-
-        tmpList << *ncommand;
-        ncommand = new GCodeData(*ncommand);
-        ncommand->accelCode = CONSTSPEED_CODE;
-        ncommand->splits = 0;
     }
 
 
     if (tmpList.length() > 0) {
-        tmpList[tmpList.length() - 1].accelCode = DECELERAT_CODE; //
+        tmpList[tmpList.length() - 1].movingCode = DECELERAT_CODE; //
         tmpList[0].splits = n;
     }
-
 
     gCodeList.append(tmpList);
 
@@ -1107,8 +1114,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
 /**
  * @brief parsing of I, J, K, R parameters of G-Code
- * 
- * @param 
+ *
+ * @param
  * @return if anything is detected, return true
  */
 bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float coef)
@@ -1187,10 +1194,10 @@ bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float
 
 
 /**
- * @brief parsing X, Y, Z, E, F of G-Code parameters 
+ * @brief parsing X, Y, Z, E, F of G-Code parameters
  * rotation parameters A, B, C are not implemented
- * 
- * @param 
+ *
+ * @param
  * @return if anything is detected, return true
  */
 bool GCodeParser::parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F)
@@ -1282,7 +1289,7 @@ bool GCodeParser::parseCoord(const QString &line, Vec3 &pos, float &E, const flo
 
 /**
  * @brief
- * 
+ *
  */
 QStringList GCodeParser::getGoodList()
 {
@@ -1292,7 +1299,7 @@ QStringList GCodeParser::getGoodList()
 
 /**
  * @brief
- * 
+ *
  */
 QStringList GCodeParser::getBadList()
 {

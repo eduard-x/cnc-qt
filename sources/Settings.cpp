@@ -339,7 +339,7 @@ void SettingsDialog::onSave()
     Settings::coord[Y].acceleration = doubleSpinAccelY->value();
     Settings::coord[Z].acceleration = doubleSpinAccelZ->value();
     Settings::coord[A].acceleration = doubleSpinAccelA->value();
-    
+
     Settings::splitsPerMm = spinArcSplitPermm->value();
     Settings::maxLookaheadAngle = spinBoxLookLines->value();
 

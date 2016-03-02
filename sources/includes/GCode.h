@@ -89,10 +89,10 @@ class GCodeData
         int   vectSpeed; // telegr CA offset
         float vectorCoeff; // for the max from dH / dX of dH / dY ratio, in case XY plane
 
-//         bool  changeDirection;
-        int   accelCode;
+        //         bool  changeDirection;
+        int   movingCode;
         int   stepsCounter; // number of steps in current direction
-        bool  feed; // true=G1 false=G0
+        //         bool  feed; // true=G1 false=G0
 
         float Radius;
         // end of curves
@@ -143,7 +143,7 @@ class GCodeParser
 
         bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
 
-public:
+    public:
         QList<GCodeData> gCodeList;
 
     private:

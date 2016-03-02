@@ -849,6 +849,7 @@ bool Reader::readGBR( const QByteArray &arr)
 
         }
     }
+
 #if 0
     qDebug() << "Помещение в BMP";
 

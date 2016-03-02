@@ -263,7 +263,7 @@ void GLWidget::matrixReloaded()
         foreach (GCodeData vv, parent->gCodeList) {
             colorGL cl;
 
-            if (vv.feed) {
+            if (vv.movingCode != RAPID_LINE_CODE) {
                 cl = (colorGL) {
                     0, 255, 0
                 };
@@ -272,7 +272,6 @@ void GLWidget::matrixReloaded()
                     255, 0, 0
                 };
             }
-
 
             pointGL p;
             // coordinates of next point
