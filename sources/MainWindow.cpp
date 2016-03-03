@@ -1596,7 +1596,7 @@ bool MainWindow::runCommand()
     //     }
 
     //TODO: to add in parameter the value
-    if (cnc->availableBufferSize() < 15) {
+    if (cnc->availableBufferSize() < 5) {
         return true;    // nothing before buffer clean
     }
 
