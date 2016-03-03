@@ -68,7 +68,6 @@ class GCodeData
         bool changeInstrument; // to change the tool
         int  numberInstrument; // собственно номер tool
 
-        //         bool   needPause;      // pause needed
         int  pauseMSeconds;  // if waiting = 0, no pause = -1. other pause in milliseconds
         //
         // coordinates in mm
@@ -89,17 +88,13 @@ class GCodeData
         int   vectSpeed; // telegr CA offset
         float vectorCoeff; // for the max from dH / dX of dH / dY ratio, in case XY plane
 
-        //         bool  changeDirection;
         int   movingCode;
         int   stepsCounter; // number of steps in current direction
-        //         bool  feed; // true=G1 false=G0
 
         float Radius;
         // end of curves
 
-        //         int   speed;          // speed
         bool  spindelON;      // spinle on
-        //         int   numberInstruct; // g-code
         // normal is 1: one command is one cut
         // if line splitted, number of followed cuts.
         int   splits;
@@ -110,6 +105,7 @@ class GCodeData
         float diametr; // diameter of tool
 
         float angle; // angle between two lines around the actual point
+        float deltaAngle;
 
         //
         // null constructor

@@ -1523,7 +1523,7 @@ bool MainWindow::runCommand()
         mParams.posZ = Settings::coord[Z].startPos + 10.0;
         mParams.posA = Settings::coord[A].startPos;//, userSpeedG0;
         mParams.speed = gcodeNow.vectSpeed;
-        mParams.code = RAPID_LINE_CODE; //gcodeNow.movingCode;
+        mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.movingCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
         mParams.numberInstruction = 0;
 
@@ -1534,7 +1534,7 @@ bool MainWindow::runCommand()
         mParams.posZ = gcodeNow.Z + 10.0;
         mParams.posA = gcodeNow.A;//, userSpeedG0;
         mParams.speed = gcodeNow.vectSpeed;
-        mParams.code = gcodeNow.movingCode;
+        mParams.movingCode = gcodeNow.movingCode;
         mParams.restPulses = gcodeNow.stepsCounter;
         mParams.numberInstruction = Task::instrCounter;
 
@@ -1596,7 +1596,7 @@ bool MainWindow::runCommand()
     //     }
 
     //TODO: to add in parameter the value
-    if (cnc->availableBufferSize() < 5) {
+    if (cnc->availableBufferSize() < 15) {
         return true;    // nothing before buffer clean
     }
 
@@ -1669,7 +1669,7 @@ bool MainWindow::runCommand()
         mParams.posZ = pointZ;
         mParams.posA = pointA;//, userSpeedG0;
         mParams.speed = gcodeNow.vectSpeed;
-        mParams.code = gcodeNow.movingCode; //
+        mParams.movingCode = gcodeNow.movingCode; //
         mParams.restPulses = gcodeNow.stepsCounter;//
         mParams.numberInstruction = Task::instrCounter++;
 
@@ -1689,7 +1689,7 @@ bool MainWindow::runCommand()
 
 
 /**
- * @brief
+ * @brief slot from main timer signal 
  *
  */
 void MainWindow::onMainTaskTimer()
@@ -1710,7 +1710,6 @@ void MainWindow::onMainTaskTimer()
 
 } //void mainTaskTimer_Tick
 
-// OTHER
 
 /**
  * @brief log output
@@ -1727,7 +1726,7 @@ void MainWindow::AddLog(QString _text)
 
 
 /**
- * @brief
+ * @brief slot for cleaning of status label
  *
  */
 void MainWindow::onStatus()
@@ -1783,7 +1782,7 @@ void MainWindow::moveToPoint(bool surfaceScan)
         mParams.posZ = posZ;
         mParams.posA = posA;//, userSpeedG0;
         mParams.speed = speed;
-        mParams.code = RAPID_LINE_CODE; //gcodeNow.movingCode;
+        mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.movingCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
         mParams.numberInstruction = 0;
 
@@ -1810,10 +1809,9 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
 
 /**
- * @brief
+ * @brief slot for moving to the point
  *
  */
-// moving to the point
 void MainWindow::onRunToPoint()
 {
     if (!cnc->testAllowActions()) {
@@ -1825,10 +1823,9 @@ void MainWindow::onRunToPoint()
 
 
 /**
- * @brief
+ * @brief DEBUGGING generator PWM
  *
  */
-//DEBUGGING generator PWM
 void MainWindow::SendSignal()
 {
     mk1Data::TypeSignal tSign;
@@ -1953,10 +1950,9 @@ float MainWindow::GetDeltaZ(float _x, float _y)
 
 
 /**
- * @brief
+ * @brief slot for logging signal
  *
  */
-// slot for logging signal
 void MainWindow::onCncMessage(int n_msg)
 {
     textLog->append(QDateTime().currentDateTime().toString() + " - " + translate(n_msg));
@@ -1967,7 +1963,6 @@ void MainWindow::onCncMessage(int n_msg)
  * @brief slot from mk1 controller, new data
  *
  */
-//
 void MainWindow::onCncNewData()
 {
     refreshElementsForms();
@@ -2368,7 +2363,7 @@ void MainWindow::detectMinMax(int pos)
 
 
 /**
- * @brief function patches the data list before running
+ * @brief function patches the data list before sending to mk1
  *
  * the data list will be patched dependend from current user settings:
  * speed, steps per mm and other. we need to patch data in case of settings changing
@@ -2388,7 +2383,6 @@ void MainWindow::fixGCodeList()
         detectMinMax(idx);
 
         if (gCodeList[idx].movingCode == RAPID_LINE_CODE) {
-            //             gCodeList[idx].movingCode = RAPID_LINE_CODE;
             continue;
         }
 
@@ -2401,15 +2395,17 @@ void MainWindow::fixGCodeList()
         }
     }
 
-#if 0
+#if 1
 
     // now debug
     for (int i = 0; i < gCodeList.size(); i++) {
-        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << (hex) << gCodeList[i].movingCode << (dec) << "max coeff:" << gCodeList[i].vectorCoeff
-                 << "splits:" <<  gCodeList[i].splits << "steps:" << gCodeList[i].stepsCounter << "vector speed:" << gCodeList[i].vectSpeed << "coords:" << gCodeList[i].X << gCodeList[i].Y;
+        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << (hex) << gCodeList[i].movingCode << (dec) << "max coeff:" << gCodeList[i].vectorCoeff << "splits:" <<  gCodeList[i].splits 
+        << "steps:" << gCodeList[i].stepsCounter << "vector speed:" << gCodeList[i].vectSpeed << "coords:" << gCodeList[i].X << gCodeList[i].Y << "delta angle:" << gCodeList[i].deltaAngle;
     }
+    qDebug() << "max delta angle: " << PI - maxLookaheadAngleRad;
 
 #endif
+
 }
 
 
@@ -2442,6 +2438,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
     float dnewSpdY  = 3600; // 3584?
     float dnewSpdZ  = 3600; // 3584?
 
+    // TODO to calculate this only after settings changing
     if ((Settings::coord[X].maxVelo != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
         dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
     }
@@ -2595,19 +2592,20 @@ int MainWindow::calculateMinAngleSteps(int startPos)
         qDebug() << "steps counter bigger than list";
         return -1;
     }
-
+#if 1
     if (gCodeList.at(startPos).splits > 0) { // it's arc, splits inforamtion already calculated
         idx += gCodeList.at(startPos).splits;
         return idx;
     }
-
+#endif
     // or for lines
-    for (idx = startPos; idx < gCodeList.count(); idx++) {
+    for (idx = startPos; idx < gCodeList.count()-1; idx++) {
+#if 1
         if (gCodeList.at(idx).movingCode == ACCELERAT_CODE && gCodeList.at(idx).splits > 0) {
             idx += gCodeList.at(idx).splits;
             return idx;
         }
-
+#endif
         if (gCodeList.at(idx + 1).movingCode == RAPID_LINE_CODE) {
             return idx;
         }
@@ -2619,8 +2617,10 @@ int MainWindow::calculateMinAngleSteps(int startPos)
 
         float a1 = gCodeList.at(idx).angle;
         float a2 = gCodeList.at(idx + 1).angle;
+        
+        gCodeList[idx].deltaAngle = (a1 -a2);
 
-        if (fabs(a1 - a2) > fabs(PI - maxLookaheadAngleRad)) {
+        if (fabs(gCodeList[idx].deltaAngle) > fabs(PI - maxLookaheadAngleRad)) {
             break;
         }
     }
@@ -2711,7 +2711,7 @@ void MainWindow::onCalcVelocity()
 
 
 /**
- * @brief slot for saving of settings file
+ * @brief slot for popup window and saving of settings file
  *
  */
 void MainWindow::onSettings()
@@ -2956,7 +2956,7 @@ void MainWindow::onButtonAtoZero()
 
 
 /**
- * @brief
+ * @brief slot for popup window
  *
  */
 void MainWindow::onAboutQt()

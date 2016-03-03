@@ -453,7 +453,7 @@ void ScanThread::run()
     mParams.posZ = pz;
     mParams.posA = 0;//, userSpeedG0;
     mParams.speed = (int)sParent->numSpeed->value();
-    mParams.code = RAPID_LINE_CODE; //gcodeNow.accelCode;
+    mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.accelCode;
     mParams.restPulses = 0;//gcodeNow.stepsCounter;
     mParams.numberInstruction = 0;
 

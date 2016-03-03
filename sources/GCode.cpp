@@ -43,6 +43,8 @@
 #include "includes/MainWindow.h"
 
 
+#define DEBUG_ARC 0
+
 /**
  * @brief
  *
@@ -51,7 +53,6 @@ GCodeData::GCodeData()
 {
     changeInstrument = false;
     numberInstrument = 0;
-    //  needPause        = false;
     pauseMSeconds      = -1;
 
     X = 0.0;
@@ -65,7 +66,6 @@ GCodeData::GCodeData()
     K = 0.0;
 
     plane = NonePlane;
-    //     changeDirection = false;
 
     Radius = 0.0;
     vectorCoeff = 0.0;
@@ -80,11 +80,11 @@ GCodeData::GCodeData()
     stepsCounter = 0;
 
     angle = 0.0;
+    deltaAngle = 0.0;
 
     spindelON = false;
     splits = 0; // init
     numberLine = 0;
-    //     feed      = false;
     diametr = 0.0;
 };
 
@@ -109,7 +109,6 @@ GCodeData::GCodeData(GCodeData *d)
 
     plane = d->plane;
 
-    //     changeDirection = false;
     vectorCoeff = 0.0;
 
     typeMoving = d->typeMoving;
@@ -117,15 +116,16 @@ GCodeData::GCodeData(GCodeData *d)
     spindelON = d->spindelON;
     vectSpeed = d->vectSpeed;
 
-    splits = 0; // if arc, will be splitted
+    splits = 0; // if arc, will be splitted, debug information only
     stepsCounter = 0; // should be calculated
 
     movingCode = NO_CODE;
-    //  numberInstruct = d->numberInstruct;
+
     numberLine = d->numberLine;
-    //     feed = d->feed;
 
     angle = 0.0;//d->angleVectors;
+    
+    deltaAngle = 0.0;
 
     changeInstrument = d->changeInstrument;
     numberInstrument = d->numberInstrument;
@@ -384,7 +384,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     tmpCommand->typeMoving = GCodeData::Line;
 
-                    //                     tmpCommand->feed = true;
                     tmpCommand->movingCode = FEED_LINE_CODE;
 
                     if (b_absolute) {
@@ -450,7 +449,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                         tmpCommand->typeMoving = GCodeData::ArcCCW;
                     }
 
-                    //                     tmpCommand->feed = true;
                     tmpCommand->movingCode = FEED_LINE_CODE;
 
                     if (b_absolute) {
@@ -481,7 +479,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     QString value1 = lst.at(1).mid(1);
 
                     if (property1 == "P") {
-                        //  tmpCommand->needPause = true;
                         bool res;
                         tmpCommand->pauseMSeconds = value1.toInt(&res);
 
@@ -492,7 +489,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     }
 
                     if (property1 == "X") {
-                        //  tmpCommand->needPause = true;
                         bool res;
                         tmpCommand->pauseMSeconds = value1.toFloat(&res) * 1000;
 
@@ -774,6 +770,10 @@ void GCodeParser::calcAngleOfLines(int pos)
             break;
         }
     }
+    
+    if (gCodeList[pos].angle < 0.0) {
+        gCodeList[pos].angle += 2.0 * PI;
+    }
 }
 
 
@@ -967,7 +967,12 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 float x_new = i + r * c;
                 float y_new = j + r * s;
 
-                ncommand->angle = atan2(y_new - ncommand->Y, x_new - ncommand->X);
+                float angle = atan2(y_new - ncommand->Y, x_new - ncommand->X);
+                if (angle < 0.0) {
+                    angle += 2.0 * PI;
+                }
+
+                ncommand->angle = angle;
                 ncommand->X = x_new;
                 ncommand->Y = y_new;
                 ncommand->Z = loopPos;
@@ -977,8 +982,12 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 /** detection of end because of rounding */
                 if (sqrt((x_new - endData->X) * (x_new - endData->X) + (y_new - endData->Y) * (y_new - endData->Y)) <= splitLen) {
-                    ncommand->angle = atan2(y_new - endData->Y, x_new - endData->X);
-                    //                     endLoop = true;
+                    float t_angle = atan2(y_new - endData->Y, x_new - endData->X);
+                    if (t_angle < 0.0) {
+                        t_angle += 2.0 * PI;
+                    }
+                    ncommand->angle = t_angle;
+
                     ncommand->X = endData->X;
                     ncommand->Y = endData->Y;
                     ncommand->Z = endData->Z;
@@ -992,6 +1001,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 tmpList << *ncommand;
                 ncommand = new GCodeData(*ncommand);
+                
                 ncommand->movingCode = CONSTSPEED_CODE;
                 ncommand->splits = 0;
             }
@@ -1009,8 +1019,12 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 float y_new = j + r * c;
                 float z_new = k + r * s;
-
-                ncommand->angle = atan2(z_new - ncommand->Z, y_new - ncommand->Y);
+                
+                float angle = atan2(z_new - ncommand->Z, y_new - ncommand->Y);
+                if (angle < 0.0) {
+                    angle += 2.0 * PI;
+                }
+                ncommand->angle = angle;
                 ncommand->Y = y_new;
                 ncommand->Z = z_new;
                 ncommand->X = loopPos;
@@ -1020,8 +1034,12 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 /** detection of end because of rounding */
                 if (sqrt((y_new - endData->Y) * (y_new - endData->Y) + (z_new - endData->Z) * (z_new - endData->Z)) <= splitLen) {
-                    ncommand->angle = atan2(z_new - endData->Z, y_new - endData->Y);
-                    //                     endLoop = true;
+                    float t_angle = atan2(z_new - endData->Z, y_new - endData->Y);
+                    if (t_angle < 0.0) {
+                        t_angle += 2.0 * PI;
+                    }
+                    ncommand->angle = t_angle;
+
                     ncommand->X = endData->X;
                     ncommand->Y = endData->Y;
                     ncommand->Z = endData->Z;
@@ -1035,6 +1053,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 tmpList << *ncommand;
                 ncommand = new GCodeData(*ncommand);
+                
                 ncommand->movingCode = CONSTSPEED_CODE;
                 ncommand->splits = 0;
             }
@@ -1053,7 +1072,11 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 float z_new = k + r * c;
                 float x_new = i + r * s;
 
-                ncommand->angle = atan2(x_new - ncommand->X, z_new - ncommand->Z);
+                float angle = atan2(x_new - ncommand->X, z_new - ncommand->Z);
+                if (angle < 0.0) {
+                    angle += 2.0 * PI;
+                }
+                ncommand->angle = angle;
                 ncommand->Z = z_new;
                 ncommand->X = x_new;
                 ncommand->Y = loopPos;
@@ -1063,8 +1086,12 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 /** detection of end because of rounding */
                 if (sqrt((x_new - endData->X) * (x_new - endData->X) + (z_new - endData->Z) * (z_new - endData->Z)) <= splitLen) {
-                    ncommand->angle = atan2(x_new - endData->X, z_new - endData->Z);
-                    //                     endLoop = true;
+                    float t_angle = atan2(x_new - endData->X, z_new - endData->Z);
+                    if (t_angle < 0.0) {
+                        t_angle += 2.0 * PI;
+                    }
+                    ncommand->angle = t_angle;
+
                     ncommand->X = endData->X;
                     ncommand->Y = endData->Y;
                     ncommand->Z = endData->Z;
@@ -1077,6 +1104,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 }
 
                 tmpList << *ncommand;
+                
                 ncommand = new GCodeData(*ncommand);
                 ncommand->movingCode = CONSTSPEED_CODE;
                 ncommand->splits = 0;
@@ -1091,7 +1119,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
 
     if (tmpList.length() > 0) {
-        tmpList[tmpList.length() - 1].movingCode = DECELERAT_CODE; //
+        tmpList[tmpList.length() - 1].movingCode = DECELERAT_CODE; 
         tmpList[0].splits = n;
     }
 
@@ -1101,7 +1129,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
 #if DEBUG_ARC
 
-    if ((fabs (x2 - res.last().X) > (bLength / splitsPerMm)) || (fabs (y2 - res.last().Y) > (bLength / splitsPerMm))) { // wenn zu weit vom ziel...
+    if ((fabs (x2 - gCodeList.last().X) > (bLength / splitsPerMm)) || (fabs (y2 - gCodeList.last().Y) > (bLength / splitsPerMm))) { // wenn zu weit vom ziel...
         qDebug() << "begin: " << x1 << y1 << "end" << x2 << y2 << "center" << i << j;
         qDebug() << "bogen " << bLength << "mm" << "r" << r << "a" << a << "triangle alpha" << alpha;
         qDebug() << "alpha:" << alpha_beg << "->" << alpha_end << "d alpha: " << dAlpha; // rad

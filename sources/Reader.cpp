@@ -55,7 +55,6 @@
 // for debugging information of arc calculations
 // to disable seto to 0
 //
-#define DEBUG_ARC 0
 
 
 //

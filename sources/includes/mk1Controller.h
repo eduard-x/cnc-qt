@@ -63,7 +63,7 @@ struct moveParameters {
     int   restPulses; // offset 46
     int   speed; // vector speed, offset 43
     int   numberInstruction;
-    int   code; // 0x39, 0x31, 0x21, 0x11, 0x01, offset 5
+    byte  movingCode; // 0x39, 0x31, 0x21, 0x11, 0x01, offset 5
 };
 
 class usbHotplugThread : public QThread
