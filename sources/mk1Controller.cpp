@@ -1026,7 +1026,7 @@ void mk1Data::pack9F( bool send)
 
     writeBuf[0] = 0x9f;
     writeBuf[4] = 0x80; // settings
-    writeBuf[5] = 0xb1; //TODO:unknown
+    writeBuf[5] = 0xb1; //TODO:unknown 0xb3 ???
 
     packFourBytes(6, Settings::coord[X].pulsePerMm);
     packFourBytes(10, Settings::coord[Y].pulsePerMm);
@@ -1085,8 +1085,8 @@ void mk1Data::packA0(bool send)
     packFourBytes(18, AccelA);
 
 
-    writeBuf[42] = 0x60;// unknown byte
-    writeBuf[43] = 0x09;// unknown byte
+    writeBuf[42] = 0x60;// unknown byte 0xb0 ???
+    writeBuf[43] = 0x09;// unknown byte 0x04 ???
 
     writeBuf[46] = 0x08;// unknown byte
 
@@ -1268,7 +1268,8 @@ void mk1Data::packB6( bool mist, bool fluid, bool send )
         writeBuf[5] = 0x01;
     }
 
-    writeBuf[6] = 0x02; //TODO:unknown
+    // ??? 
+//     writeBuf[6] = 0x02; //TODO:unknown
 
     if (mist) {
         writeBuf[7] = 0x02;
@@ -1276,7 +1277,8 @@ void mk1Data::packB6( bool mist, bool fluid, bool send )
         writeBuf[7] = 0x01;
     }
 
-    writeBuf[8] = 0x03; //TODO:unknown
+    // ???
+//     writeBuf[8] = 0x03; //TODO:unknown
 
     if (send == true) {
         sendBinaryData();

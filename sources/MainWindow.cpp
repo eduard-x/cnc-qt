@@ -1522,7 +1522,7 @@ bool MainWindow::runCommand()
         mParams.posY = Settings::coord[Y].startPos;
         mParams.posZ = Settings::coord[Z].startPos + 10.0;
         mParams.posA = Settings::coord[A].startPos;//, userSpeedG0;
-        mParams.speed = gcodeNow.vectSpeed;
+        mParams.speed = 0;//gcodeNow.vectSpeed;
         mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.movingCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
         mParams.numberInstruction = 0;
