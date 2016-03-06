@@ -1207,7 +1207,7 @@ void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Speed
     }
 
     writeBuf[6] = 0x01; //х.з.
-
+#if 0 // ??? was enabled
     switch (numShimChanel) {
         case 2: {
             writeBuf[8] = 0x02;
@@ -1244,7 +1244,7 @@ void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Speed
     }
 
     packFourBytes(10, SpeedShim);
-
+#endif
     if (send == true) {
         sendBinaryData();
     }
