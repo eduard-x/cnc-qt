@@ -1085,8 +1085,8 @@ void mk1Data::packA0(bool send)
     packFourBytes(18, AccelA);
 
 
-    writeBuf[42] = 0x60;// unknown byte 0xb0 ???
-    writeBuf[43] = 0x09;// unknown byte 0x04 ???
+    writeBuf[42] = 0xb0;// unknown byte 0xb0 ??? was 0x60
+    writeBuf[43] = 0x04;// unknown byte 0x04 ??? was 0x09
 
     writeBuf[46] = 0x08;// unknown byte
 
