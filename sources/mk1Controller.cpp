@@ -979,12 +979,12 @@ void mk1Data::pack9D(bool send)
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0x9d;
-
+#if 0 // ??? was enabled 
     if (setSettings == true) {
         writeBuf[4] = 0x80; // settings
         writeBuf[5] = 0x01; // unknown
     }
-
+#endif
     if (send == true) {
         sendBinaryData();
     }
@@ -1002,7 +1002,7 @@ void mk1Data::pack9E(byte value, bool send)
     writeBuf[0] = 0x9e;
 
     if (setSettings == true) { // if settings
-        writeBuf[4] = 0x80;
+        writeBuf[4] = 0x01; // ??? was 0x80
     } else {
         // bit mask for begin / end of moving
         // 01 or 05 ? begin of moving
