@@ -293,18 +293,12 @@ class usbReadThread : public QThread
                     continue;
                 }
 
-                if (buf[0] != 0x01) {
-                    continue; // we get only data with code 0х01
-                }
+                if (buf[0] == 0x01 || buf[0] == 0x04) {// we get only data with code 0х01 or 0x04
+                    if (memcmp(buf, p->readBuf, BUFFER_SIZE) != 0) { // quick compare
+                        memcpy(p->readBuf, buf, BUFFER_SIZE);
 
-                //                 if (buf[1] < 2){
-                //                     emit bufIsFree(); // this was never called
-                //                 }
-
-                if (memcmp(buf, p->readBuf, BUFFER_SIZE) != 0) { // quick compare
-                    memcpy(p->readBuf, buf, BUFFER_SIZE);
-
-                    emit readEvent();
+                        emit readEvent();
+                    }
                 }
             }
 

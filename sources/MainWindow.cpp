@@ -1595,15 +1595,16 @@ bool MainWindow::runCommand()
     //         return false;
     //     }
 
+
     //TODO: to add in parameter the value
-    if (cnc->availableBufferSize() < 5) {
+    if (cnc->availableBufferSize() <= 3) {
         return true;    // nothing before buffer clean
     }
 
 
     //TODO: to add in parameter the value
     if (Task::instrCounter > (cnc->numberCompleatedInstructions() + 3)) {
-        return true;    // don't send more than 3 commands
+        return true;    // don't send more than N commands
     }
 
     //command G4 or M0
@@ -1623,6 +1624,7 @@ bool MainWindow::runCommand()
         }
 
         refreshElementsForms();
+//         return true;
     }
 
     //replace instrument
@@ -1635,48 +1637,52 @@ bool MainWindow::runCommand()
         MessageBox::exec(this, translate(_PAUSE), msg.arg(QString::number(gcodeNow.numberInstrument)).arg(QString::number(gcodeNow.diametr)), QMessageBox::Information);
     }
 
-    float pointX = gcodeNow.X;
-    float pointY = gcodeNow.Y;
-    float pointZ = gcodeNow.Z;
-    float pointA = gcodeNow.A;
+    int commands = cnc->availableBufferSize() -3;
+    
+    for (int i= 0; i< commands; i++){
+        float pointX = gcodeNow.X;
+        float pointY = gcodeNow.Y;
+        float pointZ = gcodeNow.Z;
+        float pointA = gcodeNow.A;
 
-    Task::lineCodeNow = gcodeNow.numberLine;
+        Task::lineCodeNow = gcodeNow.numberLine;
 
-    //moving in G-code
-    if (Correction) {
-        // proportion
-        pointX *= koeffSizeX;
-        pointY *= koeffSizeY;
+        //moving in G-code
+        if (Correction) {
+            // proportion
+            pointX *= koeffSizeX;
+            pointY *= koeffSizeY;
 
-        // move
-        pointX += deltaX;
-        pointY += deltaY;
-        pointZ += deltaZ;
+            // move
+            pointX += deltaX;
+            pointY += deltaY;
+            pointZ += deltaZ;
 
-        // surface matrix?
-        if (deltaFeed) {
-            pointZ += GetDeltaZ(pointX, pointY);
+            // surface matrix?
+            if (deltaFeed) {
+                pointZ += GetDeltaZ(pointX, pointY);
+            }
         }
-    }
 
-    {
-        //TODO: additional velocity control manual/automatical
-        //     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
+        {
+            //TODO: additional velocity control manual/automatical
+            //     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
 
-        moveParameters mParams;
-        mParams.posX = pointX;
-        mParams.posY = pointY;
-        mParams.posZ = pointZ;
-        mParams.posA = pointA;//, userSpeedG0;
-        mParams.speed = gcodeNow.vectSpeed;
-        mParams.movingCode = gcodeNow.movingCode; //
-        mParams.restPulses = gcodeNow.stepsCounter;//
-        mParams.numberInstruction = Task::instrCounter++;
+            moveParameters mParams;
+            mParams.posX = pointX;
+            mParams.posY = pointY;
+            mParams.posZ = pointZ;
+            mParams.posA = pointA;//, userSpeedG0;
+            mParams.speed = gcodeNow.vectSpeed;
+            mParams.movingCode = gcodeNow.movingCode; //
+            mParams.restPulses = gcodeNow.stepsCounter;//
+            mParams.numberInstruction = Task::instrCounter++;
 
-        cnc->packCA(&mParams); // move to init position
-        //     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
-        //     cnc->packCA(pointX, pointY, pointZ, pointA, speed, Task::instructionNow++, 0.0, 0);
+            cnc->packCA(&mParams); // move to init position
+            //     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
+            //     cnc->packCA(pointX, pointY, pointZ, pointA, speed, Task::instructionNow++, 0.0, 0);
 
+        }
     }
 
     //     Task::posCodeNow++;
