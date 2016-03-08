@@ -81,6 +81,7 @@ class GLWidget : public QGLWidget
         void drawGrate();
         void drawInstrument();
         void drawSurface();
+        void drawTool();
         void drawAxes();
         void drawWorkField();
         void drawGrid();
@@ -143,6 +144,10 @@ class GLWidget : public QGLWidget
         mk1Controller* cnc;
 
         QVector<pointGL> instrumentArray;
+        QVector<pointGL> footArray;
+        QVector<pointGL> traverseArray;
+        QVector<pointGL> holderArray;
+        QVector<pointGL> motorArray;
         QVector<pointGL> xAxis;
         QVector<pointGL> yAxis;
         QVector<pointGL> zAxis;

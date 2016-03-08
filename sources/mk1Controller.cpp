@@ -57,7 +57,7 @@ QString mk1Controller::devDescriptor;
 
 /**
  * @brief
- * 
+ *
  */
 static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
 {
@@ -124,7 +124,7 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
 
 /**
  * @brief
- * 
+ *
  */
 static int LIBUSB_CALL hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
 {
@@ -147,7 +147,7 @@ static int LIBUSB_CALL hotplug_callback_detach(libusb_context *ctx, libusb_devic
 
 /**
  * @brief
- * 
+ *
  */
 mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 {
@@ -248,7 +248,7 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
         } else {
             qDebug() << "Device registering detach callback";
             hotplugThread = new usbHotplugThread();
-            connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
+            connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(onHandleHotplug()));
             hotplugThread->start();
         }
 
@@ -277,7 +277,7 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
 /**
  * @brief
- * 
+ *
  */
 int mk1Controller::getDeviceInfo()
 {
@@ -341,7 +341,7 @@ int mk1Controller::getDeviceInfo()
 
 /**
  * @brief
- * 
+ *
  */
 mk1Controller::~mk1Controller()
 {
@@ -355,7 +355,7 @@ mk1Controller::~mk1Controller()
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Controller::resetDescription()
 {
@@ -363,8 +363,8 @@ void mk1Controller::resetDescription()
 }
 
 /**
- * @brief
- * 
+ * @brief get controller description string
+ *
  */
 QString mk1Controller::getDescription()
 {
@@ -373,7 +373,7 @@ QString mk1Controller::getDescription()
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Controller::setUseHome(bool b)
 {
@@ -383,15 +383,15 @@ void mk1Controller::setUseHome(bool b)
 
 /**
  * @brief  startpos in mm
- * 
+ *
  */
 void mk1Controller::setStartPos(float x, float y, float z, float a)
 {
 }
 
 /**
- * @brief
- * 
+ * @brief set controller description string
+ *
  */
 void mk1Controller::setDescription(const QString &c)
 {
@@ -399,10 +399,10 @@ void mk1Controller::setDescription(const QString &c)
 }
 
 /**
- * @brief
- * 
+ * @brief slot
+ *
  */
-void mk1Controller::readNewData()
+void mk1Controller::onReadNewData()
 {
     //     qDebug() << "new data from usb";
     parseBinaryInfo();
@@ -410,7 +410,7 @@ void mk1Controller::readNewData()
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Controller::onBufFree()
 {
@@ -418,12 +418,12 @@ void mk1Controller::onBufFree()
 }
 
 /**
- * @brief
- * 
+ * @brief slot
+ *
  */
-void mk1Controller::handleHotplug()
+void mk1Controller::onHandleHotplug()
 {
-    disconnect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
+    disconnect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(onHandleHotplug()));
 
     if (handle) {
         if (devConnected == false) {
@@ -435,7 +435,7 @@ void mk1Controller::handleHotplug()
         if (readThread == 0) {
             readThread = new usbReadThread(this);
 
-            connect(readThread, SIGNAL(readEvent()), this, SLOT(readNewData()));
+            connect(readThread, SIGNAL(readEvent()), this, SLOT(onReadNewData()));
 
             readThread->start();
 
@@ -448,6 +448,10 @@ void mk1Controller::handleHotplug()
         if (devConnected == true) {
             qDebug() << "hotplug detach" << handle;
 
+            readThread->exit();
+
+            disconnect(readThread, SIGNAL(readEvent()), this, SLOT(onReadNewData()));
+
             emit hotplugSignal();
         }
 
@@ -456,12 +460,12 @@ void mk1Controller::handleHotplug()
         devConnected = false;
     }
 
-    connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(handleHotplug()));
+    connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(onHandleHotplug()));
 }
 
 /**
  * @brief send settings to mk
- * 
+ *
  */
 void mk1Controller::sendSettings()
 {
@@ -494,7 +498,7 @@ void mk1Controller::sendSettings()
 
 /**
  * @brief  info about connection
- * 
+ *
  */
 bool mk1Controller::isConnected()
 {
@@ -504,7 +508,7 @@ bool mk1Controller::isConnected()
 
 /**
  * @brief  velocity of spindle
- * 
+ *
  */
 int mk1Data::getSpindleMoveSpeed()
 {
@@ -513,7 +517,7 @@ int mk1Data::getSpindleMoveSpeed()
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Data::setSpindleMoveSpeed(int i)
 {
@@ -523,7 +527,7 @@ void mk1Data::setSpindleMoveSpeed(int i)
 
 /**
  * @brief current instruction number
- * 
+ *
  */
 long mk1Data::numberCompleatedInstructions()
 {
@@ -539,7 +543,7 @@ void mk1Data::setCompleatedInstructions(long i)
 
 /**
  * @brief  splindle is on?
- * 
+ *
  */
 bool mk1Data::isFluidOn()
 {
@@ -553,7 +557,7 @@ void mk1Data::setFluidOn(bool b)
 
 /**
  * @brief mist is on?
- * 
+ *
  */
 bool mk1Data::isMistOn()
 {
@@ -567,7 +571,7 @@ void mk1Data::setMistOn(bool b)
 
 /**
  * @brief splindle is on?
- * 
+ *
  */
 bool mk1Data::isSpindelOn()
 {
@@ -582,7 +586,7 @@ void mk1Data::setSpindelOn(bool b)
 
 /**
  * @brief was stopped because of emergency?
- * 
+ *
  */
 bool mk1Data::isEmergencyStopOn()
 {
@@ -591,7 +595,7 @@ bool mk1Data::isEmergencyStopOn()
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Data::setEmergencyStopOn(bool b)
 {
@@ -601,7 +605,7 @@ void mk1Data::setEmergencyStopOn(bool b)
 
 /**
  * @brief check connection
- * 
+ *
  */
 bool mk1Controller::testAllowActions()
 {
@@ -614,7 +618,7 @@ bool mk1Controller::testAllowActions()
 
 /**
  * @brief free buffer size
- * 
+ *
  */
 int mk1Data::availableBufferSize()
 {
@@ -628,19 +632,20 @@ void mk1Data::setBufferSize(int i)
 
 
 /**
- * @brief  parse binary data
- * 
+ * @brief  parse binary data and set the main widget variables and settings data
+ *
  */
 void mk1Controller::parseBinaryInfo()
 {
-    /*freebuffSize = */setBufferSize(readBuf[1]);
+    setBufferSize(readBuf[1]);
+
     int velo = (int)(((/*(readBuf[23] << 24)*/ + (readBuf[22] << 16) + (readBuf[21] << 8) + (readBuf[20]))) / 2.1);
 
     if (velo > 5000) {
         return;
     }
 
-    /* spindleMoveSpeed = */setSpindleMoveSpeed (velo);
+    setSpindleMoveSpeed (velo);
     // for mk2 instead 2.1 = > 1.341
 
     Settings::coord[X].actualPosPulses = ((readBuf[27] << 24) + (readBuf[26] << 16) + (readBuf[25] << 8) + (readBuf[24]));
@@ -660,24 +665,26 @@ void mk1Controller::parseBinaryInfo()
     Settings::coord[A].actualLimitMax = (bb15 & 0x80) != 0;
 
     long num = ((readBuf[9] << 24) + (readBuf[8] << 16) + (readBuf[7] << 8) + (readBuf[6]));
+
     setCompleatedInstructions(num);
 
     byte bb19 = readBuf[19];
 
-    /*spindleEnabled = */setSpindelOn((bb19 & 0x01) ? true : false);
+    setSpindelOn((bb19 & 0x01) ? true : false);
 
     byte bb14 = readBuf[14];
-    /*eStop =*/ setEmergencyStopOn((bb14 & 0x80) ? true : false);
 
-    /*mistEnabled = */ setMistOn((bb14 & 0x10) ? false : true);
-    /*fluidEnabled = */setFluidOn((bb14 & 0x04) ? false : true);
+    setEmergencyStopOn((bb14 & 0x80) ? true : false);
 
-    emit newDataFromMK1Controller();
+    setMistOn((bb14 & 0x10) ? false : true);
+    setFluidOn((bb14 & 0x04) ? false : true);
+
+    emit newDataFromMK1Controller(); // signal to main program
 }
 
 /**
  * @brief send number of message to main class
- * 
+ *
  */
 void mk1Controller::ADDMessage(int num)
 {
@@ -687,7 +694,7 @@ void mk1Controller::ADDMessage(int num)
 
 /**
  * @brief enable spindle
- * 
+ *
  */
 void mk1Controller::spindleON()
 {
@@ -697,7 +704,7 @@ void mk1Controller::spindleON()
 
 /**
  * @brief disable spindle
- * 
+ *
  */
 void mk1Controller::spindleOFF()
 {
@@ -707,7 +714,7 @@ void mk1Controller::spindleOFF()
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Controller::fluidON()
 {
@@ -717,7 +724,7 @@ void mk1Controller::fluidON()
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Controller::fluidOFF()
 {
@@ -727,7 +734,7 @@ void mk1Controller::fluidOFF()
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Controller::mistON()
 {
@@ -737,7 +744,7 @@ void mk1Controller::mistON()
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Controller::mistOFF()
 {
@@ -748,7 +755,7 @@ void mk1Controller::mistOFF()
 
 /**
  * @brief send emergency stop
- * 
+ *
  */
 void mk1Controller::emergyStop()
 {
@@ -806,7 +813,7 @@ void mk1Controller::startManualMove(QString x, QString y, QString z, QString a, 
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Controller::stopManualMove()
 {
@@ -827,7 +834,7 @@ void mk1Controller::stopManualMove()
 
 /**
  * @brief new position in pulses
- * 
+ *
  */
 void mk1Controller::deviceNewPosition(int x, int y, int z, int a)
 {
@@ -841,7 +848,7 @@ void mk1Controller::deviceNewPosition(int x, int y, int z, int a)
 
 /**
  * @brief new position in mm
- * 
+ *
  */
 void mk1Controller::deviceNewPosition(float x, float y, float z, float a)
 {
@@ -860,7 +867,7 @@ byte mk1Data::writeBuf[BUFFER_SIZE];
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Data::setByte(byte offset, byte data)
 {
@@ -874,7 +881,7 @@ void mk1Data::setByte(byte offset, byte data)
 
 /**
  * @brief
- * 
+ *
  */
 byte mk1Data::getByte(byte offset)
 {
@@ -888,7 +895,7 @@ byte mk1Data::getByte(byte offset)
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Data::cleanBuf(byte *m)
 {
@@ -898,7 +905,7 @@ void mk1Data::cleanBuf(byte *m)
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Data::packTwoBytes(byte offset, int val)
 {
@@ -912,7 +919,7 @@ void mk1Data::packTwoBytes(byte offset, int val)
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Data::packFourBytes(byte offset, int val)
 {
@@ -928,7 +935,7 @@ void mk1Data::packFourBytes(byte offset, int val)
 
 /**
  * @brief send the data to controller
- * 
+ *
  */
 void mk1Data::sendBinaryData(bool checkBuffSize)
 {
@@ -980,11 +987,14 @@ void mk1Data::pack9D(bool send)
 
     writeBuf[0] = 0x9d;
 #if 0 // ??? was enabled 
+
     if (setSettings == true) {
         writeBuf[4] = 0x80; // settings
         writeBuf[5] = 0x01; // unknown
     }
+
 #endif
+
     if (send == true) {
         sendBinaryData();
     }
@@ -993,7 +1003,7 @@ void mk1Data::pack9D(bool send)
 
 /**
  * @brief
- * 
+ *
  */
 void mk1Data::pack9E(byte value, bool send)
 {
@@ -1041,7 +1051,7 @@ void mk1Data::pack9F( bool send)
 
 /**
  * @brief acceleration settings
- * 
+ *
  */
 void mk1Data::packA0(bool send)
 {
@@ -1120,7 +1130,7 @@ void mk1Data::packA0(bool send)
 
 /**
  * @brief hardware limits activate
- * 
+ *
  */
 void mk1Data::packA1( bool send )
 {
@@ -1152,7 +1162,7 @@ void mk1Data::packA1( bool send )
 
 /**
  * @brief emergency STOP
- * 
+ *
  */
 void mk1Data::packAA(bool send)
 {
@@ -1167,8 +1177,8 @@ void mk1Data::packAA(bool send)
 }
 
 /**
- * @brief unknown settings 
- * 
+ * @brief unknown settings
+ *
  */
 void mk1Data::packAB( bool send )
 {
@@ -1186,7 +1196,7 @@ void mk1Data::packAB( bool send )
 
 /**
  * @brief spindle commands
- * 
+ *
  * spindleON: on/off
  * numShimChanel chan number 1,2, or 3
  * ts signal type
@@ -1208,6 +1218,7 @@ void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Speed
 
     writeBuf[6] = 0x01; //х.з.
 #if 0 // ??? was enabled
+
     switch (numShimChanel) {
         case 2: {
             writeBuf[8] = 0x02;
@@ -1245,6 +1256,7 @@ void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Speed
 
     packFourBytes(10, SpeedShim);
 #endif
+
     if (send == true) {
         sendBinaryData();
     }
@@ -1252,7 +1264,7 @@ void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Speed
 
 /**
  * @brief mist/fluid settings
- * 
+ *
  */
 void mk1Data::packB6( bool mist, bool fluid, bool send )
 {
@@ -1268,8 +1280,8 @@ void mk1Data::packB6( bool mist, bool fluid, bool send )
         writeBuf[5] = 0x01;
     }
 
-    // ??? 
-//     writeBuf[6] = 0x02; //TODO:unknown
+    // ???
+    //     writeBuf[6] = 0x02; //TODO:unknown
 
     if (mist) {
         writeBuf[7] = 0x02;
@@ -1278,7 +1290,7 @@ void mk1Data::packB6( bool mist, bool fluid, bool send )
     }
 
     // ???
-//     writeBuf[8] = 0x03; //TODO:unknown
+    //     writeBuf[8] = 0x03; //TODO:unknown
 
     if (send == true) {
         sendBinaryData();
@@ -1288,7 +1300,7 @@ void mk1Data::packB6( bool mist, bool fluid, bool send )
 
 /**
  * @brief
- * 
+ *
  */
 // moving without stop (and stop)
 //
@@ -1432,7 +1444,7 @@ void mk1Data::packBE(byte direction, int speed, bool send)
 
 /**
  * @brief set speed limits
- * 
+ *
  */
 void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send)
 {
@@ -1492,7 +1504,7 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
 
 /**
  * @brief command unknown....
- * 
+ *
  */
 void mk1Data::packC0(byte byte05, bool send)
 {
@@ -1508,7 +1520,7 @@ void mk1Data::packC0(byte byte05, bool send)
 
 /**
  * @brief  unknown settings
- * 
+ *
  */
 void mk1Data::packC2( bool send )
 {
@@ -1527,7 +1539,7 @@ void mk1Data::packC2( bool send )
 
 /**
  * @brief chnage the current coordinates without moving
- * 
+ *
  */
 void mk1Data::packC8(int x, int y, int z, int a, bool send)
 {
@@ -1561,7 +1573,7 @@ void mk1Data::packCA(float _posX, float _posY, float _posZ, float _posA, int _sp
 
 /**
  * @brief moving to the point
- * 
+ *
  */
 void mk1Data::packCA(moveParameters *params, bool send)
 {
@@ -1603,7 +1615,7 @@ void mk1Data::packCA(moveParameters *params, bool send)
 
 /**
  * @brief check length of tool
- * 
+ *
  */
 void mk1Data::packD2(int speed, float returnDistance, bool send)
 {
@@ -1641,7 +1653,7 @@ void mk1Data::packD2(int speed, float returnDistance, bool send)
 
 /**
  * @brief unknown settings
- * 
+ *
  */
 void mk1Data::packD3( bool send )
 {
@@ -1658,7 +1670,7 @@ void mk1Data::packD3( bool send )
 
 /**
  * @brief break of all operations
- * 
+ *
  */
 void mk1Data::packFF(bool send)
 {

@@ -166,7 +166,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         MainWindow(QWidget *parent = 0);
         ~MainWindow();
 
-        float GetDeltaZ(float _x, float _y);
+        float getDeltaZ(float _x, float _y);
 
         void moveToPoint(bool surfaceScan = false);
 
@@ -308,7 +308,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void reloadRecentList();
         int  calculateMinAngleSteps(int pos);
         void patchSpeedAndAccelCode(int begPos, int endPos);
-        void Feed();
+        void scanSurface();
         void fixGCodeList();
         void detectMinMax(int pos);
         //         void resetMinMax();

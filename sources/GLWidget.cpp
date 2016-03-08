@@ -210,6 +210,172 @@ void GLWidget::initStaticElements()
     << (pointGL) {
         0.0, 0.0, 0.0
     });
+
+    footArray = (QVector<pointGL>()
+    << (pointGL) { // 1
+        0.0, 0.0, 0.0
+    }
+    << (pointGL) { // 1
+        0.0, 22.0, 0.0
+    }
+    << (pointGL) { // 2
+        0.0, 22.0, 0.0
+    }
+    << (pointGL) { // 2
+        3.6, 22.0, 0.0
+    }
+    << (pointGL) { // 3
+        3.6, 22.0, 0.0
+    }
+    << (pointGL) { // 3
+        3.6, 0.0, 0.0
+    }
+    << (pointGL) { // 4
+        3.6, 0.0, 0.0
+    }
+    << (pointGL) { // 4
+        0.0, 0.0, 0.0
+    }
+    << (pointGL) { // 5
+        0.0, 0.0, 0.0
+    }
+    << (pointGL) { // 5
+        0.0, 0.0, 9.0
+    }
+    << (pointGL) { // 6
+        3.6, 0.0, 0.0
+    }
+    << (pointGL) { // 6
+        3.6, 0.0, 9.0
+    }
+    << (pointGL) { // 7
+        0.0, 0.0, 9.0
+    }
+    << (pointGL) { // 7
+        3.6, 0.0, 9.0
+    }
+    << (pointGL) { // 8
+        0.0, 0.0, 9.0
+    }
+    << (pointGL) { // 8
+        0.0, 12.0, 29.0
+    }
+    << (pointGL) { // 9
+        3.6, 0.0, 9.0
+    }
+    << (pointGL) { // 9
+        3.6, 12.0, 29.0
+    }
+    << (pointGL) { // 10
+        0.0, 12.0, 29.0
+    }
+    << (pointGL) { // 10
+        3.6, 12.0, 29.0
+    }
+    << (pointGL) { // 11
+        0.0, 12.0, 29.0
+    }
+    << (pointGL) { // 11
+        0.0, 22.0, 29.0
+    }
+    << (pointGL) { // 12
+        3.6, 12.0, 29.0
+    }
+    << (pointGL) { // 12
+        3.6, 22.0, 29.0
+    }
+    << (pointGL) { // 13
+        0.0, 22.0, 29.0
+    }
+    << (pointGL) { // 13
+        3.6, 22.0, 29.0
+    }
+    << (pointGL) { // 14
+        0.0, 22.0, 29.0
+    }
+    << (pointGL) { // 14
+        0.0, 22.0, 0.0
+    }
+    << (pointGL) { // 14
+        3.6, 22.0, 29.0
+    }
+    << (pointGL) { // 14
+        3.6, 22.0, 0.0
+    });
+
+    traverseArray = (QVector<pointGL>()
+    << (pointGL) { // 1
+        0.0, 0.0, 0.0
+    }
+    << (pointGL) { // 1
+        64.0, 0.0, 0.0
+    }
+    << (pointGL) { // 2
+        0.0, 0.0, 0.0
+    }
+    << (pointGL) { // 2
+        0.0, 1.2, 0.0
+    }
+    << (pointGL) { // 3
+        0.0, 0.0, 0.0
+    }
+    << (pointGL) { // 3
+        0.0, 0.0, 12.0
+    }
+    << (pointGL) { // 4
+        0.0, 1.2, 0.0
+    }
+    << (pointGL) { // 4
+        64.0, 1.2, 0.0
+    }
+    << (pointGL) { // 5
+        0.0, 1.2, 0.0
+    }
+    << (pointGL) { // 5
+        0.0, 1.2, 12.0
+    }
+    << (pointGL) { // 6
+        0.0, 0.0, 12.0
+    }
+    << (pointGL) { // 6
+        0.0, 1.2, 12.0
+    }
+    << (pointGL) { // 7
+        0.0, 0.0, 12.0
+    }
+    << (pointGL) { // 7
+        64.0, 0.0, 12.0
+    }
+    << (pointGL) { // 8
+        0.0, 1.2, 12.0
+    }
+    << (pointGL) { // 8
+        64.0, 1.2, 12.0
+    }
+    << (pointGL) { // 9
+        64.0, 0.0, 0.0
+    }
+    << (pointGL) { // 9
+        64.0, 1.2, 0.0
+    }
+    << (pointGL) { // 10
+        64.0, 0.0, 12.0
+    }
+    << (pointGL) { // 10
+        64.0, 1.2, 12.0
+    }
+    << (pointGL) { // 11
+        64.0, 0.0, 0.0
+    }
+    << (pointGL) { // 11
+        64.0, 0.0, 12.0
+    }
+    << (pointGL) { // 12
+        64.0, 1.2, 0.0
+    }
+    << (pointGL) { // 12
+        64.0, 1.2, 12.0
+    });
 }
 
 
@@ -221,7 +387,7 @@ void GLWidget::surfaceReloaded()
             float pointX = parent->gCodeList.at(i).X;
             float pointY = parent->gCodeList.at(i).Y;
             float pointZ = parent->gCodeList.at(i).Z;
-            pointZ += parent->GetDeltaZ(pointX, pointY);
+            pointZ += parent->getDeltaZ(pointX, pointY);
 
             p = (pointGL) {
                 pointX, pointY, pointZ
@@ -292,7 +458,7 @@ void GLWidget::matrixReloaded()
 
                 // to use the scanned surface, z correcture
                 if (parent->deltaFeed) {
-                    pointZ += parent->GetDeltaZ(pointX, pointY);
+                    pointZ += parent->getDeltaZ(pointX, pointY);
                 }
             }
 
@@ -384,7 +550,10 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
     lastPos = event->pos();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::wheelEvent(QWheelEvent *e)
 {
     e->delta() > 0 ? parent->PosZoom++ : parent->PosZoom--;
@@ -393,7 +562,10 @@ void GLWidget::wheelEvent(QWheelEvent *e)
     updateGL();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - lastPos.x();
@@ -489,6 +661,8 @@ void GLWidget::Draw() // drawing, main function
     if (parent->ShowSurface) {
         drawSurface();
     }
+
+//     drawTool();s
 
     // draw the tool
     if (parent->ShowInstrument) {
@@ -675,6 +849,30 @@ void GLWidget::drawGrid()
 
         glEnd();
     }
+}
+
+
+void GLWidget::drawTool()
+{
+    glLineWidth(2);
+
+    glDisable(GL_DEPTH_TEST); // because of text rendering
+
+    glEnable(GL_VERTEX_ARRAY);
+
+    glDisable(GL_NORMAL_ARRAY);
+
+    // foot
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glVertexPointer(3, GL_FLOAT, 0, &footArray[0]);
+    glDrawArrays(GL_LINES, 0, footArray.count()); // draw array of lines
+
+
+    glDisable(GL_VERTEX_ARRAY);
+
+    glEnable(GL_NORMAL_ARRAY);
+
+    glEnable(GL_DEPTH_TEST);
 }
 
 

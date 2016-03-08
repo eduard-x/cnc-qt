@@ -195,8 +195,8 @@ class mk1Controller : public QObject, public mk1Data
         void newDataFromMK1Controller();
 
     public slots:
-        void handleHotplug();
-        void readNewData();
+        void onHandleHotplug();
+        void onReadNewData();
         void onBufFree();
 
     private:

@@ -124,7 +124,7 @@ GCodeData::GCodeData(GCodeData *d)
     numberLine = d->numberLine;
 
     angle = 0.0;//d->angleVectors;
-    
+
     deltaAngle = 0.0;
 
     changeInstrument = d->changeInstrument;
@@ -770,7 +770,7 @@ void GCodeParser::calcAngleOfLines(int pos)
             break;
         }
     }
-    
+
     if (gCodeList[pos].angle < 0.0) {
         gCodeList[pos].angle += 2.0 * PI;
     }
@@ -968,6 +968,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 float y_new = j + r * s;
 
                 float angle = atan2(y_new - ncommand->Y, x_new - ncommand->X);
+
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
@@ -983,9 +984,11 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 /** detection of end because of rounding */
                 if (sqrt((x_new - endData->X) * (x_new - endData->X) + (y_new - endData->Y) * (y_new - endData->Y)) <= splitLen) {
                     float t_angle = atan2(y_new - endData->Y, x_new - endData->X);
+
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
                     }
+
                     ncommand->angle = t_angle;
 
                     ncommand->X = endData->X;
@@ -1001,7 +1004,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 tmpList << *ncommand;
                 ncommand = new GCodeData(*ncommand);
-                
+
                 ncommand->movingCode = CONSTSPEED_CODE;
                 ncommand->splits = 0;
             }
@@ -1019,11 +1022,13 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 float y_new = j + r * c;
                 float z_new = k + r * s;
-                
+
                 float angle = atan2(z_new - ncommand->Z, y_new - ncommand->Y);
+
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
+
                 ncommand->angle = angle;
                 ncommand->Y = y_new;
                 ncommand->Z = z_new;
@@ -1035,9 +1040,11 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 /** detection of end because of rounding */
                 if (sqrt((y_new - endData->Y) * (y_new - endData->Y) + (z_new - endData->Z) * (z_new - endData->Z)) <= splitLen) {
                     float t_angle = atan2(z_new - endData->Z, y_new - endData->Y);
+
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
                     }
+
                     ncommand->angle = t_angle;
 
                     ncommand->X = endData->X;
@@ -1053,7 +1060,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 tmpList << *ncommand;
                 ncommand = new GCodeData(*ncommand);
-                
+
                 ncommand->movingCode = CONSTSPEED_CODE;
                 ncommand->splits = 0;
             }
@@ -1073,9 +1080,11 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 float x_new = i + r * s;
 
                 float angle = atan2(x_new - ncommand->X, z_new - ncommand->Z);
+
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
+
                 ncommand->angle = angle;
                 ncommand->Z = z_new;
                 ncommand->X = x_new;
@@ -1087,9 +1096,11 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 /** detection of end because of rounding */
                 if (sqrt((x_new - endData->X) * (x_new - endData->X) + (z_new - endData->Z) * (z_new - endData->Z)) <= splitLen) {
                     float t_angle = atan2(x_new - endData->X, z_new - endData->Z);
+
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
                     }
+
                     ncommand->angle = t_angle;
 
                     ncommand->X = endData->X;
@@ -1104,7 +1115,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 }
 
                 tmpList << *ncommand;
-                
+
                 ncommand = new GCodeData(*ncommand);
                 ncommand->movingCode = CONSTSPEED_CODE;
                 ncommand->splits = 0;
@@ -1119,7 +1130,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
 
     if (tmpList.length() > 0) {
-        tmpList[tmpList.length() - 1].movingCode = DECELERAT_CODE; 
+        tmpList[tmpList.length() - 1].movingCode = DECELERAT_CODE;
         tmpList[0].splits = n;
     }
 

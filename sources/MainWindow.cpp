@@ -1044,7 +1044,7 @@ void MainWindow::reloadRecentList()
 
 
 /**
- * @brief
+ * @brief select file from recent files list
  *
  */
 void MainWindow::setFile(QAction* a)
@@ -1624,7 +1624,7 @@ bool MainWindow::runCommand()
         }
 
         refreshElementsForms();
-//         return true;
+        //         return true;
     }
 
     //replace instrument
@@ -1637,9 +1637,9 @@ bool MainWindow::runCommand()
         MessageBox::exec(this, translate(_PAUSE), msg.arg(QString::number(gcodeNow.numberInstrument)).arg(QString::number(gcodeNow.diametr)), QMessageBox::Information);
     }
 
-    int commands = cnc->availableBufferSize() -3;
-    
-    for (int i= 0; i< commands; i++){
+    int commands = cnc->availableBufferSize() - 3;
+
+    for (int i = 0; i < commands; i++) {
         float pointX = gcodeNow.X;
         float pointY = gcodeNow.Y;
         float pointZ = gcodeNow.Z;
@@ -1660,7 +1660,7 @@ bool MainWindow::runCommand()
 
             // surface matrix?
             if (deltaFeed) {
-                pointZ += GetDeltaZ(pointX, pointY);
+                pointZ += getDeltaZ(pointX, pointY);
             }
         }
 
@@ -1695,7 +1695,7 @@ bool MainWindow::runCommand()
 
 
 /**
- * @brief slot from main timer signal 
+ * @brief slot from main timer signal
  *
  */
 void MainWindow::onMainTaskTimer()
@@ -1911,10 +1911,10 @@ void MainWindow::onGeneratorCode()
 
 
 /**
- * @brief
+ * @brief linear interpolation for z coordinate from scan surface matrix
  *
  */
-float MainWindow::GetDeltaZ(float _x, float _y)
+float MainWindow::getDeltaZ(float _x, float _y)
 {
     //point to calculate
     dPoint pResult = {_x, _y, 0.0, 0.0}; //new dobPoint(_x, _y, 0);
@@ -1971,7 +1971,10 @@ void MainWindow::onCncMessage(int n_msg)
  */
 void MainWindow::onCncNewData()
 {
+    //     if (){
+    // see the function runCommand()
     refreshElementsForms();
+    //     }
 }
 
 
@@ -2405,9 +2408,10 @@ void MainWindow::fixGCodeList()
 
     // now debug
     for (int i = 0; i < gCodeList.size(); i++) {
-        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << (hex) << gCodeList[i].movingCode << (dec) << "max coeff:" << gCodeList[i].vectorCoeff << "splits:" <<  gCodeList[i].splits 
-        << "steps:" << gCodeList[i].stepsCounter << "vector speed:" << gCodeList[i].vectSpeed << "coords:" << gCodeList[i].X << gCodeList[i].Y << "delta angle:" << gCodeList[i].deltaAngle;
+        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << (hex) << gCodeList[i].movingCode << (dec) << "max coeff:" << gCodeList[i].vectorCoeff << "splits:" <<  gCodeList[i].splits
+                 << "steps:" << gCodeList[i].stepsCounter << "vector speed:" << gCodeList[i].vectSpeed << "coords:" << gCodeList[i].X << gCodeList[i].Y << "delta angle:" << gCodeList[i].deltaAngle;
     }
+
     qDebug() << "max delta angle: " << PI - maxLookaheadAngleRad;
 
 #endif
@@ -2598,20 +2602,27 @@ int MainWindow::calculateMinAngleSteps(int startPos)
         qDebug() << "steps counter bigger than list";
         return -1;
     }
+
 #if 1
+
     if (gCodeList.at(startPos).splits > 0) { // it's arc, splits inforamtion already calculated
         idx += gCodeList.at(startPos).splits;
         return idx;
     }
+
 #endif
+
     // or for lines
-    for (idx = startPos; idx < gCodeList.count()-1; idx++) {
+    for (idx = startPos; idx < gCodeList.count() - 1; idx++) {
 #if 1
+
         if (gCodeList.at(idx).movingCode == ACCELERAT_CODE && gCodeList.at(idx).splits > 0) {
             idx += gCodeList.at(idx).splits;
             return idx;
         }
+
 #endif
+
         if (gCodeList.at(idx + 1).movingCode == RAPID_LINE_CODE) {
             return idx;
         }
@@ -2623,8 +2634,8 @@ int MainWindow::calculateMinAngleSteps(int startPos)
 
         float a1 = gCodeList.at(idx).angle;
         float a2 = gCodeList.at(idx + 1).angle;
-        
-        gCodeList[idx].deltaAngle = (a1 -a2);
+
+        gCodeList[idx].deltaAngle = (a1 - a2);
 
         if (fabs(gCodeList[idx].deltaAngle) > fabs(PI - maxLookaheadAngleRad)) {
             break;
@@ -2850,7 +2861,7 @@ void MainWindow::onEmergyStop()
  * @brief
  *
  */
-void MainWindow::Feed()
+void MainWindow::scanSurface()
 {
     ShowSurface = true;
 
@@ -2890,7 +2901,7 @@ void MainWindow::on3dSettings()
 void MainWindow::onScanSurface()
 {
     //scan surfcae
-    Feed();
+    scanSurface();
 }
 
 
