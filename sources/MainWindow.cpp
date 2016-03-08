@@ -1601,12 +1601,12 @@ bool MainWindow::runCommand()
         return true;    // nothing before buffer clean
     }
 
-
+#if 0
     //TODO: to add in parameter the value
     if (Task::instrCounter > (cnc->numberCompleatedInstructions() + 3)) {
         return true;    // don't send more than N commands
     }
-
+#endif
     //command G4 or M0
     if (gcodeNow.pauseMSeconds != -1) {
         if (gcodeNow.pauseMSeconds == 0) { // M0 - waiting command
