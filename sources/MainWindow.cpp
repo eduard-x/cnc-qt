@@ -1658,7 +1658,9 @@ bool MainWindow::runCommand()
     if (Task::instrCounter > (cnc->numberCompleatedInstructions() + 3)) {
         return true;    // don't send more than N commands
     }
-qDebug() << "buff size free: " << cnc->availableBufferSize() << "current instruction: " << Task::instrCounter << "compleate instructions: " << cnc->numberCompleatedInstructions(); 
+
+    qDebug() << "buff size free: " << cnc->availableBufferSize() << "current instruction: " << Task::instrCounter << "compleate instructions: " << cnc->numberCompleatedInstructions(); 
+    
     //command G4 or M0
     if (gcodeNow.pauseMSeconds != -1) {
         if (gcodeNow.pauseMSeconds == 0) { // M0 - waiting command
@@ -1689,7 +1691,7 @@ qDebug() << "buff size free: " << cnc->availableBufferSize() << "current instruc
         MessageBox::exec(this, translate(_PAUSE), msg.arg(QString::number(gcodeNow.numberInstrument)).arg(QString::number(gcodeNow.diametr)), QMessageBox::Information);
     }
 
-    int commands = cnc->availableBufferSize() - 3;
+    int commands = Task::instrCounter - cnc->numberCompleatedInstructions();//cnc->availableBufferSize() - 3;
 
     for (int i = 0; i < commands; i++) {
         float pointX = gcodeNow.X;
