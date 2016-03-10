@@ -470,7 +470,7 @@ void MainWindow::addConnections()
     connect(&mainGUITimer, SIGNAL(timeout()), this, SLOT(onRefreshGUITimer()));
     
 //     mainGUITimer.setInterval(200); 
-    mainGUITimer.start(200);// every 0.2 sec update
+    mainGUITimer.start(500);// every 0.5 sec update
 
     mainTaskTimer.setInterval(20); // every 20 msec update
 
@@ -1429,7 +1429,7 @@ void MainWindow::onStartTask()
 
     mainTaskTimer.start();
 
-    refreshElementsForms();
+//     refreshElementsForms();
 }
 
 
@@ -1447,7 +1447,7 @@ void MainWindow::onPauseTask()
         Task::Status = (Task::Status == Paused) ? Working : Paused;
     }
 
-    refreshElementsForms();
+//     refreshElementsForms();
 }
 
 
@@ -1462,7 +1462,7 @@ void MainWindow::onStopTask()
     }
 
     Task::Status = Stop;
-    refreshElementsForms();
+//     refreshElementsForms();
 }
 
 
@@ -1725,7 +1725,6 @@ bool MainWindow::runCommand()
         {
             //TODO: additional velocity control manual/automatical
             //     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
-
             moveParameters mParams;
             mParams.posX = pointX;
             mParams.posY = pointY;
