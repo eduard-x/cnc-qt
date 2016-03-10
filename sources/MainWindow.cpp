@@ -1691,8 +1691,12 @@ bool MainWindow::runCommand()
         MessageBox::exec(this, translate(_PAUSE), msg.arg(QString::number(gcodeNow.numberInstrument)).arg(QString::number(gcodeNow.diametr)), QMessageBox::Information);
     }
 
-    int commands = Task::instrCounter - cnc->numberCompleatedInstructions();//cnc->availableBufferSize() - 3;
-
+    int commands = 1;
+    
+    if (Task::instrCounter > cnc->numberCompleatedInstructions()){;//cnc->availableBufferSize() - 3;
+        commands = Task::instrCounter - cnc->numberCompleatedInstructions();
+    }
+    
     for (int i = 0; i < commands; i++) {
         float pointX = gcodeNow.X;
         float pointY = gcodeNow.Y;
