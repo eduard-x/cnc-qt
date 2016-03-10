@@ -1504,6 +1504,10 @@ void MainWindow::onRefreshGUITimer()
  */
 void MainWindow::onCncNewData()
 {
+    if (mainTaskTimer.isActive() == false){
+        return;
+    }
+    
     mainTaskTimer.stop();
      
     if (runCommand() == true) {
