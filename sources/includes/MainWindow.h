@@ -275,6 +275,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onPauseTask();
         void onStopTask();
         void onMainTaskTimer();
+        void onRefreshGUITimer();
 
         void onStatus(); // not connected
         void onRunToPoint();
@@ -338,6 +339,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
     private:
         QStringList axisList;
         QTimer  mainTaskTimer;
+        QTimer  mainGUITimer;
         QStringList lastFiles;
         QLabel *statusLabel1;
         QProgressBar *statusProgress;

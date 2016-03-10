@@ -467,6 +467,10 @@ void MainWindow::addConnections()
     connect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message += CncMessage;
 
     connect(&mainTaskTimer, SIGNAL(timeout()), this, SLOT(onMainTaskTimer()));
+    connect(&mainGUITimer, SIGNAL(timeout()), this, SLOT(onRefreshGUITimer()));
+    
+//     mainGUITimer.setInterval(200); 
+    mainGUITimer.start(200);// every 0.2 sec update
 
     mainTaskTimer.setInterval(20); // every 20 msec update
 
@@ -1463,6 +1467,52 @@ void MainWindow::onStopTask()
 
 
 /**
+ * @brief slot from main timer signal
+ *
+ */
+void MainWindow::onMainTaskTimer()
+{
+    if (!cnc->isConnected()) {
+        if (mainTaskTimer.isActive()) {
+            mainTaskTimer.stop();
+        }
+
+        return;
+    }
+
+    mainTaskTimer.stop();
+
+    if (runCommand() == true) {
+        mainTaskTimer.start();
+    }
+
+} //void mainTaskTimer_Tick
+
+
+/**
+ * @brief slot from refresh GUI timer signal
+ *
+ */
+void MainWindow::onRefreshGUITimer()
+{
+    refreshElementsForms();
+}
+
+/**
+ * @brief slot from mk1 controller, new data
+ *
+ */
+void MainWindow::onCncNewData()
+{
+    mainTaskTimer.stop();
+     
+    if (runCommand() == true) {
+        mainTaskTimer.start();
+    }
+}
+
+
+/**
  * @brief
  *
  * @return false if timer to stop
@@ -1477,7 +1527,7 @@ bool MainWindow::runCommand()
         Task::Status = Stop;
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
 
-        refreshElementsForms();
+//         refreshElementsForms();
         //
         return false;
     }
@@ -1543,13 +1593,12 @@ bool MainWindow::runCommand()
 
         Task::Status = Working;
 
-        refreshElementsForms();
+//         refreshElementsForms();
 
         return true; //after start code
     }
 
     // Stop
-
     if (Task::Status == Stop) {
         //TODO: move spindle up, possible moving to "home" position
 
@@ -1573,7 +1622,7 @@ bool MainWindow::runCommand()
         Task::Status = Stop;
         //         mainTaskTimer.stop();
 
-        refreshElementsForms();
+//         refreshElementsForms();
 
         return false;
     }
@@ -1581,7 +1630,7 @@ bool MainWindow::runCommand()
     // Working
 
     if (Task::Status != Working) {
-        refreshElementsForms();
+//         refreshElementsForms();
 
         return false;
     }
@@ -1601,12 +1650,11 @@ bool MainWindow::runCommand()
         return true;    // nothing before buffer clean
     }
 
-#if 0
     //TODO: to add in parameter the value
     if (Task::instrCounter > (cnc->numberCompleatedInstructions() + 3)) {
         return true;    // don't send more than N commands
     }
-#endif
+
     //command G4 or M0
     if (gcodeNow.pauseMSeconds != -1) {
         if (gcodeNow.pauseMSeconds == 0) { // M0 - waiting command
@@ -1623,14 +1671,14 @@ bool MainWindow::runCommand()
             statusLabel2->setText( "" );
         }
 
-        refreshElementsForms();
+//         refreshElementsForms();
         //         return true;
     }
 
     //replace instrument
     if (gcodeNow.changeInstrument) {
         Task::Status = Paused;
-        refreshElementsForms();
+//         refreshElementsForms();
 
         //pause before user click
         QString msg = translate(_PAUSE_ACTIVATED);
@@ -1688,33 +1736,11 @@ bool MainWindow::runCommand()
     //     Task::posCodeNow++;
     labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::lineCodeNow + 1));
 
-    refreshElementsForms();
+//     refreshElementsForms();
 
     return true;
 }
 
-
-/**
- * @brief slot from main timer signal
- *
- */
-void MainWindow::onMainTaskTimer()
-{
-    if (!cnc->isConnected()) {
-        if (mainTaskTimer.isActive()) {
-            mainTaskTimer.stop();
-        }
-
-        return;
-    }
-
-    mainTaskTimer.stop();
-
-    if (runCommand() == true) {
-        mainTaskTimer.start();
-    }
-
-} //void mainTaskTimer_Tick
 
 
 /**
@@ -1964,18 +1990,6 @@ void MainWindow::onCncMessage(int n_msg)
     textLog->append(QDateTime().currentDateTime().toString() + " - " + translate(n_msg));
 }
 
-
-/**
- * @brief slot from mk1 controller, new data
- *
- */
-void MainWindow::onCncNewData()
-{
-    //     if (){
-    // see the function runCommand()
-    refreshElementsForms();
-    //     }
-}
 
 
 /**
