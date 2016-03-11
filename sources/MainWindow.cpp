@@ -1653,13 +1653,13 @@ bool MainWindow::runCommand()
     if (cnc->availableBufferSize() <= 3) {
         return true;    // nothing before buffer clean
     }
-
+#if 0
     //TODO: to add in parameter the value
     if (Task::instrCounter > (cnc->numberCompleatedInstructions() + 3)) {
         return true;    // don't send more than N commands
     }
-
-    qDebug() << "buff size free: " << cnc->availableBufferSize() << "current instruction: " << Task::instrCounter << "compleate instructions: " << cnc->numberCompleatedInstructions(); 
+#endif
+    qDebug() << "buff size free: " << cnc->availableBufferSize() -3 << "current instruction: " << Task::instrCounter << "compleate instructions: " << cnc->numberCompleatedInstructions(); 
     
     //command G4 or M0
     if (gcodeNow.pauseMSeconds != -1) {
