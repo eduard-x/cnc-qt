@@ -1654,10 +1654,10 @@ bool MainWindow::runCommand()
         return true;    // nothing before buffer clean
     }
 
-#if 0
+#if 1
 
     //TODO: to add in parameter the value
-    if (Task::instrCounter > (cnc->numberCompleatedInstructions() + 3)) {
+    if (Task::instrCounter > (cnc->numberCompleatedInstructions() + cnc->availableBufferSize())) {
         return true;    // don't send more than N commands
     }
 
@@ -1697,8 +1697,8 @@ bool MainWindow::runCommand()
     int commands = 1;
 
     if (Task::instrCounter > cnc->numberCompleatedInstructions()) {
-        ;//cnc->availableBufferSize() - 3;
-        commands = Task::instrCounter - cnc->numberCompleatedInstructions();
+        commands = cnc->availableBufferSize() - 3;
+//         commands = (Task::instrCounter - (cnc->numberCompleatedInstructions() - cnc->availableBufferSize()));
     }
 
     for (int i = 0; i < commands; i++) {
