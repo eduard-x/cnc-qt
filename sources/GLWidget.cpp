@@ -175,6 +175,8 @@ void GLWidget::initStaticElements()
         { 3.6, 22.0, 0.0 }
     };
 
+    // TODO set the width of traverse from Settings
+    // current width is 64 cm
     traverseArray = {
         { 0.0, 0.0, 0.0 },
         { 64.0, 0.0, 0.0 },
@@ -332,7 +334,7 @@ void GLWidget::initializeGL()//Init3D()//*OK*
     // activate projection matrix
     glMatrixMode(GL_PROJECTION);
 
-    // clening
+    // cleaning
     glLoadIdentity();
 
     glScalef( 1, 1, -1 ); // negative z is top

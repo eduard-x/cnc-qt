@@ -466,13 +466,13 @@ void MainWindow::addConnections()
     connect(cnc, SIGNAL(newDataFromMK1Controller ()), this, SLOT(onCncNewData())); // cnc->NewDataFromController += CncNewData;
     connect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message += CncMessage;
 
-    connect(&mainTaskTimer, SIGNAL(timeout()), this, SLOT(onMainTaskTimer()));
+//     connect(&mainTaskTimer, SIGNAL(timeout()), this, SLOT(onMainTaskTimer()));
     connect(&mainGUITimer, SIGNAL(timeout()), this, SLOT(onRefreshGUITimer()));
 
     //     mainGUITimer.setInterval(200);
     mainGUITimer.start(500);// every 0.5 sec update
 
-    mainTaskTimer.setInterval(20); // every 20 msec update
+//     mainTaskTimer.setInterval(20); // every 20 msec update
 
     if (enableOpenGL == true) {
 #if USE_OPENGL == true
@@ -1338,9 +1338,9 @@ void MainWindow::translateGUI()
  */
 void MainWindow::onStartTask()
 {
-    if (mainTaskTimer.isActive()) {
-        return;    //timer is active, task is running
-    }
+//     if (mainTaskTimer.isActive()) {
+//         return;    //timer is active, task is running
+//     }
 
     if (!cnc->isConnected()) {
         MessageBox::exec(this, translate(_ERR), translate(_MSG_NO_CONN), QMessageBox::Critical);
@@ -1427,7 +1427,7 @@ void MainWindow::onStartTask()
 
     Task::Status = Start;
 
-    mainTaskTimer.start();
+//     mainTaskTimer.start();
 
     //     refreshElementsForms();
 }
@@ -1472,6 +1472,7 @@ void MainWindow::onStopTask()
  */
 void MainWindow::onMainTaskTimer()
 {
+#if 0
     if (!cnc->isConnected()) {
         if (mainTaskTimer.isActive()) {
             mainTaskTimer.stop();
@@ -1485,6 +1486,7 @@ void MainWindow::onMainTaskTimer()
     if (runCommand() == true) {
         mainTaskTimer.start();
     }
+#endif
 
 } //void mainTaskTimer_Tick
 
@@ -1504,15 +1506,19 @@ void MainWindow::onRefreshGUITimer()
  */
 void MainWindow::onCncNewData()
 {
-    if (mainTaskTimer.isActive() == false) {
-        return;
-    }
+//     if (mainTaskTimer.isActive() == false) {
+//         return;
+//     }
+// 
+//     mainTaskTimer.stop();
 
-    mainTaskTimer.stop();
-
-    if (runCommand() == true) {
-        mainTaskTimer.start();
-    }
+//     if (runCommand() == true) {
+    runCommand();
+//         mainTaskTimer.start();
+//     }
+//     else {
+        refreshElementsForms();
+//     }
 }
 
 
@@ -1653,14 +1659,11 @@ bool MainWindow::runCommand()
     if (cnc->availableBufferSize() <= 3) {
         return true;    // nothing before buffer clean
     }
-
-#if 1
-
+#if 0
     //TODO: to add in parameter the value
     if (Task::instrCounter > (cnc->numberCompleatedInstructions() + cnc->availableBufferSize())) {
         return true;    // don't send more than N commands
     }
-
 #endif
     qDebug() << "buff size free: " << cnc->availableBufferSize() - 3 << "current instruction: " << Task::instrCounter << "compleate instructions: " << cnc->numberCompleatedInstructions();
 
@@ -2034,15 +2037,15 @@ void  MainWindow::refreshElementsForms()
 {
     bool cncConnected = cnc->isConnected();
 
-    groupPosition->setEnabled( cncConnected);
-    groupManualControl->setEnabled( cncConnected);
+    groupPosition->setEnabled( cncConnected );
+    groupManualControl->setEnabled( cncConnected );
 
     // set groupVelocity too?
 
-    actionStop->setEnabled( cncConnected);
-    actionSpindle->setEnabled( cncConnected);
-    actionMist->setEnabled( cncConnected);
-    actionFluid->setEnabled( cncConnected);
+    actionStop->setEnabled( cncConnected );
+    actionSpindle->setEnabled( cncConnected );
+    actionMist->setEnabled( cncConnected );
+    actionFluid->setEnabled( cncConnected );
 
     labelSpeed->setText( QString::number(cnc->getSpindleMoveSpeed()) + translate(_MM_MIN));
     //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(cnc->numberCompleatedInstructions()));
@@ -2059,9 +2062,9 @@ void  MainWindow::refreshElementsForms()
         maxALED->setPixmap( grayPix );
         minALED->setPixmap( grayPix );
 
-        toolRun->setEnabled( cncConnected);
-        toolPause->setEnabled( cncConnected);
-        toolStop->setEnabled( cncConnected);
+        toolRun->setEnabled( cncConnected );
+        toolPause->setEnabled( cncConnected );
+        toolStop->setEnabled( cncConnected );
 
         return;
     }
@@ -2096,7 +2099,8 @@ void  MainWindow::refreshElementsForms()
     numPosX->setValue( Settings::coord[X].posMm());
     numPosY->setValue( Settings::coord[Y].posMm());
     numPosZ->setValue( Settings::coord[Z].posMm());
-
+    numAngleGrad->setValue( Settings::coord[A].posMm());
+    
 #if 0
 
     if (cnc->isEmergencyStopOn()) {
@@ -2176,7 +2180,7 @@ void  MainWindow::refreshElementsForms()
     // end debug
 
     // bttons start/stop/pause of task
-    groupBoxExec->setEnabled( cncConnected);
+    groupBoxExec->setEnabled( cncConnected );
 
     if (cncConnected) {
 #if 0
@@ -2268,9 +2272,9 @@ void  MainWindow::refreshElementsForms()
 
 #endif
     } else {
-        toolRun->setEnabled( cncConnected);
-        toolPause->setEnabled( cncConnected);
-        toolStop->setEnabled( cncConnected);
+        toolRun->setEnabled( cncConnected );
+        toolPause->setEnabled( cncConnected );
+        toolStop->setEnabled( cncConnected );
 
         toolResetCoorX->setEnabled( false );
         numPosX->setReadOnly( false );

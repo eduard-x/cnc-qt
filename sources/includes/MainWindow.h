@@ -338,7 +338,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 
     private:
         QStringList axisList;
-        QTimer  mainTaskTimer;
+//         QTimer  mainTaskTimer;
         QTimer  mainGUITimer;
         QStringList lastFiles;
         QLabel *statusLabel1;
