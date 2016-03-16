@@ -142,42 +142,32 @@ void GLWidget::initStaticElements()
         { 0.0, 0.0, 0.0 }
     };
 
-    footArray = {
-        { 0.0, 0.0, 0.0 },
-        { 0.0, 22.0, 0.0 },
-        { 0.0, 22.0, 0.0 },
-        { 3.6, 22.0, 0.0 },
-        { 3.6, 22.0, 0.0 },
-        { 3.6, 0.0, 0.0 },
-        { 3.6, 0.0, 0.0 },
-        { 0.0, 0.0, 0.0 },
-        { 0.0, 0.0, 0.0 },
-        { 0.0, 0.0, 9.0 },
-        { 3.6, 0.0, 0.0 },
-        { 3.6, 0.0, 9.0 },
-        { 0.0, 0.0, 9.0 },
-        { 3.6, 0.0, 9.0 },
-        { 0.0, 0.0, 9.0 },
-        { 0.0, 12.0, 29.0 },
-        { 3.6, 0.0, 9.0 },
-        { 3.6, 12.0, 29.0 },
-        { 0.0, 12.0, 29.0 },
-        { 3.6, 12.0, 29.0 },
-        { 0.0, 12.0, 29.0 },
-        { 0.0, 22.0, 29.0 },
-        { 3.6, 12.0, 29.0 },
-        { 3.6, 22.0, 29.0 },
-        { 0.0, 22.0, 29.0 },
-        { 3.6, 22.0, 29.0 },
-        { 0.0, 22.0, 29.0 },
-        { 0.0, 22.0, 0.0 },
-        { 3.6, 22.0, 29.0 },
-        { 3.6, 22.0, 0.0 }
+    footArray = { // GL_LINE_LOOP array
+        { 0.0, 0.0, 0.0 }, // 0
+        { 0.0, 22.0, 0.0 }, // 1
+        { 0.0, 22.0, 29.0 }, // 2
+        { 0.0, 12.0, 29.0 }, // 3
+        { 0.0, 0.0, 12.0 }, // 4
+        { 0.0, 0.0, 0.0 }, // 5
+        { 3.6, 0.0, 0.0 }, // 6
+        { 3.6, 22.0, 0.0 }, // 7
+        { 3.6, 22.0, 29.0 }, // 8
+        { 3.6, 12.0, 29.0 }, // 9
+        { 3.6, 0.0, 12.0 }, // 10
+        { 3.6, 0.0, 0.0 }, // 11
+        { 0.0, 0.0, 0.0 }, // 12
+        { 0.0, 0.0, 12.0 }, // 13
+        { 3.6, 0.0, 12.0 }, // 14
+        { 3.6, 12.0, 29.0 }, // 15
+        { 0.0, 12.0, 29.0 }, // 16
+        { 0.0, 22.0, 29.0 }, // 17
+        { 3.6, 22.0, 29.0 }, // 18
+        { 3.6, 22.0, 0.0 }, // 19
+        { 0.0, 22.0, 0.0 }, // 20
+        { 0.0, 0.0, 0.0 } // 21
     };
 
-    // TODO set the width of traverse from Settings
-    // current width is 64 cm
-    traverseArray = {
+    traverseArray = { // width of traverse is 64 cm
         { 0.0, 0.0, 0.0 },
         { 64.0, 0.0, 0.0 },
         { 0.0, 0.0, 0.0 },
@@ -334,7 +324,7 @@ void GLWidget::initializeGL()//Init3D()//*OK*
     // activate projection matrix
     glMatrixMode(GL_PROJECTION);
 
-    // cleaning
+    // clening
     glLoadIdentity();
 
     glScalef( 1, 1, -1 ); // negative z is top
@@ -489,7 +479,7 @@ void GLWidget::Draw() // drawing, main function
         drawSurface();
     }
 
-    //     drawTool();s
+    drawTool();
 
     // draw the tool
     if (parent->ShowInstrument) {
@@ -571,8 +561,8 @@ void GLWidget::drawWorkField()
     //
 
     // select with 3.0 the current cut of object
-    switch (Task::Status) {
-        case Waiting: {
+    switch (parent->getStatus()) {
+        case Task::Waiting: {
             int numSelectStart = Task::lineCodeStart;
 
             if (numSelectStart < 0) {
@@ -587,7 +577,7 @@ void GLWidget::drawWorkField()
             break;
         }
 
-        case Stop:  {
+        case Task::Stop:  {
             if (Task::lineCodeStart < 0) {
                 break;
             }
@@ -599,7 +589,7 @@ void GLWidget::drawWorkField()
             break;
         }
 
-        case Paused: {
+        case Task::Paused: {
             int numSelect = cnc->numberCompleatedInstructions() - 1;
 
             if (numSelect < 0 ) {
@@ -615,7 +605,7 @@ void GLWidget::drawWorkField()
             break;
         }
 
-        case Working: {
+        case Task::Working: {
             int numSelect = cnc->numberCompleatedInstructions() - 1;
 
             if (numSelect >= 0 && numSelect < coordArray.count()) {
@@ -692,7 +682,7 @@ void GLWidget::drawTool()
     // foot
     glColor3f(1.0f, 1.0f, 1.0f);
     glVertexPointer(3, GL_FLOAT, 0, &footArray[0]);
-    glDrawArrays(GL_LINES, 0, footArray.count()); // draw array of lines
+    glDrawArrays(GL_LINE_LOOP, 0, footArray.count()); // draw array of lines
 
 
     glDisable(GL_VERTEX_ARRAY);

@@ -98,17 +98,6 @@ struct GCode_resultParse {
 // };
 
 
-enum typeFileLoad {
-    None,
-    GCODE,
-    PLT,
-    DRL,
-    SVG,
-    EPS,
-    DXF,
-    GBR
-};
-
 
 enum Apertures {
     C_circle,
@@ -282,6 +271,19 @@ class Reader : public GCodeParser , public cTranslator
 
         //             signals:
         //                 void logMessage(const QString &s);
+
+    private:
+
+        enum typeFileLoad {
+            None,
+            GCODE,
+            PLT,
+            DRL,
+            SVG,
+            EPS,
+            DXF,
+            GBR
+        };
 
     private:
         void Swap(int &p1, int &p2);

@@ -42,7 +42,7 @@
 
 
 enum PlaneEnum {
-    NonePlane,
+    None,
     XY,
     YZ,
     ZX,

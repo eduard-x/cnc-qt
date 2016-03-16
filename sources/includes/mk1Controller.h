@@ -170,7 +170,7 @@ class mk1Data //: public mk1Settings
 
 
 // devise state
-enum EStatusDevice { Connect = 0, Disconnect };
+enum StatusDevice { Connect = 0, Disconnect };
 
 
 class usbReadThread;

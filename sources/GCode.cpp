@@ -65,7 +65,7 @@ GCodeData::GCodeData()
     J = 0.0;
     K = 0.0;
 
-    plane = NonePlane;
+    plane = None;
 
     Radius = 0.0;
     vectorCoeff = 0.0;

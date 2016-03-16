@@ -119,18 +119,17 @@ enum AxesFix { FixX = 0, FixY, FixZ };
 //
 enum KeyPad { NoManuaControl = -1, NumPad = 0, CursorPad, UserDefined };
 
-//
-// task state
-//
-enum EStatusTask { Waiting = 0, Start, Working, Paused, Stop };
 
 //
 // class for current state of controller
 //
 class Task
 {
+        //
     public:
-        static EStatusTask Status;
+        enum StatusTask { Waiting = 0, Start, Working, Paused, Stop };
+
+        //         static StatusTask currentStatus;
         //
         //         static int instructionStart;
         //         static int instructionEnd;
@@ -140,7 +139,6 @@ class Task
         static int lineCodeStart;
         static int lineCodeNow;
         static int lineCodeEnd;
-
 };
 
 
@@ -169,6 +167,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         float getDeltaZ(float _x, float _y);
 
         void moveToPoint(bool surfaceScan = false);
+        Task::StatusTask getStatus();
 
     public:
         mk1Controller *cnc;
@@ -274,7 +273,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onStartTask();
         void onPauseTask();
         void onStopTask();
-        void onMainTaskTimer();
+        //         void onMainTaskTimer();
         void onRefreshGUITimer();
 
         void onStatus(); // not connected
@@ -306,6 +305,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void getScale(int s);
 
     private:
+
+        //
         void reloadRecentList();
         int  calculateMinAngleSteps(int pos);
         void patchSpeedAndAccelCode(int begPos, int endPos);
@@ -337,8 +338,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void closeEvent(QCloseEvent *event);
 
     private:
+        Task::StatusTask currentStatus;
+        //
         QStringList axisList;
-//         QTimer  mainTaskTimer;
+        //         QTimer  mainTaskTimer;
         QTimer  mainGUITimer;
         QStringList lastFiles;
         QLabel *statusLabel1;
