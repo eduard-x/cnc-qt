@@ -314,7 +314,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void fixGCodeList();
         void detectMinMax(int pos);
         //         void resetMinMax();
-        bool runCommand();
+        bool runNextCommand();
         void fillListWidget(QStringList listCode);
         QString getLocaleString();
         bool getLangTable();

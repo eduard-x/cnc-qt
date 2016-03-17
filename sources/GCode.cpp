@@ -53,6 +53,8 @@ GCodeData::GCodeData()
 {
     changeInstrument = false;
     numberInstrument = 0;
+    numberInstruction = 0;
+    numberLine = 0;
     pauseMSeconds      = -1;
 
     X = 0.0;
@@ -84,7 +86,7 @@ GCodeData::GCodeData()
 
     spindelON = false;
     splits = 0; // init
-    numberLine = 0;
+
     diametr = 0.0;
 };
 
@@ -122,6 +124,7 @@ GCodeData::GCodeData(GCodeData *d)
     movingCode = NO_CODE;
 
     numberLine = d->numberLine;
+    numberInstruction = 0;
 
     angle = 0.0;//d->angleVectors;
 

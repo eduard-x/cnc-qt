@@ -67,6 +67,7 @@ class GCodeData
     public:
         bool changeInstrument; // to change the tool
         int  numberInstrument; // собственно номер tool
+        int  numberInstruction; // set it, if instuction was sent
 
         int  pauseMSeconds;  // if waiting = 0, no pause = -1. other pause in milliseconds
         //

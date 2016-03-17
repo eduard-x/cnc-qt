@@ -1400,6 +1400,7 @@ void MainWindow::onStartTask()
     Task::lineCodeNow = Task::lineCodeStart;
 
     Task::instrCounter = 0;
+
 #if 0
     Task::instructionStart = -1;
     Task::instructionNow = -1;
@@ -1430,6 +1431,7 @@ void MainWindow::onStartTask()
 
     currentStatus = Task::Start;
 
+    runNextCommand();
     //     mainTaskTimer.start();
 
     //     refreshElementsForms();
@@ -1438,7 +1440,7 @@ void MainWindow::onStartTask()
 
 /**
  * @brief  slot for task pause after "pause" button
- *
+ * TODO check this
  */
 void MainWindow::onPauseTask()
 {
@@ -1450,13 +1452,14 @@ void MainWindow::onPauseTask()
         currentStatus = (currentStatus == Task::Paused) ? Task::Working : Task::Paused;
     }
 
+    runNextCommand();
     //     refreshElementsForms();
 }
 
 
 /**
  * @brief slot for task stop after "stop" button
- *
+ * TODO check this
  */
 void MainWindow::onStopTask()
 {
@@ -1486,12 +1489,13 @@ void MainWindow::onMainTaskTimer()
 
     mainTaskTimer.stop();
 
-    if (runCommand() == true) {
+    if (runNextCommand() == true) {
         mainTaskTimer.start();
     }
 
 } //void mainTaskTimer_Tick
 #endif
+
 
 /**
  * @brief slot from refresh GUI timer signal
@@ -1501,6 +1505,7 @@ void MainWindow::onRefreshGUITimer()
 {
     refreshElementsForms();
 }
+
 
 /**
  * @brief slot from mk1 controller, new data
@@ -1514,10 +1519,11 @@ void MainWindow::onCncNewData()
     //
     //     mainTaskTimer.stop();
 
-    //     if (runCommand() == true) {
+    //     if (runNextCommand() == true) {
     //         mainTaskTimer.start();
     //     }
-    runCommand();
+    runNextCommand();
+
     refreshElementsForms();
 }
 
@@ -1527,7 +1533,7 @@ void MainWindow::onCncNewData()
  *
  * @return false if timer to stop
  */
-bool MainWindow::runCommand()
+bool MainWindow::runNextCommand()
 {
     // Velocity from main form
     int userSpeedG1 = (int)numVeloSubmission->value();
@@ -1743,7 +1749,10 @@ bool MainWindow::runCommand()
             mParams.speed = gcodeNow.vectSpeed;
             mParams.movingCode = gcodeNow.movingCode; //
             mParams.restPulses = gcodeNow.stepsCounter;//
+
             mParams.numberInstruction = Task::instrCounter++;
+
+            gcodeNow.numberInstruction = mParams.numberInstruction;
 
             cnc->packCA(&mParams); // move to init position
             //     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
@@ -2232,7 +2241,19 @@ void  MainWindow::refreshElementsForms()
         }
 
         if (currentStatus == Task::Working) {
-            statusProgress->setValue( cnc->numberCompleatedInstructions());
+            int complectaed = cnc->numberCompleatedInstructions();
+            int lineNum = 0;
+
+            // TODO to link with line number
+            for (auto v : gCodeList) {
+                if (v.numberInstruction > complectaed) {
+                    break;
+                }
+
+                lineNum = v.numberLine;
+            }
+
+            statusProgress->setValue( lineNum );
             //listGkodeForUser.Rows[cnc->NumberComleatedInstructions].Selected = true;
             //TODO: to overwork it, because of resetting of selected ragne
             //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;
