@@ -1522,7 +1522,9 @@ void MainWindow::onCncNewData()
     //     if (runNextCommand() == true) {
     //         mainTaskTimer.start();
     //     }
-    runNextCommand();
+    if (currentStatus != Task::Stop) {
+        runNextCommand();
+    }
 
     refreshElementsForms();
 }
