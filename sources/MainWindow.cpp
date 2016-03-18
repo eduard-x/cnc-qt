@@ -1468,6 +1468,7 @@ void MainWindow::onStopTask()
     }
 
     currentStatus = Task::Stop;
+    Task::instrCounter = 0;
     //     refreshElementsForms();
 }
 

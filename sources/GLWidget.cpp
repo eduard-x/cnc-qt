@@ -479,7 +479,7 @@ void GLWidget::Draw() // drawing, main function
         drawSurface();
     }
 
-    drawTool();
+//     drawTool();
 
     // draw the tool
     if (parent->ShowInstrument) {
@@ -671,6 +671,8 @@ void GLWidget::drawGrid()
 
 void GLWidget::drawTool()
 {
+    glPushMatrix();
+    
     glLineWidth(2);
 
     glDisable(GL_DEPTH_TEST); // because of text rendering
@@ -678,18 +680,33 @@ void GLWidget::drawTool()
     glEnable(GL_VERTEX_ARRAY);
 
     glDisable(GL_NORMAL_ARRAY);
+    
+    glScalef(1.5, 1.5, 1.5);
 
     // foot
     glColor3f(1.0f, 1.0f, 1.0f);
     glVertexPointer(3, GL_FLOAT, 0, &footArray[0]);
+    // GL_LINE_LOOP or GL_POLYGON
     glDrawArrays(GL_LINE_LOOP, 0, footArray.count()); // draw array of lines
+    
+    glTranslated(3.6, 16.0, 12.0);
+    
+    glVertexPointer(3, GL_FLOAT, 0, &traverseArray[0]);
+    // GL_LINE_LOOP or GL_POLYGON
+    glDrawArrays(GL_LINE_LOOP, 0, traverseArray.count()); // draw array of lines
 
-
+    glTranslated(64.0, -16.0, -12.0);
+    glVertexPointer(3, GL_FLOAT, 0, &footArray[0]);
+    // GL_LINE_LOOP or GL_POLYGON
+    glDrawArrays(GL_LINE_LOOP, 0, footArray.count()); // draw array of lines
+    
     glDisable(GL_VERTEX_ARRAY);
 
     glEnable(GL_NORMAL_ARRAY);
 
     glEnable(GL_DEPTH_TEST);
+    
+    glPopMatrix();
 }
 
 
