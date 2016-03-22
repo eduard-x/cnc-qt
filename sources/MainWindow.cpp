@@ -1551,7 +1551,44 @@ bool MainWindow::runNextCommand()
         return false;
     }
 
-    GCodeData gcodeNow = gCodeList.at(Task::instrCounter);
+    GCodeData gcodeNow;
+    
+    if (Task::instrCounter < gCodeList.count()){
+        gcodeNow = gCodeList.at(Task::instrCounter);
+    }
+    else {
+        currentStatus == Task::Stop;
+    }
+      
+       // Stop
+    if (currentStatus == Task::Stop) {
+        //TODO: move spindle up, possible moving to "home" position
+
+        cnc->packFF();
+
+        cnc->pack9D();
+
+        cnc->pack9E(0x02);
+
+        cnc->packFF();
+
+        cnc->packFF();
+
+        cnc->packFF();
+
+        cnc->packFF();
+
+        cnc->packFF();
+
+        AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
+//         currentStatus = Task::Stop;
+        //         mainTaskTimer.stop();
+
+        //         refreshElementsForms();
+
+        return false;
+    }
+
 
     useHome = checkHome->isChecked();
 
@@ -1617,35 +1654,7 @@ bool MainWindow::runNextCommand()
         return true; //after start code
     }
 
-    // Stop
-    if (currentStatus == Task::Stop) {
-        //TODO: move spindle up, possible moving to "home" position
-
-        cnc->packFF();
-
-        cnc->pack9D();
-
-        cnc->pack9E(0x02);
-
-        cnc->packFF();
-
-        cnc->packFF();
-
-        cnc->packFF();
-
-        cnc->packFF();
-
-        cnc->packFF();
-
-        AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
-        currentStatus = Task::Stop;
-        //         mainTaskTimer.stop();
-
-        //         refreshElementsForms();
-
-        return false;
-    }
-
+ 
     // Working
 
     if (currentStatus != Task::Working) {
