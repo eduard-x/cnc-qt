@@ -479,7 +479,7 @@ void GLWidget::Draw() // drawing, main function
         drawSurface();
     }
 
-    drawTool();
+   // drawTool();
 
     // draw the tool
     if (parent->ShowInstrument) {

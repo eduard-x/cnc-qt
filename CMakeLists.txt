@@ -10,7 +10,7 @@ CMAKE_POLICY(SET CMP0015 OLD)
 SET(USE_QT_VERSION 4)
 
 #debug or release
-SET(USE_DEBUGGER false)
+SET(USE_DEBUGGER true)
 
 #enable or disable profiling info
 SET(USE_PROFILER false)
