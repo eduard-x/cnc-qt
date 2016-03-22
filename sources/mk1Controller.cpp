@@ -668,19 +668,20 @@ void mk1Controller::parseBinaryInfo()
 
     setCompleatedInstructions(num);
 
-    byte bb19 = readBuf[19];
+    Settings::bb19 = readBuf[19];
 
-    setSpindelOn((bb19 & 0x01) ? true : false);
+    setSpindelOn((Settings::bb19 & 0x01) ? true : false);
 
-    byte bb14 = readBuf[14];
+    Settings::bb14 = readBuf[14];
 
-    setEmergencyStopOn((bb14 & 0x80) ? true : false);
+    setEmergencyStopOn((Settings::bb14 & 0x80) ? true : false);
 
-    setMistOn((bb14 & 0x10) ? false : true);
-    setFluidOn((bb14 & 0x04) ? false : true);
+    setMistOn((Settings::bb14 & 0x10) ? false : true);
+    setFluidOn((Settings::bb14 & 0x04) ? false : true);
 
     emit newDataFromMK1Controller(); // signal to main program
 }
+
 
 /**
  * @brief send number of message to main class

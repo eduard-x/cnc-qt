@@ -77,6 +77,9 @@ bool Settings::DEMO_DEVICE = false;
 int  Settings::splitsPerMm = 10;
 float Settings::maxLookaheadAngle = 170.0;
 
+byte Settings::bb14 = 0x0;
+byte Settings::bb19 = 0x0;
+
 axis Settings::coord[] = { axis(), axis(), axis(), axis() };
 
 

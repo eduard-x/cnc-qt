@@ -90,6 +90,10 @@ class Settings
         static int splitsPerMm;
         static float maxLookaheadAngle;
 
+        static byte bb14;
+        // static byte bb15; limits
+        static byte bb19;
+
         static QChar fromDecimalPoint;
         static QChar toDecimalPoint;
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2

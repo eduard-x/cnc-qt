@@ -59,6 +59,11 @@
 // z feed is the 1/3 from xy feed
 //
 
+/**
+ * TODO
+ * @see https://www.onsrud.com/xdoc/FeedSpeeds
+ *
+ */
 void CuttingCalc::initMaterialList()
 {
     materialList = (QVector<materialFeed>()

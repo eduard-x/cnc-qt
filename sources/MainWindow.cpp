@@ -1527,7 +1527,7 @@ void MainWindow::onCncNewData()
         runNextCommand();
     }
 
-    refreshElementsForms();
+    //     refreshElementsForms();
 }
 
 
@@ -2040,7 +2040,9 @@ void MainWindow::onCncHotplug()
 
     actionInfo->setEnabled(e);
 
-    refreshElementsForms();
+    if (mainGUITimer.isActive() == false) {
+        refreshElementsForms();
+    }
 }
 
 
@@ -2052,20 +2054,20 @@ void  MainWindow::refreshElementsForms()
 {
     bool cncConnected = cnc->isConnected();
 
-    groupPosition->setEnabled( cncConnected);
-    groupManualControl->setEnabled( cncConnected);
+    groupPosition->setEnabled( cncConnected );
+    groupManualControl->setEnabled( cncConnected );
 
     // set groupVelocity too?
 
-    actionStop->setEnabled( cncConnected);
-    actionSpindle->setEnabled( cncConnected);
-    actionMist->setEnabled( cncConnected);
-    actionFluid->setEnabled( cncConnected);
+    actionStop->setEnabled( cncConnected );
+    actionSpindle->setEnabled( cncConnected );
+    actionMist->setEnabled( cncConnected );
+    actionFluid->setEnabled( cncConnected );
 
     labelSpeed->setText( QString::number(cnc->getSpindleMoveSpeed()) + translate(_MM_MIN));
     //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(cnc->numberCompleatedInstructions()));
 
-    if (!cncConnected) {
+    if (!cncConnected ) {
         QPixmap grayPix = QPixmap(":/images/ball_gray.png");
 
         maxXLED->setPixmap( grayPix );
@@ -2077,9 +2079,9 @@ void  MainWindow::refreshElementsForms()
         maxALED->setPixmap( grayPix );
         minALED->setPixmap( grayPix );
 
-        toolRun->setEnabled( cncConnected);
-        toolPause->setEnabled( cncConnected);
-        toolStop->setEnabled( cncConnected);
+        toolRun->setEnabled( cncConnected );
+        toolPause->setEnabled( cncConnected );
+        toolStop->setEnabled( cncConnected );
 
         return;
     }
@@ -2146,55 +2148,52 @@ void  MainWindow::refreshElementsForms()
     QPixmap greenPix = QPixmap(":/images/ball_green.png");
     QPixmap redPix = QPixmap(":/images/ball_red.png");
 
-    byte bb15 = cnc->getByte(15);
-
-    maxXLED->setPixmap( bb15 & (1 << 0) ? redPix : greenPix );
-    minXLED->setPixmap( bb15 & (1 << 1) ? redPix : greenPix );
-    maxYLED->setPixmap( bb15 & (1 << 2) ? redPix : greenPix );
-    minYLED->setPixmap( bb15 & (1 << 3) ? redPix : greenPix );
-    maxZLED->setPixmap( bb15 & (1 << 4) ? redPix : greenPix );
-    minZLED->setPixmap( bb15 & (1 << 5) ? redPix : greenPix );
-    maxALED->setPixmap( bb15 & (1 << 6) ? redPix : greenPix );
-    minALED->setPixmap( bb15 & (1 << 7) ? redPix : greenPix );
+    // main indicators
+    maxXLED->setPixmap( Settings::coord[X].actualLimitMin  ? redPix : greenPix );
+    minXLED->setPixmap( Settings::coord[X].actualLimitMax  ? redPix : greenPix );
+    maxYLED->setPixmap( Settings::coord[Y].actualLimitMin  ? redPix : greenPix );
+    minYLED->setPixmap( Settings::coord[Y].actualLimitMax  ? redPix : greenPix );
+    maxZLED->setPixmap( Settings::coord[Z].actualLimitMin  ? redPix : greenPix );
+    minZLED->setPixmap( Settings::coord[Z].actualLimitMax  ? redPix : greenPix );
+    maxALED->setPixmap( Settings::coord[A].actualLimitMin  ? redPix : greenPix );
+    minALED->setPixmap( Settings::coord[A].actualLimitMax  ? redPix : greenPix );
 
     //***************
 
     //DEBUG:
-    byte bb14 = cnc->getByte(14);
-    labelB14B0->setPixmap( bb14 & (1 << 0) ? redPix : greenPix );
-    labelB14B1->setPixmap( bb14 & (1 << 1) ? redPix : greenPix );
-    labelB14B2->setPixmap( bb14 & (1 << 2) ? redPix : greenPix );
-    labelB14B3->setPixmap( bb14 & (1 << 3) ? redPix : greenPix );
-    labelB14B4->setPixmap( bb14 & (1 << 4) ? redPix : greenPix );
-    labelB14B5->setPixmap( bb14 & (1 << 5) ? redPix : greenPix );
-    labelB14B6->setPixmap( bb14 & (1 << 6) ? redPix : greenPix );
-    labelB14B7->setPixmap( bb14 & (1 << 7) ? redPix : greenPix );
+    labelB14B0->setPixmap( Settings::bb14 & (1 << 0) ? redPix : greenPix );
+    labelB14B1->setPixmap( Settings::bb14 & (1 << 1) ? redPix : greenPix );
+    labelB14B2->setPixmap( Settings::bb14 & (1 << 2) ? redPix : greenPix );
+    labelB14B3->setPixmap( Settings::bb14 & (1 << 3) ? redPix : greenPix );
+    labelB14B4->setPixmap( Settings::bb14 & (1 << 4) ? redPix : greenPix );
+    labelB14B5->setPixmap( Settings::bb14 & (1 << 5) ? redPix : greenPix );
+    labelB14B6->setPixmap( Settings::bb14 & (1 << 6) ? redPix : greenPix );
+    labelB14B7->setPixmap( Settings::bb14 & (1 << 7) ? redPix : greenPix );
 
 
-    labelB15B0->setPixmap( bb15 & (1 << 0) ? redPix : greenPix );
-    labelB15B1->setPixmap( bb15 & (1 << 1) ? redPix : greenPix );
-    labelB15B2->setPixmap( bb15 & (1 << 2) ? redPix : greenPix );
-    labelB15B3->setPixmap( bb15 & (1 << 3) ? redPix : greenPix );
-    labelB15B4->setPixmap( bb15 & (1 << 4) ? redPix : greenPix );
-    labelB15B5->setPixmap( bb15 & (1 << 5) ? redPix : greenPix );
-    labelB15B6->setPixmap( bb15 & (1 << 6) ? redPix : greenPix );
-    labelB15B7->setPixmap( bb15 & (1 << 7) ? redPix : greenPix );
+    labelB15B0->setPixmap( Settings::coord[X].actualLimitMin  ? redPix : greenPix );
+    labelB15B1->setPixmap( Settings::coord[X].actualLimitMax  ? redPix : greenPix );
+    labelB15B2->setPixmap( Settings::coord[Y].actualLimitMin  ? redPix : greenPix );
+    labelB15B3->setPixmap( Settings::coord[Y].actualLimitMax  ? redPix : greenPix );
+    labelB15B4->setPixmap( Settings::coord[Z].actualLimitMin  ? redPix : greenPix );
+    labelB15B5->setPixmap( Settings::coord[Z].actualLimitMax  ? redPix : greenPix );
+    labelB15B6->setPixmap( Settings::coord[A].actualLimitMin  ? redPix : greenPix );
+    labelB15B7->setPixmap( Settings::coord[A].actualLimitMax  ? redPix : greenPix );
 
 
-    byte bb19 = cnc->getByte(19);
-    labelB19B0->setPixmap( bb19 & (1 << 0) ? redPix : greenPix );
-    labelB19B1->setPixmap( bb19 & (1 << 1) ? redPix : greenPix );
-    labelB19B2->setPixmap( bb19 & (1 << 2) ? redPix : greenPix );
-    labelB19B3->setPixmap( bb19 & (1 << 3) ? redPix : greenPix );
-    labelB19B4->setPixmap( bb19 & (1 << 4) ? redPix : greenPix );
-    labelB19B5->setPixmap( bb19 & (1 << 5) ? redPix : greenPix );
-    labelB19B6->setPixmap( bb19 & (1 << 6) ? redPix : greenPix );
-    labelB19B7->setPixmap( bb19 & (1 << 7) ? redPix : greenPix );
+    labelB19B0->setPixmap( Settings::bb19 & (1 << 0) ? redPix : greenPix );
+    labelB19B1->setPixmap( Settings::bb19 & (1 << 1) ? redPix : greenPix );
+    labelB19B2->setPixmap( Settings::bb19 & (1 << 2) ? redPix : greenPix );
+    labelB19B3->setPixmap( Settings::bb19 & (1 << 3) ? redPix : greenPix );
+    labelB19B4->setPixmap( Settings::bb19 & (1 << 4) ? redPix : greenPix );
+    labelB19B5->setPixmap( Settings::bb19 & (1 << 5) ? redPix : greenPix );
+    labelB19B6->setPixmap( Settings::bb19 & (1 << 6) ? redPix : greenPix );
+    labelB19B7->setPixmap( Settings::bb19 & (1 << 7) ? redPix : greenPix );
 
     // end debug
 
     // bttons start/stop/pause of task
-    groupBoxExec->setEnabled( cncConnected);
+    groupBoxExec->setEnabled( cncConnected );
 
     if (cncConnected) {
 #if 0
@@ -2298,9 +2297,9 @@ void  MainWindow::refreshElementsForms()
 
 #endif
     } else {
-        toolRun->setEnabled( cncConnected);
-        toolPause->setEnabled( cncConnected);
-        toolStop->setEnabled( cncConnected);
+        toolRun->setEnabled( cncConnected );
+        toolPause->setEnabled( cncConnected );
+        toolStop->setEnabled( cncConnected );
 
         toolResetCoorX->setEnabled( false );
         numPosX->setReadOnly( false );

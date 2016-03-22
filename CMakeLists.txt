@@ -9,8 +9,20 @@ CMAKE_POLICY(SET CMP0015 OLD)
 # or for Qt4 set to 4
 SET(USE_QT_VERSION 4)
 
+#debug or release
+SET(USE_DEBUGGER false)
+
 #enable or disable profiling info
 SET(USE_PROFILER false)
+
+
+IF(${USE_DEBUGGER})
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+ELSE()
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
+ENDIF()
+
+MESSAGE("INFO ${CMAKE_CXX_FLAGS}")
 
 # to activate of OpenGL displaying and widgets set to "true"
 SET(USE_OPENGL true)
@@ -103,6 +115,7 @@ ELSE(MSVC)
 ENDIF(MSVC)
 
 # SET (CMAKE_CXX_STANDARD 11)
+
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lusb-1.0")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
