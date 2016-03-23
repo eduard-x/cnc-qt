@@ -276,7 +276,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         //         void onMainTaskTimer();
         void onRefreshGUITimer();
 
-        void onStatus(); // not connected
+        void onCleanStatus(); // not connected
         void onRunToPoint();
         void onSendCommand();
 
@@ -314,7 +314,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void fixGCodeList();
         void detectMinMax(int pos);
         //         void resetMinMax();
-        bool runNextCommand();
+        void runNextCommand();
         void fillListWidget(QStringList listCode);
         QString getLocaleString();
         bool getLangTable();

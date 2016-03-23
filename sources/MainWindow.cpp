@@ -1292,7 +1292,10 @@ void MainWindow::translateGUI()
     labelSubmission->setText(translate(_SUBMISSION));
     labelMoving->setText(translate(_MOVING));
 
-    checkBoxEnSpindnle->setText(translate(_ON_SPINDLE));
+    checkEnSpindle->setText(translate(_ON_SPINDLE));
+    checkHWLimits->setText(translate(_CHECK_HW_LIMITS));
+    checkHomeAtStart->setText(translate(_GO_HOME_AT_START));
+    checkHomeAtEnd->setText(translate(_GO_HOME_AT_END));
 
     labelVelo->setText(translate(_VELO));
 
@@ -1432,9 +1435,6 @@ void MainWindow::onStartTask()
     currentStatus = Task::Start;
 
     runNextCommand();
-    //     mainTaskTimer.start();
-
-    //     refreshElementsForms();
 }
 
 
@@ -1453,7 +1453,6 @@ void MainWindow::onPauseTask()
     }
 
     runNextCommand();
-    //     refreshElementsForms();
 }
 
 
@@ -1469,7 +1468,6 @@ void MainWindow::onStopTask()
 
     currentStatus = Task::Stop;
     Task::instrCounter = 0;
-    //     refreshElementsForms();
 }
 
 
@@ -1514,29 +1512,17 @@ void MainWindow::onRefreshGUITimer()
  */
 void MainWindow::onCncNewData()
 {
-    //     if (mainTaskTimer.isActive() == false) {
-    //         return;
-    //     }
-    //
-    //     mainTaskTimer.stop();
-
-    //     if (runNextCommand() == true) {
-    //         mainTaskTimer.start();
-    //     }
     if (currentStatus != Task::Stop) {
         runNextCommand();
     }
-
-    //     refreshElementsForms();
 }
 
 
 /**
  * @brief
  *
- * @return false if timer to stop
  */
-bool MainWindow::runNextCommand()
+void MainWindow::runNextCommand()
 {
     // Velocity from main form
     int userSpeedG1 = (int)numVeloSubmission->value();
@@ -1546,21 +1532,19 @@ bool MainWindow::runNextCommand()
         currentStatus = Task::Stop;
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
 
-        //         refreshElementsForms();
-        //
-        return false;
+        return;
     }
 
     GCodeData gcodeNow;
-    
-    if (Task::instrCounter < gCodeList.count()){
+
+    if (Task::instrCounter < gCodeList.count()) {
         gcodeNow = gCodeList.at(Task::instrCounter);
-    }
-    else {
+    } else {
         currentStatus == Task::Stop;
     }
-      
-       // Stop
+
+
+    // Stop
     if (currentStatus == Task::Stop) {
         //TODO: move spindle up, possible moving to "home" position
 
@@ -1581,16 +1565,11 @@ bool MainWindow::runNextCommand()
         cnc->packFF();
 
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
-//         currentStatus = Task::Stop;
-        //         mainTaskTimer.stop();
 
-        //         refreshElementsForms();
-
-        return false;
+        return;
     }
 
-
-    useHome = checkHome->isChecked();
+    useHome = checkHomeAtStart->isChecked();
 
     if (useHome == true) {
         Settings::coord[X].startPos = doubleSpinHomeX->value();
@@ -1619,8 +1598,6 @@ bool MainWindow::runNextCommand()
 
         cnc->packC0();
 
-        //         cnc->setUseHome( == true); // home or from current position
-
         //moving to the first point axes X and Y
         //TODO: spindle move higher, now 10 mm
         moveParameters mParams;
@@ -1645,22 +1622,17 @@ bool MainWindow::runNextCommand()
         mParams.numberInstruction = Task::instrCounter;
 
         cnc->packCA(&mParams); // move to init position
-        //         cnc->packCA(gcodeNow.X, gcodeNow.Y, Settings::coord[Z].startPos + 10.0, gcodeNow.A , userSpeedG0, gcodeNow.angleVectors, gcodeNow.Distance);
 
         currentStatus = Task::Working;
 
-        //         refreshElementsForms();
-
-        return true; //after start code
+        return; //after start code
     }
 
- 
+
     // Working
 
     if (currentStatus != Task::Working) {
-        //         refreshElementsForms();
-
-        return false;
+        return;
     }
 
     // the task is ready
@@ -1675,14 +1647,14 @@ bool MainWindow::runNextCommand()
 
     //TODO: to add in parameter the value
     if (cnc->availableBufferSize() <= 3) {
-        return true;    // nothing before buffer clean
+        return;    // nothing before buffer clean
     }
 
 #if 1
 
     //TODO: to add in parameter the value
     if (Task::instrCounter > (cnc->numberCompleatedInstructions() + cnc->availableBufferSize())) {
-        return true;    // don't send more than N commands
+        return;    // don't send more than N commands
     }
 
 #endif
@@ -1703,15 +1675,11 @@ bool MainWindow::runNextCommand()
 
             statusLabel2->setText( "" );
         }
-
-        //         refreshElementsForms();
-        //         return true;
     }
 
     //replace instrument
     if (gcodeNow.changeInstrument) {
         currentStatus = Task::Paused;
-        //         refreshElementsForms();
 
         //pause before user click
         QString msg = translate(_PAUSE_ACTIVATED);
@@ -1767,18 +1735,17 @@ bool MainWindow::runNextCommand()
             gcodeNow.numberInstruction = mParams.numberInstruction;
 
             cnc->packCA(&mParams); // move to init position
-            //     cnc->packCA(posX, posY, posZ, posA, speed, Task::posCodeNow);
-            //     cnc->packCA(pointX, pointY, pointZ, pointA, speed, Task::instructionNow++, 0.0, 0);
 
+            if (Task::instrCounter < gCodeList.count()) {
+                gcodeNow = gCodeList.at(Task::instrCounter);
+            } else {
+                currentStatus == Task::Stop;
+                break;
+            }
         }
     }
 
-    //     Task::posCodeNow++;
     labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::lineCodeNow + 1));
-
-    //     refreshElementsForms();
-
-    return true;
 }
 
 
@@ -1801,7 +1768,7 @@ void MainWindow::AddLog(QString _text)
  * @brief slot for cleaning of status label
  *
  */
-void MainWindow::onStatus()
+void MainWindow::onCleanStatus()
 {
     // clean message
     statusLabel2->setText( "" );
@@ -1858,7 +1825,6 @@ void MainWindow::moveToPoint(bool surfaceScan)
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
         mParams.numberInstruction = 0;
 
-        //         cnc->packCA(posX, posY, posZ, posA, speed, 0, 0.0, 0);
         cnc->packCA(&mParams);
     }
 
@@ -1916,13 +1882,13 @@ void MainWindow::SendSignal()
         tSign = mk1Data::RC;
     }
 
-    if (checkBoxEnSpindnle->isChecked()) {
+    if (checkEnSpindle->isChecked()) {
         cnc->spindleON();
     } else {
         cnc->spindleOFF();
     }
 
-    cnc->packB5(checkBoxEnSpindnle->isChecked(), (int)spinBoxChann->value(), tSign, (int)spinBoxVelo->value());
+    cnc->packB5(checkEnSpindle->isChecked(), (int)spinBoxChann->value(), tSign, (int)spinBoxVelo->value());
 }
 
 /**
@@ -2038,7 +2004,6 @@ void MainWindow::onCncMessage(int n_msg)
  */
 void MainWindow::onCncHotplug()
 {
-    //     RefreshElementsForms();
     bool e = cnc->isConnected();
 
     if (e == true) {

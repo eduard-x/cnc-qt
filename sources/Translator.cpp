@@ -243,6 +243,9 @@ QString cTranslator::engText[] = {
     "Lookahead",
     "Arc splitting",
     "Input/Output",
+    "Enable hardware limits",
+    "Go to <home> at start",
+    "Go to <home> at end",
     ""
 };
 

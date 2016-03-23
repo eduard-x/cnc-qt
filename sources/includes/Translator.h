@@ -250,7 +250,10 @@ enum TR_CONSTS {
     _RECENTFILES, // 194
     _LOOKAHEAD, // 195
     _ARC_SPLITTING, // 196
-    _IO, //
+    _IO, // 197
+    _CHECK_HW_LIMITS, // 198
+    _GO_HOME_AT_START, // 199
+    _GO_HOME_AT_END, // 200
     _NULL
 };
 
