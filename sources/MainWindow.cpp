@@ -1490,6 +1490,7 @@ void MainWindow::onCncNewData()
 void MainWindow::runNextCommand()
 {
     // Velocity from main form
+#if 0
     int userSpeedG1 = (int)numVeloSubmission->value();
     int userSpeedG0 = (int)numVeloMoving->value();
 
@@ -1499,7 +1500,7 @@ void MainWindow::runNextCommand()
 
         return;
     }
-
+#endif 
     GCodeData gcodeNow;
 
     if (Task::instrCounter < gCodeList.count()) {
