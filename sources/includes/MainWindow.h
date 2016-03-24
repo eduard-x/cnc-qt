@@ -346,7 +346,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         QLabel *statusLabel1;
         QProgressBar *statusProgress;
         QLabel *statusLabel2;
-        bool useHome;
+//         bool useHome;
         QTimer  renderTimer;
         QList<QAction*> actLangSelect;
         QList<QAction*> actFileSelect;

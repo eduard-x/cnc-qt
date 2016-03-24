@@ -1511,6 +1511,53 @@ void MainWindow::runNextCommand()
 
     // Stop
     if (currentStatus == Task::Stop) {
+        bool useHome = checkHomeAtEnd->isChecked();
+
+        if (useHome == true) {
+            Settings::coord[X].startPos = doubleSpinHomeX->value();
+            Settings::coord[Y].startPos = doubleSpinHomeY->value();
+            Settings::coord[Z].startPos = doubleSpinHomeZ->value();
+            Settings::coord[A].startPos = 0.0;
+            
+//             AddLog(translate(_START_TASK_AT) + QDateTime().currentDateTime().toString());
+
+            int MaxSpeedX = 100;
+            int MaxSpeedY = 100;
+            int MaxSpeedZ = 100;
+            int MaxSpeedA = 100;
+
+            cnc->pack9E(0x05);
+
+            cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
+
+            cnc->packC0();
+
+            //moving to the first point axes X and Y
+            //TODO: spindle move higher, now 10 mm
+            moveParameters mParams;
+            mParams.posX = Settings::coord[X].startPos;
+            mParams.posY = Settings::coord[Y].startPos;
+            mParams.posZ = Settings::coord[Z].startPos + 10.0;
+            mParams.posA = Settings::coord[A].startPos;//, userSpeedG0;
+            mParams.speed = 0;//gcodeNow.vectSpeed;
+            mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.movingCode;
+            mParams.restPulses = 0;//gcodeNow.stepsCounter;
+            mParams.numberInstruction = 0;
+
+            cnc->packCA(&mParams); // move to init position
+
+            mParams.posX = gcodeNow.X;
+            mParams.posY = gcodeNow.Y;
+            mParams.posZ = gcodeNow.Z + 10.0;
+            mParams.posA = gcodeNow.A;//, userSpeedG0;
+            mParams.speed = gcodeNow.vectSpeed;
+            mParams.movingCode = gcodeNow.movingCode;
+            mParams.restPulses = gcodeNow.stepsCounter;
+            mParams.numberInstruction = Task::instrCounter;
+
+            cnc->packCA(&mParams); // move to init position
+        } 
+        
         //TODO: move spindle up, possible moving to "home" position
 
         cnc->packFF();
@@ -1533,23 +1580,24 @@ void MainWindow::runNextCommand()
 
         return;
     }
-
-    useHome = checkHomeAtStart->isChecked();
-
-    if (useHome == true) {
-        Settings::coord[X].startPos = doubleSpinHomeX->value();
-        Settings::coord[Y].startPos = doubleSpinHomeY->value();
-        Settings::coord[Z].startPos = doubleSpinHomeZ->value();
-        Settings::coord[A].startPos = 0.0;
-    } else {
-        Settings::coord[X].startPos = Settings::coord[X].actualPosmm;
-        Settings::coord[Y].startPos = Settings::coord[Y].actualPosmm;
-        Settings::coord[Z].startPos = Settings::coord[Z].actualPosmm;
-        Settings::coord[A].startPos = 0.0;
-    }
+    
 
     // Start
     if (currentStatus == Task::Start) { // init of controller
+        bool useHome = checkHomeAtStart->isChecked();
+
+        if (useHome == true) {
+            Settings::coord[X].startPos = doubleSpinHomeX->value();
+            Settings::coord[Y].startPos = doubleSpinHomeY->value();
+            Settings::coord[Z].startPos = doubleSpinHomeZ->value();
+            Settings::coord[A].startPos = 0.0;
+        } else {
+            Settings::coord[X].startPos = Settings::coord[X].actualPosmm;
+            Settings::coord[Y].startPos = Settings::coord[Y].actualPosmm;
+            Settings::coord[Z].startPos = Settings::coord[Z].actualPosmm;
+            Settings::coord[A].startPos = 0.0;
+        }
+        
         AddLog(translate(_START_TASK_AT) + QDateTime().currentDateTime().toString());
 
         int MaxSpeedX = 100;

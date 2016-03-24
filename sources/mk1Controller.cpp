@@ -56,7 +56,7 @@ QString mk1Controller::devDescriptor;
 
 
 /**
- * @brief
+ * @brief callback function fot hotplug 
  *
  */
 static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
@@ -123,7 +123,7 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
 }
 
 /**
- * @brief
+ * @brief callback function for detach  
  *
  */
 static int LIBUSB_CALL hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
@@ -550,6 +550,11 @@ bool mk1Data::isFluidOn()
     return fluidEnabled;
 }
 
+
+/**
+ * @brief 
+ *
+ */
 void mk1Data::setFluidOn(bool b)
 {
     fluidEnabled = b;
@@ -578,6 +583,11 @@ bool mk1Data::isSpindelOn()
     return spindleEnabled;
 }
 
+
+/**
+ * @brief 
+ *
+ */
 void mk1Data::setSpindelOn(bool b)
 {
     spindleEnabled = b;
@@ -594,7 +604,7 @@ bool mk1Data::isEmergencyStopOn()
 }
 
 /**
- * @brief
+ * @brief 
  *
  */
 void mk1Data::setEmergencyStopOn(bool b)
@@ -625,6 +635,10 @@ int mk1Data::availableBufferSize()
     return freebuffSize;
 }
 
+
+/**
+ * @brief 
+ */
 void mk1Data::setBufferSize(int i)
 {
     freebuffSize = (byte)i;
@@ -632,7 +646,7 @@ void mk1Data::setBufferSize(int i)
 
 
 /**
- * @brief  parse binary data and set the main widget variables and settings data
+ * @brief  parse binary data from controller and set the main widget variables and settings data
  *
  */
 void mk1Controller::parseBinaryInfo()
@@ -714,7 +728,7 @@ void mk1Controller::spindleOFF()
 }
 
 /**
- * @brief
+ * @brief enable fluid coolant 
  *
  */
 void mk1Controller::fluidON()
@@ -724,7 +738,7 @@ void mk1Controller::fluidON()
 }
 
 /**
- * @brief
+ * @brief disable fluid coolant 
  *
  */
 void mk1Controller::fluidOFF()
@@ -734,7 +748,7 @@ void mk1Controller::fluidOFF()
 }
 
 /**
- * @brief
+ * @brief enable mist coolant 
  *
  */
 void mk1Controller::mistON()
@@ -744,7 +758,7 @@ void mk1Controller::mistON()
 }
 
 /**
- * @brief
+ * @brief disable fluid coolant 
  *
  */
 void mk1Controller::mistOFF()
@@ -867,7 +881,7 @@ byte mk1Data::writeBuf[BUFFER_SIZE];
 
 
 /**
- * @brief
+ * @brief set one byte in array 
  *
  */
 void mk1Data::setByte(byte offset, byte data)
@@ -881,7 +895,7 @@ void mk1Data::setByte(byte offset, byte data)
 
 
 /**
- * @brief
+ * @brief get one byte from buffer
  *
  */
 byte mk1Data::getByte(byte offset)
@@ -895,7 +909,7 @@ byte mk1Data::getByte(byte offset)
 
 
 /**
- * @brief
+ * @brief vlean buffer
  *
  */
 void mk1Data::cleanBuf(byte *m)
@@ -905,7 +919,7 @@ void mk1Data::cleanBuf(byte *m)
 
 
 /**
- * @brief
+ * @brief set two bytes in buffer
  *
  */
 void mk1Data::packTwoBytes(byte offset, int val)
@@ -919,7 +933,7 @@ void mk1Data::packTwoBytes(byte offset, int val)
 }
 
 /**
- * @brief
+ * @brief set four bytes in buffer
  *
  */
 void mk1Data::packFourBytes(byte offset, int val)
