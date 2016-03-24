@@ -310,7 +310,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void reloadRecentList();
         int  calculateMinAngleSteps(int pos);
         void patchSpeedAndAccelCode(int begPos, int endPos);
-        void scanSurface();
         void fixGCodeList();
         void detectMinMax(int pos);
         //         void resetMinMax();
@@ -340,7 +339,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
     private:
         Task::StatusTask currentStatus;
         //
-        QStringList axisList;
+        QString axisNames;
         //         QTimer  mainTaskTimer;
         QTimer  mainGUITimer;
         QStringList lastFiles;

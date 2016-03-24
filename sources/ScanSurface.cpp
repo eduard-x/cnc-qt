@@ -444,7 +444,7 @@ void ScanThread::run()
     float pz = sParent->startOffsetZ->value();
     //float py = dataCode.Matrix[indexScanY].Y;
     float py = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Y;
-    float pa = 0;//sParent->numPosA->value();
+    //     float pa = 0;//sParent->numPosA->value();
 
     // move to point
     moveParameters mParams;

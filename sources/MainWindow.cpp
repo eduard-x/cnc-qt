@@ -177,7 +177,7 @@ int Task::instrCounter = -1;
 
 
 /**
- * @brief
+ * @brief constructor of main window
  *
  */
 MainWindow::MainWindow(QWidget *parent)
@@ -191,7 +191,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     currentStatus = Task::Stop;
 
-    axisList << "X" << "Y" << "Z" << "A";
+    axisNames = "XYZA";
 
     currentAppDir = qApp->applicationDirPath();
 
@@ -274,7 +274,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     //
     cnc = new mk1Controller();
-    //     cnc->loadSettings();
 
     // OpenGL area
     if (enableOpenGL == true) {
@@ -343,7 +342,6 @@ MainWindow::MainWindow(QWidget *parent)
 
                 lastFiles.insert(0, nm);
                 lastFiles.removeDuplicates();
-                //                 qDebug() << lastFiles;
 
                 reloadRecentList();
 
@@ -373,7 +371,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 /**
- * @brief
+ * @brief try to find the translation file
  *
  */
 bool MainWindow::getLangTable()
@@ -396,7 +394,7 @@ bool MainWindow::getLangTable()
     if (QFile::exists(langDir + fileLang) == false) {
         MessageBox::exec(this, translate(_ERR), "Language file not exists!\n\n"
                          + langDir + "\n\n" + fileLang, QMessageBox::Warning);
-
+        // not found
         return (false);
     }
 
@@ -405,7 +403,7 @@ bool MainWindow::getLangTable()
 
 
 /**
- * @brief
+ * @brief build the SIGNAL - SLOT connections
  *
  */
 void MainWindow::addConnections()
@@ -464,13 +462,9 @@ void MainWindow::addConnections()
     connect(cnc, SIGNAL(newDataFromMK1Controller ()), this, SLOT(onCncNewData())); // cnc->NewDataFromController += CncNewData;
     connect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message += CncMessage;
 
-    //     connect(&mainTaskTimer, SIGNAL(timeout()), this, SLOT(onMainTaskTimer()));
     connect(&mainGUITimer, SIGNAL(timeout()), this, SLOT(onRefreshGUITimer()));
-
-    //     mainGUITimer.setInterval(200);
     mainGUITimer.start(500);// every 0.5 sec update
 
-    //     mainTaskTimer.setInterval(20); // every 20 msec update
 
     if (enableOpenGL == true) {
 #if USE_OPENGL == true
@@ -573,8 +567,6 @@ bool MainWindow::readLangDir()
     QStringList dirsLang;
     QDir dir;
     dirsLang << "/usr/share/cnc-qt/" << "/usr/local/share/cnc-qt/" << currentAppDir;
-
-    //     dictFormat = 0;
 
     foreach(QString entry, dirsLang) {
         lngDirName = entry + "/lang/";
@@ -691,7 +683,6 @@ bool MainWindow::readLangDir()
  * @brief get the system locale for selection of language, if exists
  *
  */
-// to get locale and convert to internal string
 QString MainWindow::getLocaleString()
 {
     QString res;
@@ -746,8 +737,8 @@ void MainWindow::writeSettings()
 
     s->setValue("CuttedMaterial", cuttedMaterial);
 
-    for(int i = 0; i < userKeys.count(); ++i) {
-        s->setValue(userKeys.at(i).name, (quint32)userKeys.at(i).code);
+    foreach (uKeys k, userKeys) {
+        s->setValue(k.name, (quint32)k.code);
     }
 
     if (groupManualControl->isChecked() == false) {
@@ -761,12 +752,13 @@ void MainWindow::writeSettings()
     // qDebug() << "writeGUISettings";
     int i = 0;
 
-    for (QStringList::Iterator iFile = lastFiles.begin(); iFile != lastFiles.end(); iFile++, i++) {
+    foreach (QString l, lastFiles) {
         if (i > 9) { // max last dirs
             break;
         }
 
-        s->setValue("LASTFILE" + QString::number(i), (*iFile));
+        i++;
+        s->setValue("LASTFILE" + QString::number(i), l);
     }
 
     // opengl settings
@@ -790,31 +782,31 @@ void MainWindow::writeSettings()
 
     s->beginGroup("mk1");
 
-    for (int c = 0; c < axisList.count(); c++) {
-        s->setValue("Pulse" + axisList.at(c), Settings::coord[c].pulsePerMm);
-        s->setValue("Accel" + axisList.at(c), (double)Settings::coord[c].acceleration);
-        s->setValue("StartVelo" + axisList.at(c), (double)Settings::coord[c].minVelo);
-        s->setValue("EndVelo" + axisList.at(c), (double)Settings::coord[c].maxVelo);
+    for (int c = 0; c < axisNames.count(); c++) {
+        s->setValue("Pulse" + axisNames.at(c).toAscii(), Settings::coord[c].pulsePerMm);
+        s->setValue("Accel" + axisNames.at(c).toAscii(), (double)Settings::coord[c].acceleration);
+        s->setValue("StartVelo" + axisNames.at(c).toAscii(), (double)Settings::coord[c].minVelo);
+        s->setValue("EndVelo" + axisNames.at(c).toAscii(), (double)Settings::coord[c].maxVelo);
 
         //
-        s->setValue("Backlash" + axisList.at(c), (double)Settings::coord[c].backlash);
-        s->setValue("InvDirection" + axisList.at(c), (bool)Settings::coord[c].invertDirection);
-        s->setValue("InvPulses" + axisList.at(c), (bool)Settings::coord[c].invertPulses);
-        s->setValue("InvLimitMax" + axisList.at(c), (bool)Settings::coord[c].invLimitMax);
-        s->setValue("InvLimitMin" + axisList.at(c), (bool)Settings::coord[c].invLimitMin);
-        s->setValue("WorkAreaMin" + axisList.at(c), (double)Settings::coord[c].workAreaMin);
-        s->setValue("WorkAreaMax" + axisList.at(c), (double)Settings::coord[c].workAreaMax);
-        s->setValue("Enabled" + axisList.at(c), (bool)Settings::coord[c].enabled);
+        s->setValue("Backlash" + axisNames.at(c).toAscii(), (double)Settings::coord[c].backlash);
+        s->setValue("InvDirection" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].invertDirection);
+        s->setValue("InvPulses" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].invertPulses);
+        s->setValue("InvLimitMax" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].invLimitMax);
+        s->setValue("InvLimitMin" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].invLimitMin);
+        s->setValue("WorkAreaMin" + axisNames.at(c).toAscii(), (double)Settings::coord[c].workAreaMin);
+        s->setValue("WorkAreaMax" + axisNames.at(c).toAscii(), (double)Settings::coord[c].workAreaMax);
+        s->setValue("Enabled" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].enabled);
         //
 
-        s->setValue("HardLimitMin" + axisList.at(c), (bool)Settings::coord[c].useLimitMin);
-        s->setValue("HardLimitMax" + axisList.at(c), (bool)Settings::coord[c].useLimitMax);
+        s->setValue("HardLimitMin" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].useLimitMin);
+        s->setValue("HardLimitMax" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].useLimitMax);
 
-        s->setValue("SoftLimit" + axisList.at(c), (bool)Settings::coord[c].checkSoftLimits);
-        s->setValue("SoftMin" + axisList.at(c), (double)Settings::coord[c].softLimitMin);
-        s->setValue("SoftMax" + axisList.at(c), (double)Settings::coord[c].softLimitMax);
+        s->setValue("SoftLimit" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].checkSoftLimits);
+        s->setValue("SoftMin" + axisNames.at(c).toAscii(), (double)Settings::coord[c].softLimitMin);
+        s->setValue("SoftMax" + axisNames.at(c).toAscii(), (double)Settings::coord[c].softLimitMax);
 
-        s->setValue("Home" + axisList.at(c), (double)Settings::coord[c].home);
+        s->setValue("Home" + axisNames.at(c).toAscii(), (double)Settings::coord[c].home);
     }
 
     s->endGroup();
@@ -854,12 +846,11 @@ void MainWindow::readSettings()
     toolFlutes = s->value("ToolFlutes", 2).toInt();
     toolRPM = s->value("ToolRPM", 10000).toInt();
 
-    for(int i = 0; i < userKeys.count(); ++i) {
-        userKeys[i].code = (Qt::Key)s->value(userKeys.at(i).name, (quint32)userKeys.at(i).code).toUInt();
+    foreach(uKeys k, userKeys) {
+        k.code = (Qt::Key)s->value(k.name, (quint32)k.code).toUInt();
     }
 
     groupManualControl->setChecked(currentKeyPad != -1);
-
 
     numVeloSubmission->setValue(veloCutting);
     numVeloMoving->setValue(veloMoving);
@@ -869,7 +860,7 @@ void MainWindow::readSettings()
     l = getLocaleString();
 
     currentLang = s->value("LANGUAGE", l).toString();
-    //     currentProject = s->value("LASTPROJ").toString();
+
     sysFont = sysFont.toString();
 
     int sz = sysFont.pointSize();
@@ -946,53 +937,52 @@ void MainWindow::readSettings()
 
     s->beginGroup("mk1");
 
-    for (int c = 0; c < axisList.count(); c++) {
-        int i = s->value("Pulse" + axisList.at(c), 200).toInt( &res);
+    for (int c = 0; c < axisNames.length(); c++) {
+        int i = s->value("Pulse" + axisNames.at(c).toAscii(), 200).toInt( &res);
         Settings::coord[c].pulsePerMm = (res == true) ? i : 200;
 
-        float f = s->value("Accel" + axisList.at(c), 15).toFloat( &res);
+        float f = s->value("Accel" + axisNames.at(c).toAscii(), 15).toFloat( &res);
         Settings::coord[c].acceleration = (res == true) ? f : 15;
 
-        f = s->value("StartVelo" + axisList.at(c), 0).toFloat( &res);
+        f = s->value("StartVelo" + axisNames.at(c).toAscii(), 0).toFloat( &res);
         Settings::coord[c].minVelo = (res == true) ? f : 0;
 
-        f = s->value("EndVelo" + axisList.at(c), 400).toFloat( &res);
+        f = s->value("EndVelo" + axisNames.at(c).toAscii(), 400).toFloat( &res);
         Settings::coord[c].maxVelo = (res == true) ? f : 400;
 
-        Settings::coord[c].checkSoftLimits = s->value("SoftLimit" + axisList.at(c), false).toBool( );
+        Settings::coord[c].checkSoftLimits = s->value("SoftLimit" + axisNames.at(c).toAscii(), false).toBool( );
 
-        f = s->value("SoftMin" + axisList.at(c), 0).toFloat( &res);
+        f = s->value("SoftMin" + axisNames.at(c).toAscii(), 0).toFloat( &res);
         Settings::coord[c].softLimitMin = (res == true) ? f : 0;
 
-        f = s->value("SoftMax" + axisList.at(c), 0).toFloat( &res);
+        f = s->value("SoftMax" + axisNames.at(c).toAscii(), 0).toFloat( &res);
         Settings::coord[c].softLimitMax = (res == true) ? f : 0;
 
-        f = s->value("Home" + axisList.at(c), 0).toFloat( &res);
+        f = s->value("Home" + axisNames.at(c).toAscii(), 0).toFloat( &res);
         Settings::coord[c].home = (res == true) ? f : 0;
 
-        Settings::coord[c].useLimitMin = s->value("HardLimitMin" + axisList.at(c), true).toBool();
-        Settings::coord[c].useLimitMax = s->value("HardLimitMax" + axisList.at(c), true).toBool();
+        Settings::coord[c].useLimitMin = s->value("HardLimitMin" + axisNames.at(c).toAscii(), true).toBool();
+        Settings::coord[c].useLimitMax = s->value("HardLimitMax" + axisNames.at(c).toAscii(), true).toBool();
 
         //
-        Settings::coord[c].invertDirection = s->value("InvDirection" + axisList.at(c), false).toBool();
-        Settings::coord[c].invertPulses = s->value("InvPulses" + axisList.at(c), false).toBool();
-        Settings::coord[c].invLimitMax = s->value("InvLimitMax" + axisList.at(c), false).toBool();
-        Settings::coord[c].invLimitMin = s->value("InvLimitMin" + axisList.at(c), false).toBool();
-        Settings::coord[c].enabled = s->value("Enabled" + axisList.at(c), true).toBool();
+        Settings::coord[c].invertDirection = s->value("InvDirection" + axisNames.at(c).toAscii(), false).toBool();
+        Settings::coord[c].invertPulses = s->value("InvPulses" + axisNames.at(c).toAscii(), false).toBool();
+        Settings::coord[c].invLimitMax = s->value("InvLimitMax" + axisNames.at(c).toAscii(), false).toBool();
+        Settings::coord[c].invLimitMin = s->value("InvLimitMin" + axisNames.at(c).toAscii(), false).toBool();
+        Settings::coord[c].enabled = s->value("Enabled" + axisNames.at(c).toAscii(), true).toBool();
 
-        f = s->value("Backlash" + axisList.at(c), 0).toFloat( &res);
+        f = s->value("Backlash" + axisNames.at(c).toAscii(), 0).toFloat( &res);
         Settings::coord[c].backlash = (res == true) ? f : 0;
 
-        f = s->value("WorkAreaMin" + axisList.at(c), 0).toFloat( &res);
+        f = s->value("WorkAreaMin" + axisNames.at(c).toAscii(), 0).toFloat( &res);
         Settings::coord[c].workAreaMin = (res == true) ? f : 0;
 
-        f = s->value("WorkAreaMax" + axisList.at(c), 0).toFloat( &res);
+        f = s->value("WorkAreaMax" + axisNames.at(c).toAscii(), 0).toFloat( &res);
         Settings::coord[c].workAreaMax = (res == true) ? f : 0;
         //
     }
 
     s->endGroup();
-
 }
 
 
@@ -1017,22 +1007,22 @@ void MainWindow::reloadRecentList()
         QAction *actionRecent = menuFile->insertMenu(actionSave, filesMenu);
         filesGroup = new QActionGroup(this);
 
-        for (QStringList::Iterator iL = lastFiles.begin(); iL != lastFiles.end(); iL++) {
-            QFileInfo fRecent(*iL);
+        foreach (QString iL, lastFiles) {
+            QFileInfo fRecent(iL);
 
-            *iL = fRecent.absoluteFilePath();
+            iL = fRecent.absoluteFilePath();
         }
 
         lastFiles.removeDuplicates();
 
-        for (QStringList::Iterator iL = lastFiles.begin(); iL != lastFiles.end(); iL++) {
-            QFileInfo fRecent(*iL);
+        foreach (QString iL, lastFiles) {
+            QFileInfo fRecent(iL);
 
             if (fRecent.exists() == false) {
                 continue;
             }
 
-            QAction *tmpAction = new QAction(*iL, actionRecent);
+            QAction *tmpAction = new QAction(iL, actionRecent);
 
             filesGroup->addAction(tmpAction);
             filesMenu->addAction(tmpAction);
@@ -1472,31 +1462,6 @@ void MainWindow::onStopTask()
 
 
 /**
- * @brief slot from main timer signal
- *
- */
-#if 0
-void MainWindow::onMainTaskTimer()
-{
-    if (!cnc->isConnected()) {
-        if (mainTaskTimer.isActive()) {
-            mainTaskTimer.stop();
-        }
-
-        return;
-    }
-
-    mainTaskTimer.stop();
-
-    if (runNextCommand() == true) {
-        mainTaskTimer.start();
-    }
-
-} //void mainTaskTimer_Tick
-#endif
-
-
-/**
  * @brief slot from refresh GUI timer signal
  *
  */
@@ -1540,7 +1505,7 @@ void MainWindow::runNextCommand()
     if (Task::instrCounter < gCodeList.count()) {
         gcodeNow = gCodeList.at(Task::instrCounter);
     } else {
-        currentStatus == Task::Stop;
+        currentStatus = Task::Stop;
     }
 
 
@@ -1658,7 +1623,8 @@ void MainWindow::runNextCommand()
     }
 
 #endif
-    qDebug() << "buff size free: " << cnc->availableBufferSize() - 3 << "current instruction: " << Task::instrCounter << "compleate instructions: " << cnc->numberCompleatedInstructions();
+
+    //     qDebug() << "buff size free: " << cnc->availableBufferSize() - 3 << "current instruction: " << Task::instrCounter << "compleate instructions: " << cnc->numberCompleatedInstructions();
 
     //command G4 or M0
     if (gcodeNow.pauseMSeconds != -1) {
@@ -1739,11 +1705,15 @@ void MainWindow::runNextCommand()
             if (Task::instrCounter < gCodeList.count()) {
                 gcodeNow = gCodeList.at(Task::instrCounter);
             } else {
-                currentStatus == Task::Stop;
+                currentStatus = Task::Stop;
                 break;
             }
         }
     }
+
+    //     if (Task::instrCounter == gCodeList.count()) {
+    //         currentStatus = Task::Stop;
+    //     }
 
     labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::lineCodeNow + 1));
 }
@@ -1776,7 +1746,7 @@ void MainWindow::onCleanStatus()
 
 
 /**
- * @brief
+ * @brief manual moving, or surface scan
  *
  */
 void MainWindow::moveToPoint(bool surfaceScan)
@@ -2230,6 +2200,7 @@ void  MainWindow::refreshElementsForms()
             }
 
             statusProgress->setValue( lineNum );
+
             //listGkodeForUser.Rows[cnc->NumberComleatedInstructions].Selected = true;
             //TODO: to overwork it, because of resetting of selected ragne
             //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;
@@ -2311,12 +2282,13 @@ void MainWindow::fillListWidget(QStringList listCode)
     listGCodeWidget->clear();
     listGCodeWidget->setRowCount( 0);
     listGCodeWidget->setColumnCount(3);
+
     QStringList header = (QStringList() << translate(_COMMAND) << translate(_INFO) << translate(_STATE));
 
     listGCodeWidget->setHorizontalHeaderLabels(header);
     listGCodeWidget->setRowCount( listCode.count() );
 
-    for(int i = 0; i < listCode.count(); i++) {
+    for (int i = 0; i < listCode.count(); i++) {
         QString valueStr = listCode.at(i);
 
         QTableWidgetItem *newItem = new QTableWidgetItem(valueStr);
@@ -2415,7 +2387,8 @@ void MainWindow::fixGCodeList()
 
     detectMinMax(0);
 
-    maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;// grad to rad
+    // grad to rad
+    maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;
 
     // calculate the number of steps in one direction, if exists
     for (int idx = 0; idx < gCodeList.size(); idx++) {
@@ -2434,18 +2407,16 @@ void MainWindow::fixGCodeList()
         }
     }
 
-#if 1
+#if 0
 
     // now debug
-    for (int i = 0; i < gCodeList.size(); i++) {
-        qDebug() << i << "line:" << gCodeList[i].numberLine << "accel:" << (hex) << gCodeList[i].movingCode << (dec) << "max coeff:" << gCodeList[i].vectorCoeff << "splits:" <<  gCodeList[i].splits
-                 << "steps:" << gCodeList[i].stepsCounter << "vector speed:" << gCodeList[i].vectSpeed << "coords:" << gCodeList[i].X << gCodeList[i].Y << "delta angle:" << gCodeList[i].deltaAngle;
+    foreach (GCodeData d, gCodeList) {
+        qDebug() << "line:" << d.numberLine << "accel:" << (hex) << d.movingCode << (dec) << "max coeff:" << d.vectorCoeff << "splits:" <<  d.splits
+                 << "steps:" << d.stepsCounter << "vector speed:" << d.vectSpeed << "coords:" << d.X << d.Y << "delta angle:" << d.deltaAngle;
     }
 
     qDebug() << "max delta angle: " << PI - maxLookaheadAngleRad;
-
 #endif
-
 }
 
 
@@ -2713,8 +2684,6 @@ void MainWindow::onOpenFile()
     lastFiles.insert(0, nm);
     lastFiles.removeDuplicates();
 
-    //     qDebug() << lastFiles;
-
     reloadRecentList();
 
     QStringList l = getGoodList();
@@ -2763,7 +2732,6 @@ void MainWindow::onCalcVelocity()
  */
 void MainWindow::onSettings()
 {
-    //   qDebug() << "onSetting";
     SettingsDialog *setfrm = new SettingsDialog(this);
     int dlgResult = setfrm->exec();
 
@@ -2796,7 +2764,7 @@ void MainWindow::onSetHome()
 
 
 /**
- * @brief slot for copying of actual coordinates into the "move to coordinates"
+ * @brief slot for copying of actual coordinates into the "move to coordinates group"
  *
  */
 void MainWindow::onCopyPos()
@@ -2888,21 +2856,6 @@ void MainWindow::onEmergyStop()
 
 
 /**
- * @brief
- *
- */
-void MainWindow::scanSurface()
-{
-    ShowSurface = true;
-
-    ScanSurfaceDialog *dlg = new ScanSurfaceDialog(this);
-    dlg->exec();
-
-    delete dlg;
-}
-
-
-/**
  * @brief  slot for 3d settings of program
  *
  */
@@ -2925,13 +2878,17 @@ void MainWindow::on3dSettings()
 
 
 /**
- * @brief
+ * @brief slot for the popup window of scan surface dialog
  *
  */
 void MainWindow::onScanSurface()
 {
-    //scan surfcae
-    scanSurface();
+    ShowSurface = true;
+
+    ScanSurfaceDialog *dlg = new ScanSurfaceDialog(this);
+    dlg->exec();
+
+    delete dlg;
 }
 
 

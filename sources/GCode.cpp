@@ -55,7 +55,12 @@ GCodeData::GCodeData()
     numberInstrument = 0;
     numberInstruction = 0;
     numberLine = 0;
-    pauseMSeconds      = -1;
+    /** @var pauseMSeconds 
+     * no pause: -1
+     * waiting: 0
+     * pause > 0 in milliseconds
+     */
+    pauseMSeconds = -1;
 
     X = 0.0;
     Y = 0.0;
@@ -462,11 +467,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     // qDebug() << "line " << tmpCommand->numberLine << "before convertArcToLines()" << gCodeList.count() << "splits" << tmpCommand->splits;
                     convertArcToLines(tmpCommand); // tmpCommand has data of last point
-#if 0
-                    gCodeList << *tmpCommand;
-                    // init of next instuction
-                    tmpCommand = new GCodeData(tmpCommand);
-#endif
+
                     tmpCommand->numberLine = index;
 
                     tmpCommand->changeInstrument = false;
@@ -803,7 +804,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
     GCodeData &begData = gCodeList.last();
     // arcs
     // translate points to arc
-    float a, r; // length of sides
+    float r; // length of sides
     float x2, x1, y2, y1, z2, z1;
 
     x1 = begData.X;;
@@ -828,15 +829,15 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
     switch (endData->plane) {
         case XY: {
-            a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+            //             a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 
             if (endData->Radius == 0.0) {
                 r = sqrt(pow(x1 - i, 2) + pow(y1 - j, 2));
             } else {
                 r = endData->Radius;
                 // compute i, j
-                float a = determineAngle (pos1, pos2, endData->plane) + PI;
-                qDebug() << "radius " << r << "alpha" << a << "xy point 1" << x1 << y1 << "xy point 2" << x2 << y2;
+                //                 float a = determineAngle (pos1, pos2, endData->plane) + PI;
+                //                 qDebug() << "radius " << r << "alpha" << a << "xy point 1" << x1 << y1 << "xy point 2" << x2 << y2;
             }
 
             dPos = z2 - z1;
@@ -845,7 +846,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
         break;
 
         case YZ: {
-            a = sqrt(pow(y2 - y1, 2) + pow(z2 - z1, 2));
+            //             a = sqrt(pow(y2 - y1, 2) + pow(z2 - z1, 2));
 
             if (endData->Radius == 0.0) {
                 r = sqrt(pow(y1 - j, 2) + pow(z1 - k, 2));
@@ -860,7 +861,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
         break;
 
         case ZX: {
-            a = sqrt(pow(z2 - z1, 2) + pow(x2 - x1, 2));
+            //             a = sqrt(pow(z2 - z1, 2) + pow(x2 - x1, 2));
 
             if (endData->Radius == 0.0) {
                 r = sqrt(pow(z1 - k, 2) + pow(x1 - i, 2));

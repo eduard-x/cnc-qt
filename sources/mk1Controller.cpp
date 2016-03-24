@@ -146,7 +146,7 @@ static int LIBUSB_CALL hotplug_callback_detach(libusb_context *ctx, libusb_devic
 }
 
 /**
- * @brief
+ * @brief constructor
  *
  */
 mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
@@ -276,7 +276,7 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 }
 
 /**
- * @brief
+ * @brief read device description if connected
  *
  */
 int mk1Controller::getDeviceInfo()
@@ -340,7 +340,7 @@ int mk1Controller::getDeviceInfo()
 }
 
 /**
- * @brief
+ * @brief destructor
  *
  */
 mk1Controller::~mk1Controller()
@@ -354,7 +354,7 @@ mk1Controller::~mk1Controller()
 }
 
 /**
- * @brief
+ * @brief clean device desription
  *
  */
 void mk1Controller::resetDescription()
@@ -372,7 +372,7 @@ QString mk1Controller::getDescription()
 }
 
 /**
- * @brief
+ * @brief 
  *
  */
 void mk1Controller::setUseHome(bool b)

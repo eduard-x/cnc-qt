@@ -228,6 +228,9 @@ void ManualControlDialog::decodeCursor(Qt::Key n)
             pressedCommand(A_plus);
             break;
         }
+
+        default:
+            break;
     }
 }
 
@@ -302,6 +305,9 @@ void ManualControlDialog::decodeNumPad(Qt::Key n)
             pressedCommand(X_plus_Y_minus);
             break;
         }
+
+        default:
+            break;
     }
 }
 
