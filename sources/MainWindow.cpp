@@ -1543,20 +1543,20 @@ void MainWindow::runNextCommand()
             mParams.speed = 0;//gcodeNow.vectSpeed;
             mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.movingCode;
             mParams.restPulses = 0;//gcodeNow.stepsCounter;
-            mParams.numberInstruction = 0;
+            mParams.numberInstruction = Task::instrCounter++;
 
             cnc->packCA(&mParams); // move to init position
 
-            mParams.posX = gcodeNow.X;
-            mParams.posY = gcodeNow.Y;
-            mParams.posZ = gcodeNow.Z + 10.0;
-            mParams.posA = gcodeNow.A;//, userSpeedG0;
-            mParams.speed = gcodeNow.vectSpeed;
-            mParams.movingCode = gcodeNow.movingCode;
-            mParams.restPulses = gcodeNow.stepsCounter;
-            mParams.numberInstruction = Task::instrCounter;
+//             mParams.posX = gcodeNow.X;
+//             mParams.posY = gcodeNow.Y;
+//             mParams.posZ = gcodeNow.Z + 10.0;
+//             mParams.posA = gcodeNow.A;//, userSpeedG0;
+//             mParams.speed = gcodeNow.vectSpeed;
+//             mParams.movingCode = gcodeNow.movingCode;
+//             mParams.restPulses = gcodeNow.stepsCounter;
+//             mParams.numberInstruction = Task::instrCounter;
 
-            cnc->packCA(&mParams); // move to init position
+//             cnc->packCA(&mParams); // move to init position
         } 
         
         //TODO: move spindle up, possible moving to "home" position
