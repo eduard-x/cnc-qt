@@ -1664,7 +1664,7 @@ void MainWindow::runNextCommand()
         return;    // nothing before buffer clean
     }
 
-#if 1
+#if 0
 
     //TODO: to add in parameter the value
     if (Task::instrCounter > (cnc->numberCompleatedInstructions() + cnc->availableBufferSize())) {
