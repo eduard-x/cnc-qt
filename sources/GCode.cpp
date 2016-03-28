@@ -46,7 +46,7 @@
 #define DEBUG_ARC 0
 
 /**
- * @brief
+ * @brief consructor
  *
  */
 GCodeData::GCodeData()
@@ -55,7 +55,7 @@ GCodeData::GCodeData()
     numberInstrument = 0;
     numberInstruction = 0;
     numberLine = 0;
-    /** @var pauseMSeconds 
+    /** @var pauseMSeconds
      * no pause: -1
      * waiting: 0
      * pause > 0 in milliseconds
@@ -97,10 +97,9 @@ GCodeData::GCodeData()
 
 
 /**
- * @brief
+ * @brief constructor based on command
  *
  */
-// constructor based on existing command
 GCodeData::GCodeData(GCodeData *d)
 {
     X = d->X;
@@ -143,10 +142,10 @@ GCodeData::GCodeData(GCodeData *d)
 
 
 /**
- * @brief
+ * @brief constructor
  *
  */
-GCodeParser::GCodeParser() // constructor
+GCodeParser::GCodeParser()
 {
 
 }
@@ -171,20 +170,15 @@ bool GCodeParser::addArc(GCodeData *c)
 
 
 /**
- * @brief
+ * @brief read and parse into GCodeData list and OpenGL list
  *
  */
-// read and parse into GCodeData list and OpenGL list
 bool GCodeParser::readGCode(const QByteArray &gcode)
 {
     //  QMutexLocker mLock(&mutex);
     gCodeList.clear();
 
     //  lock();
-
-    //     cached_lines.clear();
-    //     cached_points.clear();
-    //     cached_color.clear();
 
     goodList.clear();
     badList.clear();
@@ -252,14 +246,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         //      lineStream = lineStream.remove(' ');
 
         lineStream = lineStream.replace(Settings::fromDecimalPoint, Settings::toDecimalPoint);
-#if 0
-        QString tmp = lineStream;
 
-        foreach(QChar c, tmp) {
-            if (c
-        }
-
-#else
         int pos = lineStream.indexOf(QRegExp("N(\\d+)"));
 
         if ( pos == 0) { // remove command number from lineStream
@@ -279,9 +266,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             }
         }
 
-#endif
 
-    if (lineStream.indexOf(QRegExp("[G|M|F](\\d+)($|\\s)")) == -1) { // Gxx, Fxx or Mxx not found
+        if (lineStream.indexOf(QRegExp("[G|M|F](\\d+)($|\\s)")) == -1) { // Gxx, Fxx or Mxx not found
             if (lastCmd.length() > 0) {
                 lineStream = QString(lastCmd + " " + lineStream);
             } else {
@@ -332,8 +318,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         if (cmd.isEmpty()) {
             continue;
         }
-
-        //         bool movingCommand = true;
 
         switch(cmd[0].toLatin1()) {
             case 'G': {
@@ -507,30 +491,25 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                 if (cmd == "G17") {
                     currentPlane = XY;
-                    //                     movingCommand = false;
                     break;
                 }
 
                 if (cmd == "G18") {
                     currentPlane = YZ;
-                    //                     movingCommand = false;
                     break;
                 }
 
                 if (cmd == "G19") {
                     currentPlane = ZX;
-                    //                     movingCommand = false;
                     break;
                 }
 
                 if (cmd == "G20") {
-                    //                     movingCommand = false;
                     coef = 25.4;
                     break;
                 }
 
                 if (cmd == "G21") {
-                    //                     movingCommand = false;
                     coef = 1.0;
                     break;
                 }
@@ -563,13 +542,11 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                 }
 
                 if (cmd == "G90") {
-                    //                     movingCommand = false;
                     b_absolute = true;
                     break;
                 }
 
                 if (cmd == "G91") {
-                    //                     movingCommand = false;
                     b_absolute = false;
                     break;
                 }
@@ -829,8 +806,6 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
     switch (endData->plane) {
         case XY: {
-            //             a = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
-
             if (endData->Radius == 0.0) {
                 r = sqrt(pow(x1 - i, 2) + pow(y1 - j, 2));
             } else {
@@ -846,8 +821,6 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
         break;
 
         case YZ: {
-            //             a = sqrt(pow(y2 - y1, 2) + pow(z2 - z1, 2));
-
             if (endData->Radius == 0.0) {
                 r = sqrt(pow(y1 - j, 2) + pow(z1 - k, 2));
             } else {
@@ -861,8 +834,6 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
         break;
 
         case ZX: {
-            //             a = sqrt(pow(z2 - z1, 2) + pow(x2 - x1, 2));
-
             if (endData->Radius == 0.0) {
                 r = sqrt(pow(z1 - k, 2) + pow(x1 - i, 2));
             } else {
@@ -945,7 +916,6 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 #if DEBUG_ARC
     qDebug() << "arc from " << begData.X << begData.Y << begData.Z  << "to" << endData->X << endData->Y << endData->Z << "splits: " << n;
 #endif
-
 
     QList<GCodeData> tmpList;
 
@@ -1167,7 +1137,6 @@ bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float
         return false;
     }
 
-    //  qDebug() << line;
     const QStringList &chunks = line.toUpper().simplified().split(' ');
 
     Vec3 arc(COORD_TOO_BIG, COORD_TOO_BIG, COORD_TOO_BIG); // too big coordinates
@@ -1180,8 +1149,7 @@ bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float
 
     R = 0.0;
 
-    for(int i = 1 ; i < chunks.size() ; ++i) {
-        const QString &s = chunks[i];
+    foreach (const QString s, chunks) {
         bool conv;
 
         switch(s[0].toLatin1()) {
@@ -1249,7 +1217,6 @@ bool GCodeParser::parseCoord(const QString &line, Vec3 &pos, float &E, const flo
         return false;
     }
 
-    //  qDebug() << line;
     const QStringList &chunks = line.toUpper().simplified().split(' ');
 
     if (chunks.count() == 0) {
@@ -1258,8 +1225,7 @@ bool GCodeParser::parseCoord(const QString &line, Vec3 &pos, float &E, const flo
 
     bool res = false;
 
-    for(int i = 1 ; i < chunks.size() ; ++i) {
-        const QString &s = chunks[i];
+    foreach (const QString s, chunks) {
         bool conv;
 
         switch(s[0].toLatin1()) {

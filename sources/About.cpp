@@ -65,8 +65,8 @@ AboutDialog::AboutDialog(QWidget *p)
 void AboutDialog::translateDialog()
 {
     setWindowTitle(translate(_ABOUT_TITLE));
-    labelAuthorNET->setText("<a href=\"zheigurov@gmail.com\">Copyright (c) S. Zheigurov</a>");
-    labelProgAuthor->setText("<a href=\"eduard_kalinowski@yahoo.de\">Qt developer E. Kalinowski</a>");
+    labelAuthorNET->setText("<a href=\"zheigurov@gmail.com\">C#, Windows developing: S. Zheigurov</a>");
+    labelProgAuthor->setText("<a href=\"eduard_kalinowski@yahoo.de\">Qt/C++, Linux developing: E. Kalinowski</a>");
     labelProgName->setText(translate(_PROG_NAME));
     labelProgVersion->setText(CNCMK1QTVERSION);
 

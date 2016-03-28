@@ -73,7 +73,8 @@ class usbHotplugThread : public QThread
         {
             /* expensive or blocking operation  */
             while(true) {
-                int r = libusb_handle_events(NULL);
+                //                 int r =
+                libusb_handle_events(NULL);
                 msleep(150);
                 //                 qDebug() << "libusb_handle_events" << r;
 

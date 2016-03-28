@@ -325,9 +325,9 @@ MainWindow::MainWindow(QWidget *parent)
         currentLang = "English";
     }
 
-    for (QList<QAction*>::iterator itL = actLangSelect.begin(); itL != actLangSelect.end(); ++itL) {
-        if ((*itL)->text() == currentLang) {
-            (*itL)->setChecked(true);
+    foreach (QAction* itL, actLangSelect) {
+        if ((*itL).text() == currentLang) {
+            (*itL).setChecked(true);
             break;
         }
     }
@@ -379,9 +379,9 @@ bool MainWindow::getLangTable()
     QString lang = currentLang;
     QString fileLang = "";
 
-    for (QStringList::Iterator iLang = langFiles.begin(); iLang != langFiles.end(); iLang++) {
-        if ((*iLang).contains(":" + lang) > 0) {
-            fileLang = *iLang;
+    foreach (QString iLang, langFiles) {
+        if (iLang.contains(":" + lang) > 0) {
+            fileLang = iLang;
             fileLang.remove(":" + lang);
             break;
         }
@@ -553,7 +553,6 @@ void MainWindow::onChangeFix(bool checked)
     connect(radioFixX, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
     connect(radioFixY, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
     connect(radioFixZ, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
-
 }
 
 /**
@@ -602,8 +601,8 @@ bool MainWindow::readLangDir()
     langGroup = new QActionGroup(this);
 
 
-    for (QStringList::Iterator iL = fList.begin(); iL != fList.end(); iL++) {
-        QFile fLang(lngDirName + *iL);
+    foreach (QString iL, fList) {
+        QFile fLang(lngDirName + iL);
 
         if (fLang.exists() == false) {
             continue;
@@ -638,7 +637,7 @@ bool MainWindow::readLangDir()
 
                     found = true;
 
-                    langFiles += (*iL) + ":" + nm;
+                    langFiles += iL + ":" + nm;
                     QAction *tmpAction = new QAction(nm, actionLanguage);
                     tmpAction->setCheckable(true);
 
@@ -1500,7 +1499,8 @@ void MainWindow::runNextCommand()
 
         return;
     }
-#endif 
+
+#endif
     GCodeData gcodeNow;
 
     if (Task::instrCounter < gCodeList.count()) {
@@ -1519,17 +1519,18 @@ void MainWindow::runNextCommand()
             Settings::coord[Y].startPos = doubleSpinHomeY->value();
             Settings::coord[Z].startPos = doubleSpinHomeZ->value();
             Settings::coord[A].startPos = 0.0;
-            
-//             AddLog(translate(_START_TASK_AT) + QDateTime().currentDateTime().toString());
 
-            int MaxSpeedX = 100;
-            int MaxSpeedY = 100;
-            int MaxSpeedZ = 100;
-            int MaxSpeedA = 100;
+            //             AddLog(translate(_START_TASK_AT) + QDateTime().currentDateTime().toString());
+
+            //             int MaxSpeedX = 100;
+            //             int MaxSpeedY = 100;
+            //             int MaxSpeedZ = 100;
+            //             int MaxSpeedA = 100;
 
             cnc->pack9E(0x05);
 
-            cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
+            //             cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
+            cnc->packBF((int)Settings::coord[X].maxVelo, (int)Settings::coord[Y].maxVelo, (int)Settings::coord[Z].maxVelo, (int)Settings::coord[A].maxVelo); // set max velocities
 
             cnc->packC0();
 
@@ -1547,18 +1548,18 @@ void MainWindow::runNextCommand()
 
             cnc->packCA(&mParams); // move to init position
 
-//             mParams.posX = gcodeNow.X;
-//             mParams.posY = gcodeNow.Y;
-//             mParams.posZ = gcodeNow.Z + 10.0;
-//             mParams.posA = gcodeNow.A;//, userSpeedG0;
-//             mParams.speed = gcodeNow.vectSpeed;
-//             mParams.movingCode = gcodeNow.movingCode;
-//             mParams.restPulses = gcodeNow.stepsCounter;
-//             mParams.numberInstruction = Task::instrCounter;
+            //             mParams.posX = gcodeNow.X;
+            //             mParams.posY = gcodeNow.Y;
+            //             mParams.posZ = gcodeNow.Z + 10.0;
+            //             mParams.posA = gcodeNow.A;//, userSpeedG0;
+            //             mParams.speed = gcodeNow.vectSpeed;
+            //             mParams.movingCode = gcodeNow.movingCode;
+            //             mParams.restPulses = gcodeNow.stepsCounter;
+            //             mParams.numberInstruction = Task::instrCounter;
 
-//             cnc->packCA(&mParams); // move to init position
-        } 
-        
+            //             cnc->packCA(&mParams); // move to init position
+        }
+
         //TODO: move spindle up, possible moving to "home" position
 
         cnc->packFF();
@@ -1581,7 +1582,7 @@ void MainWindow::runNextCommand()
 
         return;
     }
-    
+
 
     // Start
     if (currentStatus == Task::Start) { // init of controller
@@ -1598,17 +1599,18 @@ void MainWindow::runNextCommand()
             Settings::coord[Z].startPos = Settings::coord[Z].actualPosmm;
             Settings::coord[A].startPos = 0.0;
         }
-        
+
         AddLog(translate(_START_TASK_AT) + QDateTime().currentDateTime().toString());
 
-        int MaxSpeedX = 100;
-        int MaxSpeedY = 100;
-        int MaxSpeedZ = 100;
-        int MaxSpeedA = 100;
+        //         int MaxSpeedX = 100;
+        //         int MaxSpeedY = 100;
+        //         int MaxSpeedZ = 100;
+        //         int MaxSpeedA = 100;
 
         cnc->pack9E(0x05);
 
-        cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
+        //         cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
+        cnc->packBF((int)Settings::coord[X].maxVelo, (int)Settings::coord[Y].maxVelo, (int)Settings::coord[Z].maxVelo, (int)Settings::coord[A].maxVelo); // set max velocities
 
         cnc->packC0();
 
@@ -1760,10 +1762,6 @@ void MainWindow::runNextCommand()
         }
     }
 
-    //     if (Task::instrCounter == gCodeList.count()) {
-    //         currentStatus = Task::Stop;
-    //     }
-
     labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::lineCodeNow + 1));
 }
 
@@ -1888,10 +1886,6 @@ void MainWindow::SendSignal()
     mk1Data::TypeSignal tSign;
 
     tSign = mk1Data::None;
-
-    //     if (radioButtonOff->isChecked()) {
-    //         tSign = mk1Data::None;
-    //     }
 
     if (radioButtonHz->isChecked()) {
         tSign = mk1Data::Hz;

@@ -170,7 +170,7 @@ bool Reader::readFile(const QString &fileName)
     TypeFile = None;
 
     if ((detectArray.indexOf("G0") >= 0) || (detectArray.indexOf("G1") >= 0)) { // G-Code program detect
-        TypeFile == GCODE;
+        TypeFile = GCODE;
         return readGCode(arr);
     }
 
@@ -742,7 +742,7 @@ bool Reader::readGBR( const QByteArray &arr)
     // Вычислим границы данных, и уменьшим размерчик
     grb.CalculateGatePoints(10);
 
-    qDebug() << "Наполнение массива";
+    //     qDebug() << "Наполнение массива";
 
     QVector<QVector<byte> > arrayPoint;// = new byte[grb.X_max + 1, grb.Y_max + 1];
 
@@ -866,7 +866,7 @@ bool Reader::readGBR( const QByteArray &arr)
 
     bmp.Save("d:\sample.png", ImageFormat.Png);
 #endif
-    qDebug() << "Готово!";
+    //     qDebug() << "Готово!";
 
     return true;
     //  arrayPoint = null;

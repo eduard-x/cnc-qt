@@ -56,7 +56,7 @@ QString mk1Controller::devDescriptor;
 
 
 /**
- * @brief callback function fot hotplug 
+ * @brief callback function fot hotplug
  *
  */
 static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
@@ -123,7 +123,7 @@ static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev,
 }
 
 /**
- * @brief callback function for detach  
+ * @brief callback function for detach
  *
  */
 static int LIBUSB_CALL hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
@@ -346,7 +346,8 @@ int mk1Controller::getDeviceInfo()
 mk1Controller::~mk1Controller()
 {
     if (handle) {
-        int e = libusb_release_interface(handle, 0);
+        //         int e =
+        libusb_release_interface(handle, 0);
         libusb_close(handle);
     }
 
@@ -372,7 +373,7 @@ QString mk1Controller::getDescription()
 }
 
 /**
- * @brief 
+ * @brief
  *
  */
 void mk1Controller::setUseHome(bool b)
@@ -479,7 +480,7 @@ void mk1Controller::sendSettings()
     packA0(); // set acceleration
     packA1(); // set allowed limits
 
-    packBF(Settings::coord[X].maxVelo, Settings::coord[Y].maxVelo, Settings::coord[Z].maxVelo, Settings::coord[A].maxVelo); // set max velocities
+    packBF((int)Settings::coord[X].maxVelo, (int)Settings::coord[Y].maxVelo, (int)Settings::coord[Z].maxVelo, (int)Settings::coord[A].maxVelo); // set max velocities
 
     packB5(spindleSetEnable); // spindle off
 
@@ -552,7 +553,7 @@ bool mk1Data::isFluidOn()
 
 
 /**
- * @brief 
+ * @brief
  *
  */
 void mk1Data::setFluidOn(bool b)
@@ -585,7 +586,7 @@ bool mk1Data::isSpindelOn()
 
 
 /**
- * @brief 
+ * @brief
  *
  */
 void mk1Data::setSpindelOn(bool b)
@@ -604,7 +605,7 @@ bool mk1Data::isEmergencyStopOn()
 }
 
 /**
- * @brief 
+ * @brief
  *
  */
 void mk1Data::setEmergencyStopOn(bool b)
@@ -637,7 +638,7 @@ int mk1Data::availableBufferSize()
 
 
 /**
- * @brief 
+ * @brief
  */
 void mk1Data::setBufferSize(int i)
 {
@@ -728,7 +729,7 @@ void mk1Controller::spindleOFF()
 }
 
 /**
- * @brief enable fluid coolant 
+ * @brief enable fluid coolant
  *
  */
 void mk1Controller::fluidON()
@@ -738,7 +739,7 @@ void mk1Controller::fluidON()
 }
 
 /**
- * @brief disable fluid coolant 
+ * @brief disable fluid coolant
  *
  */
 void mk1Controller::fluidOFF()
@@ -748,7 +749,7 @@ void mk1Controller::fluidOFF()
 }
 
 /**
- * @brief enable mist coolant 
+ * @brief enable mist coolant
  *
  */
 void mk1Controller::mistON()
@@ -758,7 +759,7 @@ void mk1Controller::mistON()
 }
 
 /**
- * @brief disable fluid coolant 
+ * @brief disable fluid coolant
  *
  */
 void mk1Controller::mistOFF()
@@ -881,7 +882,7 @@ byte mk1Data::writeBuf[BUFFER_SIZE];
 
 
 /**
- * @brief set one byte in array 
+ * @brief set one byte in array
  *
  */
 void mk1Data::setByte(byte offset, byte data)
