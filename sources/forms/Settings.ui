@@ -84,7 +84,7 @@
         <set>Qt::ImhNone</set>
        </property>
        <property name="currentIndex">
-        <number>7</number>
+        <number>5</number>
        </property>
        <property name="iconSize">
         <size>
@@ -385,7 +385,7 @@
               <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>999.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>
@@ -410,7 +410,7 @@
               <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>999.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>
@@ -505,7 +505,7 @@
               <number>1</number>
              </property>
              <property name="maximum">
-              <number>2000</number>
+              <number>9999</number>
              </property>
             </widget>
            </item>
@@ -521,7 +521,7 @@
               <number>1</number>
              </property>
              <property name="maximum">
-              <number>2000</number>
+              <number>9999</number>
              </property>
             </widget>
            </item>
@@ -537,7 +537,7 @@
               <number>1</number>
              </property>
              <property name="maximum">
-              <number>2000</number>
+              <number>9999</number>
              </property>
             </widget>
            </item>
@@ -553,7 +553,7 @@
               <number>1</number>
              </property>
              <property name="maximum">
-              <number>2000</number>
+              <number>9999</number>
              </property>
             </widget>
            </item>
@@ -821,7 +821,7 @@
               <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>999.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>
@@ -846,7 +846,7 @@
               <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>999.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>
