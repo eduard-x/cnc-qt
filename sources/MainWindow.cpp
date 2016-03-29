@@ -782,30 +782,30 @@ void MainWindow::writeSettings()
     s->beginGroup("mk1");
 
     for (int c = 0; c < axisNames.count(); c++) {
-        s->setValue("Pulse" + axisNames.at(c).toAscii(), Settings::coord[c].pulsePerMm);
-        s->setValue("Accel" + axisNames.at(c).toAscii(), (double)Settings::coord[c].acceleration);
-        s->setValue("StartVelo" + axisNames.at(c).toAscii(), (double)Settings::coord[c].minVelo);
-        s->setValue("EndVelo" + axisNames.at(c).toAscii(), (double)Settings::coord[c].maxVelo);
+        s->setValue("Pulse" + axisNames.at(c).toLatin1(), Settings::coord[c].pulsePerMm);
+        s->setValue("Accel" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].acceleration);
+        s->setValue("StartVelo" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].minVelo);
+        s->setValue("EndVelo" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].maxVelo);
 
         //
-        s->setValue("Backlash" + axisNames.at(c).toAscii(), (double)Settings::coord[c].backlash);
-        s->setValue("InvDirection" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].invertDirection);
-        s->setValue("InvPulses" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].invertPulses);
-        s->setValue("InvLimitMax" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].invLimitMax);
-        s->setValue("InvLimitMin" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].invLimitMin);
-        s->setValue("WorkAreaMin" + axisNames.at(c).toAscii(), (double)Settings::coord[c].workAreaMin);
-        s->setValue("WorkAreaMax" + axisNames.at(c).toAscii(), (double)Settings::coord[c].workAreaMax);
-        s->setValue("Enabled" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].enabled);
+        s->setValue("Backlash" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].backlash);
+        s->setValue("InvDirection" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].invertDirection);
+        s->setValue("InvPulses" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].invertPulses);
+        s->setValue("InvLimitMax" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].invLimitMax);
+        s->setValue("InvLimitMin" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].invLimitMin);
+        s->setValue("WorkAreaMin" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].workAreaMin);
+        s->setValue("WorkAreaMax" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].workAreaMax);
+        s->setValue("Enabled" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].enabled);
         //
 
-        s->setValue("HardLimitMin" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].useLimitMin);
-        s->setValue("HardLimitMax" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].useLimitMax);
+        s->setValue("HardLimitMin" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].useLimitMin);
+        s->setValue("HardLimitMax" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].useLimitMax);
 
-        s->setValue("SoftLimit" + axisNames.at(c).toAscii(), (bool)Settings::coord[c].checkSoftLimits);
-        s->setValue("SoftMin" + axisNames.at(c).toAscii(), (double)Settings::coord[c].softLimitMin);
-        s->setValue("SoftMax" + axisNames.at(c).toAscii(), (double)Settings::coord[c].softLimitMax);
+        s->setValue("SoftLimit" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].checkSoftLimits);
+        s->setValue("SoftMin" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].softLimitMin);
+        s->setValue("SoftMax" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].softLimitMax);
 
-        s->setValue("Home" + axisNames.at(c).toAscii(), (double)Settings::coord[c].home);
+        s->setValue("Home" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].home);
     }
 
     s->endGroup();
@@ -937,46 +937,46 @@ void MainWindow::readSettings()
     s->beginGroup("mk1");
 
     for (int c = 0; c < axisNames.length(); c++) {
-        int i = s->value("Pulse" + axisNames.at(c).toAscii(), 200).toInt( &res);
+        int i = s->value("Pulse" + axisNames.at(c).toLatin1(), 200).toInt( &res);
         Settings::coord[c].pulsePerMm = (res == true) ? i : 200;
 
-        float f = s->value("Accel" + axisNames.at(c).toAscii(), 15).toFloat( &res);
+        float f = s->value("Accel" + axisNames.at(c).toLatin1(), 15).toFloat( &res);
         Settings::coord[c].acceleration = (res == true) ? f : 15;
 
-        f = s->value("StartVelo" + axisNames.at(c).toAscii(), 0).toFloat( &res);
+        f = s->value("StartVelo" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
         Settings::coord[c].minVelo = (res == true) ? f : 0;
 
-        f = s->value("EndVelo" + axisNames.at(c).toAscii(), 400).toFloat( &res);
+        f = s->value("EndVelo" + axisNames.at(c).toLatin1(), 400).toFloat( &res);
         Settings::coord[c].maxVelo = (res == true) ? f : 400;
 
-        Settings::coord[c].checkSoftLimits = s->value("SoftLimit" + axisNames.at(c).toAscii(), false).toBool( );
+        Settings::coord[c].checkSoftLimits = s->value("SoftLimit" + axisNames.at(c).toLatin1(), false).toBool( );
 
-        f = s->value("SoftMin" + axisNames.at(c).toAscii(), 0).toFloat( &res);
+        f = s->value("SoftMin" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
         Settings::coord[c].softLimitMin = (res == true) ? f : 0;
 
-        f = s->value("SoftMax" + axisNames.at(c).toAscii(), 0).toFloat( &res);
+        f = s->value("SoftMax" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
         Settings::coord[c].softLimitMax = (res == true) ? f : 0;
 
-        f = s->value("Home" + axisNames.at(c).toAscii(), 0).toFloat( &res);
+        f = s->value("Home" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
         Settings::coord[c].home = (res == true) ? f : 0;
 
-        Settings::coord[c].useLimitMin = s->value("HardLimitMin" + axisNames.at(c).toAscii(), true).toBool();
-        Settings::coord[c].useLimitMax = s->value("HardLimitMax" + axisNames.at(c).toAscii(), true).toBool();
+        Settings::coord[c].useLimitMin = s->value("HardLimitMin" + axisNames.at(c).toLatin1(), true).toBool();
+        Settings::coord[c].useLimitMax = s->value("HardLimitMax" + axisNames.at(c).toLatin1(), true).toBool();
 
         //
-        Settings::coord[c].invertDirection = s->value("InvDirection" + axisNames.at(c).toAscii(), false).toBool();
-        Settings::coord[c].invertPulses = s->value("InvPulses" + axisNames.at(c).toAscii(), false).toBool();
-        Settings::coord[c].invLimitMax = s->value("InvLimitMax" + axisNames.at(c).toAscii(), false).toBool();
-        Settings::coord[c].invLimitMin = s->value("InvLimitMin" + axisNames.at(c).toAscii(), false).toBool();
-        Settings::coord[c].enabled = s->value("Enabled" + axisNames.at(c).toAscii(), true).toBool();
+        Settings::coord[c].invertDirection = s->value("InvDirection" + axisNames.at(c).toLatin1(), false).toBool();
+        Settings::coord[c].invertPulses = s->value("InvPulses" + axisNames.at(c).toLatin1(), false).toBool();
+        Settings::coord[c].invLimitMax = s->value("InvLimitMax" + axisNames.at(c).toLatin1(), false).toBool();
+        Settings::coord[c].invLimitMin = s->value("InvLimitMin" + axisNames.at(c).toLatin1(), false).toBool();
+        Settings::coord[c].enabled = s->value("Enabled" + axisNames.at(c).toLatin1(), true).toBool();
 
-        f = s->value("Backlash" + axisNames.at(c).toAscii(), 0).toFloat( &res);
+        f = s->value("Backlash" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
         Settings::coord[c].backlash = (res == true) ? f : 0;
 
-        f = s->value("WorkAreaMin" + axisNames.at(c).toAscii(), 0).toFloat( &res);
+        f = s->value("WorkAreaMin" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
         Settings::coord[c].workAreaMin = (res == true) ? f : 0;
 
-        f = s->value("WorkAreaMax" + axisNames.at(c).toAscii(), 0).toFloat( &res);
+        f = s->value("WorkAreaMax" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
         Settings::coord[c].workAreaMax = (res == true) ? f : 0;
         //
     }
