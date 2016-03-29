@@ -962,7 +962,9 @@ void mk1Data::sendBinaryData(bool checkBuffSize)
 
         //TODO: check buffer....
     }
-
+    
+#if 0
+    // for debugging od send data
     QString st;
 
     for (int i = 0; i < 64; i++) {
@@ -970,7 +972,8 @@ void mk1Data::sendBinaryData(bool checkBuffSize)
     }
 
     qDebug() << "send" << st;
-
+#endif
+    
     if (!Settings::DEMO_DEVICE) {
         //         _error_code = _usb->write(rawData);//, 2000, bytesWritten);
         if (handle != 0) {

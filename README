@@ -1,18 +1,18 @@
 How to compile source code and create packages
-Get the project from sourceforge.net.
-Must be installed on your Linux system: gcc-c++, make, cmake, qt4-dev (or qt5-dev), libusb-1.0-dev, opengl-dev
+Get the project from github.com
+
+Must be installed on your Linux system: gcc-c++, make, cmake, qt4-dev (or qt5-dev, libqt5widgets), libusb-1.0-dev, opengl-dev
 
 For creating makefile and compiling of CNC-Qt:
 cmake .
 make
 
-If You want to create th package (DEB of RPM), must be installed rpm-build or dpkg
-and:
-for DEB based distributions:
-make package-binary-deb
+or in separate directory:
+mkdir build
+cd build
+cmake ..
+make 
 
-or for RPM
-make package-binary-rpm
 
 Version history
 
