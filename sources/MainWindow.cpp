@@ -2104,6 +2104,12 @@ void  MainWindow::refreshElementsForms()
     numPosY->setValue( Settings::coord[Y].posMm());
     numPosZ->setValue( Settings::coord[Z].posMm());
 
+    lineXpulses->setText(QString::number(Settings::coord[X].actualPosPulses));
+    lineYpulses->setText(QString::number(Settings::coord[Y].actualPosPulses));
+    lineZpulses->setText(QString::number(Settings::coord[Z].actualPosPulses));
+    lineApulses->setText(QString::number(Settings::coord[A].actualPosPulses));
+
+    lineInstructions->setText(QString::number(cnc->numberCompleatedInstructions()));
 #if 0
 
     if (cnc->isEmergencyStopOn()) {

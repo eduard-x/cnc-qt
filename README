@@ -13,6 +13,22 @@ cd build
 cmake ..
 make 
 
+Program supports now followed G-Codes: 
+G00
+G01
+G02 (converting of arcs to short cuts) without R parameter
+G03 (converting of arcs to short cuts) without R parameter
+G04
+G17, G18, G19
+G20, G21
+G28
+G90, G91
+G92
+M00
+M03, M05
+M06
+M206
+
 
 Version history
 

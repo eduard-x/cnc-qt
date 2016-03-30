@@ -273,10 +273,22 @@ class usbReadThread : public QThread
 {
         Q_OBJECT
     public:
+        /**
+         * constructor
+         */
         usbReadThread(QObject *parent) : QThread(parent)
         {
             p = (mk1Controller*)parent;
         }
+        /**
+         * destructor
+         */
+        ~usbReadThread()
+        {
+            libusb_release_interface(p->handle, 0);
+            libusb_close(p->handle);
+        }
+
         void run()
         {
             // init of read array

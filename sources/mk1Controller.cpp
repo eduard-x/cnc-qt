@@ -347,11 +347,12 @@ mk1Controller::~mk1Controller()
 {
     if (handle) {
         //         int e =
-        libusb_release_interface(handle, 0);
-        libusb_close(handle);
+        //          connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(onHandleHotplug()));
+        disconnect(readThread, SIGNAL(readEvent()), this, SLOT(onReadNewData()));
+        delete readThread;
     }
 
-    libusb_exit(0);
+    libusb_exit(NULL);
 }
 
 /**
@@ -962,7 +963,7 @@ void mk1Data::sendBinaryData(bool checkBuffSize)
 
         //TODO: check buffer....
     }
-    
+
 #if 0
     // for debugging od send data
     QString st;
@@ -973,7 +974,7 @@ void mk1Data::sendBinaryData(bool checkBuffSize)
 
     qDebug() << "send" << st;
 #endif
-    
+
     if (!Settings::DEMO_DEVICE) {
         //         _error_code = _usb->write(rawData);//, 2000, bytesWritten);
         if (handle != 0) {
