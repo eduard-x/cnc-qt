@@ -274,6 +274,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     //
     cnc = new mk1Controller();
+    
+    // 
+    QPixmap p1 = QPixmap(":/images/workbench.png");
+    QGraphicsScene *scene = new QGraphicsScene();
+    QGraphicsPixmapItem *item_p1 = scene->addPixmap(p1);
+    item_p1->setVisible(true);
+  
+    graphicsView->setScene(scene);
 
     // OpenGL area
     if (enableOpenGL == true) {
@@ -440,6 +448,18 @@ void MainWindow::addConnections()
     connect(toolRun, SIGNAL(clicked()), this, SLOT(onStartTask()));
     connect(toolPause, SIGNAL(clicked()), this, SLOT(onPauseTask()));
     connect(toolStop, SIGNAL(clicked()), this, SLOT(onStopTask()));
+    
+    // workbench 
+     connect(checkBoxSwapX, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+     connect(checkBoxSwapY, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+     connect(checkBoxSwapZ, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+     connect(checkBoxSwapA, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+     
+     connect(checkBoxLimitsX, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+     connect(checkBoxLimitsY, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+     connect(checkBoxLimitsZ, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+     connect(checkBoxLimitsA, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+    // end of workbench
 
     connect(actionAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
     connect(actionAboutQt, SIGNAL(triggered()), this, SLOT(onAboutQt()));
@@ -1270,19 +1290,23 @@ void MainWindow::translateGUI()
     if (enableOpenGL == true) {
         tabWidget->setTabText(0, translate(_DATA));
         tabWidget->setTabText(1, translate(_3D_VIEW));
-        tabWidget->setTabText(2, translate(_ADDITIONAL));
-        tabWidget->setTabText(3, translate(_LOG));
+        tabWidget->setTabText(2, translate(_WORKBENCH));
+        tabWidget->setTabText(3, translate(_DIAGNOSTIC));
+        tabWidget->setTabText(4, translate(_ADDITIONAL));
+        tabWidget->setTabText(5, translate(_LOG));
     } else {
         tabWidget->setTabText(0, translate(_DATA));
-        tabWidget->setTabText(1, translate(_ADDITIONAL));
-        tabWidget->setTabText(2, translate(_LOG));
+        tabWidget->setTabText(1, translate(_WORKBENCH));
+        tabWidget->setTabText(2, translate(_DIAGNOSTIC));
+        tabWidget->setTabText(3, translate(_ADDITIONAL));
+        tabWidget->setTabText(4, translate(_LOG));
     }
 
     labelSubmission->setText(translate(_SUBMISSION));
     labelMoving->setText(translate(_MOVING));
 
     checkEnSpindle->setText(translate(_ON_SPINDLE));
-    checkHWLimits->setText(translate(_CHECK_HW_LIMITS));
+//     checkHWLimits->setText(translate(_CHECK_HW_LIMITS));
     checkHomeAtStart->setText(translate(_GO_HOME_AT_START));
     checkHomeAtEnd->setText(translate(_GO_HOME_AT_END));
 
@@ -1444,6 +1468,54 @@ void MainWindow::onPauseTask()
     runNextCommand();
 }
 
+/**
+ * @brief slot for checkboxes of workbench tab
+ */
+void MainWindow::onCheckBoxWorkbenchLimits()
+{
+    QCheckBox* c  = static_cast<QCheckBox*>(sender());
+    bool state = c->isChecked();
+    
+    if (c == checkBoxLimitsX){
+        Settings::coord[X].useLimitMin = state;
+        Settings::coord[X].useLimitMax = state;
+    }
+    if (c == checkBoxLimitsY){
+        Settings::coord[Y].useLimitMin = state;
+        Settings::coord[Y].useLimitMax = state;
+    }
+    if (c == checkBoxLimitsZ){
+        Settings::coord[Z].useLimitMin = state;
+        Settings::coord[Z].useLimitMax = state;
+    }
+    if (c == checkBoxLimitsA){
+        Settings::coord[A].useLimitMin = state;
+        Settings::coord[A].useLimitMax = state;
+    }
+}
+
+/**
+ * @brief slot for checkboxes of workbench tab
+ */
+void MainWindow::onCheckBoxWorkbenchSwap()
+{
+    QCheckBox* c  = static_cast<QCheckBox*>(sender());
+    bool state = c->isChecked();
+    
+     // swap directions
+    if (c == checkBoxSwapX){
+        Settings::coord[X].invertDirection = state;
+    }
+    if (c == checkBoxSwapY){
+        Settings::coord[Y].invertDirection = state;
+    }
+    if (c == checkBoxSwapZ){
+        Settings::coord[Z].invertDirection = state;
+    }
+    if (c == checkBoxSwapX){
+        Settings::coord[A].invertDirection = state;
+    }
+}
 
 /**
  * @brief slot for task stop after "stop" button
@@ -1872,6 +1944,8 @@ void MainWindow::onRunToPoint()
     if (!cnc->testAllowActions()) {
         return;
     }
+    
+    cnc->sendSettings();
 
     moveToPoint();
 }

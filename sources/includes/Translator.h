@@ -254,6 +254,8 @@ enum TR_CONSTS {
     _CHECK_HW_LIMITS, // 198
     _GO_HOME_AT_START, // 199
     _GO_HOME_AT_END, // 200
+    _WORKBENCH, // 201
+    _DIAGNOSTIC, // 202
     _NULL
 };
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1002</width>
-    <height>809</height>
+    <width>991</width>
+    <height>794</height>
    </rect>
   </property>
   <property name="iconSize">
@@ -480,7 +480,7 @@
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="currentIndex">
-            <number>2</number>
+            <number>4</number>
            </property>
            <widget class="QWidget" name="tab1">
             <attribute name="title">
@@ -878,8 +878,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>777</width>
-                    <height>511</height>
+                    <width>766</width>
+                    <height>496</height>
                    </rect>
                   </property>
                  </widget>
@@ -909,39 +909,152 @@
                 <string>Moving to the coordinates</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_8">
-                <item row="3" column="1">
-                 <widget class="QLabel" name="label_26">
+                <item row="4" column="1">
+                 <widget class="QLabel" name="label_10">
                   <property name="text">
-                   <string>X</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <string>Swap</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="2">
-                 <widget class="QDoubleSpinBox" name="doubleSpinMoveX">
+                <item row="13" column="2">
+                 <widget class="QCheckBox" name="checkBoxLimitsA">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="1">
+                 <widget class="QCheckBox" name="checkBoxSwapX">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="2">
+                 <widget class="QLabel" name="label_11">
+                  <property name="text">
+                   <string>Limits</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="1">
+                 <widget class="QCheckBox" name="checkBoxSwapZ">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
+                   <string>Get actual position</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="3">
+                 <widget class="QPushButton" name="pushCopyPos">
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
                     <height>0</height>
                    </size>
                   </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="minimum">
-                   <double>-999.990000000000009</double>
-                  </property>
-                  <property name="maximum">
-                   <double>999.990000000000009</double>
+                  <property name="text">
+                   <string>Copy</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="1">
+                <item row="11" column="1">
+                 <widget class="QCheckBox" name="checkBoxSwapY">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="2">
+                 <widget class="QCheckBox" name="checkBoxLimitsX">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="13" column="1">
+                 <widget class="QCheckBox" name="checkBoxSwapA">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="2">
+                 <widget class="QCheckBox" name="checkBoxLimitsY">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="15" column="1">
+                 <widget class="QLabel" name="labelVelo">
+                  <property name="text">
+                   <string>Velocity</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="2">
+                 <widget class="QCheckBox" name="checkBoxLimitsZ">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="0">
                  <widget class="QLabel" name="label_25">
                   <property name="text">
                    <string>Y</string>
@@ -951,7 +1064,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="2">
+                <item row="11" column="3">
                  <widget class="QDoubleSpinBox" name="doubleSpinMoveY">
                   <property name="minimumSize">
                    <size>
@@ -973,7 +1086,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="1">
+                <item row="12" column="0">
                  <widget class="QLabel" name="label_27">
                   <property name="text">
                    <string>Z</string>
@@ -983,7 +1096,46 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="2">
+                <item row="14" column="0" colspan="11">
+                 <widget class="Line" name="line_4">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="15" column="3">
+                 <widget class="QSpinBox" name="spinMoveVelo">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="13" column="3">
+                 <widget class="QDoubleSpinBox" name="doubleSpinMoveA">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="3">
                  <widget class="QDoubleSpinBox" name="doubleSpinMoveZ">
                   <property name="minimumSize">
                    <size>
@@ -1005,25 +1157,11 @@
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="0" colspan="3">
-                 <widget class="Line" name="line_4">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="0">
-                 <widget class="QLabel" name="labelVelo">
-                  <property name="text">
-                   <string>Velocity</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="2">
-                 <widget class="QSpinBox" name="spinMoveVelo">
+                <item row="9" column="3">
+                 <widget class="QDoubleSpinBox" name="doubleSpinMoveX">
                   <property name="minimumSize">
                    <size>
-                    <width>75</width>
+                    <width>100</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -1033,36 +1171,15 @@
                     <height>16777215</height>
                    </size>
                   </property>
-                 </widget>
-                </item>
-                <item row="0" column="0" colspan="2">
-                 <widget class="QLabel" name="label_2">
-                  <property name="text">
-                   <string>Get actual position</string>
+                  <property name="minimum">
+                   <double>-999.990000000000009</double>
+                  </property>
+                  <property name="maximum">
+                   <double>999.990000000000009</double>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2">
-                 <widget class="QPushButton" name="pushCopyPos">
-                  <property name="minimumSize">
-                   <size>
-                    <width>100</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>Copy</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="3">
-                 <widget class="QLabel" name="label_10">
-                  <property name="text">
-                   <string>Swap</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="1">
+                <item row="13" column="0">
                  <widget class="QLabel" name="label_9">
                   <property name="text">
                    <string>A</string>
@@ -1072,133 +1189,35 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="2">
-                 <widget class="QDoubleSpinBox" name="doubleSpinMoveA"/>
-                </item>
-                <item row="3" column="3">
-                 <widget class="QCheckBox" name="checkBoxSwapX">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
+                <item row="9" column="0">
+                 <widget class="QLabel" name="label_26">
                   <property name="text">
-                   <string/>
+                   <string>X</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="4">
-                 <widget class="QLabel" name="label_11">
-                  <property name="text">
-                   <string>Limits</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0" colspan="5">
+                <item row="3" column="0" colspan="7">
                  <widget class="Line" name="line_7">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="4">
-                 <widget class="QCheckBox" name="checkBoxLimitsX">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="3">
-                 <widget class="QCheckBox" name="checkBoxSwapY">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="4">
-                 <widget class="QCheckBox" name="checkBoxLimitsY">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="3">
-                 <widget class="QCheckBox" name="checkBoxSwapZ">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="4">
-                 <widget class="QCheckBox" name="checkBoxLimitsZ">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="3">
-                 <widget class="QCheckBox" name="checkBoxSwapA">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="4">
-                 <widget class="QCheckBox" name="checkBoxLimitsA">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0" rowspan="5">
+                <item row="16" column="3">
                  <widget class="QToolButton" name="toolRunMoving">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
-                    <width>50</width>
-                    <height>75</height>
+                    <width>0</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="text">
@@ -1739,7 +1758,7 @@
              <item row="0" column="1" rowspan="2">
               <widget class="QGroupBox" name="groupBox">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -1923,7 +1942,7 @@
              <item row="0" column="2" rowspan="2">
               <widget class="QGroupBox" name="groupGenerate">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -2143,7 +2162,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1002</width>
+     <width>991</width>
      <height>30</height>
     </rect>
    </property>

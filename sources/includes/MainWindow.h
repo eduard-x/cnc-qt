@@ -273,7 +273,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onStartTask();
         void onPauseTask();
         void onStopTask();
-        //         void onMainTaskTimer();
+        void onCheckBoxWorkbenchLimits();
+        void onCheckBoxWorkbenchSwap();
         void onRefreshGUITimer();
 
         void onCleanStatus(); // not connected

@@ -244,8 +244,10 @@ QString cTranslator::engText[] = {
     "Arc splitting",
     "Input/Output",
     "Enable hardware limits",
-    "Go to <home> at start",
-    "Go to <home> at end",
+    "Go to 'home' at start",
+    "Go to 'home' at end", // 200
+    "Workbench", 
+    "Diagnostic",
     ""
 };
 

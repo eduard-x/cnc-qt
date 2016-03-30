@@ -66,6 +66,7 @@ struct moveParameters {
     byte  movingCode; // 0x39, 0x31, 0x21, 0x11, 0x01, offset 5
 };
 
+
 class usbHotplugThread : public QThread
 {
         Q_OBJECT
