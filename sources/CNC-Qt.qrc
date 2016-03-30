@@ -1,26 +1,27 @@
 <!DOCTYPE RCC><RCC version="1.0">
     <qresource prefix="/" >
         <file>images/fileopen.png</file>
-	<file>images/cnc.png</file>
+        <file>images/cnc.png</file>
         <file>images/canvas.png</file>
         <file>images/control_stop_blue.png</file>
-	<file>images/icon.png</file>
-	<file>images/forw_step.png</file>
-	<file>images/back_step.png</file>
-	<!--file>images/pin-icon.png</file-->
-	<file>images/forward_on.png</file>
+        <file>images/icon.png</file>
+        <file>images/forw_step.png</file>
+        <file>images/back_step.png</file>
+        <!--file>images/pin-icon.png</file-->
+        <file>images/forward_on.png</file>
         <file>images/forward_off.png</file>
-	<file>images/mist_on.png</file>
+        <file>images/mist_on.png</file>
         <file>images/mist_off.png</file>
-	<file>images/coolant_on.png</file>
+        <file>images/workbench.png</file>
+        <file>images/coolant_on.png</file>
         <file>images/coolant_off.png</file>
         <file>images/open_folder.png</file>
         <file>images/opengl_icon.png</file>
         <file>images/qtlogo.png</file>
         <file>images/chart_line_edit.png</file>
         <file>images/digit_separator.png</file>
-	<file>images/drill.png</file>
-	<file>images/delete.png</file>
+        <file>images/drill.png</file>
+        <file>images/delete.png</file>
         <file>images/pci.png</file>
         <file>images/accept_button.png</file>
         <file>images/connect.png</file>
@@ -35,7 +36,7 @@
         <file>images/draw_ellipse.png</file>
         <file>images/server_property.png</file>
         <file>images/ball_yellow.png</file>
-	<file>images/ball_gray.png</file>
+        <file>images/ball_gray.png</file>
         <file>images/control_pause_blue.png</file>
         <file>images/google_webmaster_tools.png</file>
         <file>images/smart_art_editing_2d.png</file>
