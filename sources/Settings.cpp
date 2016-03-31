@@ -190,6 +190,29 @@ SettingsDialog::SettingsDialog(QWidget *p)
     doubleSpinAccelA->setValue(Settings::coord[A].acceleration);
 
     checkBoxDemoController->setChecked(Settings::DEMO_DEVICE);
+    
+    // visualisation settings 
+    radioButtonLines->setChecked(parent->ShowLines);
+    radioButtonPoints->setChecked(parent->ShowPoints);
+
+    checkBoxInstr->setChecked(parent->ShowInstrument);
+    groupBoxGrid->setChecked(parent->ShowGrid);
+    checkBoxSurface->setChecked(parent->ShowSurface);
+    checkBoxXYZ->setChecked(parent->ShowAxes);
+
+    spinBoxGrid->setValue(parent->GrigStep);
+
+    spinBoxBeginX->setValue(parent->GridXstart);
+    spinBoxEndX->setValue(parent->GridXend);
+    spinBoxBeginY->setValue(parent->GridYstart);
+    spinBoxEndY->setValue(parent->GridYend);
+
+    groupBoxShowRang->setChecked(parent->ShowGrate);
+    spinBoxMinX->setValue(Settings::coord[X].softLimitMin);
+    spinBoxMaxX->setValue(Settings::coord[X].softLimitMax);
+    spinBoxMinY->setValue(Settings::coord[Y].softLimitMin);
+    spinBoxMaxY->setValue(Settings::coord[Y].softLimitMax);
+    //end of visualisation settings
 
     translateDialog();
 
@@ -220,6 +243,7 @@ void SettingsDialog::translateDialog()
     fList << translate(_TOOL);
     fList << translate(_LOOKAHEAD);
     fList << translate(_ARC_SPLITTING);
+    fList << translate(_VISUALISATION);
 
     listWidget->addItems(fList);
 
@@ -252,6 +276,24 @@ void SettingsDialog::translateDialog()
     for(int i = 0; i < l.count(); i++) {
         l[i]->setText(strl.at(i));
     }
+    
+    // visualisation translations 
+    groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
+    radioButtonLines->setText(translate(_DISPLAY_LINES));
+    radioButtonPoints->setText(translate(_DISPLAY_POINTS));
+    labelBeg->setText(translate(_BEGIN));
+    labelEnd->setText(translate(_END));
+
+    checkBoxInstr->setText(translate(_DISPLAY_SPINDLE));
+    checkBoxXYZ->setText(translate(_DISPLAY_AXES));
+    checkBoxSurface->setText(translate(_DISPLAY_SURFACE));
+
+    groupBoxShowRang->setTitle(translate(_DISPLAY_RANG));
+
+    labelStep->setText(translate(_STEP));
+    labelMin->setText(translate(_MINIMUM));
+    labelMax->setText(translate(_MAXIMUM));
+    // end
 }
 
 
@@ -347,6 +389,28 @@ void SettingsDialog::onSave()
     Settings::maxLookaheadAngle = spinBoxLookLines->value();
 
     Settings::DEMO_DEVICE  = checkBoxDemoController->isChecked();
+    
+    // visualisation settings 
+    parent->ShowInstrument = checkBoxInstr->isChecked();
+    parent->ShowGrid = groupBoxGrid->isChecked();
+    parent->ShowSurface = checkBoxSurface->isChecked();
+    parent->ShowAxes = checkBoxXYZ->isChecked();
+
+    parent->GrigStep = spinBoxGrid->value();
+
+    parent->GridXstart = spinBoxBeginX->value();
+    parent->GridXend = spinBoxEndX->value();
+    parent->GridYstart = spinBoxBeginY->value();
+    parent->GridYend = spinBoxEndY->value();
+
+    parent->ShowGrate = groupBoxShowRang->isChecked();
+    parent->ShowLines = radioButtonLines->isChecked();
+    parent->ShowPoints = radioButtonPoints->isChecked();
+    Settings::coord[X].softLimitMin = spinBoxMinX->value();
+    Settings::coord[X].softLimitMax = spinBoxMaxX->value();
+    Settings::coord[Y].softLimitMin = spinBoxMinY->value();
+    Settings::coord[Y].softLimitMax = spinBoxMaxY->value();
+    // end
 
     accept();
 }

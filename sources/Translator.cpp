@@ -248,6 +248,8 @@ QString cTranslator::engText[] = {
     "Go to 'home' at end", // 200
     "Workbench", 
     "Diagnostic",
+    "Visualisation",
+    "Colors",
     ""
 };
 

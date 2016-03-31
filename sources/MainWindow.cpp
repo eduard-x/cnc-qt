@@ -47,6 +47,7 @@
 #include <QtOpenGL>
 #endif
 
+
 #include "includes/Settings.h"
 #include "includes/About.h"
 #include "includes/Reader.h"
@@ -55,12 +56,13 @@
 #include "includes/ManualControl.h"
 #include "includes/ScanSurface.h"
 
-#if USE_OPENGL == true
-#include "includes/Settings3d.h"
-#endif
 
 #include "includes/MainWindow.h"
 
+
+#if USE_OPENGL == true
+class GLWidget;
+#endif
 
 class MainWindow;
 
@@ -308,7 +310,7 @@ MainWindow::MainWindow(QWidget *parent)
         statusLabel2->setPalette(palette);
         statusLabel2->setText( "OpenGL " + translate(_DISABLED) );
         tabWidget->removeTab(1);
-        actionOpenGL->setEnabled(false);
+//         actionOpenGL->setEnabled(false);
     }
 
     Correction = false;
@@ -421,7 +423,7 @@ void MainWindow::addConnections()
     connect(actionSave, SIGNAL(triggered()), this, SLOT(onSaveFile()));
     connect(actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
 
-    connect(actionOpenGL, SIGNAL(triggered()), this, SLOT(on3dSettings()));
+//     connect(actionOpenGL, SIGNAL(triggered()), this, SLOT(on3dSettings()));
     connect(actionProgram, SIGNAL(triggered()), this, SLOT(onSettings()));
 
     connect(toolCalcVelocity, SIGNAL(clicked()), this, SLOT(onCalcVelocity()));
@@ -2977,7 +2979,7 @@ void MainWindow::onEmergyStop()
     cnc->emergyStop();
 }
 
-
+#if 0
 /**
  * @brief  slot for 3d settings of program
  *
@@ -2998,7 +3000,7 @@ void MainWindow::on3dSettings()
 
 #endif
 }
-
+#endif
 
 /**
  * @brief slot for the popup window of scan surface dialog

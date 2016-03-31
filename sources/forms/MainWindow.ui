@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>991</width>
+    <width>1000</width>
     <height>794</height>
    </rect>
   </property>
@@ -878,7 +878,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>766</width>
+                    <width>775</width>
                     <height>496</height>
                    </rect>
                   </property>
@@ -894,13 +894,10 @@
              <string>Workbench</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_17">
-             <item row="0" column="1">
-              <widget class="QGraphicsView" name="graphicsView"/>
-             </item>
              <item row="0" column="0">
               <widget class="QGroupBox" name="groupBoxMoving">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -913,19 +910,6 @@
                  <widget class="QLabel" name="label_10">
                   <property name="text">
                    <string>Swap</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="13" column="2">
-                 <widget class="QCheckBox" name="checkBoxLimitsA">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -942,13 +926,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="2">
-                 <widget class="QLabel" name="label_11">
-                  <property name="text">
-                   <string>Limits</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="12" column="1">
                  <widget class="QCheckBox" name="checkBoxSwapZ">
                   <property name="maximumSize">
@@ -962,19 +939,18 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_2">
-                  <property name="text">
-                   <string>Get actual position</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="3">
                  <widget class="QPushButton" name="pushCopyPos">
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
                     <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>150</width>
+                    <height>16777215</height>
                    </size>
                   </property>
                   <property name="text">
@@ -995,54 +971,8 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="2">
-                 <widget class="QCheckBox" name="checkBoxLimitsX">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
                 <item row="13" column="1">
                  <widget class="QCheckBox" name="checkBoxSwapA">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="11" column="2">
-                 <widget class="QCheckBox" name="checkBoxLimitsY">
-                  <property name="maximumSize">
-                   <size>
-                    <width>50</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="15" column="1">
-                 <widget class="QLabel" name="labelVelo">
-                  <property name="text">
-                   <string>Velocity</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="12" column="2">
-                 <widget class="QCheckBox" name="checkBoxLimitsZ">
                   <property name="maximumSize">
                    <size>
                     <width>50</width>
@@ -1074,7 +1004,7 @@
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>100</width>
+                    <width>150</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -1096,13 +1026,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="14" column="0" colspan="11">
-                 <widget class="Line" name="line_4">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
                 <item row="15" column="3">
                  <widget class="QSpinBox" name="spinMoveVelo">
                   <property name="minimumSize">
@@ -1113,7 +1036,7 @@
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>100</width>
+                    <width>150</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -1129,7 +1052,7 @@
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>100</width>
+                    <width>150</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -1145,7 +1068,7 @@
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>100</width>
+                    <width>150</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -1167,7 +1090,7 @@
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>100</width>
+                    <width>150</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -1199,13 +1122,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0" colspan="7">
-                 <widget class="Line" name="line_7">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
                 <item row="16" column="3">
                  <widget class="QToolButton" name="toolRunMoving">
                   <property name="sizePolicy">
@@ -1220,8 +1136,101 @@
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>150</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>Run</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="3">
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
+                   <string>Get actual position</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="15" column="0" colspan="3">
+                 <widget class="QLabel" name="labelVelo">
+                  <property name="text">
+                   <string>Velocity</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="4">
+                 <widget class="QCheckBox" name="checkBoxLimitsY">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="4">
+                 <widget class="QCheckBox" name="checkBoxLimitsX">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="4">
+                 <widget class="QCheckBox" name="checkBoxLimitsZ">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="13" column="4">
+                 <widget class="QCheckBox" name="checkBoxLimitsA">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="4">
+                 <widget class="QLabel" name="label_11">
+                  <property name="text">
+                   <string>Limits</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="14" column="0" colspan="5">
+                 <widget class="Line" name="line_4">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0" colspan="5">
+                 <widget class="Line" name="line_7">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
@@ -1240,6 +1249,22 @@
                 </size>
                </property>
               </spacer>
+             </item>
+             <item row="0" column="1">
+              <widget class="QGraphicsView" name="graphicsView">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>450</width>
+                 <height>300</height>
+                </size>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -1951,7 +1976,7 @@
                 <string>Generate signal </string>
                </property>
                <layout class="QGridLayout" name="gridLayout_9">
-                <item row="1" column="1">
+                <item row="1" column="2">
                  <widget class="QSpinBox" name="spinBoxChann"/>
                 </item>
                 <item row="1" column="0">
@@ -1961,33 +1986,8 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
+                <item row="2" column="2">
                  <widget class="QSpinBox" name="spinBoxVelo"/>
-                </item>
-                <item row="4" column="0">
-                 <layout class="QVBoxLayout" name="verticalLayout_2">
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonOff">
-                    <property name="text">
-                     <string>Off</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonHz">
-                    <property name="text">
-                     <string>Hz</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonRC">
-                    <property name="text">
-                     <string>RC</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
                 </item>
                 <item row="2" column="0">
                  <widget class="QLabel" name="labelPWMVelo">
@@ -1996,17 +1996,38 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="1">
+                <item row="4" column="2">
                  <widget class="QPushButton" name="pushSendSignal">
                   <property name="text">
                    <string>Send command</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0" colspan="2">
+                <item row="0" column="0" colspan="3">
                  <widget class="QCheckBox" name="checkEnSpindle">
                   <property name="text">
                    <string>Enable spindle</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QRadioButton" name="radioButtonRC">
+                  <property name="text">
+                   <string>RC</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QRadioButton" name="radioButtonHz">
+                  <property name="text">
+                   <string>Hz</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QRadioButton" name="radioButtonOff">
+                  <property name="text">
+                   <string>Off</string>
                   </property>
                  </widget>
                 </item>
@@ -2162,7 +2183,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>991</width>
+     <width>1000</width>
      <height>30</height>
     </rect>
    </property>
@@ -2196,7 +2217,6 @@
      <string>Settings</string>
     </property>
     <addaction name="actionProgram"/>
-    <addaction name="actionOpenGL"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
@@ -2220,7 +2240,6 @@
    <addaction name="actionOpen"/>
    <addaction name="separator"/>
    <addaction name="actionSettings"/>
-   <addaction name="actionOpenGL"/>
    <addaction name="separator"/>
    <addaction name="actionInfo"/>
    <addaction name="actionSpindle"/>
@@ -2339,15 +2358,6 @@
    </property>
    <property name="text">
     <string>Hardware</string>
-   </property>
-  </action>
-  <action name="actionOpenGL">
-   <property name="icon">
-    <iconset resource="../CNC-Qt.qrc">
-     <normaloff>:/images/opengl_icon.png</normaloff>:/images/opengl_icon.png</iconset>
-   </property>
-   <property name="text">
-    <string>OpenGL</string>
    </property>
   </action>
   <action name="actionLanguage">

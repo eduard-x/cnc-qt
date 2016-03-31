@@ -401,7 +401,7 @@ void mk1Controller::setDescription(const QString &c)
 }
 
 /**
- * @brief slot
+ * @brief slot from readThread 
  *
  */
 void mk1Controller::onReadNewData()
@@ -420,7 +420,7 @@ void mk1Controller::onBufFree()
 }
 
 /**
- * @brief slot
+ * @brief slot from hotplugThread
  *
  */
 void mk1Controller::onHandleHotplug()

@@ -281,7 +281,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onRunToPoint();
         void onSendCommand();
 
-        void on3dSettings();
+//         void on3dSettings();
 
         void onGeneratorCode(); // not connected
 

@@ -256,6 +256,8 @@ enum TR_CONSTS {
     _GO_HOME_AT_END, // 200
     _WORKBENCH, // 201
     _DIAGNOSTIC, // 202
+    _VISUALISATION, // 203
+    _COLORS, // 204
     _NULL
 };
 
