@@ -450,18 +450,6 @@ void MainWindow::addConnections()
     connect(toolRun, SIGNAL(clicked()), this, SLOT(onStartTask()));
     connect(toolPause, SIGNAL(clicked()), this, SLOT(onPauseTask()));
     connect(toolStop, SIGNAL(clicked()), this, SLOT(onStopTask()));
-    
-    // workbench 
-     connect(checkBoxSwapX, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
-     connect(checkBoxSwapY, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
-     connect(checkBoxSwapZ, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
-     connect(checkBoxSwapA, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
-     
-     connect(checkBoxLimitsX, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
-     connect(checkBoxLimitsY, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
-     connect(checkBoxLimitsZ, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
-     connect(checkBoxLimitsA, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
-    // end of workbench
 
     connect(actionAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
     connect(actionAboutQt, SIGNAL(triggered()), this, SLOT(onAboutQt()));
@@ -471,6 +459,23 @@ void MainWindow::addConnections()
     connect(pushCopyHome, SIGNAL(clicked()), this, SLOT(onCopyHome()));
     // end menu
 
+     // workbench 
+     connect(checkBoxSwapX, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+     connect(checkBoxSwapY, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+     connect(checkBoxSwapZ, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+     connect(checkBoxSwapA, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+     
+     connect(checkBoxLimitsXmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+     connect(checkBoxLimitsXmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+     connect(checkBoxLimitsYmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+    connect(checkBoxLimitsYmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+     connect(checkBoxLimitsZmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+     connect(checkBoxLimitsZmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+     connect(checkBoxLimitsAmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+     connect(checkBoxLimitsAmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+    // end of workbench
+     
+     
     connect(listGCodeWidget, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(onEditGCode(int, int)));
     connect(listGCodeWidget, SIGNAL(cellActivated(int, int)), this, SLOT(onCellSelect(int, int)));
 
@@ -732,6 +737,31 @@ QString MainWindow::getLocaleString()
 
 
 /**
+ * @brief update settings on main gui after change
+ *
+ */
+void MainWindow::updateSettingsOnGUI()
+{
+    checkBoxSwapX->setChecked(Settings::coord[X].invertDirection);
+    checkBoxSwapY->setChecked(Settings::coord[Y].invertDirection);
+    checkBoxSwapZ->setChecked(Settings::coord[Z].invertDirection);
+    checkBoxSwapA->setChecked(Settings::coord[A].invertDirection);
+    
+   checkBoxLimitsXmin->setChecked(Settings::coord[X].useLimitMin);
+   checkBoxLimitsXmax->setChecked(Settings::coord[X].useLimitMax);
+    
+     checkBoxLimitsYmin->setChecked(Settings::coord[Y].useLimitMin);
+      checkBoxLimitsYmax->setChecked(Settings::coord[Y].useLimitMax);
+    
+    checkBoxLimitsZmin->setChecked(Settings::coord[Z].useLimitMin);
+    checkBoxLimitsZmax->setChecked(Settings::coord[Z].useLimitMax);
+    
+    checkBoxLimitsAmin->setChecked(Settings::coord[A].useLimitMin);
+    checkBoxLimitsAmax->setChecked(Settings::coord[A].useLimitMax);
+}
+
+
+/**
  * @brief save settings of program
  *
  */
@@ -833,6 +863,8 @@ void MainWindow::writeSettings()
     s->endGroup();
 
     s->sync();
+    
+    updateSettingsOnGUI();
 }
 
 
@@ -1004,6 +1036,8 @@ void MainWindow::readSettings()
     }
 
     s->endGroup();
+    
+    updateSettingsOnGUI();
 }
 
 
@@ -1478,20 +1512,28 @@ void MainWindow::onCheckBoxWorkbenchLimits()
     QCheckBox* c  = static_cast<QCheckBox*>(sender());
     bool state = c->isChecked();
     
-    if (c == checkBoxLimitsX){
+    if (c == checkBoxLimitsXmin){
         Settings::coord[X].useLimitMin = state;
+    }
+    if (c == checkBoxLimitsXmax){
         Settings::coord[X].useLimitMax = state;
     }
-    if (c == checkBoxLimitsY){
+    if (c == checkBoxLimitsYmin){
         Settings::coord[Y].useLimitMin = state;
+    }
+    if (c == checkBoxLimitsYmax){
         Settings::coord[Y].useLimitMax = state;
     }
-    if (c == checkBoxLimitsZ){
+    if (c == checkBoxLimitsZmin){
         Settings::coord[Z].useLimitMin = state;
+    }
+    if (c == checkBoxLimitsZmax){
         Settings::coord[Z].useLimitMax = state;
     }
-    if (c == checkBoxLimitsA){
+    if (c == checkBoxLimitsAmin){
         Settings::coord[A].useLimitMin = state;
+    }
+    if (c == checkBoxLimitsAmax){
         Settings::coord[A].useLimitMax = state;
     }
 }

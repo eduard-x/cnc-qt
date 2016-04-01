@@ -46,8 +46,6 @@
 #include <math.h>
 
 
-// GLWidget::xAxis ={};
-
 GLWidget::GLWidget(QWidget *p)
     : QGLWidget(p)
 {

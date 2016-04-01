@@ -281,8 +281,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onRunToPoint();
         void onSendCommand();
 
-//         void on3dSettings();
-
         void onGeneratorCode(); // not connected
 
         bool readLangDir();
@@ -313,7 +311,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void patchSpeedAndAccelCode(int begPos, int endPos);
         void fixGCodeList();
         void detectMinMax(int pos);
-        //         void resetMinMax();
+
         void runNextCommand();
         void fillListWidget(QStringList listCode);
         QString getLocaleString();
@@ -330,8 +328,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void SendSignal();
         void readSettings();
         void writeSettings();
-        //         void readSettings(bool global);
-        //         void writeSettings(bool global);
+        void updateSettingsOnGUI();
+
         QString selectedLang;
 
     protected:
@@ -341,7 +339,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         Task::StatusTask currentStatus;
         //
         QString axisNames;
-        //         QTimer  mainTaskTimer;
         QTimer  mainGUITimer;
         QStringList lastFiles;
         QLabel *statusLabel1;

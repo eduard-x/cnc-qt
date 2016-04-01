@@ -80,7 +80,7 @@ QString cTranslator::engText[] = {
     "In line: %1 commands are not decoded: ",
     "File error",
     "About program",
-    "Program for MK1 controller management, information about controller: %1\ninformation about the C# version of program: %2\n and: %3\nQt project: %4",
+    "Program for MK1 controller management\nInformation about controller: %1\ninformation about the C# version of program: %2\n and: %3\nQt project: %4",
     "APPLY DATA CORRECTURE", // 40
     "Proportions (%)",
     "Correcture G-code",
