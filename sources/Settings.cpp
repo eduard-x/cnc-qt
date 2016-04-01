@@ -190,8 +190,8 @@ SettingsDialog::SettingsDialog(QWidget *p)
     doubleSpinAccelA->setValue(Settings::coord[A].acceleration);
 
     checkBoxDemoController->setChecked(Settings::DEMO_DEVICE);
-    
-    // visualisation settings 
+
+    // visualisation settings
     radioButtonLines->setChecked(parent->ShowLines);
     radioButtonPoints->setChecked(parent->ShowPoints);
 
@@ -276,8 +276,8 @@ void SettingsDialog::translateDialog()
     for(int i = 0; i < l.count(); i++) {
         l[i]->setText(strl.at(i));
     }
-    
-    // visualisation translations 
+
+    // visualisation translations
     groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
     radioButtonLines->setText(translate(_DISPLAY_LINES));
     radioButtonPoints->setText(translate(_DISPLAY_POINTS));
@@ -389,8 +389,8 @@ void SettingsDialog::onSave()
     Settings::maxLookaheadAngle = spinBoxLookLines->value();
 
     Settings::DEMO_DEVICE  = checkBoxDemoController->isChecked();
-    
-    // visualisation settings 
+
+    // visualisation settings
     parent->ShowInstrument = checkBoxInstr->isChecked();
     parent->ShowGrid = groupBoxGrid->isChecked();
     parent->ShowSurface = checkBoxSurface->isChecked();

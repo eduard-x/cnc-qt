@@ -401,7 +401,7 @@ void mk1Controller::setDescription(const QString &c)
 }
 
 /**
- * @brief slot from readThread 
+ * @brief slot from readThread
  *
  */
 void mk1Controller::onReadNewData()

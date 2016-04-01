@@ -276,13 +276,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     //
     cnc = new mk1Controller();
-    
-    // 
+
+    //
     QPixmap p1 = QPixmap(":/images/workbench.png");
     QGraphicsScene *scene = new QGraphicsScene();
     QGraphicsPixmapItem *item_p1 = scene->addPixmap(p1);
     item_p1->setVisible(true);
-  
+
     graphicsView->setScene(scene);
 
     // OpenGL area
@@ -310,7 +310,7 @@ MainWindow::MainWindow(QWidget *parent)
         statusLabel2->setPalette(palette);
         statusLabel2->setText( "OpenGL " + translate(_DISABLED) );
         tabWidget->removeTab(1);
-//         actionOpenGL->setEnabled(false);
+        //         actionOpenGL->setEnabled(false);
     }
 
     Correction = false;
@@ -423,7 +423,7 @@ void MainWindow::addConnections()
     connect(actionSave, SIGNAL(triggered()), this, SLOT(onSaveFile()));
     connect(actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
 
-//     connect(actionOpenGL, SIGNAL(triggered()), this, SLOT(on3dSettings()));
+    //     connect(actionOpenGL, SIGNAL(triggered()), this, SLOT(on3dSettings()));
     connect(actionProgram, SIGNAL(triggered()), this, SLOT(onSettings()));
 
     connect(toolCalcVelocity, SIGNAL(clicked()), this, SLOT(onCalcVelocity()));
@@ -459,23 +459,23 @@ void MainWindow::addConnections()
     connect(pushCopyHome, SIGNAL(clicked()), this, SLOT(onCopyHome()));
     // end menu
 
-     // workbench 
-     connect(checkBoxSwapX, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
-     connect(checkBoxSwapY, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
-     connect(checkBoxSwapZ, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
-     connect(checkBoxSwapA, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
-     
-     connect(checkBoxLimitsXmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
-     connect(checkBoxLimitsXmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
-     connect(checkBoxLimitsYmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+    // workbench
+    connect(checkBoxSwapX, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+    connect(checkBoxSwapY, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+    connect(checkBoxSwapZ, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+    connect(checkBoxSwapA, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
+
+    connect(checkBoxLimitsXmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+    connect(checkBoxLimitsXmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+    connect(checkBoxLimitsYmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
     connect(checkBoxLimitsYmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
-     connect(checkBoxLimitsZmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
-     connect(checkBoxLimitsZmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
-     connect(checkBoxLimitsAmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
-     connect(checkBoxLimitsAmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+    connect(checkBoxLimitsZmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+    connect(checkBoxLimitsZmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+    connect(checkBoxLimitsAmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
+    connect(checkBoxLimitsAmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
     // end of workbench
-     
-     
+
+
     connect(listGCodeWidget, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(onEditGCode(int, int)));
     connect(listGCodeWidget, SIGNAL(cellActivated(int, int)), this, SLOT(onCellSelect(int, int)));
 
@@ -746,16 +746,16 @@ void MainWindow::updateSettingsOnGUI()
     checkBoxSwapY->setChecked(Settings::coord[Y].invertDirection);
     checkBoxSwapZ->setChecked(Settings::coord[Z].invertDirection);
     checkBoxSwapA->setChecked(Settings::coord[A].invertDirection);
-    
-   checkBoxLimitsXmin->setChecked(Settings::coord[X].useLimitMin);
-   checkBoxLimitsXmax->setChecked(Settings::coord[X].useLimitMax);
-    
-     checkBoxLimitsYmin->setChecked(Settings::coord[Y].useLimitMin);
-      checkBoxLimitsYmax->setChecked(Settings::coord[Y].useLimitMax);
-    
+
+    checkBoxLimitsXmin->setChecked(Settings::coord[X].useLimitMin);
+    checkBoxLimitsXmax->setChecked(Settings::coord[X].useLimitMax);
+
+    checkBoxLimitsYmin->setChecked(Settings::coord[Y].useLimitMin);
+    checkBoxLimitsYmax->setChecked(Settings::coord[Y].useLimitMax);
+
     checkBoxLimitsZmin->setChecked(Settings::coord[Z].useLimitMin);
     checkBoxLimitsZmax->setChecked(Settings::coord[Z].useLimitMax);
-    
+
     checkBoxLimitsAmin->setChecked(Settings::coord[A].useLimitMin);
     checkBoxLimitsAmax->setChecked(Settings::coord[A].useLimitMax);
 }
@@ -769,6 +769,9 @@ void MainWindow::writeSettings()
 {
     QSettings* s;
     s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
+ 
+//     s->beginGroup("General");
+
     s->setValue("pos", pos());
     s->setValue("size", size());
     //     s->setValue("WorkDir", currentWorkDir);
@@ -829,42 +832,46 @@ void MainWindow::writeSettings()
     s->setValue("GridYend", GridYend);
 
     s->setValue("ShowGrate", ShowGrate); // grenzen
+    
+//     s->endGroup();
 
 
     s->beginGroup("mk1");
 
-    for (int c = 0; c < axisNames.count(); c++) {
-        s->setValue("Pulse" + axisNames.at(c).toLatin1(), Settings::coord[c].pulsePerMm);
-        s->setValue("Accel" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].acceleration);
-        s->setValue("StartVelo" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].minVelo);
-        s->setValue("EndVelo" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].maxVelo);
+    for (int c = 0; c < axisNames.length(); c++) {
+        s->setValue("Pulse" +QString( axisNames.at(c)), Settings::coord[c].pulsePerMm);
+        s->setValue("Accel" +QString( axisNames.at(c)), (double)Settings::coord[c].acceleration);
+        s->setValue("StartVelo" +QString( axisNames.at(c)), (double)Settings::coord[c].minVelo);
+        s->setValue("EndVelo" +QString( axisNames.at(c)), (double)Settings::coord[c].maxVelo);
 
         //
-        s->setValue("Backlash" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].backlash);
-        s->setValue("InvDirection" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].invertDirection);
-        s->setValue("InvPulses" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].invertPulses);
-        s->setValue("InvLimitMax" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].invLimitMax);
-        s->setValue("InvLimitMin" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].invLimitMin);
-        s->setValue("WorkAreaMin" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].workAreaMin);
-        s->setValue("WorkAreaMax" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].workAreaMax);
-        s->setValue("Enabled" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].enabled);
+        s->setValue("Backlash" +QString( axisNames.at(c)), (double)Settings::coord[c].backlash);
+        s->setValue("InvDirection" +QString( axisNames.at(c)), (bool)Settings::coord[c].invertDirection);
+        s->setValue("InvPulses" +QString( axisNames.at(c)), (bool)Settings::coord[c].invertPulses);
+        s->setValue("InvLimitMax" +QString( axisNames.at(c)), (bool)Settings::coord[c].invLimitMax);
+        s->setValue("InvLimitMin" +QString( axisNames.at(c)), (bool)Settings::coord[c].invLimitMin);
+        s->setValue("WorkAreaMin" +QString( axisNames.at(c)), (double)Settings::coord[c].workAreaMin);
+        s->setValue("WorkAreaMax" +QString( axisNames.at(c)), (double)Settings::coord[c].workAreaMax);
+        s->setValue("Enabled" +QString( axisNames.at(c)), (bool)Settings::coord[c].enabled);
         //
 
-        s->setValue("HardLimitMin" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].useLimitMin);
-        s->setValue("HardLimitMax" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].useLimitMax);
+        s->setValue("HardLimitMin" +QString( axisNames.at(c)), (bool)Settings::coord[c].useLimitMin);
+        s->setValue("HardLimitMax" +QString( axisNames.at(c)), (bool)Settings::coord[c].useLimitMax);
 
-        s->setValue("SoftLimit" + axisNames.at(c).toLatin1(), (bool)Settings::coord[c].checkSoftLimits);
-        s->setValue("SoftMin" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].softLimitMin);
-        s->setValue("SoftMax" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].softLimitMax);
+        s->setValue("SoftLimit" +QString( axisNames.at(c)), (bool)Settings::coord[c].checkSoftLimits);
+        s->setValue("SoftMin" +QString( axisNames.at(c)), (double)Settings::coord[c].softLimitMin);
+        s->setValue("SoftMax" +QString( axisNames.at(c)), (double)Settings::coord[c].softLimitMax);
 
-        s->setValue("Home" + axisNames.at(c).toLatin1(), (double)Settings::coord[c].home);
+        s->setValue("Home" +QString( axisNames.at(c)), (double)Settings::coord[c].home);
     }
 
     s->endGroup();
 
     s->sync();
-    
+
     updateSettingsOnGUI();
+    
+    delete s;
 }
 
 
@@ -876,6 +883,9 @@ void MainWindow::readSettings()
 {
     QSettings* s;
     s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
+      
+//     s->beginGroup("General");
+
     QPoint pos = s->value("pos", QPoint(200, 200)).toPoint();
     QSize size = s->value("size", QSize(840, 640)).toSize();
     resize(size);
@@ -985,59 +995,63 @@ void MainWindow::readSettings()
     GridYend = s->value("GridYend", 100).toInt();
 
     ShowGrate = s->value("ShowGrate", true).toBool(); // grenzen
+    
+//     s->endGroup();
 
     bool res;
 
     s->beginGroup("mk1");
 
     for (int c = 0; c < axisNames.length(); c++) {
-        int i = s->value("Pulse" + axisNames.at(c).toLatin1(), 200).toInt( &res);
+        int i = s->value("Pulse" +QString( axisNames.at(c)), 200).toInt( &res);
         Settings::coord[c].pulsePerMm = (res == true) ? i : 200;
 
-        float f = s->value("Accel" + axisNames.at(c).toLatin1(), 15).toFloat( &res);
+        float f = s->value("Accel" +QString( axisNames.at(c)), 15).toFloat( &res);
         Settings::coord[c].acceleration = (res == true) ? f : 15;
 
-        f = s->value("StartVelo" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
+        f = s->value("StartVelo" +QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].minVelo = (res == true) ? f : 0;
 
-        f = s->value("EndVelo" + axisNames.at(c).toLatin1(), 400).toFloat( &res);
+        f = s->value("EndVelo" +QString( axisNames.at(c)), 400).toFloat( &res);
         Settings::coord[c].maxVelo = (res == true) ? f : 400;
 
-        Settings::coord[c].checkSoftLimits = s->value("SoftLimit" + axisNames.at(c).toLatin1(), false).toBool( );
+        Settings::coord[c].checkSoftLimits = s->value("SoftLimit" +QString( axisNames.at(c)), false).toBool( );
 
-        f = s->value("SoftMin" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
+        f = s->value("SoftMin" +QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].softLimitMin = (res == true) ? f : 0;
 
-        f = s->value("SoftMax" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
+        f = s->value("SoftMax" +QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].softLimitMax = (res == true) ? f : 0;
 
-        f = s->value("Home" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
+        f = s->value("Home" +QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].home = (res == true) ? f : 0;
 
-        Settings::coord[c].useLimitMin = s->value("HardLimitMin" + axisNames.at(c).toLatin1(), true).toBool();
-        Settings::coord[c].useLimitMax = s->value("HardLimitMax" + axisNames.at(c).toLatin1(), true).toBool();
+        Settings::coord[c].useLimitMin = s->value("HardLimitMin" +QString( axisNames.at(c)), true).toBool();
+        Settings::coord[c].useLimitMax = s->value("HardLimitMax" +QString( axisNames.at(c)), true).toBool();
 
         //
-        Settings::coord[c].invertDirection = s->value("InvDirection" + axisNames.at(c).toLatin1(), false).toBool();
-        Settings::coord[c].invertPulses = s->value("InvPulses" + axisNames.at(c).toLatin1(), false).toBool();
-        Settings::coord[c].invLimitMax = s->value("InvLimitMax" + axisNames.at(c).toLatin1(), false).toBool();
-        Settings::coord[c].invLimitMin = s->value("InvLimitMin" + axisNames.at(c).toLatin1(), false).toBool();
-        Settings::coord[c].enabled = s->value("Enabled" + axisNames.at(c).toLatin1(), true).toBool();
+        Settings::coord[c].invertDirection = s->value("InvDirection" +QString( axisNames.at(c)), false).toBool();
+        Settings::coord[c].invertPulses = s->value("InvPulses" +QString( axisNames.at(c)), false).toBool();
+        Settings::coord[c].invLimitMax = s->value("InvLimitMax" +QString( axisNames.at(c)), false).toBool();
+        Settings::coord[c].invLimitMin = s->value("InvLimitMin" +QString( axisNames.at(c)), false).toBool();
+        Settings::coord[c].enabled = s->value("Enabled" +QString( axisNames.at(c)), true).toBool();
 
-        f = s->value("Backlash" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
+        f = s->value("Backlash" +QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].backlash = (res == true) ? f : 0;
 
-        f = s->value("WorkAreaMin" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
+        f = s->value("WorkAreaMin" +QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].workAreaMin = (res == true) ? f : 0;
 
-        f = s->value("WorkAreaMax" + axisNames.at(c).toLatin1(), 0).toFloat( &res);
+        f = s->value("WorkAreaMax" +QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].workAreaMax = (res == true) ? f : 0;
         //
     }
 
     s->endGroup();
-    
+
     updateSettingsOnGUI();
+    
+    delete s;
 }
 
 
@@ -1342,7 +1356,7 @@ void MainWindow::translateGUI()
     labelMoving->setText(translate(_MOVING));
 
     checkEnSpindle->setText(translate(_ON_SPINDLE));
-//     checkHWLimits->setText(translate(_CHECK_HW_LIMITS));
+    //     checkHWLimits->setText(translate(_CHECK_HW_LIMITS));
     checkHomeAtStart->setText(translate(_GO_HOME_AT_START));
     checkHomeAtEnd->setText(translate(_GO_HOME_AT_END));
 
@@ -1511,29 +1525,36 @@ void MainWindow::onCheckBoxWorkbenchLimits()
 {
     QCheckBox* c  = static_cast<QCheckBox*>(sender());
     bool state = c->isChecked();
-    
-    if (c == checkBoxLimitsXmin){
+
+    if (c == checkBoxLimitsXmin) {
         Settings::coord[X].useLimitMin = state;
     }
-    if (c == checkBoxLimitsXmax){
+
+    if (c == checkBoxLimitsXmax) {
         Settings::coord[X].useLimitMax = state;
     }
-    if (c == checkBoxLimitsYmin){
+
+    if (c == checkBoxLimitsYmin) {
         Settings::coord[Y].useLimitMin = state;
     }
-    if (c == checkBoxLimitsYmax){
+
+    if (c == checkBoxLimitsYmax) {
         Settings::coord[Y].useLimitMax = state;
     }
-    if (c == checkBoxLimitsZmin){
+
+    if (c == checkBoxLimitsZmin) {
         Settings::coord[Z].useLimitMin = state;
     }
-    if (c == checkBoxLimitsZmax){
+
+    if (c == checkBoxLimitsZmax) {
         Settings::coord[Z].useLimitMax = state;
     }
-    if (c == checkBoxLimitsAmin){
+
+    if (c == checkBoxLimitsAmin) {
         Settings::coord[A].useLimitMin = state;
     }
-    if (c == checkBoxLimitsAmax){
+
+    if (c == checkBoxLimitsAmax) {
         Settings::coord[A].useLimitMax = state;
     }
 }
@@ -1545,18 +1566,21 @@ void MainWindow::onCheckBoxWorkbenchSwap()
 {
     QCheckBox* c  = static_cast<QCheckBox*>(sender());
     bool state = c->isChecked();
-    
-     // swap directions
-    if (c == checkBoxSwapX){
+
+    // swap directions
+    if (c == checkBoxSwapX) {
         Settings::coord[X].invertDirection = state;
     }
-    if (c == checkBoxSwapY){
+
+    if (c == checkBoxSwapY) {
         Settings::coord[Y].invertDirection = state;
     }
-    if (c == checkBoxSwapZ){
+
+    if (c == checkBoxSwapZ) {
         Settings::coord[Z].invertDirection = state;
     }
-    if (c == checkBoxSwapX){
+
+    if (c == checkBoxSwapX) {
         Settings::coord[A].invertDirection = state;
     }
 }
@@ -1988,7 +2012,7 @@ void MainWindow::onRunToPoint()
     if (!cnc->testAllowActions()) {
         return;
     }
-    
+
     cnc->sendSettings();
 
     moveToPoint();

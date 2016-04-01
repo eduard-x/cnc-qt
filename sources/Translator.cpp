@@ -246,7 +246,7 @@ QString cTranslator::engText[] = {
     "Enable hardware limits",
     "Go to 'home' at start",
     "Go to 'home' at end", // 200
-    "Workbench", 
+    "Workbench",
     "Diagnostic",
     "Visualisation",
     "Colors",
