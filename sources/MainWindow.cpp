@@ -769,8 +769,8 @@ void MainWindow::writeSettings()
 {
     QSettings* s;
     s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
- 
-//     s->beginGroup("General");
+
+    //     s->beginGroup("General");
 
     s->setValue("pos", pos());
     s->setValue("size", size());
@@ -816,6 +816,9 @@ void MainWindow::writeSettings()
     }
 
     // opengl settings
+
+    s->beginGroup("OpenGL");
+
     s->setValue("ShowLines", ShowLines);
     s->setValue("ShowPoints", ShowPoints);
 
@@ -832,37 +835,37 @@ void MainWindow::writeSettings()
     s->setValue("GridYend", GridYend);
 
     s->setValue("ShowGrate", ShowGrate); // grenzen
-    
-//     s->endGroup();
+
+    s->endGroup();
 
 
     s->beginGroup("mk1");
 
     for (int c = 0; c < axisNames.length(); c++) {
-        s->setValue("Pulse" +QString( axisNames.at(c)), Settings::coord[c].pulsePerMm);
-        s->setValue("Accel" +QString( axisNames.at(c)), (double)Settings::coord[c].acceleration);
-        s->setValue("StartVelo" +QString( axisNames.at(c)), (double)Settings::coord[c].minVelo);
-        s->setValue("EndVelo" +QString( axisNames.at(c)), (double)Settings::coord[c].maxVelo);
+        s->setValue("Pulse" + QString( axisNames.at(c)), Settings::coord[c].pulsePerMm);
+        s->setValue("Accel" + QString( axisNames.at(c)), (double)Settings::coord[c].acceleration);
+        s->setValue("StartVelo" + QString( axisNames.at(c)), (double)Settings::coord[c].minVelo);
+        s->setValue("EndVelo" + QString( axisNames.at(c)), (double)Settings::coord[c].maxVelo);
 
         //
-        s->setValue("Backlash" +QString( axisNames.at(c)), (double)Settings::coord[c].backlash);
-        s->setValue("InvDirection" +QString( axisNames.at(c)), (bool)Settings::coord[c].invertDirection);
-        s->setValue("InvPulses" +QString( axisNames.at(c)), (bool)Settings::coord[c].invertPulses);
-        s->setValue("InvLimitMax" +QString( axisNames.at(c)), (bool)Settings::coord[c].invLimitMax);
-        s->setValue("InvLimitMin" +QString( axisNames.at(c)), (bool)Settings::coord[c].invLimitMin);
-        s->setValue("WorkAreaMin" +QString( axisNames.at(c)), (double)Settings::coord[c].workAreaMin);
-        s->setValue("WorkAreaMax" +QString( axisNames.at(c)), (double)Settings::coord[c].workAreaMax);
-        s->setValue("Enabled" +QString( axisNames.at(c)), (bool)Settings::coord[c].enabled);
+        s->setValue("Backlash" + QString( axisNames.at(c)), (double)Settings::coord[c].backlash);
+        s->setValue("InvDirection" + QString( axisNames.at(c)), (bool)Settings::coord[c].invertDirection);
+        s->setValue("InvPulses" + QString( axisNames.at(c)), (bool)Settings::coord[c].invertPulses);
+        s->setValue("InvLimitMax" + QString( axisNames.at(c)), (bool)Settings::coord[c].invLimitMax);
+        s->setValue("InvLimitMin" + QString( axisNames.at(c)), (bool)Settings::coord[c].invLimitMin);
+        s->setValue("WorkAreaMin" + QString( axisNames.at(c)), (double)Settings::coord[c].workAreaMin);
+        s->setValue("WorkAreaMax" + QString( axisNames.at(c)), (double)Settings::coord[c].workAreaMax);
+        s->setValue("Enabled" + QString( axisNames.at(c)), (bool)Settings::coord[c].enabled);
         //
 
-        s->setValue("HardLimitMin" +QString( axisNames.at(c)), (bool)Settings::coord[c].useLimitMin);
-        s->setValue("HardLimitMax" +QString( axisNames.at(c)), (bool)Settings::coord[c].useLimitMax);
+        s->setValue("HardLimitMin" + QString( axisNames.at(c)), (bool)Settings::coord[c].useLimitMin);
+        s->setValue("HardLimitMax" + QString( axisNames.at(c)), (bool)Settings::coord[c].useLimitMax);
 
-        s->setValue("SoftLimit" +QString( axisNames.at(c)), (bool)Settings::coord[c].checkSoftLimits);
-        s->setValue("SoftMin" +QString( axisNames.at(c)), (double)Settings::coord[c].softLimitMin);
-        s->setValue("SoftMax" +QString( axisNames.at(c)), (double)Settings::coord[c].softLimitMax);
+        s->setValue("SoftLimit" + QString( axisNames.at(c)), (bool)Settings::coord[c].checkSoftLimits);
+        s->setValue("SoftMin" + QString( axisNames.at(c)), (double)Settings::coord[c].softLimitMin);
+        s->setValue("SoftMax" + QString( axisNames.at(c)), (double)Settings::coord[c].softLimitMax);
 
-        s->setValue("Home" +QString( axisNames.at(c)), (double)Settings::coord[c].home);
+        s->setValue("Home" + QString( axisNames.at(c)), (double)Settings::coord[c].home);
     }
 
     s->endGroup();
@@ -870,7 +873,7 @@ void MainWindow::writeSettings()
     s->sync();
 
     updateSettingsOnGUI();
-    
+
     delete s;
 }
 
@@ -883,8 +886,8 @@ void MainWindow::readSettings()
 {
     QSettings* s;
     s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
-      
-//     s->beginGroup("General");
+
+    //     s->beginGroup("General");
 
     QPoint pos = s->value("pos", QPoint(200, 200)).toPoint();
     QSize size = s->value("size", QSize(840, 640)).toSize();
@@ -979,6 +982,8 @@ void MainWindow::readSettings()
     }
 
     // opengl settings
+    s->beginGroup("OpenGL");
+
     ShowLines = s->value("ShowLines", false).toBool();
     ShowPoints = s->value("ShowPoints", true).toBool();
 
@@ -995,54 +1000,54 @@ void MainWindow::readSettings()
     GridYend = s->value("GridYend", 100).toInt();
 
     ShowGrate = s->value("ShowGrate", true).toBool(); // grenzen
-    
-//     s->endGroup();
+
+    s->endGroup();
 
     bool res;
 
     s->beginGroup("mk1");
 
     for (int c = 0; c < axisNames.length(); c++) {
-        int i = s->value("Pulse" +QString( axisNames.at(c)), 200).toInt( &res);
+        int i = s->value("Pulse" + QString( axisNames.at(c)), 200).toInt( &res);
         Settings::coord[c].pulsePerMm = (res == true) ? i : 200;
 
-        float f = s->value("Accel" +QString( axisNames.at(c)), 15).toFloat( &res);
+        float f = s->value("Accel" + QString( axisNames.at(c)), 15).toFloat( &res);
         Settings::coord[c].acceleration = (res == true) ? f : 15;
 
-        f = s->value("StartVelo" +QString( axisNames.at(c)), 0).toFloat( &res);
+        f = s->value("StartVelo" + QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].minVelo = (res == true) ? f : 0;
 
-        f = s->value("EndVelo" +QString( axisNames.at(c)), 400).toFloat( &res);
+        f = s->value("EndVelo" + QString( axisNames.at(c)), 400).toFloat( &res);
         Settings::coord[c].maxVelo = (res == true) ? f : 400;
 
-        Settings::coord[c].checkSoftLimits = s->value("SoftLimit" +QString( axisNames.at(c)), false).toBool( );
+        Settings::coord[c].checkSoftLimits = s->value("SoftLimit" + QString( axisNames.at(c)), false).toBool( );
 
-        f = s->value("SoftMin" +QString( axisNames.at(c)), 0).toFloat( &res);
+        f = s->value("SoftMin" + QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].softLimitMin = (res == true) ? f : 0;
 
-        f = s->value("SoftMax" +QString( axisNames.at(c)), 0).toFloat( &res);
+        f = s->value("SoftMax" + QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].softLimitMax = (res == true) ? f : 0;
 
-        f = s->value("Home" +QString( axisNames.at(c)), 0).toFloat( &res);
+        f = s->value("Home" + QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].home = (res == true) ? f : 0;
 
-        Settings::coord[c].useLimitMin = s->value("HardLimitMin" +QString( axisNames.at(c)), true).toBool();
-        Settings::coord[c].useLimitMax = s->value("HardLimitMax" +QString( axisNames.at(c)), true).toBool();
+        Settings::coord[c].useLimitMin = s->value("HardLimitMin" + QString( axisNames.at(c)), true).toBool();
+        Settings::coord[c].useLimitMax = s->value("HardLimitMax" + QString( axisNames.at(c)), true).toBool();
 
         //
-        Settings::coord[c].invertDirection = s->value("InvDirection" +QString( axisNames.at(c)), false).toBool();
-        Settings::coord[c].invertPulses = s->value("InvPulses" +QString( axisNames.at(c)), false).toBool();
-        Settings::coord[c].invLimitMax = s->value("InvLimitMax" +QString( axisNames.at(c)), false).toBool();
-        Settings::coord[c].invLimitMin = s->value("InvLimitMin" +QString( axisNames.at(c)), false).toBool();
-        Settings::coord[c].enabled = s->value("Enabled" +QString( axisNames.at(c)), true).toBool();
+        Settings::coord[c].invertDirection = s->value("InvDirection" + QString( axisNames.at(c)), false).toBool();
+        Settings::coord[c].invertPulses = s->value("InvPulses" + QString( axisNames.at(c)), false).toBool();
+        Settings::coord[c].invLimitMax = s->value("InvLimitMax" + QString( axisNames.at(c)), false).toBool();
+        Settings::coord[c].invLimitMin = s->value("InvLimitMin" + QString( axisNames.at(c)), false).toBool();
+        Settings::coord[c].enabled = s->value("Enabled" + QString( axisNames.at(c)), true).toBool();
 
-        f = s->value("Backlash" +QString( axisNames.at(c)), 0).toFloat( &res);
+        f = s->value("Backlash" + QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].backlash = (res == true) ? f : 0;
 
-        f = s->value("WorkAreaMin" +QString( axisNames.at(c)), 0).toFloat( &res);
+        f = s->value("WorkAreaMin" + QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].workAreaMin = (res == true) ? f : 0;
 
-        f = s->value("WorkAreaMax" +QString( axisNames.at(c)), 0).toFloat( &res);
+        f = s->value("WorkAreaMax" + QString( axisNames.at(c)), 0).toFloat( &res);
         Settings::coord[c].workAreaMax = (res == true) ? f : 0;
         //
     }
@@ -1050,7 +1055,7 @@ void MainWindow::readSettings()
     s->endGroup();
 
     updateSettingsOnGUI();
-    
+
     delete s;
 }
 
