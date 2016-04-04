@@ -32,11 +32,11 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
-#include <QtOpenGL>
-#include <QGLBuffer>
+// #include <QtOpenGL>
+// #include <QGLBuffer>
 #include <QEvent>
 #include <QWidget>
-#include <QGLWidget>
+#include <QtOpenGL/QGLWidget>
 #include <QMainWindow>
 #include <QImage>
 #include <QTimeLine>

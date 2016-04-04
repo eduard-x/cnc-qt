@@ -30,9 +30,10 @@
  ****************************************************************************/
 
 #include <QtGui/QImage>
-#include <QtOpenGL>
+#include <QDebug>
+// #include <QtOpenGL>
 #include <QGLFormat>
-#include <QGLWidget>
+#include <QtOpenGL/QGLWidget>
 
 #include <deque>
 #include <utility>

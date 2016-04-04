@@ -33,6 +33,7 @@
 #include <QObject>
 #include <QRegExp>
 #include <QDebug>
+#include <QTime>
 #include <QString>
 
 #include <cmath>

@@ -35,6 +35,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QImage>
+#include <QGraphicsPixmapItem>
 #include <QDebug>
 #include <QVector>
 #include <QDateTime>
