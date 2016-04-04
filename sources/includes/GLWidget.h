@@ -33,6 +33,7 @@
 #define GLWIDGET_H
 
 #include <QtOpenGL>
+#include <QGLBuffer>
 #include <QEvent>
 #include <QWidget>
 #include <QGLWidget>
