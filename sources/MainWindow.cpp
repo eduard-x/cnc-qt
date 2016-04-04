@@ -770,7 +770,7 @@ void MainWindow::writeSettings()
     QSettings* s;
     s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
 
-//     s->beginGroup("General");
+    //     s->beginGroup("General");
 
     s->setValue("pos", pos());
     s->setValue("size", size());
@@ -888,7 +888,7 @@ void MainWindow::readSettings()
     QSettings* s;
     s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
 
-//     s->beginGroup("General");
+    //     s->beginGroup("General");
 
     QPoint pos = s->value("pos", QPoint(200, 200)).toPoint();
     QSize size = s->value("size", QSize(840, 640)).toSize();
@@ -982,7 +982,7 @@ void MainWindow::readSettings()
         }
     }
 
-//       s->endGroup();
+    //       s->endGroup();
 
     // opengl settings
     s->beginGroup("OpenGL");
@@ -1158,7 +1158,7 @@ void MainWindow::setLang(QAction* mnu)
         qDebug() << "setLang" << false;
     }
 
-//     QVector<QAction*>::iterator itL;
+    //     QVector<QAction*>::iterator itL;
 
     disconnect(langGroup, SIGNAL(triggered(QAction*)), this, SLOT(setLang(QAction*)));
 

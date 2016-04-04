@@ -8,4 +8,6 @@
 
 #define USE_OPENGL  @USE_OPENGL@
 
+#define IS_GLES    @IS_GLES@
+
 #endif

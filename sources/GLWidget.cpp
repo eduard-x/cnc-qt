@@ -326,8 +326,11 @@ void GLWidget::initializeGL()//Init3D()//*OK*
     // clening
     glLoadIdentity();
 
+#if IS_GLES == true
     glScalef( 1, 1, -1 ); // negative z is top
-
+#else
+    glScalef( 1, 1, -1 ); // negative z is top
+#endif
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 

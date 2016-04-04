@@ -114,13 +114,13 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
         connect(&(*itB), SIGNAL(released()), this, SLOT(numPressed()));
     }
 
-     foreach (QToolButton* itB, buttonsCursor) {
+    foreach (QToolButton* itB, buttonsCursor) {
         (*itB).setFocusPolicy(Qt::NoFocus);
         connect(&(*itB), SIGNAL(pressed()), this, SLOT(curPressed()));
         connect(&(*itB), SIGNAL(released()), this, SLOT(curPressed()));
     }
 
-     foreach (QToolButton* itB, buttonsUser) {
+    foreach (QToolButton* itB, buttonsUser) {
         (*itB).setFocusPolicy(Qt::NoFocus);
         connect(&(*itB), SIGNAL(pressed()), this, SLOT(userPressed()));
         connect(&(*itB), SIGNAL(released()), this, SLOT(userPressed()));

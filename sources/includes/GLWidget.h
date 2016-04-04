@@ -40,13 +40,10 @@
 #include <QImage>
 #include <QTimeLine>
 
+
 #include "Geometry.h"
-// #include "Settings.h"
-// #include "Translator.h"
-// #include "mk1Controller.h"
 #include "MainWindow.h"
 
-// class Settings;
 class MainWindow;
 class mk1Controller;
 
