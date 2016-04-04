@@ -108,22 +108,22 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
 
     spinBoxVelo->setValue(parent->veloManual);
 
-    for (QVector<QToolButton*>::iterator itB = buttonsNumPad.begin(); itB != buttonsNumPad.end(); ++itB) {
-        (*itB)->setFocusPolicy(Qt::NoFocus);
-        connect((*itB), SIGNAL(pressed()), this, SLOT(numPressed()));
-        connect((*itB), SIGNAL(released()), this, SLOT(numPressed()));
+    foreach (QToolButton* itB, buttonsNumPad) {
+        (*itB).setFocusPolicy(Qt::NoFocus);
+        connect(&(*itB), SIGNAL(pressed()), this, SLOT(numPressed()));
+        connect(&(*itB), SIGNAL(released()), this, SLOT(numPressed()));
     }
 
-    for (QVector<QToolButton*>::iterator itB = buttonsCursor.begin(); itB != buttonsCursor.end(); ++itB) {
-        (*itB)->setFocusPolicy(Qt::NoFocus);
-        connect((*itB), SIGNAL(pressed()), this, SLOT(curPressed()));
-        connect((*itB), SIGNAL(released()), this, SLOT(curPressed()));
+     foreach (QToolButton* itB, buttonsCursor) {
+        (*itB).setFocusPolicy(Qt::NoFocus);
+        connect(&(*itB), SIGNAL(pressed()), this, SLOT(curPressed()));
+        connect(&(*itB), SIGNAL(released()), this, SLOT(curPressed()));
     }
 
-    for (QVector<QToolButton*>::iterator itB = buttonsUser.begin(); itB != buttonsUser.end(); ++itB) {
-        (*itB)->setFocusPolicy(Qt::NoFocus);
-        connect((*itB), SIGNAL(pressed()), this, SLOT(userPressed()));
-        connect((*itB), SIGNAL(released()), this, SLOT(userPressed()));
+     foreach (QToolButton* itB, buttonsUser) {
+        (*itB).setFocusPolicy(Qt::NoFocus);
+        connect(&(*itB), SIGNAL(pressed()), this, SLOT(userPressed()));
+        connect(&(*itB), SIGNAL(released()), this, SLOT(userPressed()));
     }
 
     this->installEventFilter(this);
