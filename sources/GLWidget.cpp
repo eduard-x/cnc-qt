@@ -31,8 +31,7 @@
 
 #include <QtGui/QImage>
 #include <QDebug>
-// #include <QtOpenGL>
-#include <QGLFormat>
+// #include <QGLFormat>
 #include <QtOpenGL/QGLWidget>
 
 #include <deque>
@@ -298,14 +297,6 @@ void GLWidget::matrixReloaded()
 
 void GLWidget::initPreviewSettings()
 {
-    parent->PosX = -96; // TODO depended from figure size
-    parent->PosY = -64; // TODO depended from figure size
-    parent->PosZ = -300; // TODO depended from figure size
-    parent->PosAngleX = 180;
-    parent->PosAngleY = 180;
-    parent->PosAngleZ = 180;
-    parent->PosZoom = 20; // TODO depended from picture size
-
     emit xRotationChanged(parent->PosAngleX);
     emit yRotationChanged(parent->PosAngleY);
     emit zRotationChanged(parent->PosAngleZ);
@@ -458,7 +449,7 @@ void GLWidget::Draw() // drawing, main function
     }
 
 
-    ///угловое вращение
+    /// угловое вращение
     glRotated(parent->PosAngleX, 1, 0, 0);
     glRotated(parent->PosAngleY, 0, 1, 0);
     glRotated(parent->PosAngleZ, 0, 0, 1);

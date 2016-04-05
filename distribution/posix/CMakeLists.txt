@@ -14,7 +14,7 @@ INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/lang" DESTINATION "/usr/share/cncqt/" F
 INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/help" DESTINATION "/usr/share/cncqt/" FILES_MATCHING PATTERN "*.*") 
 # MESSAGE("PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}")
 
-SET( desktop "${PROJECT_SOURCE_DIR}/desktop/cncqt.desktop")
+SET( desktop "${PROJECT_SOURCE_DIR}/desktop/cnc-qt.desktop")
 
 INSTALL(FILES ${desktop}
         DESTINATION "/usr/share/applications/"

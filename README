@@ -13,6 +13,14 @@ cd build
 cmake ..
 make 
 
+If You want to create th package (DEB of RPM), must be installed rpm-build or dpkg
+and:
+for DEB based distributions:
+make package-binary-deb
+
+or for RPM
+make package-binary-rpm
+
 Program supports now followed G-Codes: 
 G00
 G01
@@ -29,8 +37,10 @@ M03, M05
 M06
 M206
 
+For connection with hardware please copy the file udev/rules.d/z90_cncusb.rules into /etc/udev/rules.d/ directory and restart the udev daemon.
 
 Version history
 
+0.1.1   implemented: make package-binary-deb, make package-binary-rpm 
 0.1.0   init release
 

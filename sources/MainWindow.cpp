@@ -818,28 +818,40 @@ void MainWindow::writeSettings()
 
 
     // opengl settings
+    if (enableOpenGL == true) {
+#if USE_OPENGL == true
+        s->beginGroup("OpenGL");
 
-    s->beginGroup("OpenGL");
+        s->setValue("ShowLines", ShowLines);
+        s->setValue("ShowPoints", ShowPoints);
 
-    s->setValue("ShowLines", ShowLines);
-    s->setValue("ShowPoints", ShowPoints);
+        s->setValue("ShowInstrument", ShowInstrument);
+        s->setValue("ShowGrid", ShowGrid);
+        s->setValue("ShowSurface", ShowSurface);
+        s->setValue("ShowAxes", ShowAxes);
 
-    s->setValue("ShowInstrument", ShowInstrument);
-    s->setValue("ShowGrid", ShowGrid);
-    s->setValue("ShowSurface", ShowSurface);
-    s->setValue("ShowAxes", ShowAxes);
+        s->setValue("GrigStep", GrigStep);
 
-    s->setValue("GrigStep", GrigStep);
+        s->setValue("GridXstart", GridXstart);
+        s->setValue("GridXend", GridXend);
+        s->setValue("GridYstart", GridYstart);
+        s->setValue("GridYend", GridYend);
 
-    s->setValue("GridXstart", GridXstart);
-    s->setValue("GridXend", GridXend);
-    s->setValue("GridYstart", GridYstart);
-    s->setValue("GridYend", GridYend);
+        s->setValue("ShowGrate", ShowGrate); // grenzen
 
-    s->setValue("ShowGrate", ShowGrate); // grenzen
-
-    s->endGroup();
-
+        s->setValue("PosX", PosX); // 
+        s->setValue("PosY", PosY); // 
+        s->setValue("PosZ", PosZ); // 
+        
+        s->setValue("AngleX", PosAngleX); // 
+        s->setValue("AngleY", PosAngleY); // 
+        s->setValue("AngleZ", PosAngleZ); // 
+        
+        s->setValue("Zoom", PosZoom); //         
+        
+        s->endGroup();
+#endif
+    }
 
     s->beginGroup("mk1");
 
@@ -985,28 +997,42 @@ void MainWindow::readSettings()
 
     //       s->endGroup();
 
-    // opengl settings
-    s->beginGroup("OpenGL");
+    if (enableOpenGL == true) {
+#if USE_OPENGL == true
+        // opengl settings
+        s->beginGroup("OpenGL");
 
-    ShowLines = s->value("ShowLines", false).toBool();
-    ShowPoints = s->value("ShowPoints", true).toBool();
+        ShowLines = s->value("ShowLines", false).toBool();
+        ShowPoints = s->value("ShowPoints", true).toBool();
 
-    ShowInstrument = s->value("ShowInstrument", true).toBool();
-    ShowGrid = s->value("ShowGrid", true).toBool();
-    ShowSurface = s->value("ShowSurface", false).toBool();
-    ShowAxes = s->value("ShowAxes", false).toBool();
+        ShowInstrument = s->value("ShowInstrument", true).toBool();
+        ShowGrid = s->value("ShowGrid", true).toBool();
+        ShowSurface = s->value("ShowSurface", false).toBool();
+        ShowAxes = s->value("ShowAxes", false).toBool();
 
-    GrigStep = s->value("GrigStep", 10).toInt();
+        GrigStep = s->value("GrigStep", 10).toInt();
 
-    GridXstart = s->value("GridXstart", -100).toInt();
-    GridXend = s->value("GridXend", 100).toInt();
-    GridYstart = s->value("GridYstart", -100).toInt();
-    GridYend = s->value("GridYend", 100).toInt();
+        GridXstart = s->value("GridXstart", -100).toInt();
+        GridXend = s->value("GridXend", 100).toInt();
+        GridYstart = s->value("GridYstart", -100).toInt();
+        GridYend = s->value("GridYend", 100).toInt();
 
-    ShowGrate = s->value("ShowGrate", true).toBool(); // grenzen
+        ShowGrate = s->value("ShowGrate", true).toBool(); // grenzen
 
-    s->endGroup();
-
+        PosX = s->value("PosX", -96 ).toInt(); // 
+        PosY = s->value("PosY", -64 ).toInt(); // 
+        PosZ = s->value("PosZ", -300 ).toInt(); // 
+        
+        PosAngleX = s->value("AngleX", 180 ).toInt(); // 
+        PosAngleY = s->value("AngleY", 180 ).toInt(); // 
+        PosAngleZ = s->value("AngleZ", 180 ).toInt(); // 
+        
+        PosZoom = s->value("Zoom", 20 ).toInt(); //   
+        
+        s->endGroup();
+#endif
+    }
+    
     bool res;
 
     s->beginGroup("mk1");
