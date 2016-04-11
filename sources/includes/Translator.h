@@ -258,6 +258,7 @@ enum TR_CONSTS {
     _DIAGNOSTIC, // 202
     _VISUALISATION, // 203
     _COLORS, // 204
+    _DISABLE_VISUALISATION, // 205
     _NULL
 };
 

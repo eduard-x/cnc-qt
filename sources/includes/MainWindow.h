@@ -228,6 +228,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         bool ShowPoints;
         bool ShowSurface;
         bool ShowAxes;
+        
+        bool disableIfSSH;
 
         int GridXstart;
         int GridXend;

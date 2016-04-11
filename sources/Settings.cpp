@@ -200,6 +200,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
     checkBoxSurface->setChecked(parent->ShowSurface);
     checkBoxXYZ->setChecked(parent->ShowAxes);
 
+    checkDisableIfSSH->setChecked(parent->disableIfSSH);
     spinBoxGrid->setValue(parent->GrigStep);
 
     spinBoxBeginX->setValue(parent->GridXstart);
@@ -278,6 +279,7 @@ void SettingsDialog::translateDialog()
     }
 
     // visualisation translations
+    checkDisableIfSSH->setText(translate(_DISABLE_VISUALISATION));
     groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
     radioButtonLines->setText(translate(_DISPLAY_LINES));
     radioButtonPoints->setText(translate(_DISPLAY_POINTS));
@@ -396,6 +398,7 @@ void SettingsDialog::onSave()
     parent->ShowSurface = checkBoxSurface->isChecked();
     parent->ShowAxes = checkBoxXYZ->isChecked();
 
+    parent->disableIfSSH = checkDisableIfSSH->isChecked();
     parent->GrigStep = spinBoxGrid->value();
 
     parent->GridXstart = spinBoxBeginX->value();

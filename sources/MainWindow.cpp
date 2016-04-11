@@ -834,6 +834,8 @@ void MainWindow::writeSettings()
         s->setValue("ShowGrid", ShowGrid);
         s->setValue("ShowSurface", ShowSurface);
         s->setValue("ShowAxes", ShowAxes);
+        
+         s->setValue("DisableOpenGL", disableIfSSH);
 
         s->setValue("GrigStep", GrigStep);
 
@@ -1015,6 +1017,8 @@ void MainWindow::readSettings()
         ShowSurface = s->value("ShowSurface", false).toBool();
         ShowAxes = s->value("ShowAxes", false).toBool();
 
+        disableIfSSH =  s->value("DisableOpenGL", false).toBool(); 
+         
         GrigStep = s->value("GrigStep", 10).toInt();
 
         GridXstart = s->value("GridXstart", -100).toInt();

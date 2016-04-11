@@ -250,6 +250,7 @@ QString cTranslator::engText[] = {
     "Diagnostic",
     "Visualisation",
     "Colors",
+    "Disable visualisation during remote controlling",
     ""
 };
 
