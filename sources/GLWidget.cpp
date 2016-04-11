@@ -29,7 +29,9 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include <QtGui/QImage>
+#include "includes/GLWidget.h"
+
+// #include <QtGui/QImage>
 #include <QDebug>
 // #include <QGLFormat>
 #include <QtOpenGL/QGLWidget>
@@ -41,7 +43,7 @@
 #include "includes/Settings.h"
 #include "includes/MainWindow.h"
 #include "includes/mk1Controller.h"
-#include "includes/GLWidget.h"
+
 
 #include <math.h>
 

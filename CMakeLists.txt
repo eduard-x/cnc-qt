@@ -113,7 +113,7 @@ MESSAGE(STATUS "Version build date: ${BUILD_DATE}")
 
 configure_file (
   "${PROJECT_SOURCE_DIR}/sources/version.h.in"
-  "${PROJECT_SOURCE_DIR}/sources/version.h" )
+  "${PROJECT_SOURCE_DIR}/sources/includes/version.h" )
 
 # 
 SET(CNCQT_PACKAGE cncqt)

@@ -32,13 +32,28 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
-// #include <QtOpenGL>
-// #include <QGLBuffer>
+#include "version.h"
+
+
+// #if USE_GLES2 == true
+// #include <GLES2/gl2.h>
+// // #include <QtGui/QOpenGLFunctions_ES2>
+// #else
+// #include <GL/gl.h>
+// // #include <QtGui/QOpenGLFunctions>
+// #endif
+
+// #include <QtGui/QOpenGLFunctions>
+
 #include <QEvent>
 #include <QWidget>
+
 #include <QtOpenGL/QGLWidget>
+
+
+// #include <QtOpenGL/QGL>
+
 #include <QMainWindow>
-#include <QImage>
 #include <QTimeLine>
 
 

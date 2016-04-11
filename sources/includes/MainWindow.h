@@ -48,10 +48,10 @@
 #include <deque>
 #include <utility>
 
-#include "../version.h"
+#include "version.h"
 #include "vec.h"
 
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
 #include "GLWidget.h"
 #endif
 
@@ -62,7 +62,7 @@
 #include "Translator.h"
 #include "ui_MainWindow.h"
 
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
 class GLWidget;
 #endif
 
@@ -203,7 +203,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         int veloManual;
 
         int currentKeyPad;
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
         GLWidget *scene3d; // OpenGL widget
 #endif
         // 3d Settings

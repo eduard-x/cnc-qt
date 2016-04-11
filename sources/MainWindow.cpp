@@ -44,9 +44,14 @@
 #include <QTextStream>
 #include <QToolButton>
 
-#if USE_OPENGL == true
-#include <QtOpenGL>
+#if USE_GLES2 == true
+// #include <GLES2/gl.h>
+#include <QtGui/QOpenGLFunctions_ES2>
+#elseif USE_OPENGL == true
+// #include <QtOpenGL>
+#include <QtGui/QOpenGLFunctions>
 #endif
+
 
 
 #include "includes/Settings.h"
@@ -61,7 +66,7 @@
 #include "includes/MainWindow.h"
 
 
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
 class GLWidget;
 #endif
 
@@ -207,7 +212,7 @@ MainWindow::MainWindow(QWidget *parent)
     Settings::fromDecimalPoint = (Settings::toDecimalPoint == ',') ? '.' : ',';
 
 
-#if USE_OPENGL == false
+#if USE_OPENGL == false 
     enableOpenGL = false;
 #else
     QString d = getenv( "DISPLAY" ); // linux machines only!
@@ -288,7 +293,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // OpenGL area
     if (enableOpenGL == true) {
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
         scene3d = new GLWidget(this);
 
         scrollArea->setWidget(scene3d);
@@ -302,7 +307,7 @@ MainWindow::MainWindow(QWidget *parent)
         statusLabel2->setText( "OpenGL " + translate(_ENABLED));
         // OpenGL is placed in widget
     } else {
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
         scene3d = 0;
 #endif
         QPalette palette = statusLabel2->palette();
@@ -495,7 +500,7 @@ void MainWindow::addConnections()
 
 
     if (enableOpenGL == true) {
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
         // 3d buttons
         connect(posAngleXm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXm()));
         connect(posAngleX, SIGNAL(clicked()), scene3d, SLOT(onPosAngleX())); // reset to 0
@@ -819,7 +824,7 @@ void MainWindow::writeSettings()
 
     // opengl settings
     if (enableOpenGL == true) {
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
         s->beginGroup("OpenGL");
 
         s->setValue("ShowLines", ShowLines);
@@ -998,7 +1003,7 @@ void MainWindow::readSettings()
     //       s->endGroup();
 
     if (enableOpenGL == true) {
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
         // opengl settings
         s->beginGroup("OpenGL");
 
@@ -2459,7 +2464,7 @@ void  MainWindow::refreshElementsForms()
             toolPause->setEnabled( true);
         }
 
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
 
         if (enableOpenGL == true) {
             scene3d->Draw();
@@ -2542,7 +2547,7 @@ void MainWindow::fillListWidget(QStringList listCode)
     fixGCodeList();
 
 
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
 
     if (enableOpenGL == true) {
         scene3d->matrixReloaded();
@@ -3087,7 +3092,7 @@ void MainWindow::onEmergyStop()
  */
 void MainWindow::on3dSettings()
 {
-#if USE_OPENGL == true
+#if USE_OPENGL == true 
 
     if (enableOpenGL == true) {
         // 3d settings
