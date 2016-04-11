@@ -6,7 +6,7 @@ GenericName=CNC-Qt
 TryExec=cnc-qt
 Exec=cncqt
 Terminal=false
-Icon=cnc-qt.xpm
+Icon=cnc-qt.png
 Type=Application
 Categories=Hardware;Qt;
 

@@ -41,6 +41,7 @@ For connection with hardware please copy the file udev/rules.d/z90_cncusb.rules 
 
 Version history
 
+0.1.2   fixed: installation of udev subdirectory
 0.1.1   implemented: make package-binary-deb, make package-binary-rpm 
 0.1.0   init release
 
