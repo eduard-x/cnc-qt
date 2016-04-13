@@ -29,11 +29,13 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
+#include "includes/version.h"
+
 #include "includes/GLWidget.h"
 
-// #include <QtGui/QImage>
 #include <QDebug>
 // #include <QGLFormat>
+#include <QtOpenGL/QGL>
 #include <QtOpenGL/QGLWidget>
 
 #include <deque>
@@ -447,7 +449,7 @@ void GLWidget::Draw() // drawing, main function
         float scaleY = parent->PosZoom / GLSCALE;
         float scaleZ = parent->PosZoom / GLSCALE;
 
-        glScaled(scaleX, scaleY, scaleZ);
+        glScalef(scaleX, scaleY, scaleZ);
     }
 
 

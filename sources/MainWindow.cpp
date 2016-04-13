@@ -44,13 +44,13 @@
 #include <QTextStream>
 #include <QToolButton>
 
-#if USE_GLES2 == true
-// #include <GLES2/gl.h>
-#include <QtGui/QOpenGLFunctions_ES2>
-#elseif USE_OPENGL == true
-// #include <QtOpenGL>
-#include <QtGui/QOpenGLFunctions>
-#endif
+// #if USE_GLES2 == true
+// // #include <GLES2/gl.h>
+// #include <QtGui/QOpenGLFunctions_ES2>
+// #else
+// // #include <QtOpenGL>
+// #include <QtWidgets/qo>
+// #endif
 
 
 
@@ -65,10 +65,8 @@
 
 #include "includes/MainWindow.h"
 
-
-#if USE_OPENGL == true 
 class GLWidget;
-#endif
+
 
 class MainWindow;
 
@@ -212,14 +210,14 @@ MainWindow::MainWindow(QWidget *parent)
     Settings::fromDecimalPoint = (Settings::toDecimalPoint == ',') ? '.' : ',';
 
 
-#if USE_OPENGL == false 
+    // detection of remote connection
     enableOpenGL = false;
-#else
+
     QString d = getenv( "DISPLAY" ); // linux machines only!
 
     // to disable the OpenGL features, if over ssh
     enableOpenGL = (d.indexOf(QRegExp(":[0-9]")) == 0);
-#endif
+
     currentLang = "English";
 
     filesMenu = 0;
@@ -293,13 +291,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     // OpenGL area
     if (enableOpenGL == true) {
-#if USE_OPENGL == true 
         scene3d = new GLWidget(this);
 
         scrollArea->setWidget(scene3d);
 
         OpenGL_preview->addWidget(scrollArea, 0, 0);
-#endif
+
         QPalette palette = statusLabel2->palette();
         //  palette.setColor(statusLabel2->backgroundRole(), Qt::yellow);
         palette.setColor(statusLabel2->foregroundRole(), Qt::darkBlue);
@@ -307,9 +304,8 @@ MainWindow::MainWindow(QWidget *parent)
         statusLabel2->setText( "OpenGL " + translate(_ENABLED));
         // OpenGL is placed in widget
     } else {
-#if USE_OPENGL == true 
         scene3d = 0;
-#endif
+
         QPalette palette = statusLabel2->palette();
         //  palette.setColor(statusLabel2->backgroundRole(), Qt::yellow);
         palette.setColor(statusLabel2->foregroundRole(), Qt::red);
@@ -500,7 +496,7 @@ void MainWindow::addConnections()
 
 
     if (enableOpenGL == true) {
-#if USE_OPENGL == true 
+
         // 3d buttons
         connect(posAngleXm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXm()));
         connect(posAngleX, SIGNAL(clicked()), scene3d, SLOT(onPosAngleX())); // reset to 0
@@ -522,7 +518,7 @@ void MainWindow::addConnections()
 
         connect(pushDefaultPreview, SIGNAL(clicked()), scene3d, SLOT(onDefaulPreview()));
         // end of 3d buttons
-#endif
+
     }
 
     connect(radioFixX, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
@@ -824,7 +820,6 @@ void MainWindow::writeSettings()
 
     // opengl settings
     if (enableOpenGL == true) {
-#if USE_OPENGL == true 
         s->beginGroup("OpenGL");
 
         s->setValue("ShowLines", ShowLines);
@@ -857,7 +852,6 @@ void MainWindow::writeSettings()
         s->setValue("Zoom", PosZoom); //         
         
         s->endGroup();
-#endif
     }
 
     s->beginGroup("mk1");
@@ -1004,8 +998,7 @@ void MainWindow::readSettings()
 
     //       s->endGroup();
 
-    if (enableOpenGL == true) {
-#if USE_OPENGL == true 
+    if (enableOpenGL == true) { 
         // opengl settings
         s->beginGroup("OpenGL");
 
@@ -1039,7 +1032,6 @@ void MainWindow::readSettings()
         PosZoom = s->value("Zoom", 20 ).toInt(); //   
         
         s->endGroup();
-#endif
     }
     
     bool res;
@@ -2468,14 +2460,10 @@ void  MainWindow::refreshElementsForms()
             toolPause->setEnabled( true);
         }
 
-#if USE_OPENGL == true 
-
         if (enableOpenGL == true) {
             scene3d->Draw();
             scene3d->updateGL();
         }
-
-#endif
     } else {
         toolRun->setEnabled( cncConnected );
         toolPause->setEnabled( cncConnected );
@@ -2550,14 +2538,9 @@ void MainWindow::fillListWidget(QStringList listCode)
 
     fixGCodeList();
 
-
-#if USE_OPENGL == true 
-
     if (enableOpenGL == true) {
         scene3d->matrixReloaded();
     }
-
-#endif
 }
 
 
@@ -3096,7 +3079,7 @@ void MainWindow::onEmergyStop()
  */
 void MainWindow::on3dSettings()
 {
-#if USE_OPENGL == true 
+
 
     if (enableOpenGL == true) {
         // 3d settings
@@ -3108,7 +3091,7 @@ void MainWindow::on3dSettings()
         delete dlg;
     }
 
-#endif
+
 }
 #endif
 
