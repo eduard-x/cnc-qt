@@ -202,7 +202,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         int currentKeyPad;
 
         GLWidget *scene3d; // OpenGL widget
-        
+
         // 3d Settings
         bool ShowGrate;
         //         float grateXmin;
@@ -225,7 +225,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         bool ShowPoints;
         bool ShowSurface;
         bool ShowAxes;
-        
+
         bool disableIfSSH;
 
         int GridXstart;

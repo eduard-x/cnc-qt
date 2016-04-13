@@ -34,9 +34,16 @@
 #include "includes/GLWidget.h"
 
 #include <QDebug>
-// #include <QGLFormat>
+
+#if USE_GLES2 == true
+#include <GLES2/gl2.h>
+// #include <GL/gl.h>
+// #include <QtGui/QOpenGLFunctions>
+// #include <QtGui/QOpenGLContext>
+#else
 #include <QtOpenGL/QGL>
 #include <QtOpenGL/QGLWidget>
+#endif
 
 #include <deque>
 #include <utility>
@@ -454,10 +461,9 @@ void GLWidget::Draw() // drawing, main function
 
 
     /// угловое вращение
-    glRotated(parent->PosAngleX, 1, 0, 0);
-    glRotated(parent->PosAngleY, 0, 1, 0);
-    glRotated(parent->PosAngleZ, 0, 0, 1);
-
+    glRotatef(parent->PosAngleX, 1, 0, 0);
+    glRotatef(parent->PosAngleY, 0, 1, 0);
+    glRotatef(parent->PosAngleZ, 0, 0, 1);
 
 
     glEnable(GL_LINE_SMOOTH);
@@ -635,13 +641,13 @@ void GLWidget::drawGrid()
         glBegin(GL_LINES);
 
         for (int gX = parent->GridXstart; gX < parent->GridXend + 1; gX += parent->GrigStep) {
-            glVertex3d(gX, parent->GridYstart, 0);
-            glVertex3d(gX, parent->GridYend, 0);
+            glVertex3f(gX, parent->GridYstart, 0);
+            glVertex3f(gX, parent->GridYend, 0);
         }
 
         for (int gY = parent->GridYstart; gY < parent->GridYend + 1; gY += parent->GrigStep) {
-            glVertex3d(parent->GridXstart, gY, 0);
-            glVertex3d(parent->GridXend, gY, 0);
+            glVertex3f(parent->GridXstart, gY, 0);
+            glVertex3f(parent->GridXend, gY, 0);
         }
 
         glEnd();
@@ -658,7 +664,7 @@ void GLWidget::drawGrid()
         for (int y = parent->GridYstart; y <  parent->GridYend + 1; y += parent->GrigStep) {
             for (int x = parent->GridXstart; x < parent->GridXend + 1; x += parent->GrigStep) {
                 //point
-                glVertex3d(x, y, 0);
+                glVertex3f(x, y, 0);
             }
         }
 
@@ -687,13 +693,13 @@ void GLWidget::drawTool()
     // GL_LINE_LOOP or GL_POLYGON
     glDrawArrays(GL_LINE_LOOP, 0, footArray.count()); // draw array of lines
 
-    glTranslated(3.6, 16.0, 12.0);
+    glTranslatef(3.6, 16.0, 12.0);
 
     glVertexPointer(3, GL_FLOAT, 0, &traverseArray[0]);
     // GL_LINE_LOOP or GL_POLYGON
     glDrawArrays(GL_LINE_LOOP, 0, traverseArray.count()); // draw array of lines
 
-    glTranslated(64.0, -16.0, -12.0);
+    glTranslatef(64.0, -16.0, -12.0);
     glVertexPointer(3, GL_FLOAT, 0, &footArray[0]);
     // GL_LINE_LOOP or GL_POLYGON
     glDrawArrays(GL_LINE_LOOP, 0, footArray.count()); // draw array of lines
@@ -731,7 +737,7 @@ void GLWidget::drawSurface()
     for (int y = 0; y < maxY; y++) {
         for (int x = 0; x < maxX; x++) {
             //point
-            glVertex3d(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
+            glVertex3f(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
         }
     }
 
@@ -746,26 +752,26 @@ void GLWidget::drawSurface()
         for (int x = 0; x < maxX; x++) {
             if (y > 0) {
                 //line 1
-                glVertex3d(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
-                glVertex3d(parent->surfaceMatrix[y - 1][x].X, parent->surfaceMatrix[y - 1][x].Y, parent->surfaceMatrix[y - 1][x].Z);
+                glVertex3f(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
+                glVertex3f(parent->surfaceMatrix[y - 1][x].X, parent->surfaceMatrix[y - 1][x].Y, parent->surfaceMatrix[y - 1][x].Z);
             }
 
             if (y < maxY - 1) {
                 //line2
-                glVertex3d(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
-                glVertex3d(parent->surfaceMatrix[y + 1][x].X, parent->surfaceMatrix[y + 1][x].Y, parent->surfaceMatrix[y + 1][x].Z);
+                glVertex3f(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
+                glVertex3f(parent->surfaceMatrix[y + 1][x].X, parent->surfaceMatrix[y + 1][x].Y, parent->surfaceMatrix[y + 1][x].Z);
             }
 
             if (x > 0) {
                 //line 3
-                glVertex3d(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
-                glVertex3d(parent->surfaceMatrix[y][x - 1].X, parent->surfaceMatrix[y][x - 1].Y, parent->surfaceMatrix[y][x - 1].Z);
+                glVertex3f(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
+                glVertex3f(parent->surfaceMatrix[y][x - 1].X, parent->surfaceMatrix[y][x - 1].Y, parent->surfaceMatrix[y][x - 1].Z);
             }
 
             if (x < maxX - 1) {
                 //line4
-                glVertex3d(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
-                glVertex3d(parent->surfaceMatrix[y][x + 1].X, parent->surfaceMatrix[y][x + 1].Y, parent->surfaceMatrix[y][x + 1].Z);
+                glVertex3f(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
+                glVertex3f(parent->surfaceMatrix[y][x + 1].X, parent->surfaceMatrix[y][x + 1].Y, parent->surfaceMatrix[y][x + 1].Z);
             }
         }
     }
@@ -784,7 +790,7 @@ void GLWidget::drawInstrument()
     glColor3f(1.000f, 1.000f, 0.000f);
     glLineWidth(3);
 
-    glTranslated(startX, startY, startZ);
+    glTranslatef(startX, startY, startZ);
 
     glVertexPointer(3, GL_FLOAT, 0, &instrumentArray[0]);
 
@@ -818,11 +824,11 @@ void GLWidget::drawGrate()
 
     glBegin(GL_LINE_STRIP); // normal lines
 
-    glVertex3d( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0);
-    glVertex3d( Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin, 0);
-    glVertex3d( Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMax, 0);
-    glVertex3d( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMax, 0);
-    glVertex3d( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0);
+    glVertex3f( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0);
+    glVertex3f( Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin, 0);
+    glVertex3f( Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMax, 0);
+    glVertex3f( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMax, 0);
+    glVertex3f( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0);
 
     glEnd();
 

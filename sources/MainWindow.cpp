@@ -829,8 +829,8 @@ void MainWindow::writeSettings()
         s->setValue("ShowGrid", ShowGrid);
         s->setValue("ShowSurface", ShowSurface);
         s->setValue("ShowAxes", ShowAxes);
-        
-         s->setValue("DisableOpenGL", disableIfSSH);
+
+        s->setValue("DisableOpenGL", disableIfSSH);
 
         s->setValue("GrigStep", GrigStep);
 
@@ -841,16 +841,16 @@ void MainWindow::writeSettings()
 
         s->setValue("ShowGrate", ShowGrate); // grenzen
 
-        s->setValue("PosX", PosX); // 
-        s->setValue("PosY", PosY); // 
-        s->setValue("PosZ", PosZ); // 
-        
-        s->setValue("AngleX", PosAngleX); // 
-        s->setValue("AngleY", PosAngleY); // 
-        s->setValue("AngleZ", PosAngleZ); // 
-        
-        s->setValue("Zoom", PosZoom); //         
-        
+        s->setValue("PosX", PosX); //
+        s->setValue("PosY", PosY); //
+        s->setValue("PosZ", PosZ); //
+
+        s->setValue("AngleX", PosAngleX); //
+        s->setValue("AngleY", PosAngleY); //
+        s->setValue("AngleZ", PosAngleZ); //
+
+        s->setValue("Zoom", PosZoom); //
+
         s->endGroup();
     }
 
@@ -998,7 +998,7 @@ void MainWindow::readSettings()
 
     //       s->endGroup();
 
-    if (enableOpenGL == true) { 
+    if (enableOpenGL == true) {
         // opengl settings
         s->beginGroup("OpenGL");
 
@@ -1010,8 +1010,8 @@ void MainWindow::readSettings()
         ShowSurface = s->value("ShowSurface", false).toBool();
         ShowAxes = s->value("ShowAxes", false).toBool();
 
-        disableIfSSH =  s->value("DisableOpenGL", false).toBool(); 
-         
+        disableIfSSH =  s->value("DisableOpenGL", false).toBool();
+
         GrigStep = s->value("GrigStep", 10).toInt();
 
         GridXstart = s->value("GridXstart", -100).toInt();
@@ -1021,19 +1021,19 @@ void MainWindow::readSettings()
 
         ShowGrate = s->value("ShowGrate", true).toBool(); // grenzen
 
-        PosX = s->value("PosX", -96 ).toInt(); // 
-        PosY = s->value("PosY", -64 ).toInt(); // 
-        PosZ = s->value("PosZ", -300 ).toInt(); // 
-        
-        PosAngleX = s->value("AngleX", 180 ).toInt(); // 
-        PosAngleY = s->value("AngleY", 180 ).toInt(); // 
-        PosAngleZ = s->value("AngleZ", 180 ).toInt(); // 
-        
-        PosZoom = s->value("Zoom", 20 ).toInt(); //   
-        
+        PosX = s->value("PosX", -96 ).toInt(); //
+        PosY = s->value("PosY", -64 ).toInt(); //
+        PosZ = s->value("PosZ", -300 ).toInt(); //
+
+        PosAngleX = s->value("AngleX", 180 ).toInt(); //
+        PosAngleY = s->value("AngleY", 180 ).toInt(); //
+        PosAngleZ = s->value("AngleZ", 180 ).toInt(); //
+
+        PosZoom = s->value("Zoom", 20 ).toInt(); //
+
         s->endGroup();
     }
-    
+
     bool res;
 
     s->beginGroup("mk1");
