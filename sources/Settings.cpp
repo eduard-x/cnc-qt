@@ -31,6 +31,9 @@
 
 #include <QtGui>
 
+#include <QColorDialog>
+
+
 #include "includes/mk1Controller.h"
 #include "includes/Settings.h"
 
@@ -80,6 +83,9 @@ float Settings::maxLookaheadAngle = 170.0;
 byte Settings::bb14 = 0x0;
 byte Settings::bb19 = 0x0;
 
+colorGL Settings::colorSettings[COLOR_LINES];
+
+
 axis Settings::coord[] = { axis(), axis(), axis(), axis() };
 
 
@@ -107,6 +113,8 @@ SettingsDialog::SettingsDialog(QWidget *p)
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    connect(toolSelectColor, SIGNAL (clicked()), this, SLOT(changeColor()));
 
     checkXmin->setChecked(Settings::coord[X].useLimitMin);
     checkXplus->setChecked(Settings::coord[X].useLimitMax);
@@ -200,7 +208,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
     checkBoxSurface->setChecked(parent->ShowSurface);
     checkBoxXYZ->setChecked(parent->ShowAxes);
 
-    checkDisableIfSSH->setChecked(parent->disableIfSSH);
+    //     checkDisableIfSSH->setChecked(parent->disableIfSSH);
     spinBoxGrid->setValue(parent->GrigStep);
 
     spinBoxBeginX->setValue(parent->GridXstart);
@@ -220,6 +228,24 @@ SettingsDialog::SettingsDialog(QWidget *p)
     adjustSize();
 }
 
+
+void SettingsDialog::changeColor()
+{
+    int num = comboColor->currentIndex();
+
+    if (num < COLOR_LINES) {
+        colorGL glc = Settings::colorSettings[num];
+        QColor clr(glc.r * 255.0, glc.g * 255.0, glc.b * 255.0, glc.a * 255.0);
+        QColorDialog *cd = new QColorDialog ( clr, this );
+        int res = cd->exec();
+
+        if (res == QDialog::Accepted) {
+            Settings::colorSettings[num] = (colorGL) {
+                clr.red() / 255.0, clr.green() / 255.0, clr.blue() / 255.0, clr.alpha() / 255.0
+            };
+        }
+    }
+}
 
 void SettingsDialog::translateDialog()
 {
@@ -247,6 +273,11 @@ void SettingsDialog::translateDialog()
     fList << translate(_VISUALISATION);
 
     listWidget->addItems(fList);
+
+    groupBoxColors->setTitle(translate(_COLORS));
+
+    QStringList colorList = translate(_COLOR_LIST).split("\n");
+    comboColor->addItems(colorList);
 
     int width = listWidget->sizeHintForColumn(0);
     listWidget->setFixedWidth(width + 20);
@@ -279,7 +310,7 @@ void SettingsDialog::translateDialog()
     }
 
     // visualisation translations
-    checkDisableIfSSH->setText(translate(_DISABLE_VISUALISATION));
+    //     checkDisableIfSSH->setText(translate(_DISABLE_VISUALISATION));
     groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
     radioButtonLines->setText(translate(_DISPLAY_LINES));
     radioButtonPoints->setText(translate(_DISPLAY_POINTS));
@@ -398,7 +429,7 @@ void SettingsDialog::onSave()
     parent->ShowSurface = checkBoxSurface->isChecked();
     parent->ShowAxes = checkBoxXYZ->isChecked();
 
-    parent->disableIfSSH = checkDisableIfSSH->isChecked();
+    //     parent->disableIfSSH = checkDisableIfSSH->isChecked();
     parent->GrigStep = spinBoxGrid->value();
 
     parent->GridXstart = spinBoxBeginX->value();

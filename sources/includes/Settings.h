@@ -33,6 +33,8 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include <QColor>
+
 #include "MainWindow.h"
 #include "ui_Settings.h"
 
@@ -40,6 +42,7 @@ class cTranslator;
 class MainWindow;
 
 
+#define COLOR_LINES 16
 
 enum AxisNames { X = 0, Y, Z, A, B, C, U, V, W };
 
@@ -82,6 +85,21 @@ class axis
         bool  wrong;
 };
 
+enum {
+    COLOR_X = 0,
+    COLOR_Y,
+    COLOR_Z,
+    COLOR_BACKGROUND,
+    COLOR_TOOL,
+    COLOR_WORKBENCH, // 5
+    COLOR_TRAVERSE,
+    COLOR_RAPID,
+    COLOR_WORK,
+    COLOR_GRID,
+    COLOR_SURFACE, // 10
+    COLOR_CONNECTION
+};
+
 
 class Settings
 {
@@ -96,6 +114,8 @@ class Settings
 
         static QChar fromDecimalPoint;
         static QChar toDecimalPoint;
+
+        static colorGL colorSettings[COLOR_LINES];
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2
 
         //         static bool setSettings;
@@ -112,7 +132,6 @@ class Settings
 
 
 
-
 class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTranslator
 {
         Q_OBJECT
@@ -122,6 +141,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
     private slots:
         void onSave();
         void onSelection(QListWidgetItem* it);
+        void changeColor();
 
     private:
         void translateDialog();

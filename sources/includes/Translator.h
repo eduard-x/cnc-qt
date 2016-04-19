@@ -259,6 +259,7 @@ enum TR_CONSTS {
     _VISUALISATION, // 203
     _COLORS, // 204
     _DISABLE_VISUALISATION, // 205
+    _COLOR_LIST, //206
     _NULL
 };
 

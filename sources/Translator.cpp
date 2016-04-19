@@ -251,6 +251,7 @@ QString cTranslator::engText[] = {
     "Visualisation",
     "Colors",
     "Disable visualisation during remote controlling",
+    "X axis\nY axis\nZ axis\nBackground\nTool\nWorkbench\nTraverse\nRapid moving\nWorking\nGrid\nSurface\nConnections",
     ""
 };
 

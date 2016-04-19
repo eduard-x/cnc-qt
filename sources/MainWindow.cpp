@@ -65,6 +65,24 @@
 
 #include "includes/MainWindow.h"
 
+
+QDataStream &operator<<(QDataStream &out, const colorGL &obj)
+{
+
+    out << obj.r << obj.g << obj.b << obj.a;
+    return out;
+
+}
+
+QDataStream &operator>>(QDataStream &in, colorGL &obj)
+{
+
+    in >> obj.r >> obj.g >> obj.b >> obj.a;
+    return in;
+
+}
+
+
 class GLWidget;
 
 
@@ -223,6 +241,9 @@ MainWindow::MainWindow(QWidget *parent)
     filesMenu = 0;
     filesGroup = 0;
 
+    qRegisterMetaType<colorGL>("colorGL");
+    qRegisterMetaTypeStreamOperators<colorGL>("colorGL");
+
     QFont sysFont = qApp->font();
     sysFont = sysFont;
 
@@ -323,9 +344,9 @@ MainWindow::MainWindow(QWidget *parent)
     koeffSizeY = 1;
     deltaFeed = false;
 
-    zAngle = 0;
-    yAngle = 0;
-    xAngle = 0;
+    //     zAngle = 0;
+    //     yAngle = 0;
+    //     xAngle = 0;
     scale = 1;
 
     addConnections();
@@ -500,18 +521,18 @@ void MainWindow::addConnections()
         // 3d buttons
         connect(posAngleXm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXm()));
         connect(posAngleX, SIGNAL(clicked()), scene3d, SLOT(onPosAngleX())); // reset to 0
-        connect(scene3d, SIGNAL(xRotationChanged(int)), this, SLOT(getXRotation(int)));
+        connect(scene3d, SIGNAL(rotationChanged()), this, SLOT(getRotation()));
         connect(scene3d, SIGNAL(fpsChanged(int)), this, SLOT(getFPS(int)));
         connect(posAngleXp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXp()));
 
         connect(posAngleYm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleYm()));
         connect(posAngleY, SIGNAL(clicked()), scene3d, SLOT(onPosAngleY())); // reset to 0
-        connect(scene3d, SIGNAL(yRotationChanged(int)), this, SLOT(getYRotation(int)));
+        //         connect(scene3d, SIGNAL(yRotationChanged(int)), this, SLOT(getYRotation(int)));
         connect(posAngleYp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleYp()));
 
         connect(posAngleZm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleZm()));
         connect(posAngleZ, SIGNAL(clicked()), scene3d, SLOT(onPosAngleZ())); // reset to 0
-        connect(scene3d, SIGNAL(zRotationChanged(int)), this, SLOT(getZRotation(int)));
+        //         connect(scene3d, SIGNAL(zRotationChanged(int)), this, SLOT(getZRotation(int)));
         connect(posAngleZp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleZp()));
 
         connect(scene3d, SIGNAL(scaleChanged(int)), this, SLOT(getScale(int)));
@@ -830,7 +851,7 @@ void MainWindow::writeSettings()
         s->setValue("ShowSurface", ShowSurface);
         s->setValue("ShowAxes", ShowAxes);
 
-        s->setValue("DisableOpenGL", disableIfSSH);
+        //         s->setValue("DisableOpenGL", disableIfSSH);
 
         s->setValue("GrigStep", GrigStep);
 
@@ -850,6 +871,20 @@ void MainWindow::writeSettings()
         s->setValue("AngleZ", PosAngleZ); //
 
         s->setValue("Zoom", PosZoom); //
+
+
+        s->setValue("ColorX", qVariantFromValue(Settings::colorSettings[COLOR_X]));
+        s->setValue("ColorY", qVariantFromValue(Settings::colorSettings[COLOR_Y]));
+        s->setValue("ColorZ", qVariantFromValue(Settings::colorSettings[COLOR_Z]));
+        s->setValue("ColorBG", qVariantFromValue(Settings::colorSettings[COLOR_BACKGROUND]));
+        s->setValue("ColorTool", qVariantFromValue(Settings::colorSettings[COLOR_TOOL]));
+        s->setValue("ColorWB", qVariantFromValue(Settings::colorSettings[COLOR_WORKBENCH]));
+        s->setValue("ColorTraverse", qVariantFromValue(Settings::colorSettings[COLOR_TRAVERSE]));
+        s->setValue("ColorRapid", qVariantFromValue(Settings::colorSettings[COLOR_RAPID]));
+        s->setValue("ColorWork", qVariantFromValue(Settings::colorSettings[COLOR_WORK]));
+        s->setValue("ColorGrid", qVariantFromValue(Settings::colorSettings[COLOR_GRID]));
+        s->setValue("ColorSurface", qVariantFromValue(Settings::colorSettings[COLOR_SURFACE]));
+        s->setValue("ColorConnect", qVariantFromValue(Settings::colorSettings[COLOR_CONNECTION]));
 
         s->endGroup();
     }
@@ -881,6 +916,7 @@ void MainWindow::writeSettings()
         s->setValue("SoftMax" + QString( axisNames.at(c)), (double)Settings::coord[c].softLimitMax);
 
         s->setValue("Home" + QString( axisNames.at(c)), (double)Settings::coord[c].home);
+
     }
 
     s->endGroup();
@@ -1010,7 +1046,7 @@ void MainWindow::readSettings()
         ShowSurface = s->value("ShowSurface", false).toBool();
         ShowAxes = s->value("ShowAxes", false).toBool();
 
-        disableIfSSH =  s->value("DisableOpenGL", false).toBool();
+        //         disableIfSSH =  s->value("DisableOpenGL", false).toBool();
 
         GrigStep = s->value("GrigStep", 10).toInt();
 
@@ -1030,6 +1066,43 @@ void MainWindow::readSettings()
         PosAngleZ = s->value("AngleZ", 180 ).toInt(); //
 
         PosZoom = s->value("Zoom", 20 ).toInt(); //
+
+        Settings::colorSettings[COLOR_X] = s->value("ColorX", qVariantFromValue((colorGL) {
+            0.0f, 1.0, 0.0, 0.0
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_Y] = s->value("ColorY", qVariantFromValue((colorGL) {
+            1.0, 0.0, 0.0, 0.0
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_Z] = s->value("ColorZ", qVariantFromValue((colorGL) {
+            0.0, 1.0, 1.0, 0.0
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_BACKGROUND] = s->value("ColorBG", qVariantFromValue((colorGL) {
+            0.45, 0.45, 0.45, 0.0
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_TOOL] = s->value("ColorTool", qVariantFromValue((colorGL) {
+            1.0, 1.0, 0.0, 1.0
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_WORKBENCH] = s->value("ColorWB", qVariantFromValue((colorGL) {
+            0.0, 0.0, 1.0, 1.0
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_TRAVERSE] = s->value("ColorTraverse", qVariantFromValue((colorGL) {
+            1.0, 1.0, 1.0, 1.0
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_RAPID] = s->value("ColorRapid", qVariantFromValue((colorGL) {
+            0.0, 1.0, 0.0, 0.0
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_WORK] = s->value("ColorWork", qVariantFromValue((colorGL) {
+            1.0, 0.0, 0.0, 0.0
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_GRID] = s->value("ColorGrid", qVariantFromValue((colorGL) {
+            0.8, 0.8, 0.8, 1.0
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_SURFACE] = s->value("ColorSurface", qVariantFromValue((colorGL) {
+            1.0, 1.0, 1.0, 1.0
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_CONNECTION] = s->value("ColorConnect", qVariantFromValue((colorGL) {
+            0.68, 1.0, 0.45, 1.0
+        })).value<colorGL>();
 
         s->endGroup();
     }
@@ -1198,16 +1271,6 @@ void MainWindow::setLang(QAction* mnu)
 }
 
 
-/**
- * @brief
- *
- */
-void MainWindow::getZRotation(int z)
-{
-    zAngle = z;
-    displayRotation();
-}
-
 
 /**
  * @brief display in status text label the actual FPS
@@ -1218,7 +1281,7 @@ void MainWindow::getFPS(int f)
     statusLabel2->setText( "OpenGL, FPS: " + QString::number(f));
 }
 
-
+#if 0
 /**
  * @brief
  *
@@ -1245,6 +1308,29 @@ void MainWindow::getYRotation(int y)
  * @brief
  *
  */
+void MainWindow::getZRotation(int z)
+{
+    zAngle = z;
+    displayRotation();
+}
+
+#endif
+
+
+/**
+ * @brief
+ *
+ */
+void MainWindow::getRotation()
+{
+    //     zAngle = z;
+    displayRotation();
+}
+
+/**
+ * @brief
+ *
+ */
 void MainWindow::getScale(int s)
 {
     scale = s;
@@ -1258,9 +1344,9 @@ void MainWindow::getScale(int s)
  */
 void MainWindow::displayRotation()
 {
-    posAngleX->setText( QString().sprintf("%d°", xAngle));
-    posAngleY->setText( QString().sprintf("%d°", yAngle));
-    posAngleZ->setText( QString().sprintf("%d°", zAngle));
+    posAngleX->setText( QString().sprintf("%d°", PosAngleX));
+    posAngleY->setText( QString().sprintf("%d°", PosAngleY));
+    posAngleZ->setText( QString().sprintf("%d°", PosAngleZ));
 }
 
 
@@ -1402,15 +1488,6 @@ void MainWindow::translateGUI()
 
     labelMinX->setText(translate(_MIN));
     labelMaxX->setText(translate(_MAX));
-
-    labelMinY->setText(translate(_MIN));
-    labelMaxY->setText(translate(_MAX));
-
-    labelMinZ->setText(translate(_MIN));
-    labelMaxZ->setText(translate(_MAX));
-
-    labelMinA->setText(translate(_MIN));
-    labelMaxA->setText(translate(_MAX));
 
     //
     labelRunFrom->setText(translate(_CURRENT_LINE));

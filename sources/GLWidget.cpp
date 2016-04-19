@@ -35,15 +35,12 @@
 
 #include <QDebug>
 
-#if USE_GLES2 == true
-#include <GLES2/gl2.h>
-// #include <GL/gl.h>
-// #include <QtGui/QOpenGLFunctions>
-// #include <QtGui/QOpenGLContext>
-#else
-#include <QtOpenGL/QGL>
+// #include <QtOpenGL/QtOpenGL>
+
 #include <QtOpenGL/QGLWidget>
-#endif
+#include <QtOpenGL/QGLShaderProgram>
+
+// for GLES2 are QGLFunctions to implement
 
 #include <deque>
 #include <utility>
@@ -56,7 +53,10 @@
 
 #include <math.h>
 
-
+/**
+ * @brief constructor
+ *
+ */
 GLWidget::GLWidget(QWidget *p)
     : QGLWidget(p)
 {
@@ -96,12 +96,18 @@ GLWidget::GLWidget(QWidget *p)
     paintGL();
 }
 
-
+/**
+ * @brief destructor
+ *
+ */
 GLWidget::~GLWidget()
 {
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::initStaticElements()
 {
     xAxis = {
@@ -205,7 +211,10 @@ void GLWidget::initStaticElements()
     };
 }
 
-
+/**
+ * @brief after reload of surface matrix
+ *
+ */
 void GLWidget::surfaceReloaded()
 {
     for (int i = 0; i < coordArray.count(); i++) {
@@ -225,7 +234,10 @@ void GLWidget::surfaceReloaded()
     }
 }
 
-
+/**
+ * @brief send current FPS number to the main widget
+ *
+ */
 void GLWidget::showFPS()
 {
     emit fpsChanged(fps);
@@ -233,14 +245,20 @@ void GLWidget::showFPS()
     fps = 0;
 }
 
-
+/**
+ * @brief processing of fps
+ *
+ */
 void GLWidget::processing()
 {
     paintGL();
     fps++;
 }
 
-
+/**
+ * @brief main object data is reloaded, update the visualisation
+ *
+ */
 void GLWidget::matrixReloaded()
 {
     int workNum = 0;
@@ -257,13 +275,13 @@ void GLWidget::matrixReloaded()
             colorGL cl;
 
             if (vv.movingCode != RAPID_LINE_CODE) {
-                cl = (colorGL) {
+                cl = Settings::colorSettings[COLOR_RAPID];/*(colorGL) {
                     0, 255, 0
-                };
+                };*/
             } else {
-                cl = (colorGL) {
+                cl = Settings::colorSettings[COLOR_WORK];/*(colorGL) {
                     255, 0, 0
-                };
+                };*/
             }
 
             pointGL p;
@@ -305,24 +323,34 @@ void GLWidget::matrixReloaded()
     initializeGL();
 }
 
-
+/**
+ * @brief send new data about angles to main widget for displaying on buttons
+ *
+ */
 void GLWidget::initPreviewSettings()
 {
-    emit xRotationChanged(parent->PosAngleX);
-    emit yRotationChanged(parent->PosAngleY);
-    emit zRotationChanged(parent->PosAngleZ);
+    emit rotationChanged();
+    //     emit yRotationChanged(parent->PosAngleY);
+    //     emit zRotationChanged(parent->PosAngleZ);
 
     updateGL();
 }
 
 
-//
-// init of 3d viewing
-//
+/**
+ * @brief init of 3d viewing
+ *
+ */
 void GLWidget::initializeGL()//Init3D()//*OK*
 {
     makeCurrent();
 
+    // OpenGLES2
+    initializeGLFunctions();
+
+    //     glClearColor(qglColor(Qt::black));
+
+#if 1
     // activate projection matrix
     glMatrixMode(GL_PROJECTION);
 
@@ -338,16 +366,23 @@ void GLWidget::initializeGL()//Init3D()//*OK*
     glLoadIdentity();
 
     glEnable(GL_DEPTH_TEST);
+#endif
 }
 
-
+/**
+ * @brief redraw the scene
+ *
+ */
 void GLWidget::paintGL()
 {
     Draw();
     fps++;
 }
 
-
+/**
+ * @brief resize the scene
+ *
+ */
 void GLWidget::resizeGL(int w, int h)
 {
     int left = 0, top = 0;
@@ -427,12 +462,15 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
 #define GLSCALE 2000.0
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::Draw() // drawing, main function
 {
     //
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clean color buffer and depth buff
-    glClearColor(0.45f, 0.45f, 0.45f, 1);                  // set gray color of background
+    glClearColor(Settings::colorSettings[COLOR_BACKGROUND].r, Settings::colorSettings[COLOR_BACKGROUND].g, Settings::colorSettings[COLOR_BACKGROUND].b, 1.0);//()0.45f, 0.45f, 0.45f, 1);                  // set gray color of background
 
     glLoadIdentity();                                   // clean
 
@@ -458,7 +496,6 @@ void GLWidget::Draw() // drawing, main function
 
         glScalef(scaleX, scaleY, scaleZ);
     }
-
 
     /// угловое вращение
     glRotatef(parent->PosAngleX, 1, 0, 0);
@@ -506,7 +543,10 @@ void GLWidget::Draw() // drawing, main function
     glFlush();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::drawAxes()
 {
     glLineWidth(2);
@@ -518,19 +558,19 @@ void GLWidget::drawAxes()
     glDisable(GL_NORMAL_ARRAY);
 
     // x
-    glColor3f(0.0f, 1.0f, 0.0f);
+    glColor3f(Settings::colorSettings[COLOR_X].r, Settings::colorSettings[COLOR_X].g, Settings::colorSettings[COLOR_X].b);
     glVertexPointer(3, GL_FLOAT, 0, &xAxis[0]);
     glDrawArrays(GL_LINES, 0, xAxis.count()); // draw array of lines
     renderText(12.0, 0.0, 0.0, QString("X")); //coordinates of text
 
     // y
-    glColor3f(1.0F, 0, 0.0F);
+    glColor3f(Settings::colorSettings[COLOR_Y].r, Settings::colorSettings[COLOR_Y].g, Settings::colorSettings[COLOR_Y].b);
     glVertexPointer(3, GL_FLOAT, 0, &yAxis[0]);
     glDrawArrays(GL_LINES, 0, yAxis.count());
     renderText(0.0, 12.0, 0.0, QString("Y")); //coordinates of text
 
     // z
-    glColor3f(0.0F, 1.0, 1.0F);
+    glColor3f(Settings::colorSettings[COLOR_Z].r, Settings::colorSettings[COLOR_Z].g, Settings::colorSettings[COLOR_Z].b);
     glVertexPointer(3, GL_FLOAT, 0, &zAxis[0]);
     glDrawArrays(GL_LINES, 0, zAxis.count());
     renderText(0.0, 0.0, 12.0, QString("Z")); //coordinates of text
@@ -542,7 +582,10 @@ void GLWidget::drawAxes()
     glEnable(GL_DEPTH_TEST);
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::drawWorkField()
 {
     if (coordArray.count() < 2) {
@@ -560,7 +603,7 @@ void GLWidget::drawWorkField()
 
     // the object
     glVertexPointer(3, GL_FLOAT, 0, &coordArray[0]);
-    glColorPointer(3, GL_FLOAT, 0, &colorArray[0]);
+    glColorPointer(4, GL_FLOAT, 0, &colorArray[0]);
     glDrawArrays(GL_LINE_STRIP, 0, coordArray.count());
     //
 
@@ -576,7 +619,7 @@ void GLWidget::drawWorkField()
             int numSelectStop = Task::lineCodeEnd;
             glLineWidth(3.0f);
             glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelectStart]);
-            glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelectStart]);
+            glColorPointer(4, GL_FLOAT, 0, &colorArray[numSelectStart]);
             glDrawArrays(GL_LINE_STRIP, 0, numSelectStop - numSelectStart - 1);
             break;
         }
@@ -588,7 +631,7 @@ void GLWidget::drawWorkField()
 
             glLineWidth(3.0f);
             glVertexPointer(3, GL_FLOAT, 0, &coordArray[Task::lineCodeStart]);
-            glColorPointer(3, GL_FLOAT, 0, &colorArray[Task::lineCodeStart]);
+            glColorPointer(4, GL_FLOAT, 0, &colorArray[Task::lineCodeStart]);
             glDrawArrays(GL_LINE_STRIP, 0, 2);
             break;
         }
@@ -602,9 +645,8 @@ void GLWidget::drawWorkField()
 
             glLineWidth(3.0f);
             glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
-            glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect]);
+            glColorPointer(4, GL_FLOAT, 0, &colorArray[numSelect]);
             glDrawArrays(GL_LINE_STRIP, 0, 2);
-
 
             break;
         }
@@ -615,7 +657,7 @@ void GLWidget::drawWorkField()
             if (numSelect >= 0 && numSelect < coordArray.count()) {
                 glLineWidth(3.0f);
                 glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
-                glColorPointer(3, GL_FLOAT, 0, &colorArray[numSelect + 1]);
+                glColorPointer(4, GL_FLOAT, 0, &colorArray[numSelect + 1]);
                 glDrawArrays(GL_LINE_STRIP, 0, 2);
             }
 
@@ -631,12 +673,15 @@ void GLWidget::drawWorkField()
     glPopMatrix();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::drawGrid()
 {
     if (parent->ShowLines) {
         glLineWidth(0.1f);
-        glColor3f(0.99, 0.99, 0.99);
+        glColor3f(Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b);
 
         glBegin(GL_LINES);
 
@@ -656,7 +701,7 @@ void GLWidget::drawGrid()
     if (parent->ShowPoints) {
         glPointSize(1.0f);
         //         glLineWidth(0.3f);
-        glColor3f(0.99, 0.99, 0.99); // white
+        glColor3f(Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b); // white
 
         glBegin(GL_POINTS);
 
@@ -672,7 +717,10 @@ void GLWidget::drawGrid()
     }
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::drawTool()
 {
     glPushMatrix();
@@ -688,7 +736,7 @@ void GLWidget::drawTool()
     glScalef(1.5, 1.5, 1.5);
 
     // foot
-    glColor3f(1.0f, 1.0f, 1.0f);
+    glColor3f(Settings::colorSettings[COLOR_TRAVERSE].r, Settings::colorSettings[COLOR_TRAVERSE].g, Settings::colorSettings[COLOR_TRAVERSE].b);
     glVertexPointer(3, GL_FLOAT, 0, &footArray[0]);
     // GL_LINE_LOOP or GL_POLYGON
     glDrawArrays(GL_LINE_LOOP, 0, footArray.count()); // draw array of lines
@@ -713,7 +761,10 @@ void GLWidget::drawTool()
     glPopMatrix();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::drawSurface()
 {
     int maxY, maxX;
@@ -730,8 +781,9 @@ void GLWidget::drawSurface()
     }
 
     //points
-    glColor3f(1.000f, 0.498f, 0.314f); // red
+    glColor3f(Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b); // red
     glPointSize(10.0F);
+
     glBegin(GL_POINTS);
 
     for (int y = 0; y < maxY; y++) {
@@ -744,7 +796,8 @@ void GLWidget::drawSurface()
     glEnd();
 
     // connections between the points
-    glColor3f(0.678f, 1.000f, 0.184f); // green
+    //     glColor3f(0.678f, 1.000f, 0.184f); // green
+    glColor3f(Settings::colorSettings[COLOR_CONNECTION].r, Settings::colorSettings[COLOR_CONNECTION].g, Settings::colorSettings[COLOR_CONNECTION].b);
     glLineWidth(0.4f);
     glBegin(GL_LINES);
 
@@ -779,7 +832,10 @@ void GLWidget::drawSurface()
     glEnd();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::drawInstrument()
 {
     // instrument
@@ -787,7 +843,7 @@ void GLWidget::drawInstrument()
     float startY =  Settings::coord[Y].posMm();
     float startZ =  Settings::coord[Z].posMm();
 
-    glColor3f(1.000f, 1.000f, 0.000f);
+    glColor3f(Settings::colorSettings[COLOR_TOOL].r, Settings::colorSettings[COLOR_TOOL].g, Settings::colorSettings[COLOR_TOOL].b);
     glLineWidth(3);
 
     glTranslatef(startX, startY, startZ);
@@ -807,13 +863,16 @@ void GLWidget::drawInstrument()
     glEnable(GL_TEXTURE_COORD_ARRAY);
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::drawGrate()
 {
     //
     glLineWidth(2.0f);
 
-    glColor3f(0.541f, 0.169f, 0.886f);
+    glColor3f(Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b);
 
     glEnable(GL_LINE_STIPPLE);
 
@@ -835,19 +894,26 @@ void GLWidget::drawGrate()
     glDisable(GL_LINE_STIPPLE);
 }
 
-
-void GLWidget::normalizeAngle(int *angle)
+/**
+ * @brief when angle over 360 or under 0, normalize it
+ *
+ */
+void GLWidget::normalizeAngle(int &angle)
 {
-    while (*angle < 0) {
-        *angle += 360;
+    while (angle < 0) {
+        angle += 360;
     }
 
-    while (*angle > 360) {
-        *angle -= 360;
+    while (angle > 360) {
+        angle -= 360;
     }
 }
 
 
+/**
+ * @brief
+ *
+ */
 // from slider
 void GLWidget::setXCoord(int x)
 {
@@ -856,7 +922,10 @@ void GLWidget::setXCoord(int x)
     }
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::setYCoord(int y)
 {
     if (parent->PosY != y) {
@@ -865,148 +934,201 @@ void GLWidget::setYCoord(int y)
 }
 
 
+/**
+ * @brief
+ *
+ */
 // from slider
 void GLWidget::setXRotation(int angle)
 {
-    normalizeAngle(&angle);
+    normalizeAngle(angle);
 
     if (angle != parent->PosAngleX) {
         parent->PosAngleX = angle;
-        emit xRotationChanged(angle);
+        emit rotationChanged();
     }
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::setYRotation(int angle)
 {
-    normalizeAngle(&angle);
+    normalizeAngle(angle);
 
     if (angle != parent->PosAngleY) {
         parent->PosAngleY = angle;
-        emit yRotationChanged(angle);
+        emit rotationChanged();
     }
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::setZRotation(int angle)
 {
-    normalizeAngle(&angle);
+    normalizeAngle(angle);
 
     if (angle != parent->PosAngleZ) {
         parent->PosAngleZ = angle;
-        emit zRotationChanged(angle);
+        emit rotationChanged();
     }
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::onPosAngleXm()
 {
     --parent->PosAngleX;
-    normalizeAngle(&parent->PosAngleX);
-    emit xRotationChanged(parent->PosAngleX);
+    normalizeAngle(parent->PosAngleX);
+    emit rotationChanged();
     updateGL();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::onPosAngleX()
 {
     parent->PosAngleX = 0;
-    emit xRotationChanged(parent->PosAngleX);
+    emit rotationChanged();
     updateGL();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::onPosAngleXp()
 {
     ++parent->PosAngleX;
-    normalizeAngle(&parent->PosAngleX);
-    emit xRotationChanged(parent->PosAngleX);
+    normalizeAngle(parent->PosAngleX);
+    emit rotationChanged();
     updateGL();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::onPosAngleYp()
 {
     ++parent->PosAngleY;
-    normalizeAngle(&parent->PosAngleY);
-    emit yRotationChanged(parent->PosAngleY);
+    normalizeAngle(parent->PosAngleY);
+    emit rotationChanged();
     updateGL();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::onPosAngleY()
 {
     parent->PosAngleY = 0;
-    emit yRotationChanged(parent->PosAngleY);
+    emit rotationChanged();
     updateGL();
 
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::onPosAngleYm()
 {
     --parent->PosAngleY;
-    normalizeAngle(&parent->PosAngleY);
-    emit yRotationChanged(parent->PosAngleY);
+    normalizeAngle(parent->PosAngleY);
+    emit rotationChanged();
     updateGL();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::onPosAngleZp()
 {
     ++parent->PosAngleZ;
-    normalizeAngle(&parent->PosAngleZ);
-    emit zRotationChanged(parent->PosAngleZ);
+    normalizeAngle(parent->PosAngleZ);
+    emit rotationChanged();
     updateGL();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::onPosAngleZ()
 {
     parent->PosAngleZ = 0;
-    emit zRotationChanged(parent->PosAngleZ);
+    emit rotationChanged();
     updateGL();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::onPosAngleZm()
 {
     --parent->PosAngleZ;
-    normalizeAngle(&parent->PosAngleZ);
-    emit zRotationChanged(parent->PosAngleZ);
+    normalizeAngle(parent->PosAngleZ);
+    emit rotationChanged();
     updateGL();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::onDefaulPreview()
 {
     initPreviewSettings();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::onRenderTimer()
 {
     // ??
     Draw();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::saveGLState()
 {
+#if USE_GLES2 == false
     glPushAttrib(GL_ALL_ATTRIB_BITS);
+#endif
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 }
 
-
+/**
+ * @brief
+ *
+ */
 void GLWidget::restoreGLState()
 {
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+#if USE_GLES2 == false
     glPopAttrib();
+#endif
 }
 

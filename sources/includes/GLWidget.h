@@ -35,23 +35,13 @@
 #include "version.h"
 
 
-// #if USE_GLES2 == true
-// #include <GLES2/gl2.h>
-// // #include <QtGui/QOpenGLFunctions_ES2>
-// #else
-// #include <GL/gl.h>
-// // #include <QtGui/QOpenGLFunctions>
-// #endif
-
-// #include <QtGui/QOpenGLFunctions>
-
 #include <QEvent>
 #include <QWidget>
 
 #include <QtOpenGL/QGLWidget>
 
 
-// #include <QtOpenGL/QGL>
+#include <QtOpenGL/QGLFunctions>
 
 #include <QMainWindow>
 #include <QTimeLine>
@@ -64,20 +54,9 @@ class MainWindow;
 class mk1Controller;
 
 
-struct pointGL {
-    GLfloat X;       // coord in mm
-    GLfloat Y;       // coord in mm
-    GLfloat Z;       // coord in mm
-};
 
-struct colorGL {
-    GLfloat r;
-    GLfloat g;
-    GLfloat b;
-};
-
-
-class GLWidget : public QGLWidget
+// for GLES2 are QGLFunctions to implement
+class GLWidget : public QGLWidget, protected QGLFunctions
 {
         Q_OBJECT
 
@@ -93,7 +72,7 @@ class GLWidget : public QGLWidget
         void initPreviewSettings();
         void initStaticElements();
 
-        void normalizeAngle(int *angle);
+        void normalizeAngle(int &angle);
 
         void drawGrate();
         void drawInstrument();
@@ -133,9 +112,9 @@ class GLWidget : public QGLWidget
 
     signals:
         void fpsChanged(int val);
-        void xRotationChanged(int angle);
-        void yRotationChanged(int angle);
-        void zRotationChanged(int angle);
+        void rotationChanged(void);
+        //         void yRotationChanged(int angle);
+        //         void zRotationChanged(int angle);
         void scaleChanged(int scale);
 
     protected:

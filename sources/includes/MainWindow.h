@@ -51,10 +51,26 @@
 #include "version.h"
 #include "vec.h"
 
+#include <QtOpenGL/QtOpenGL>
+
+struct pointGL {
+    GLfloat X;       // coord in mm
+    GLfloat Y;       // coord in mm
+    GLfloat Z;       // coord in mm
+};
+
+struct colorGL {
+    GLfloat r;
+    GLfloat g;
+    GLfloat b;
+    GLfloat a;
+};
+Q_DECLARE_METATYPE(colorGL)
+
+
 #include "GLWidget.h"
 
 
-// #include "CuttingCalc.h"
 #include "Reader.h"
 #include "mk1Controller.h"
 #include "Geometry.h"
@@ -96,6 +112,7 @@ class MessageBox: public cTranslator
 
 
 #define PI 3.14159265358979323846
+
 
 enum MATERIAL {
     HARDWOOD,
@@ -217,6 +234,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 
         int PosX, PosY, PosZ;
         int PosAngleX, PosAngleY, PosAngleZ;
+
         int PosZoom;
 
         bool ShowInstrument;
@@ -226,7 +244,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         bool ShowSurface;
         bool ShowAxes;
 
-        bool disableIfSSH;
+        //         bool disableIfSSH;
 
         int GridXstart;
         int GridXend;
@@ -297,9 +315,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onButtonZtoZero();
         void onButtonAtoZero();
 
-        void getZRotation(int z);
-        void getYRotation(int y);
-        void getXRotation(int x);
+        //         void getZRotation(int z);
+        //         void getYRotation(int y);
+        //         void getXRotation(int x);
+        void getRotation();
         void getFPS(int fps);
         void getScale(int s);
 
@@ -366,7 +385,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         int maxVelo;
         int veloMoving;
 
-        int xAngle, yAngle, zAngle;
+        //         int xAngle, yAngle, zAngle;
         int scale;
         QString currentAppDir;
 };
