@@ -241,11 +241,12 @@ void SettingsDialog::changeColor()
 
         if (res == QDialog::Accepted) {
             Settings::colorSettings[num] = (colorGL) {
-                clr.red() / 255.0, clr.green() / 255.0, clr.blue() / 255.0, clr.alpha() / 255.0
+                clr.red() / (float)255.0, clr.green() / (float)255.0, clr.blue() / (float)255.0, clr.alpha() / (float)255.0
             };
         }
     }
 }
+
 
 void SettingsDialog::translateDialog()
 {

@@ -45,7 +45,7 @@ SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 
 
-INCLUDE(CNCQTOutOfSourceBuild) # Disallow in-source builds
+# INCLUDE(CNCQTOutOfSourceBuild) # Disallow in-source builds
 INCLUDE(CNCQTGenerateDEF) # Convenience macro for linking Win32 DLLs using MSVC
 INCLUDE(CNCQTDependencies)
 INCLUDE(CNCQTWordSize) # Detect 32/64 bit platform

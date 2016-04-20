@@ -1044,7 +1044,7 @@ void MainWindow::readSettings()
         ShowInstrument = s->value("ShowInstrument", true).toBool();
         ShowGrid = s->value("ShowGrid", true).toBool();
         ShowSurface = s->value("ShowSurface", false).toBool();
-        ShowAxes = s->value("ShowAxes", false).toBool();
+        ShowAxes = s->value("ShowAxes", true).toBool();
 
         //         disableIfSSH =  s->value("DisableOpenGL", false).toBool();
 
