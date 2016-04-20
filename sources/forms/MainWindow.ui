@@ -178,6 +178,9 @@
               <property name="text">
                <string/>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
              </widget>
             </item>
             <item row="2" column="4">
@@ -190,6 +193,9 @@
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>
@@ -231,6 +237,9 @@
               <property name="text">
                <string/>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
              </widget>
             </item>
             <item row="1" column="6">
@@ -243,6 +252,9 @@
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>
@@ -267,6 +279,9 @@
               <property name="text">
                <string/>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
              </widget>
             </item>
             <item row="1" column="0">
@@ -287,6 +302,9 @@
               <property name="text">
                <string/>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
              </widget>
             </item>
             <item row="1" column="1">
@@ -300,6 +318,9 @@
               <property name="text">
                <string/>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
              </widget>
             </item>
             <item row="2" column="1">
@@ -312,6 +333,9 @@
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>
@@ -848,7 +872,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>773</width>
+                    <width>775</width>
                     <height>496</height>
                    </rect>
                   </property>
@@ -1560,6 +1584,9 @@ min/max</string>
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
                  </widget>
                 </item>
                 <item row="2" column="3">
@@ -1575,6 +1602,9 @@ min/max</string>
                     <width>100</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -1592,6 +1622,9 @@ min/max</string>
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
                  </widget>
                 </item>
                 <item row="1" column="3">
@@ -1608,6 +1641,9 @@ min/max</string>
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
                  </widget>
                 </item>
                 <item row="1" column="5">
@@ -1623,6 +1659,9 @@ min/max</string>
                     <width>100</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
