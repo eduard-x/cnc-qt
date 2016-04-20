@@ -236,10 +236,10 @@ void SettingsDialog::changeColor()
     if (num < COLOR_LINES) {
         colorGL glc = Settings::colorSettings[num];
         QColor clr(glc.r * 255.0, glc.g * 255.0, glc.b * 255.0, glc.a * 255.0);
-        QColorDialog *cd = new QColorDialog ( clr, this );
-        int res = cd->exec();
+        
+        clr = QColorDialog::getColor ( clr, this ) ;
 
-        if (res == QDialog::Accepted) {
+        if (clr.isValid()) {
             Settings::colorSettings[num] = (colorGL) {
                 clr.red() / (float)255.0, clr.green() / (float)255.0, clr.blue() / (float)255.0, clr.alpha() / (float)255.0
             };
