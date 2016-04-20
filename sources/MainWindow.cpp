@@ -2363,7 +2363,12 @@ void  MainWindow::refreshElementsForms()
     lineYpulses->setText(QString::number(Settings::coord[Y].actualPosPulses));
     lineZpulses->setText(QString::number(Settings::coord[Z].actualPosPulses));
     lineApulses->setText(QString::number(Settings::coord[A].actualPosPulses));
-
+    lineBpulses->setText(QString::number(Settings::coord[B].actualPosPulses));
+    lineCpulses->setText(QString::number(Settings::coord[C].actualPosPulses));
+    lineUpulses->setText(QString::number(Settings::coord[U].actualPosPulses));
+    lineVpulses->setText(QString::number(Settings::coord[V].actualPosPulses));
+    lineWpulses->setText(QString::number(Settings::coord[W].actualPosPulses));
+    
     lineInstructions->setText(QString::number(cnc->numberCompleatedInstructions()));
 #if 0
 

@@ -104,7 +104,7 @@ enum {
 class Settings
 {
     public:
-        static axis coord[4]; // array of 4 axis for mk1
+        static axis coord[9]; // array of 4 axes for mk1, 9 axes for mk2
         static int splitsPerMm;
         static float maxLookaheadAngle;
 
