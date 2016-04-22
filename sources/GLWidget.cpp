@@ -275,13 +275,9 @@ void GLWidget::matrixReloaded()
             colorGL cl;
 
             if (vv.movingCode != RAPID_LINE_CODE) {
-                cl = Settings::colorSettings[COLOR_RAPID];/*(colorGL) {
-                    0, 255, 0
-                };*/
+                cl = Settings::colorSettings[COLOR_WORK];
             } else {
-                cl = Settings::colorSettings[COLOR_WORK];/*(colorGL) {
-                    255, 0, 0
-                };*/
+                cl = Settings::colorSettings[COLOR_RAPID];
             }
 
             pointGL p;

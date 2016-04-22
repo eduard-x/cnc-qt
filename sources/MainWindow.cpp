@@ -333,7 +333,6 @@ MainWindow::MainWindow(QWidget *parent)
         statusLabel2->setPalette(palette);
         statusLabel2->setText( "OpenGL " + translate(_DISABLED) );
         tabWidget->removeTab(1);
-        //         actionOpenGL->setEnabled(false);
     }
 
     Correction = false;
@@ -344,9 +343,6 @@ MainWindow::MainWindow(QWidget *parent)
     koeffSizeY = 1;
     deltaFeed = false;
 
-    //     zAngle = 0;
-    //     yAngle = 0;
-    //     xAngle = 0;
     scale = 1;
 
     addConnections();
@@ -413,9 +409,10 @@ bool MainWindow::getLangTable()
     QString fileLang = "";
 
     foreach (QString iLang, langFiles) {
-        if (iLang.contains(":" + lang) > 0) {
-            fileLang = iLang;
-            fileLang.remove(":" + lang);
+        int pos = iLang.lastIndexOf(":" + lang);
+
+        if (pos > 0) {
+            fileLang = iLang.left(pos);
             break;
         }
     }
@@ -424,7 +421,7 @@ bool MainWindow::getLangTable()
         return (false);
     }
 
-    if (QFile::exists(langDir + fileLang) == false) {
+    if (QFile::exists(langDir + "/" + fileLang) == false) {
         MessageBox::exec(this, translate(_ERR), "Language file not exists!\n\n"
                          + langDir + "\n\n" + fileLang, QMessageBox::Warning);
         // not found
@@ -1068,40 +1065,40 @@ void MainWindow::readSettings()
         PosZoom = s->value("Zoom", 20 ).toInt(); //
 
         Settings::colorSettings[COLOR_X] = s->value("ColorX", qVariantFromValue((colorGL) {
-            0.0f, 1.0, 0.0, 0.0
+            0.0f, 1.0f, 0.0f, 0.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_Y] = s->value("ColorY", qVariantFromValue((colorGL) {
-            1.0, 0.0, 0.0, 0.0
+            1.0f, 0.0f, 0.0f, 0.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_Z] = s->value("ColorZ", qVariantFromValue((colorGL) {
-            0.0, 1.0, 1.0, 0.0
+            0.0f, 1.0f, 1.0f, 0.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_BACKGROUND] = s->value("ColorBG", qVariantFromValue((colorGL) {
-            0.45, 0.45, 0.45, 0.0
+            0.45f, 0.45f, 0.45f, 0.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_TOOL] = s->value("ColorTool", qVariantFromValue((colorGL) {
-            1.0, 1.0, 0.0, 1.0
+            1.0f, 1.0f, 0.0f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_WORKBENCH] = s->value("ColorWB", qVariantFromValue((colorGL) {
-            0.0, 0.0, 1.0, 1.0
+            0.0f, 0.0f, 1.0f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_TRAVERSE] = s->value("ColorTraverse", qVariantFromValue((colorGL) {
-            1.0, 1.0, 1.0, 1.0
+            1.0f, 1.0f, 1.0f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_RAPID] = s->value("ColorRapid", qVariantFromValue((colorGL) {
-            0.0, 1.0, 0.0, 0.0
+            0.0f, 1.0f, 0.0f, 0.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_WORK] = s->value("ColorWork", qVariantFromValue((colorGL) {
-            1.0, 0.0, 0.0, 0.0
+            1.0f, 0.0f, 0.0f, 0.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_GRID] = s->value("ColorGrid", qVariantFromValue((colorGL) {
-            0.8, 0.8, 0.8, 1.0
+            0.8f, 0.8f, 0.8f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_SURFACE] = s->value("ColorSurface", qVariantFromValue((colorGL) {
-            1.0, 1.0, 1.0, 1.0
+            1.0f, 1.0f, 1.0f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_CONNECTION] = s->value("ColorConnect", qVariantFromValue((colorGL) {
-            0.68, 1.0, 0.45, 1.0
+            0.68f, 1.0f, 0.45f, 1.0f
         })).value<colorGL>();
 
         s->endGroup();
@@ -1223,6 +1220,8 @@ void MainWindow::setFile(QAction* a)
 
     fileStr = a->text();
 
+    fileStr = fileStr.remove("&");
+
     if (OpenFile(fileStr) == false) {
         AddLog("File loading error: " + fileStr );
         return;
@@ -1253,13 +1252,13 @@ void MainWindow::setLang(QAction* mnu)
     mnu = langGroup->checkedAction();
 
     lngStr = mnu->text();
+    lngStr = lngStr.remove("&");
+
     currentLang = lngStr;
 
     if (getLangTable() == false) {
         qDebug() << "setLang" << false;
     }
-
-    //     QVector<QAction*>::iterator itL;
 
     disconnect(langGroup, SIGNAL(triggered(QAction*)), this, SLOT(setLang(QAction*)));
 
@@ -1281,41 +1280,6 @@ void MainWindow::getFPS(int f)
     statusLabel2->setText( "OpenGL, FPS: " + QString::number(f));
 }
 
-#if 0
-/**
- * @brief
- *
- */
-void MainWindow::getXRotation(int x)
-{
-    xAngle = x;
-    displayRotation();
-}
-
-
-/**
- * @brief
- *
- */
-void MainWindow::getYRotation(int y)
-{
-    yAngle = y;
-    displayRotation();
-}
-
-
-/**
- * @brief
- *
- */
-void MainWindow::getZRotation(int z)
-{
-    zAngle = z;
-    displayRotation();
-}
-
-#endif
-
 
 /**
  * @brief
@@ -1323,7 +1287,6 @@ void MainWindow::getZRotation(int z)
  */
 void MainWindow::getRotation()
 {
-    //     zAngle = z;
     displayRotation();
 }
 
@@ -2368,7 +2331,7 @@ void  MainWindow::refreshElementsForms()
     lineUpulses->setText(QString::number(Settings::coord[U].actualPosPulses));
     lineVpulses->setText(QString::number(Settings::coord[V].actualPosPulses));
     lineWpulses->setText(QString::number(Settings::coord[W].actualPosPulses));
-    
+
     lineInstructions->setText(QString::number(cnc->numberCompleatedInstructions()));
 #if 0
 
