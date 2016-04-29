@@ -84,7 +84,7 @@
         <set>Qt::ImhNone</set>
        </property>
        <property name="currentIndex">
-        <number>8</number>
+        <number>1</number>
        </property>
        <property name="iconSize">
         <size>
@@ -385,7 +385,7 @@
               <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>9999.989999999999782</double>
+              <double>99999.990000000005239</double>
              </property>
             </widget>
            </item>
@@ -410,7 +410,7 @@
               <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>9999.989999999999782</double>
+              <double>99999.990000000005239</double>
              </property>
             </widget>
            </item>
@@ -505,7 +505,7 @@
               <number>1</number>
              </property>
              <property name="maximum">
-              <number>9999</number>
+              <number>99999</number>
              </property>
             </widget>
            </item>
@@ -521,7 +521,7 @@
               <number>1</number>
              </property>
              <property name="maximum">
-              <number>9999</number>
+              <number>99999</number>
              </property>
             </widget>
            </item>
@@ -537,7 +537,7 @@
               <number>1</number>
              </property>
              <property name="maximum">
-              <number>9999</number>
+              <number>99999</number>
              </property>
             </widget>
            </item>
@@ -553,7 +553,7 @@
               <number>1</number>
              </property>
              <property name="maximum">
-              <number>9999</number>
+              <number>99999</number>
              </property>
             </widget>
            </item>
@@ -714,7 +714,7 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="maximum">
-              <double>999.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>
@@ -736,7 +736,7 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="maximum">
-              <double>999.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>
@@ -758,7 +758,7 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="maximum">
-              <double>999.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>
@@ -780,7 +780,7 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="maximum">
-              <double>999.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>
@@ -821,7 +821,7 @@
               <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>9999.989999999999782</double>
+              <double>99999.990000000005239</double>
              </property>
             </widget>
            </item>
@@ -846,7 +846,7 @@
               <double>1.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>9999.989999999999782</double>
+              <double>99999.990000000005239</double>
              </property>
             </widget>
            </item>
@@ -884,10 +884,10 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="minimum">
-              <double>1.000000000000000</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>599.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>
@@ -909,10 +909,10 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="minimum">
-              <double>1.000000000000000</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>599.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>
@@ -934,10 +934,10 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="minimum">
-              <double>1.000000000000000</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>599.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>
@@ -959,10 +959,10 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <property name="minimum">
-              <double>1.000000000000000</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>599.990000000000009</double>
+              <double>9999.989999999999782</double>
              </property>
             </widget>
            </item>

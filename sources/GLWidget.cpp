@@ -332,7 +332,6 @@ void GLWidget::initPreviewSettings()
     updateGL();
 }
 
-
 /**
  * @brief init of 3d viewing
  *
@@ -346,23 +345,34 @@ void GLWidget::initializeGL()//Init3D()//*OK*
 
     //     glClearColor(qglColor(Qt::black));
 
-#if 1
+#if 1 // USE_GLES2 == true
+//     glScalef( 1, 1, -1 ); // negative z is top
+    QMatrix4x4 Projection;
+    Projection.perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+
+    QMatrix4x4 View;
+    View.lookAt(QVector3D(4,3,3), // Camera is at (4,3,3), in Worl$
+                QVector3D(0,0,0), // and looks at the origin
+                QVector3D(0,1,0)  // Head is up (set to 0,-1,0 to $
+    );
+
+    QMatrix4x4 Model;
+    Model.scale(1.0f);
+
+    QMatrix4x4 MVP  = Projection * View * Model; // Remember, matrix multiplication is the other way arou$
+
+#else
     // activate projection matrix
     glMatrixMode(GL_PROJECTION);
 
     // clening
     glLoadIdentity();
-
-#if IS_GLES == true
     glScalef( 1, 1, -1 ); // negative z is top
-#else
-    glScalef( 1, 1, -1 ); // negative z is top
-#endif
-    glMatrixMode(GL_MODELVIEW);
+        glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
     glEnable(GL_DEPTH_TEST);
-#endif
+#endif 
 }
 
 /**
