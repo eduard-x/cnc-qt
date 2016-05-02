@@ -249,23 +249,23 @@ MainWindow::MainWindow(QWidget *parent)
 
     fontSize = sysFont.pointSize();
 
-    userKeys = (QVector<uKeys>() << (uKeys) {
+    userKeys = {{
         "UserAplus", Qt::Key_multiply
-    } << (uKeys) {
+    }, {
         "UserAminus", Qt::Key_division
-    } << (uKeys) {
+    }, {
         "UserZplus", Qt::Key_Home
-    } << (uKeys) {
+    }, {
         "UserZminus", Qt::Key_End
-    } << (uKeys) {
+    }, {
         "UserYplus", Qt::Key_Up
-    } << (uKeys) {
+    }, {
         "UserYminus", Qt::Key_Down
-    } << (uKeys) {
+    }, {
         "UserXplus", Qt::Key_Right
-    } << (uKeys) {
+    }, {
         "UserXminus", Qt::Key_Left
-    });
+    }};
 
     labelTask->setText("");
 
