@@ -236,7 +236,7 @@ void SettingsDialog::changeColor()
     if (num < COLOR_LINES) {
         colorGL glc = Settings::colorSettings[num];
         QColor clr(glc.r * 255.0, glc.g * 255.0, glc.b * 255.0, glc.a * 255.0);
-        
+
         clr = QColorDialog::getColor ( clr, this ) ;
 
         if (clr.isValid()) {

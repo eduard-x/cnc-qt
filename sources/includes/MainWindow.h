@@ -324,7 +324,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void getScale(int s);
 
     private:
-
+        void drawWorkbench();
         //
         void reloadRecentList();
         int  calculateMinAngleSteps(int pos);
@@ -357,6 +357,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 
     private:
         Task::StatusTask currentStatus;
+        QGraphicsScene *scene;
         //
         QString axisNames;
         QTimer  mainGUITimer;

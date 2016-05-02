@@ -667,14 +667,14 @@ void mk1Controller::parseBinaryInfo()
     Settings::coord[Y].actualPosPulses = ((readBuf[31] << 24) + (readBuf[30] << 16) + (readBuf[29] << 8) + (readBuf[28]));
     Settings::coord[Z].actualPosPulses = ((readBuf[35] << 24) + (readBuf[34] << 16) + (readBuf[33] << 8) + (readBuf[32]));
     Settings::coord[A].actualPosPulses = ((readBuf[39] << 24) + (readBuf[38] << 16) + (readBuf[37] << 8) + (readBuf[36]));
-    
+
     // mk2 part
     Settings::coord[B].actualPosPulses = ((readBuf[43] << 24) + (readBuf[42] << 16) + (readBuf[41] << 8) + (readBuf[40]));
     Settings::coord[C].actualPosPulses = ((readBuf[47] << 24) + (readBuf[46] << 16) + (readBuf[45] << 8) + (readBuf[44]));
     Settings::coord[U].actualPosPulses = ((readBuf[51] << 24) + (readBuf[50] << 16) + (readBuf[49] << 8) + (readBuf[48]));
     Settings::coord[V].actualPosPulses = ((readBuf[55] << 24) + (readBuf[54] << 16) + (readBuf[53] << 8) + (readBuf[52]));
     Settings::coord[W].actualPosPulses = ((readBuf[59] << 24) + (readBuf[58] << 16) + (readBuf[57] << 8) + (readBuf[56]));
-    
+
     byte bb15 = readBuf[15];
 
     Settings::coord[X].actualLimitMin = (bb15 & 0x01) != 0;

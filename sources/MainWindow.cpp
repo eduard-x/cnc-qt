@@ -299,16 +299,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     addStatusWidgets();
 
+    scene = NULL;
+      
     //
     cnc = new mk1Controller();
 
-    //
-    QPixmap p1 = QPixmap(":/images/workbench.png");
-    QGraphicsScene *scene = new QGraphicsScene();
-    QGraphicsPixmapItem *item_p1 = scene->addPixmap(p1);
-    item_p1->setVisible(true);
-
-    graphicsView->setScene(scene);
+    
+    drawWorkbench();
+  
 
     // OpenGL area
     if (enableOpenGL == true) {
@@ -335,6 +333,8 @@ MainWindow::MainWindow(QWidget *parent)
         tabWidget->removeTab(1);
     }
 
+  
+    
     Correction = false;
     deltaX = 0;
     deltaY = 0;
@@ -397,6 +397,60 @@ MainWindow::MainWindow(QWidget *parent)
 
     refreshElementsForms();
 };
+
+
+void MainWindow::drawWorkbench()
+{
+  //
+    QPixmap p1 = QPixmap(":/images/workbench.png");
+
+    if (scene != NULL){
+        delete scene;
+    }
+    
+    scene = new QGraphicsScene();
+    QGraphicsPixmapItem *item_p1 = scene->addPixmap(p1);
+
+    QPen penLine;
+    penLine.setWidth(5);
+    penLine.setBrush(Qt::green);
+    penLine.setStyle(Qt::DashLine);
+
+    QPen penEllipse;
+    penEllipse.setBrush(Qt::green);
+    penEllipse.setWidth(20);
+
+    QFont font;
+    font.setPixelSize(20);
+    font.setBold(true);
+
+
+    scene->addLine(QLineF(10.0, 10.0, 10.0, 200.0), penLine);
+    scene->addEllipse(QRectF(3.0, 5.0, 20.0, 20.0), penEllipse);
+    QGraphicsTextItem *textZ = scene->addText("+Z");
+    textZ->setFont(font);
+    textZ->setPos(0, 0);
+
+
+    scene->addLine(QLineF(10.0, 200.0, 180.0, 150.0), penLine);
+    scene->addEllipse(QRectF(175.0, 140.0, 20.0, 20.0), penEllipse);
+
+    QGraphicsTextItem *textY = scene->addText("+Y");
+    textY->setFont(font);
+    textY->setPos(170, 135);
+
+    scene->addLine(QLineF(10.0, 200.0, 90.0, 300.0), penLine);
+    scene->addEllipse(QRectF(85.0, 295.0, 20.0, 20.0), penEllipse);
+
+    QGraphicsTextItem *textX = scene->addText("+X");
+    textX->setFont(font);
+    textX->setPos(80, 290);
+
+
+    item_p1->setVisible(true);
+
+    graphicsView->setScene(scene);
+}
 
 
 /**
