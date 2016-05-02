@@ -249,23 +249,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     fontSize = sysFont.pointSize();
 
-    userKeys = {{
-        "UserAplus", Qt::Key_multiply
-    }, {
-        "UserAminus", Qt::Key_division
-    }, {
-        "UserZplus", Qt::Key_Home
-    }, {
-        "UserZminus", Qt::Key_End
-    }, {
-        "UserYplus", Qt::Key_Up
-    }, {
-        "UserYminus", Qt::Key_Down
-    }, {
-        "UserXplus", Qt::Key_Right
-    }, {
-        "UserXminus", Qt::Key_Left
-    }};
+    userKeys = {
+        { "UserAplus", Qt::Key_multiply },
+        { "UserAminus", Qt::Key_division },
+        { "UserZplus", Qt::Key_Home },
+        { "UserZminus", Qt::Key_End },
+        { "UserYplus", Qt::Key_Up },
+        { "UserYminus", Qt::Key_Down },
+        { "UserXplus", Qt::Key_Right },
+        { "UserXminus", Qt::Key_Left }
+    };
 
     labelTask->setText("");
 
@@ -300,13 +293,13 @@ MainWindow::MainWindow(QWidget *parent)
     addStatusWidgets();
 
     scene = NULL;
-      
+
     //
     cnc = new mk1Controller();
 
-    
+
     drawWorkbench();
-  
+
 
     // OpenGL area
     if (enableOpenGL == true) {
@@ -333,8 +326,8 @@ MainWindow::MainWindow(QWidget *parent)
         tabWidget->removeTab(1);
     }
 
-  
-    
+
+
     Correction = false;
     deltaX = 0;
     deltaY = 0;
@@ -401,13 +394,13 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::drawWorkbench()
 {
-  //
+    //
     QPixmap p1 = QPixmap(":/images/workbench.png");
 
-    if (scene != NULL){
+    if (scene != NULL) {
         delete scene;
     }
-    
+
     scene = new QGraphicsScene();
     QGraphicsPixmapItem *item_p1 = scene->addPixmap(p1);
 
