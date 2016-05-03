@@ -1224,11 +1224,11 @@ void mk1Data::packAB( bool send )
  * @brief spindle commands
  *
  * spindleON: on/off
- * numShimChanel chan number 1,2, or 3
- * ts signal type
- * SpeedShim signal form
+ * numPWMChanel chan number 1,2, or 3
+ * to signal type
+ * SpeedPWM signal form
  */
-void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int SpeedShim, bool send)
+void mk1Data::packB5(bool spindleON, int numPWMChanel, TypeSignal ts, int SpeedPWM, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1245,7 +1245,7 @@ void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Speed
     writeBuf[6] = 0x01; //х.з.
 #if 1 // ??? was enabled
 
-    switch (numShimChanel) {
+    switch (numPWMChanel) {
         case 2: {
             writeBuf[8] = 0x02;
             break;
@@ -1280,7 +1280,7 @@ void mk1Data::packB5(bool spindleON, int numShimChanel, TypeSignal ts, int Speed
         }
     }
 
-    packFourBytes(10, SpeedShim);
+    packFourBytes(10, SpeedPWM);
 #endif
 
     if (send == true) {

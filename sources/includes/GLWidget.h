@@ -139,6 +139,12 @@ class GLWidget : public QGLWidget, protected QGLFunctions
         MainWindow* parent;
         mk1Controller* cnc;
 
+        QMatrix4x4 Projection; // Projection matrix 
+        QMatrix4x4 Model; // Model matrix
+        QMatrix4x4 View; // Camera matrix
+        QMatrix4x4 MVP;
+     
+        
         QVector<pointGL> instrumentArray;
         QVector<pointGL> footArray;
         QVector<pointGL> traverseArray;

@@ -42,7 +42,7 @@ For connection with hardware please copy the file udev/rules.d/z90_cncusb.rules 
 Version history
 
 0.1.5   correcture of acceleration coefficients
-        shim enabled
+        PWM enabled
 0.1.4   load from recent file list fixed
         selection of language fixed
 0.1.3   settings for visualisation colors are implemented

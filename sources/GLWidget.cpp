@@ -347,19 +347,18 @@ void GLWidget::initializeGL()//Init3D()//*OK*
 
 #if 1 // USE_GLES2 == true
     //     glScalef( 1, 1, -1 ); // negative z is top
-    QMatrix4x4 Projection;
+    glEnable(GL_DEPTH_TEST);
+     
     Projection.perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-
-    QMatrix4x4 View;
+   
     View.lookAt(QVector3D(4, 3, 3), // Camera is at (4,3,3), in Worl$
                 QVector3D(0, 0, 0), // and looks at the origin
                 QVector3D(0, 1, 0) // Head is up (set to 0,-1,0 to $
                );
 
-    QMatrix4x4 Model;
     Model.scale(1.0f);
 
-    QMatrix4x4 MVP  = Projection * View * Model; // Remember, matrix multiplication is the other way arou$
+    MVP  = Projection * View * Model; // Remember, matrix multiplication is the other way arou$
 
 #else
     // activate projection matrix
@@ -391,6 +390,19 @@ void GLWidget::paintGL()
  */
 void GLWidget::resizeGL(int w, int h)
 {
+#if 0
+      // Calculate aspect ratio
+    qreal aspect = qreal(w) / qreal(h ? h : 1);
+
+    // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
+    const qreal zNear = 3.0, zFar = 7.0, fov = 45.0;
+
+    // Reset projection
+    Projection.setToIdentity();
+
+    // Set perspective projection
+    Projection.perspective(fov, aspect, zNear, zFar);
+#else
     int left = 0, top = 0;
     int width = w, height = h;
     float scale = ((float)w / (float)h);
@@ -405,6 +417,7 @@ void GLWidget::resizeGL(int w, int h)
     }
 
     glViewport(left, top, width, height); // set the current size of view
+#endif
 }
 
 
@@ -1117,9 +1130,9 @@ void GLWidget::saveGLState()
 #if USE_GLES2 == false
     glPushAttrib(GL_ALL_ATTRIB_BITS);
 #endif
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glMatrixMode(GL_MODELVIEW);
+//     glMatrixMode(GL_PROJECTION);
+//     glPushMatrix();
+//     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 }
 
@@ -1129,9 +1142,9 @@ void GLWidget::saveGLState()
  */
 void GLWidget::restoreGLState()
 {
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
+//     glMatrixMode(GL_PROJECTION);
+//     glPopMatrix();
+//     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 #if USE_GLES2 == false
     glPopAttrib();

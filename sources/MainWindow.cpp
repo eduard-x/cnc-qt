@@ -420,7 +420,7 @@ void MainWindow::drawWorkbench()
 
     scene->addLine(QLineF(10.0, 10.0, 10.0, 200.0), penLine);
     scene->addEllipse(QRectF(3.0, 5.0, 20.0, 20.0), penEllipse);
-    QGraphicsTextItem *textZ = scene->addText("+Z");
+    QGraphicsTextItem *textZ = scene->addText(Settings::coord[Z].invertDirection?"- Z":"+Z");
     textZ->setFont(font);
     textZ->setPos(0, 0);
 
@@ -428,14 +428,14 @@ void MainWindow::drawWorkbench()
     scene->addLine(QLineF(10.0, 200.0, 180.0, 150.0), penLine);
     scene->addEllipse(QRectF(175.0, 140.0, 20.0, 20.0), penEllipse);
 
-    QGraphicsTextItem *textY = scene->addText("+Y");
+    QGraphicsTextItem *textY = scene->addText(Settings::coord[Y].invertDirection?"- Y":"+Y");
     textY->setFont(font);
     textY->setPos(170, 135);
 
     scene->addLine(QLineF(10.0, 200.0, 90.0, 300.0), penLine);
     scene->addEllipse(QRectF(85.0, 295.0, 20.0, 20.0), penEllipse);
 
-    QGraphicsTextItem *textX = scene->addText("+X");
+    QGraphicsTextItem *textX = scene->addText(Settings::coord[X].invertDirection?"- X":"+X");
     textX->setFont(font);
     textX->setPos(80, 290);
 
@@ -1706,6 +1706,8 @@ void MainWindow::onCheckBoxWorkbenchSwap()
     if (c == checkBoxSwapX) {
         Settings::coord[A].invertDirection = state;
     }
+    
+    drawWorkbench();
 }
 
 /**
