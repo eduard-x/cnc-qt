@@ -562,7 +562,10 @@ void ScanSurfaceDialog::buttonSetZ()
 void ScanSurfaceDialog::buttonPlusZDown()
 {
     //     button6.BackColor = Color.DarkGreen;
-    cnc->startManualMove("0", "0", "+", "0", 100);
+    // TODO get settings from gui
+    int pulses = 100;
+
+    cnc->startManualMove("0", "0", "+", "0", 100, pulses);
 }
 
 
@@ -576,6 +579,9 @@ void ScanSurfaceDialog::buttonStop()
 void ScanSurfaceDialog::buttonMinusZDown()
 {
     //     button5.BackColor = Color.DarkGreen;
-    cnc->startManualMove("0", "0", "-", "0", 100);
+    // TODO get settings from gui
+    int pulses = 100;
+
+    cnc->startManualMove("0", "0", "-", "0", 100, pulses);
 }
 

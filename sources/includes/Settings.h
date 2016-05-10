@@ -55,8 +55,8 @@ class axis
         int posPulse(float posMm);
 
     public:
-        float minVelo;
-        float maxVelo;
+        float minVeloLimit;
+        float maxVeloLimit;
         float acceleration;
         int   pulsePerMm;
         float actualPosmm;

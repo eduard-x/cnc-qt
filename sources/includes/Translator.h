@@ -260,6 +260,7 @@ enum TR_CONSTS {
     _COLORS, // 204
     _DISABLE_VISUALISATION, // 205
     _COLOR_LIST, //206
+    _STEP_DISTANCE, // 207
     _NULL
 };
 

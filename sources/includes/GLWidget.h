@@ -40,6 +40,8 @@
 
 #include <QtOpenGL/QGLWidget>
 
+#include <QGLShader>
+#include <QGLShaderProgram>
 
 #include <QtOpenGL/QGLFunctions>
 
@@ -139,12 +141,20 @@ class GLWidget : public QGLWidget, protected QGLFunctions
         MainWindow* parent;
         mk1Controller* cnc;
 
-        QMatrix4x4 Projection; // Projection matrix 
-        QMatrix4x4 Model; // Model matrix
-        QMatrix4x4 View; // Camera matrix
-        QMatrix4x4 MVP;
-     
-        
+        QGLShaderProgram* program;
+
+        GLuint m_posAttrX;
+        GLuint m_posAttrY;
+        GLuint m_posAttrZ;
+
+        QMatrix4x4 viewMatrix; // Projection matrix
+        //         QMatrix4x4 Model; // Model matrix
+        //         QMatrix4x4 View; // Camera matrix
+        //         QMatrix4x4 MVP;
+
+        GLuint vertexbuffer;
+        GLuint colorbuffer;
+
         QVector<pointGL> instrumentArray;
         QVector<pointGL> footArray;
         QVector<pointGL> traverseArray;

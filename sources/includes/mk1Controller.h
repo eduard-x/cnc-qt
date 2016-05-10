@@ -109,7 +109,7 @@ class mk1Data //: public mk1Settings
         void packB6( bool mist, bool fluid, bool send = true);
         void packAB( bool send = true);
         void packD2(int speed, float returnDistance, bool send = true);
-        void packBE(byte direction, int speed, bool send = true);
+        void packBE(byte direction, int speed, int lenInPulses, bool send = true);
         void pack9E(byte value, bool send = true);
         void pack9F( bool send = true);
         void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
@@ -237,7 +237,7 @@ class mk1Controller : public QObject, public mk1Data
         void stopManualMove();
         void deviceNewPosition(int x, int y, int z, int a = 0);
         void deviceNewPosition(float x, float y, float z, float a = 0.0);
-        void startManualMove(QString x, QString y, QString z, QString a, int speed);
+        void startManualMove(QString x, QString y, QString z, QString a, int speed, int pulses);
 
         void setStartPos(float x, float y, float z, float a = 0.0);
         void setUseHome(bool b);

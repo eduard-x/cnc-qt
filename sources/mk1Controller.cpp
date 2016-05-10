@@ -481,7 +481,7 @@ void mk1Controller::sendSettings()
     packA0(); // set acceleration
     packA1(); // set allowed limits
 
-    packBF((int)Settings::coord[X].maxVelo, (int)Settings::coord[Y].maxVelo, (int)Settings::coord[Z].maxVelo, (int)Settings::coord[A].maxVelo); // set max velocities
+    packBF((int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit); // set max velocities
 
     packB5(spindleSetEnable); // spindle off
 
@@ -790,7 +790,7 @@ void mk1Controller::emergyStop()
  * input qstring parameter is "+", "0" or "-"
  *  speed: velocity
  */
-void mk1Controller::startManualMove(QString x, QString y, QString z, QString a, int speed)
+void mk1Controller::startManualMove(QString x, QString y, QString z, QString a, int speed, int pulses)
 {
     if (!isConnected()) {
         return;
@@ -831,7 +831,7 @@ void mk1Controller::startManualMove(QString x, QString y, QString z, QString a, 
         axesDirection |= 0x80;
     }
 
-    packBE(axesDirection, speed);
+    packBE(axesDirection, speed, pulses);
 }
 
 /**
@@ -1243,7 +1243,7 @@ void mk1Data::packB5(bool spindleON, int numPWMChanel, TypeSignal ts, int SpeedP
     }
 
     writeBuf[6] = 0x01; //х.з.
-#if 1 // ??? was enabled
+    // ??? was enabled
 
     switch (numPWMChanel) {
         case 2: {
@@ -1281,7 +1281,6 @@ void mk1Data::packB5(bool spindleON, int numPWMChanel, TypeSignal ts, int SpeedP
     }
 
     packFourBytes(10, SpeedPWM);
-#endif
 
     if (send == true) {
         sendBinaryData();
@@ -1333,13 +1332,43 @@ void mk1Data::packB6( bool mist, bool fluid, bool send )
 // direction axes
 // speed
 //
-void mk1Data::packBE(byte direction, int speed, bool send)
+void mk1Data::packBE(byte direction, int speed, int lenInPulses, bool send)
 {
     cleanBuf(writeBuf);
 
     writeBuf[0] = 0xbe;
     writeBuf[4] = 0x80; // settings
     writeBuf[6] = direction;
+
+#if 1
+    float inewSpd  = 3600; // 3584?
+
+    int pulsesPerMM = 0;
+
+    if (direction & 0x03) {
+        pulsesPerMM = Settings::coord[X].pulsePerMm;
+    }
+
+    if (direction & 0x0c) {
+        pulsesPerMM = Settings::coord[Y].pulsePerMm;
+    }
+
+    if (direction & 0x30) {
+        pulsesPerMM = Settings::coord[Z].pulsePerMm;
+    }
+
+    if (direction & 0xc0) {
+        pulsesPerMM = Settings::coord[A].pulsePerMm;
+    }
+
+    if (speed != 0 && pulsesPerMM != 0) {
+        inewSpd = 7.2e8 / ((float)speed * pulsesPerMM);
+    }
+
+    packFourBytes(10, (int)inewSpd);
+
+    packFourBytes(22, lenInPulses);
+#else
 
     int inewSpd = 0;
 
@@ -1350,6 +1379,7 @@ void mk1Data::packBE(byte direction, int speed, bool send)
 
     //velocity
     packFourBytes(10, inewSpd);
+#endif
 
 #if 0
 

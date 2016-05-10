@@ -33,6 +33,7 @@
 #include <QPixmap>
 #include <QDebug>
 
+#include "includes/Settings.h"
 #include "includes/MainWindow.h"
 #include "includes/ManualControl.h"
 
@@ -78,6 +79,9 @@ ManualControlDialog::ManualControlDialog(QWidget * p)
 
     strsUser = (QVector<QString>() << "+A" << "-A" << "+Z" << "-Z" << "+Y" << "-Y" << "+X" << "-X");
 
+
+    QStringList distList = (QStringList() << "1x (0.1mm)" << "2x (0.2mm)" << "5x (0.5mm)" << "10x (1mm)" << "20x (2mm)" << "50x (5mm)" << "100x (10mm)");
+    comboDistance->addItems(distList);
 
     connect(pushButtonOk, SIGNAL(clicked()), this, SLOT(closePopUp()));
     connect(pushButtonCancel, SIGNAL(clicked()), this, SLOT(reject()));
@@ -440,6 +444,7 @@ void ManualControlDialog::translateDialog()
     labelVelocity->setText(translate(_VELOCITY));
     labelNumpad->setText(translate(_NUMPAD_HELP));
     labelCursor->setText(translate(_CONTROLPAD_HELP));
+    labelDistance->setText(translate(_STEP_DISTANCE));
 
     for (int i = 0; i < labelsUser.count(); i++) {
         labelsUser.at(i)->setText("'" + QKeySequence(userManualKeys.at(i).code).toString() + "'\t\t" + strsUser.at(i));
@@ -487,67 +492,89 @@ void ManualControlDialog::pressedCommand(int num)
 
     int speed = spinBoxVelo->value();
 
+    int pulses = 0;
+
     switch (num) {
         case Y_plus: { // y+
             y = "+";
+            pulses = Settings::coord[Y].pulsePerMm;
             break;
         }
 
         case Y_minus: { // y-
             y = "-";
+            pulses = Settings::coord[Y].pulsePerMm;
             break;
         }
 
         case Z_plus: { // z+
             z = "+";
+            pulses = Settings::coord[Z].pulsePerMm;
             break;
         }
 
         case Z_minus: { // z-
             z = "-";
+            pulses = Settings::coord[Z].pulsePerMm;
             break;
         }
 
         case X_minus: { // x-
             x = "-";
+            pulses = Settings::coord[X].pulsePerMm;
             break;
         }
 
         case X_plus: { // x+
             x = "+";
+            pulses = Settings::coord[X].pulsePerMm;
             break;
         }
 
         case X_plus_Y_minus: {
             y = "-";
             x = "+";
+            pulses = Settings::coord[X].pulsePerMm;
+            pulses += Settings::coord[Y].pulsePerMm;
+            pulses >>= 2;
             break;
         }
 
         case X_minus_Y_minus: {
             y = "-";
             x = "-";
+            pulses = Settings::coord[X].pulsePerMm;
+            pulses += Settings::coord[Y].pulsePerMm;
+            pulses >>= 2;
             break;
         }
 
         case X_plus_Y_plus: {
             y = "+";
             x = "+";
+            pulses = Settings::coord[X].pulsePerMm;
+            pulses += Settings::coord[Y].pulsePerMm;
+            pulses >>= 2;
             break;
         }
 
         case X_minus_Y_plus: {
             y = "+";
             x = "-";
+            pulses = Settings::coord[X].pulsePerMm;
+            pulses += Settings::coord[Y].pulsePerMm;
+            pulses >>= 2;
             break;
         }
 
         case A_minus: {
+            pulses = Settings::coord[A].pulsePerMm;
             a = "-";
             break;
         }
 
         case A_plus: {
+            pulses = Settings::coord[A].pulsePerMm;
             a = "+";
             break;
         }
@@ -556,7 +583,45 @@ void ManualControlDialog::pressedCommand(int num)
             return;
     }
 
-    cnc->startManualMove(x, y, z, a,  speed);
+    // 
+    int n = comboDistance->currentIndex();
+
+    switch (n) {
+        case 0:
+            pulses *= 0.1;
+            break;
+
+        case 1:
+            pulses *= 0.2;
+            break;
+
+        case 2:
+            pulses *= 0.5;
+            break;
+
+        case 3:
+            // multiplicator 1
+            break;
+
+        case 4:
+            pulses *= 2;
+            break;
+
+        case 5:
+            pulses *= 5;
+            break;
+
+        case 6:
+            pulses *= 10;
+            break;
+
+        default:
+            break;
+    }
+
+    if (pulses >0){
+        cnc->startManualMove(x, y, z, a,  speed, pulses);
+    }
     //     cnc->stopManualMove();
 }
 

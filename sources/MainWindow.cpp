@@ -44,15 +44,6 @@
 #include <QTextStream>
 #include <QToolButton>
 
-// #if USE_GLES2 == true
-// // #include <GLES2/gl.h>
-// #include <QtGui/QOpenGLFunctions_ES2>
-// #else
-// // #include <QtOpenGL>
-// #include <QtWidgets/qo>
-// #endif
-
-
 
 #include "includes/Settings.h"
 #include "includes/About.h"
@@ -420,7 +411,7 @@ void MainWindow::drawWorkbench()
 
     scene->addLine(QLineF(10.0, 10.0, 10.0, 200.0), penLine);
     scene->addEllipse(QRectF(3.0, 5.0, 20.0, 20.0), penEllipse);
-    QGraphicsTextItem *textZ = scene->addText(Settings::coord[Z].invertDirection?"- Z":"+Z");
+    QGraphicsTextItem *textZ = scene->addText(Settings::coord[Z].invertDirection ? "- Z" : "+Z");
     textZ->setFont(font);
     textZ->setPos(0, 0);
 
@@ -428,14 +419,14 @@ void MainWindow::drawWorkbench()
     scene->addLine(QLineF(10.0, 200.0, 180.0, 150.0), penLine);
     scene->addEllipse(QRectF(175.0, 140.0, 20.0, 20.0), penEllipse);
 
-    QGraphicsTextItem *textY = scene->addText(Settings::coord[Y].invertDirection?"- Y":"+Y");
+    QGraphicsTextItem *textY = scene->addText(Settings::coord[Y].invertDirection ? "- Y" : "+Y");
     textY->setFont(font);
     textY->setPos(170, 135);
 
     scene->addLine(QLineF(10.0, 200.0, 90.0, 300.0), penLine);
     scene->addEllipse(QRectF(85.0, 295.0, 20.0, 20.0), penEllipse);
 
-    QGraphicsTextItem *textX = scene->addText(Settings::coord[X].invertDirection?"- X":"+X");
+    QGraphicsTextItem *textX = scene->addText(Settings::coord[X].invertDirection ? "- X" : "+X");
     textX->setFont(font);
     textX->setPos(80, 290);
 
@@ -938,8 +929,8 @@ void MainWindow::writeSettings()
     for (int c = 0; c < axisNames.length(); c++) {
         s->setValue("Pulse" + QString( axisNames.at(c)), Settings::coord[c].pulsePerMm);
         s->setValue("Accel" + QString( axisNames.at(c)), (double)Settings::coord[c].acceleration);
-        s->setValue("StartVelo" + QString( axisNames.at(c)), (double)Settings::coord[c].minVelo);
-        s->setValue("EndVelo" + QString( axisNames.at(c)), (double)Settings::coord[c].maxVelo);
+        s->setValue("StartVelo" + QString( axisNames.at(c)), (double)Settings::coord[c].minVeloLimit);
+        s->setValue("EndVelo" + QString( axisNames.at(c)), (double)Settings::coord[c].maxVeloLimit);
 
         //
         s->setValue("Backlash" + QString( axisNames.at(c)), (double)Settings::coord[c].backlash);
@@ -1163,10 +1154,10 @@ void MainWindow::readSettings()
         Settings::coord[c].acceleration = (res == true) ? f : 15;
 
         f = s->value("StartVelo" + QString( axisNames.at(c)), 0).toFloat( &res);
-        Settings::coord[c].minVelo = (res == true) ? f : 0;
+        Settings::coord[c].minVeloLimit = (res == true) ? f : 0;
 
         f = s->value("EndVelo" + QString( axisNames.at(c)), 400).toFloat( &res);
-        Settings::coord[c].maxVelo = (res == true) ? f : 400;
+        Settings::coord[c].maxVeloLimit = (res == true) ? f : 400;
 
         Settings::coord[c].checkSoftLimits = s->value("SoftLimit" + QString( axisNames.at(c)), false).toBool( );
 
@@ -1706,7 +1697,7 @@ void MainWindow::onCheckBoxWorkbenchSwap()
     if (c == checkBoxSwapX) {
         Settings::coord[A].invertDirection = state;
     }
-    
+
     drawWorkbench();
 }
 
@@ -1795,7 +1786,7 @@ void MainWindow::runNextCommand()
             cnc->pack9E(0x05);
 
             //             cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
-            cnc->packBF((int)Settings::coord[X].maxVelo, (int)Settings::coord[Y].maxVelo, (int)Settings::coord[Z].maxVelo, (int)Settings::coord[A].maxVelo); // set max velocities
+            cnc->packBF((int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit); // set max velocities
 
             cnc->packC0();
 
@@ -1875,7 +1866,7 @@ void MainWindow::runNextCommand()
         cnc->pack9E(0x05);
 
         //         cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
-        cnc->packBF((int)Settings::coord[X].maxVelo, (int)Settings::coord[Y].maxVelo, (int)Settings::coord[Z].maxVelo, (int)Settings::coord[A].maxVelo); // set max velocities
+        cnc->packBF((int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit); // set max velocities
 
         cnc->packC0();
 
@@ -2762,16 +2753,16 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
     float dnewSpdZ  = 3600; // 3584?
 
     // TODO to calculate this only after settings changing
-    if ((Settings::coord[X].maxVelo != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
-        dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVelo * Settings::coord[X].pulsePerMm);
+    if ((Settings::coord[X].maxVeloLimit != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
+        dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVeloLimit * Settings::coord[X].pulsePerMm);
     }
 
-    if ((Settings::coord[Y].maxVelo != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
-        dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVelo * Settings::coord[Y].pulsePerMm);
+    if ((Settings::coord[Y].maxVeloLimit != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
+        dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVeloLimit * Settings::coord[Y].pulsePerMm);
     }
 
-    if ((Settings::coord[Z].maxVelo != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
-        dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVelo * Settings::coord[Z].pulsePerMm);
+    if ((Settings::coord[Z].maxVeloLimit != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
+        dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVeloLimit * Settings::coord[Z].pulsePerMm);
     }
 
     switch (gCodeList[begPos].plane) {

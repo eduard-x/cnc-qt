@@ -111,6 +111,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
     comboSeqZ->addItems(seqList);
     comboSeqA->addItems(seqList);
 
+
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
@@ -182,15 +183,15 @@ SettingsDialog::SettingsDialog(QWidget *p)
     numPulseZ->setValue(Settings::coord[Z].pulsePerMm);
     numPulseA->setValue(Settings::coord[A].pulsePerMm);
 
-    doubleSpinStartX->setValue(Settings::coord[X].minVelo);
-    doubleSpinStartY->setValue(Settings::coord[Y].minVelo);
-    doubleSpinStartZ->setValue(Settings::coord[Z].minVelo);
-    doubleSpinStartA->setValue(Settings::coord[A].minVelo);
+    doubleSpinStartX->setValue(Settings::coord[X].minVeloLimit);
+    doubleSpinStartY->setValue(Settings::coord[Y].minVeloLimit);
+    doubleSpinStartZ->setValue(Settings::coord[Z].minVeloLimit);
+    doubleSpinStartA->setValue(Settings::coord[A].minVeloLimit);
 
-    doubleSpinEndX->setValue(Settings::coord[X].maxVelo);
-    doubleSpinEndY->setValue(Settings::coord[Y].maxVelo);
-    doubleSpinEndZ->setValue(Settings::coord[Z].maxVelo);
-    doubleSpinEndA->setValue(Settings::coord[A].maxVelo);
+    doubleSpinEndX->setValue(Settings::coord[X].maxVeloLimit);
+    doubleSpinEndY->setValue(Settings::coord[Y].maxVeloLimit);
+    doubleSpinEndZ->setValue(Settings::coord[Z].maxVeloLimit);
+    doubleSpinEndA->setValue(Settings::coord[A].maxVeloLimit);
 
     doubleSpinAccelX->setValue(Settings::coord[X].acceleration);
     doubleSpinAccelY->setValue(Settings::coord[Y].acceleration);
@@ -404,15 +405,15 @@ void SettingsDialog::onSave()
     Settings::coord[Z].pulsePerMm = numPulseZ->value();
     Settings::coord[A].pulsePerMm = numPulseA->value();
 
-    Settings::coord[X].minVelo = doubleSpinStartX->value();
-    Settings::coord[Y].minVelo = doubleSpinStartY->value();
-    Settings::coord[Z].minVelo = doubleSpinStartZ->value();
-    Settings::coord[A].minVelo = doubleSpinStartA->value();
+    Settings::coord[X].minVeloLimit = doubleSpinStartX->value();
+    Settings::coord[Y].minVeloLimit = doubleSpinStartY->value();
+    Settings::coord[Z].minVeloLimit = doubleSpinStartZ->value();
+    Settings::coord[A].minVeloLimit = doubleSpinStartA->value();
 
-    Settings::coord[X].maxVelo = doubleSpinEndX->value();
-    Settings::coord[Y].maxVelo = doubleSpinEndY->value();
-    Settings::coord[Z].maxVelo = doubleSpinEndZ->value();
-    Settings::coord[A].maxVelo = doubleSpinEndA->value();
+    Settings::coord[X].maxVeloLimit = doubleSpinEndX->value();
+    Settings::coord[Y].maxVeloLimit = doubleSpinEndY->value();
+    Settings::coord[Z].maxVeloLimit = doubleSpinEndZ->value();
+    Settings::coord[A].maxVeloLimit = doubleSpinEndA->value();
 
     Settings::coord[X].acceleration = doubleSpinAccelX->value();
     Settings::coord[Y].acceleration = doubleSpinAccelY->value();
