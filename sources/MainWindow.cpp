@@ -283,7 +283,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     addStatusWidgets();
 
-    scene = NULL;
+    sceneCoordinates = NULL;
 
     //
     cnc = new mk1Controller();
@@ -291,6 +291,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     drawWorkbench();
 
+
+    //     enableOpenGL = false;
 
     // OpenGL area
     if (enableOpenGL == true) {
@@ -305,6 +307,7 @@ MainWindow::MainWindow(QWidget *parent)
         palette.setColor(statusLabel2->foregroundRole(), Qt::darkBlue);
         statusLabel2->setPalette(palette);
         statusLabel2->setText( "OpenGL " + translate(_ENABLED));
+
         // OpenGL is placed in widget
     } else {
         scene3d = 0;
@@ -323,8 +326,8 @@ MainWindow::MainWindow(QWidget *parent)
     deltaX = 0;
     deltaY = 0;
     deltaZ = 0;
-    koeffSizeX = 1;
-    koeffSizeY = 1;
+    coeffSizeX = 1;
+    coeffSizeY = 1;
     deltaFeed = false;
 
     scale = 1;
@@ -388,12 +391,12 @@ void MainWindow::drawWorkbench()
     //
     QPixmap p1 = QPixmap(":/images/workbench.png");
 
-    if (scene != NULL) {
-        delete scene;
+    if (sceneCoordinates != NULL) {
+        delete sceneCoordinates;
     }
 
-    scene = new QGraphicsScene();
-    QGraphicsPixmapItem *item_p1 = scene->addPixmap(p1);
+    sceneCoordinates = new QGraphicsScene();
+    QGraphicsPixmapItem *item_p1 = sceneCoordinates->addPixmap(p1);
 
     QPen penLine;
     penLine.setWidth(5);
@@ -409,31 +412,31 @@ void MainWindow::drawWorkbench()
     font.setBold(true);
 
 
-    scene->addLine(QLineF(10.0, 10.0, 10.0, 200.0), penLine);
-    scene->addEllipse(QRectF(3.0, 5.0, 20.0, 20.0), penEllipse);
-    QGraphicsTextItem *textZ = scene->addText(Settings::coord[Z].invertDirection ? "- Z" : "+Z");
+    sceneCoordinates->addLine(QLineF(10.0, 10.0, 10.0, 200.0), penLine);
+    sceneCoordinates->addEllipse(QRectF(3.0, 5.0, 20.0, 20.0), penEllipse);
+    QGraphicsTextItem *textZ = sceneCoordinates->addText(Settings::coord[Z].invertDirection ? "- Z" : "+Z");
     textZ->setFont(font);
     textZ->setPos(0, 0);
 
 
-    scene->addLine(QLineF(10.0, 200.0, 180.0, 150.0), penLine);
-    scene->addEllipse(QRectF(175.0, 140.0, 20.0, 20.0), penEllipse);
+    sceneCoordinates->addLine(QLineF(10.0, 200.0, 180.0, 150.0), penLine);
+    sceneCoordinates->addEllipse(QRectF(175.0, 140.0, 20.0, 20.0), penEllipse);
 
-    QGraphicsTextItem *textY = scene->addText(Settings::coord[Y].invertDirection ? "- Y" : "+Y");
+    QGraphicsTextItem *textY = sceneCoordinates->addText(Settings::coord[Y].invertDirection ? "- Y" : "+Y");
     textY->setFont(font);
     textY->setPos(170, 135);
 
-    scene->addLine(QLineF(10.0, 200.0, 90.0, 300.0), penLine);
-    scene->addEllipse(QRectF(85.0, 295.0, 20.0, 20.0), penEllipse);
+    sceneCoordinates->addLine(QLineF(10.0, 200.0, 90.0, 300.0), penLine);
+    sceneCoordinates->addEllipse(QRectF(85.0, 295.0, 20.0, 20.0), penEllipse);
 
-    QGraphicsTextItem *textX = scene->addText(Settings::coord[X].invertDirection ? "- X" : "+X");
+    QGraphicsTextItem *textX = sceneCoordinates->addText(Settings::coord[X].invertDirection ? "- X" : "+X");
     textX->setFont(font);
     textX->setPos(80, 290);
 
 
     item_p1->setVisible(true);
 
-    graphicsView->setScene(scene);
+    graphicsView->setScene(sceneCoordinates);
 }
 
 
@@ -888,24 +891,24 @@ void MainWindow::writeSettings()
 
         //         s->setValue("DisableOpenGL", disableIfSSH);
 
-        s->setValue("GrigStep", GrigStep);
+        s->setValue("GrigStep", (int)GrigStep);
 
-        s->setValue("GridXstart", GridXstart);
-        s->setValue("GridXend", GridXend);
-        s->setValue("GridYstart", GridYstart);
-        s->setValue("GridYend", GridYend);
+        s->setValue("GridXstart", (int)GridXstart);
+        s->setValue("GridXend", (int)GridXend);
+        s->setValue("GridYstart", (int)GridYstart);
+        s->setValue("GridYend", (int)GridYend);
 
-        s->setValue("ShowGrate", ShowGrate); // grenzen
+        s->setValue("ShowGrate", (bool)ShowBorder); // grenzen
 
-        s->setValue("PosX", PosX); //
-        s->setValue("PosY", PosY); //
-        s->setValue("PosZ", PosZ); //
+        s->setValue("PosX", (int)PosX); //
+        s->setValue("PosY", (int)PosY); //
+        s->setValue("PosZ", (int)PosZ); //
 
-        s->setValue("AngleX", PosAngleX); //
-        s->setValue("AngleY", PosAngleY); //
-        s->setValue("AngleZ", PosAngleZ); //
+        s->setValue("AngleX", (int)PosAngleX); //
+        s->setValue("AngleY", (int)PosAngleY); //
+        s->setValue("AngleZ", (int)PosAngleZ); //
 
-        s->setValue("Zoom", PosZoom); //
+        s->setValue("Zoom", (int)PosZoom); //
 
 
         s->setValue("ColorX", qVariantFromValue(Settings::colorSettings[COLOR_X]));
@@ -918,8 +921,15 @@ void MainWindow::writeSettings()
         s->setValue("ColorRapid", qVariantFromValue(Settings::colorSettings[COLOR_RAPID]));
         s->setValue("ColorWork", qVariantFromValue(Settings::colorSettings[COLOR_WORK]));
         s->setValue("ColorGrid", qVariantFromValue(Settings::colorSettings[COLOR_GRID]));
+        s->setValue("ColorBorder", qVariantFromValue(Settings::colorSettings[COLOR_BORDER]));
         s->setValue("ColorSurface", qVariantFromValue(Settings::colorSettings[COLOR_SURFACE]));
         s->setValue("ColorConnect", qVariantFromValue(Settings::colorSettings[COLOR_CONNECTION]));
+
+        s->setValue("LineWidth", (int)Settings::lineWidth);
+        s->setValue("PointSize", (int)Settings::pointSize);
+        s->setValue("SmoothMoving", (bool)Settings::smoothMoving);
+        s->setValue("ShowTraverse", (bool)Settings::showTraverse);
+        s->setValue("ShowWorkbench", (bool)Settings::showWorkbench);
 
         s->endGroup();
     }
@@ -1090,7 +1100,7 @@ void MainWindow::readSettings()
         GridYstart = s->value("GridYstart", -100).toInt();
         GridYend = s->value("GridYend", 100).toInt();
 
-        ShowGrate = s->value("ShowGrate", true).toBool(); // grenzen
+        ShowBorder = s->value("ShowGrate", true).toBool(); // grenzen
 
         PosX = s->value("PosX", -96 ).toInt(); //
         PosY = s->value("PosY", -64 ).toInt(); //
@@ -1103,16 +1113,16 @@ void MainWindow::readSettings()
         PosZoom = s->value("Zoom", 20 ).toInt(); //
 
         Settings::colorSettings[COLOR_X] = s->value("ColorX", qVariantFromValue((colorGL) {
-            0.0f, 1.0f, 0.0f, 0.0f
+            0.0f, 1.0f, 0.0f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_Y] = s->value("ColorY", qVariantFromValue((colorGL) {
-            1.0f, 0.0f, 0.0f, 0.0f
+            1.0f, 0.0f, 0.0f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_Z] = s->value("ColorZ", qVariantFromValue((colorGL) {
-            0.0f, 1.0f, 1.0f, 0.0f
+            0.0f, 1.0f, 1.0f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_BACKGROUND] = s->value("ColorBG", qVariantFromValue((colorGL) {
-            0.45f, 0.45f, 0.45f, 0.0f
+            0.45f, 0.45f, 0.45f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_TOOL] = s->value("ColorTool", qVariantFromValue((colorGL) {
             1.0f, 1.0f, 0.0f, 1.0f
@@ -1124,12 +1134,15 @@ void MainWindow::readSettings()
             1.0f, 1.0f, 1.0f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_RAPID] = s->value("ColorRapid", qVariantFromValue((colorGL) {
-            0.0f, 1.0f, 0.0f, 0.0f
+            1.0f, 0.0f, 0.0f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_WORK] = s->value("ColorWork", qVariantFromValue((colorGL) {
-            1.0f, 0.0f, 0.0f, 0.0f
+            0.0f, 1.0f, 0.0f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_GRID] = s->value("ColorGrid", qVariantFromValue((colorGL) {
+            0.8f, 0.8f, 0.8f, 1.0f
+        })).value<colorGL>();
+        Settings::colorSettings[COLOR_BORDER] = s->value("ColorBorder", qVariantFromValue((colorGL) {
             0.8f, 0.8f, 0.8f, 1.0f
         })).value<colorGL>();
         Settings::colorSettings[COLOR_SURFACE] = s->value("ColorSurface", qVariantFromValue((colorGL) {
@@ -1138,6 +1151,12 @@ void MainWindow::readSettings()
         Settings::colorSettings[COLOR_CONNECTION] = s->value("ColorConnect", qVariantFromValue((colorGL) {
             0.68f, 1.0f, 0.45f, 1.0f
         })).value<colorGL>();
+
+        Settings::pointSize = s->value("PointSize", 1).toInt();
+        Settings::lineWidth = s->value("LineWidth", 3).toInt();
+        Settings::smoothMoving = s->value("SmoothMoving", false).toBool();
+        Settings::showTraverse = s->value("ShowTraverse", false).toBool();
+        Settings::showWorkbench = s->value("ShowWorkbench", false).toBool();
 
         s->endGroup();
     }
@@ -1977,8 +1996,8 @@ void MainWindow::runNextCommand()
         //moving in G-code
         if (Correction) {
             // proportion
-            pointX *= koeffSizeX;
-            pointY *= koeffSizeY;
+            pointX *= coeffSizeX;
+            pointY *= coeffSizeY;
 
             // move
             pointX += deltaX;
@@ -2545,10 +2564,9 @@ void  MainWindow::refreshElementsForms()
             toolPause->setEnabled( true);
         }
 
-        if (enableOpenGL == true) {
-            scene3d->Draw();
-            scene3d->updateGL();
-        }
+        //         if (enableOpenGL == true) {
+        //             scene3d->Draw();
+        //         }
     } else {
         toolRun->setEnabled( cncConnected );
         toolPause->setEnabled( cncConnected );
@@ -2624,7 +2642,7 @@ void MainWindow::fillListWidget(QStringList listCode)
     fixGCodeList();
 
     if (enableOpenGL == true) {
-        scene3d->matrixReloaded();
+        scene3d->loadFigure();
     }
 }
 
@@ -3041,6 +3059,10 @@ void MainWindow::onSettings()
     if (dlgResult == QMessageBox::Accepted) {
         cnc->sendSettings();
         writeSettings();
+
+        if (enableOpenGL == true) {
+            scene3d->initStaticElements();
+        }
     }
 }
 

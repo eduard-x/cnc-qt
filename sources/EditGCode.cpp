@@ -63,8 +63,8 @@ EditGCodeDialog::EditGCodeDialog(QWidget *p)
 
     checkBoxZ->setChecked(parent->deltaFeed);
 
-    doubleSpinResizeX->setValue(parent->koeffSizeX);
-    doubleSpinResizeY->setValue(parent->koeffSizeY);
+    doubleSpinResizeX->setValue(parent->coeffSizeX);
+    doubleSpinResizeY->setValue(parent->coeffSizeY);
 
     //     checkResizeZ->setChecked();
 
@@ -101,8 +101,8 @@ void EditGCodeDialog::onSaveChange()
 
         parent->deltaFeed = checkBoxZ->isChecked();
 
-        parent->koeffSizeX = doubleSpinResizeX->value();
-        parent->koeffSizeY = doubleSpinResizeY->value();
+        parent->coeffSizeX = doubleSpinResizeX->value();
+        parent->coeffSizeY = doubleSpinResizeY->value();
     }
 
     emit accept();

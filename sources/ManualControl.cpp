@@ -583,7 +583,7 @@ void ManualControlDialog::pressedCommand(int num)
             return;
     }
 
-    // 
+    //
     int n = comboDistance->currentIndex();
 
     switch (n) {
@@ -619,9 +619,10 @@ void ManualControlDialog::pressedCommand(int num)
             break;
     }
 
-    if (pulses >0){
+    if (pulses > 0) {
         cnc->startManualMove(x, y, z, a,  speed, pulses);
     }
+
     //     cnc->stopManualMove();
 }
 

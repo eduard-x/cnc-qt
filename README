@@ -41,6 +41,8 @@ For connection with hardware please copy the file udev/rules.d/z90_cncusb.rules 
 
 Version history
 
+0.2.0   overworked for OpenGL ES2.0 compatibility 
+        additional widgets for visualisation 
 0.1.6   correcture of jogging coefficient
         additional jogging settings
 0.1.5   correcture of acceleration coefficients

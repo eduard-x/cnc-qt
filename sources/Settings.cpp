@@ -80,6 +80,12 @@ bool Settings::DEMO_DEVICE = false;
 int  Settings::splitsPerMm = 10;
 float Settings::maxLookaheadAngle = 170.0;
 
+int Settings::pointSize = 1;
+int Settings::lineWidth = 3;
+bool Settings::smoothMoving = false;
+bool Settings::showTraverse = false;
+bool Settings::showWorkbench = false;
+
 byte Settings::bb14 = 0x0;
 byte Settings::bb19 = 0x0;
 
@@ -204,7 +210,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
     radioButtonLines->setChecked(parent->ShowLines);
     radioButtonPoints->setChecked(parent->ShowPoints);
 
-    checkBoxInstr->setChecked(parent->ShowInstrument);
+    checkBoxTool->setChecked(parent->ShowInstrument);
     groupBoxGrid->setChecked(parent->ShowGrid);
     checkBoxSurface->setChecked(parent->ShowSurface);
     checkBoxXYZ->setChecked(parent->ShowAxes);
@@ -217,11 +223,18 @@ SettingsDialog::SettingsDialog(QWidget *p)
     spinBoxBeginY->setValue(parent->GridYstart);
     spinBoxEndY->setValue(parent->GridYend);
 
-    groupBoxShowRang->setChecked(parent->ShowGrate);
+    groupBoxShowRang->setChecked(parent->ShowBorder);
     spinBoxMinX->setValue(Settings::coord[X].softLimitMin);
     spinBoxMaxX->setValue(Settings::coord[X].softLimitMax);
     spinBoxMinY->setValue(Settings::coord[Y].softLimitMin);
     spinBoxMaxY->setValue(Settings::coord[Y].softLimitMax);
+
+    //     checkBoxCommand->setValue(Settings::
+    checkBoxWorkbench->setChecked(Settings::showWorkbench);
+    checkBoxTraverse->setChecked(Settings::showTraverse);
+    checkBoxSmooth->setChecked(Settings::smoothMoving);
+    spinBoxPointSize->setValue(Settings::pointSize);
+    spinBoxLineWidth->setValue(Settings::lineWidth);
     //end of visualisation settings
 
     translateDialog();
@@ -254,7 +267,7 @@ void SettingsDialog::translateDialog()
     setWindowTitle(translate(_SETTINGS_TITLE));
     groupRanges->setTitle(translate(_LIMITS));
     checkBoxDemoController->setText(translate(_DEV_SIMULATION));
-    labelInfo->setText(translate(_DEV_SIM_HELP));
+    //     labelInfo->setText(translate(_DEV_SIM_HELP));
     labelUse->setText(translate(_USE));
     labelMin->setText(translate(_MIN));
     labelMax->setText(translate(_MAX));
@@ -319,9 +332,16 @@ void SettingsDialog::translateDialog()
     labelBeg->setText(translate(_BEGIN));
     labelEnd->setText(translate(_END));
 
-    checkBoxInstr->setText(translate(_DISPLAY_SPINDLE));
+    checkBoxTool->setText(translate(_DISPLAY_SPINDLE));
     checkBoxXYZ->setText(translate(_DISPLAY_AXES));
     checkBoxSurface->setText(translate(_DISPLAY_SURFACE));
+
+    checkBoxCommand->setText(translate(_DISPLAY_COMMAND));
+    checkBoxWorkbench->setText(translate(_DISPLAY_WORKBENCH));
+    checkBoxTraverse->setText(translate(_DISPLAY_TRAVERSE));
+    checkBoxSmooth->setText(translate(_SMOOTH_MOVING));
+    labelPoint->setText(translate(_POINT_SIZE));
+    labelLine->setText(translate(_LINE_WIDTH));
 
     groupBoxShowRang->setTitle(translate(_DISPLAY_RANG));
 
@@ -426,7 +446,7 @@ void SettingsDialog::onSave()
     Settings::DEMO_DEVICE  = checkBoxDemoController->isChecked();
 
     // visualisation settings
-    parent->ShowInstrument = checkBoxInstr->isChecked();
+    parent->ShowInstrument = checkBoxTool->isChecked();
     parent->ShowGrid = groupBoxGrid->isChecked();
     parent->ShowSurface = checkBoxSurface->isChecked();
     parent->ShowAxes = checkBoxXYZ->isChecked();
@@ -439,13 +459,21 @@ void SettingsDialog::onSave()
     parent->GridYstart = spinBoxBeginY->value();
     parent->GridYend = spinBoxEndY->value();
 
-    parent->ShowGrate = groupBoxShowRang->isChecked();
+    parent->ShowBorder = groupBoxShowRang->isChecked();
     parent->ShowLines = radioButtonLines->isChecked();
     parent->ShowPoints = radioButtonPoints->isChecked();
     Settings::coord[X].softLimitMin = spinBoxMinX->value();
     Settings::coord[X].softLimitMax = spinBoxMaxX->value();
     Settings::coord[Y].softLimitMin = spinBoxMinY->value();
     Settings::coord[Y].softLimitMax = spinBoxMaxY->value();
+
+    //     checkBoxCommand->setValue(Settings::
+    Settings::showWorkbench = checkBoxWorkbench->isChecked();
+    Settings::showTraverse = checkBoxTraverse->isChecked();
+    Settings::smoothMoving = checkBoxSmooth->isChecked();
+    Settings::pointSize = spinBoxPointSize->value();
+    Settings::lineWidth = spinBoxLineWidth->value();
+
     // end
 
     accept();

@@ -35,57 +35,60 @@
 #include "version.h"
 
 
+#include <QString>
 #include <QEvent>
 #include <QWidget>
 
-#include <QtOpenGL/QGLWidget>
+#include <QtOpenGL>
+#include <QBasicTimer>
 
-#include <QGLShader>
-#include <QGLShaderProgram>
+#include <QOpenGLWidget>
 
-#include <QtOpenGL/QGLFunctions>
 
+#include <QOpenGLShaderProgram>
+#include <QOpenGLFunctions>
+
+#include <QSlider>
 #include <QMainWindow>
 #include <QTimeLine>
 
 
 #include "Geometry.h"
 #include "MainWindow.h"
+#include "Translator.h"
 
+
+struct VertexData {
+    QVector3D coord;
+    QVector3D color;
+};
+
+
+class cTranslator;
 class MainWindow;
 class mk1Controller;
 
-
-
 // for GLES2 are QGLFunctions to implement
-class GLWidget : public QGLWidget, protected QGLFunctions
+class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTranslator
 {
         Q_OBJECT
-
     public:
-        GLWidget(QWidget *parent = 0);
+        explicit GLWidget(QWidget *parent = 0);
         ~GLWidget();
 
-        void matrixReloaded();
+        void loadFigure();
         void surfaceReloaded();
+        void initStaticElements();
         void Draw();
 
     private:
         void initPreviewSettings();
-        void initStaticElements();
-
-        void normalizeAngle(int &angle);
-
-        void drawGrate();
-        void drawInstrument();
-        void drawSurface();
-        void drawTool();
-        void drawAxes();
-        void drawWorkField();
-        void drawGrid();
+        float normalizeAngle(float angle);
+        void createButtons();
+        QVector<VertexData> addPointVector(const QVector<pointGL> &p, const colorGL &c);
 
     public slots:
-        void onRenderTimer();  // not connected
+        //         void onRenderTimer();  // not connected
 
         // 3d buttons
         void onPosAngleXm();
@@ -102,6 +105,15 @@ class GLWidget : public QGLWidget, protected QGLFunctions
 
 
         void onDefaulPreview();
+
+
+        void setIso();
+        void setLeft();
+        void setTop();
+        void setFront();
+        void setFit();
+        void setZoom(int i);
+
         // end of 3d buttons
 
 
@@ -115,8 +127,6 @@ class GLWidget : public QGLWidget, protected QGLFunctions
     signals:
         void fpsChanged(int val);
         void rotationChanged(void);
-        //         void yRotationChanged(int angle);
-        //         void zRotationChanged(int angle);
         void scaleChanged(int scale);
 
     protected:
@@ -125,54 +135,68 @@ class GLWidget : public QGLWidget, protected QGLFunctions
         void resizeGL(int width, int height);
         void mousePressEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
-        void wheelEvent(QWheelEvent *);
-
-        void saveGLState();
-        void restoreGLState();
-        //         void paintEvent(QPaintEvent *);
+        void wheelEvent(QWheelEvent *e);
+        void timerEvent(QTimerEvent *e);
 
     private slots:
-        //         void repaintView();
         void showFPS(void);
-        void processing(void);
 
 
     private:
         MainWindow* parent;
         mk1Controller* cnc;
 
-        QGLShaderProgram* program;
+        QBasicTimer timer;
+        QOpenGLShaderProgram *program;
 
-        GLuint m_posAttrX;
-        GLuint m_posAttrY;
-        GLuint m_posAttrZ;
+        GLuint m_posAttr;
+        GLuint m_startAttr;
+        GLuint m_idx;
+        GLuint m_colAttr;
+        GLuint m_matrixUniform;
+        GLuint m_mvUniform;
+        GLfloat m_pointSizeUniform;
 
-        QMatrix4x4 viewMatrix; // Projection matrix
-        //         QMatrix4x4 Model; // Model matrix
-        //         QMatrix4x4 View; // Camera matrix
-        //         QMatrix4x4 MVP;
+        //         GLfloat m_lineWidth;
+        //         GLfloat m_pointSize;
 
-        GLuint vertexbuffer;
-        GLuint colorbuffer;
+        QToolButton *cmdFit;
+        QToolButton *cmdIsometric;
+        QToolButton *cmdTop;
+        QToolButton *cmdFront;
+        QToolButton *cmdLeft;
 
-        QVector<pointGL> instrumentArray;
-        QVector<pointGL> footArray;
-        QVector<pointGL> traverseArray;
+        QSlider *cmdZoom;
+
+        static QVector<pointGL> instrumentArray;
+        static QVector<pointGL> footArray;
+        static QVector<pointGL> traverseArray;
+
         QVector<pointGL> holderArray;
         QVector<pointGL> motorArray;
-        QVector<pointGL> xAxis;
-        QVector<pointGL> yAxis;
-        QVector<pointGL> zAxis;
+
+        static QVector<pointGL> xAxis;
+        static QVector<pointGL> yAxis;
+        static QVector<pointGL> zAxis;
 
         QVector<pointGL> surfaceArray; //
-        QVector<pointGL> coordArray; //
-        QVector<colorGL> colorArray; //
 
-        QTimer *glTimer;
+        QVector<VertexData> figure;
+        QVector<VertexData> border;
+        QVector<VertexData> axis;
+        QVector<VertexData> instrument;
+        QVector<VertexData> gridLines;
+        QVector<VertexData> gridPoints;
+        QVector<VertexData> surfaceLines;
+        QVector<VertexData> surfacePoints;
 
         float fps;
-
-        QPoint lastPos;
+        double m_zoom;
+        double m_distance;
+        double m_xRot, m_yRot, m_xLastRot, m_yLastRot;
+        double m_xPan, m_yPan, m_xLastPan, m_yLastPan;
+        double m_xLookAt, m_yLookAt, m_zLookAt;
+        QPoint m_lastPos;
 };
 
 

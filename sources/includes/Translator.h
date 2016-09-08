@@ -261,6 +261,17 @@ enum TR_CONSTS {
     _DISABLE_VISUALISATION, // 205
     _COLOR_LIST, //206
     _STEP_DISTANCE, // 207
+    _DISPLAY_COMMAND, // 208
+    _DISPLAY_WORKBENCH,
+    _DISPLAY_TRAVERSE, // 210
+    _SMOOTH_MOVING,
+    _POINT_SIZE,
+    _LINE_WIDTH,
+    _ISO,
+    _TOP,
+    _FRONT,
+    _LEFT,
+    _FIT,
     _NULL
 };
 

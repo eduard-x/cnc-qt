@@ -75,6 +75,7 @@ Q_DECLARE_METATYPE(colorGL)
 #include "mk1Controller.h"
 #include "Geometry.h"
 #include "Translator.h"
+
 #include "ui_MainWindow.h"
 
 class GLWidget;
@@ -200,8 +201,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         float deltaX;
         float deltaY;
         float deltaZ;
-        float koeffSizeX;
-        float koeffSizeY;
+        float coeffSizeX;
+        float coeffSizeY;
         int  fixedAxes;
         bool deltaFeed;
         bool unitMm;
@@ -222,7 +223,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         GLWidget *scene3d; // OpenGL widget
 
         // 3d Settings
-        bool ShowGrate;
+        bool ShowBorder;
         //         float grateXmin;
         //         float grateXmax;
         //         float grateYmin;
@@ -357,7 +358,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
 
     private:
         Task::StatusTask currentStatus;
-        QGraphicsScene *scene;
+        QGraphicsScene *sceneCoordinates;
         //
         QString axisNames;
         QTimer  mainGUITimer;

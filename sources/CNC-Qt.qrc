@@ -8,7 +8,12 @@
         <file>images/forw_step.png</file>
         <file>images/back_step.png</file>
         <!--file>images/pin-icon.png</file-->
-        <file>images/forward_on.png</file>
+        <file>images/cube.png</file>
+        <file>images/cubeTop.png</file>
+        <file>images/cubeFront.png</file>
+        <file>images/cubeLeft.png</file>
+        <file>images/fit_1.png</file>
+	<file>images/forward_on.png</file>
         <file>images/forward_off.png</file>
         <file>images/mist_on.png</file>
         <file>images/mist_off.png</file>

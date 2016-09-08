@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>1002</width>
     <height>794</height>
    </rect>
   </property>
@@ -474,7 +474,7 @@
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab1">
             <attribute name="title">
@@ -872,8 +872,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>775</width>
-                    <height>496</height>
+                    <width>766</width>
+                    <height>502</height>
                    </rect>
                   </property>
                  </widget>
@@ -2394,8 +2394,8 @@ min/max</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
-     <height>30</height>
+     <width>1002</width>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -2603,6 +2603,7 @@ min/max</string>
  </widget>
  <resources>
   <include location="../CNC-Qt.qrc"/>
+  <include location="../../../grblControl-master/src/images.qrc"/>
  </resources>
  <connections/>
 </ui>

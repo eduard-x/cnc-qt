@@ -97,7 +97,8 @@ enum {
     COLOR_WORK,
     COLOR_GRID,
     COLOR_SURFACE, // 10
-    COLOR_CONNECTION
+    COLOR_CONNECTION,
+    COLOR_BORDER
 };
 
 
@@ -107,6 +108,11 @@ class Settings
         static axis coord[9]; // array of 4 axes for mk1, 9 axes for mk2
         static int splitsPerMm;
         static float maxLookaheadAngle;
+        static int pointSize;
+        static int lineWidth;
+        static bool smoothMoving;
+        static bool showTraverse;
+        static bool showWorkbench;
 
         static byte bb14;
         // static byte bb15; limits

@@ -253,6 +253,17 @@ QString cTranslator::engText[] = {
     "Disable visualisation during remote controlling",
     "X axis\nY axis\nZ axis\nBackground\nTool\nWorkbench\nTraverse\nRapid moving\nWorking\nGrid\nSurface\nConnections",
     "Step distance",
+    "_DISPLAY_COMMAND",
+    "Display workbench",
+    "Show traverse", // 210
+    "Smooth moving",
+    "Point size",
+    "Selected line width",
+    "Isometric",
+    "Top",
+    "Front",
+    "Left",
+    "Fit",
     ""
 };
 

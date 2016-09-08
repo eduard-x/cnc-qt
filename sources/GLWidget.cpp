@@ -35,10 +35,11 @@
 
 #include <QDebug>
 
-// #include <QtOpenGL/QtOpenGL>
+#include <QtOpenGL/QtOpenGL>
 
-#include <QtOpenGL/QGLWidget>
-#include <QtOpenGL/QGLShaderProgram>
+#include <QOpenGLWidget>
+#include <QOpenGLShaderProgram>
+#include <QSurfaceFormat>
 
 // for GLES2 are QGLFunctions to implement
 
@@ -51,7 +52,7 @@
 #include "includes/mk1Controller.h"
 
 
-#define USE_GLES2 false
+#define ZOOMSTEP 1.1
 
 #include <math.h>
 
@@ -60,47 +61,42 @@
  *
  * switched to OpenGL ES2 for hardware raspberry supporting
  * @see https://www.khronos.org/opengles/sdk/docs/man/xhtml/
+ * @see Qt5 OpenGL: http://mepem.com/pemcode/?p=243
  */
 GLWidget::GLWidget(QWidget *p)
-    : QGLWidget(p)
+    : QOpenGLWidget(p)//, indexVBO(QOpenGLBuffer::IndexBuffer)
 {
     if (p == NULL) {
         return;
     }
 
-    program = NULL;
-
-    coordArray.clear();
-    colorArray.clear();
+    m_zoom = 1;
 
     parent = (MainWindow*)p;
 
     cnc = parent->cnc;
 
-    initStaticElements();
+    parent->PosX = -50;
+    parent->PosY = -50;
 
-    initializeGL();
+    //     m_lineWidth = 1.0;
+    //     m_pointSize = 6.0;
 
     fps = 0;
 
     QTimer* fpsTimer = new QTimer();
     QObject::connect(fpsTimer, SIGNAL(timeout()), this, SLOT(showFPS()));
     fpsTimer->start(1000);
-
-    //     glTimer = new QTimer();
-    //     QObject::connect(glTimer, SIGNAL(timeout()), this, SLOT(processing()));
-    //     glTimer->start( 20 );
     //
 
-    QGLFormat::OpenGLVersionFlags f = QGLFormat::openGLVersionFlags();
-    qDebug() << "GL enabled" << QGLFormat::hasOpenGL() << "flags:" << f;
-    QString glStr = QString().sprintf("%s %s %s", (char*)glGetString(GL_VENDOR), (char*)glGetString(GL_RENDERER), (char*)glGetString(GL_VERSION));
-
-    qDebug() << glStr;
+    //     QSurfaceFormat f;
+    //     f.version();
+    //     qDebug() << "GL enabled" << f.version() << "flags:" << f.profile();
+    //     QString glStr = QString().sprintf("%s %s %s", (char*)glGetString(GL_VENDOR), (char*)glGetString(GL_RENDERER), (char*)glGetString(GL_VERSION));
+    //
+    //     qDebug() << glStr;
 
     initPreviewSettings();
-
-    paintGL();
 }
 
 /**
@@ -109,115 +105,383 @@ GLWidget::GLWidget(QWidget *p)
  */
 GLWidget::~GLWidget()
 {
-    delete program;
+    //     arrayVBO.destroy();
+    //     indexVBO.destroy();
+}
+
+
+void GLWidget::createButtons()
+{
+    cmdIsometric = new QToolButton(this);
+    cmdIsometric->setBaseSize(QSize(24, 24));
+    cmdIsometric->resize(24, 24);
+    cmdIsometric->setToolTip(translate(_ISO));//"Iso");
+
+    cmdTop = new QToolButton(this);
+    cmdTop->setBaseSize(QSize(24, 24));
+    cmdTop->resize(24, 24);
+    cmdTop->setToolTip(translate(_TOP));
+
+    cmdFront = new QToolButton(this);
+    cmdFront->setBaseSize(QSize(24, 24));
+    cmdFront->resize(24, 24);
+    cmdFront->setToolTip(translate(_FRONT));
+
+    cmdLeft = new QToolButton(this);
+    cmdLeft->setBaseSize(QSize(24, 24));
+    cmdLeft->resize(24, 24);
+    cmdLeft->setToolTip(translate(_LEFT));
+
+    cmdFit = new QToolButton(this);
+    cmdFit->setBaseSize(QSize(24, 24));
+    cmdFit->resize(24, 24);
+    cmdFit->setToolTip(translate(_FIT));
+
+    cmdFit->setIcon(QIcon(":/images/fit_1.png"));
+    cmdIsometric->setIcon(QIcon(":/images/cube.png"));
+    cmdFront->setIcon(QIcon(":/images/cubeFront.png"));
+    cmdLeft->setIcon(QIcon(":/images/cubeLeft.png"));
+    cmdTop->setIcon(QIcon(":/images/cubeTop.png"));
+
+    cmdZoom = new QSlider(Qt::Vertical, this);
+    cmdZoom->setBaseSize(QSize(24, 240));
+    cmdZoom->resize(24, 240);
+    cmdZoom->setRange(0, 500);
+    //     cmdZoom->setTickInterval(50);
+
+    cmdZoom->setToolTip("Zoom");
+
+
+    QObject::connect(cmdIsometric, SIGNAL(clicked(bool)), this, SLOT(setIso()));
+    QObject::connect(cmdFit, SIGNAL(clicked(bool)), this, SLOT(setFit()));
+    QObject::connect(cmdLeft, SIGNAL(clicked(bool)), this, SLOT(setLeft()));
+    QObject::connect(cmdFront, SIGNAL(clicked(bool)), this, SLOT(setFront()));
+    QObject::connect(cmdTop, SIGNAL(clicked(bool)), this, SLOT(setTop()));
+
+    QObject::connect(cmdZoom, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
+    cmdZoom->setValue(parent->PosZoom);
+}
+
+
+QVector<pointGL> GLWidget::xAxis = {
+    { 0.0, 0.0, 0.0 },
+    { 10.0, 0.0, 0.0 },
+    { 10.0, 0.0, 0.0 },
+    { 9.0, 1.0, 0.0 },
+    { 10.0, 0.0, 0.0 },
+    { 9.0, -1.0, 0.0 }
+};
+
+QVector<pointGL> GLWidget:: yAxis = {
+    { 0.0, 0.0, 0.0 },
+    { 0.0, 10.0, 0.0 },
+    { 0.0, 10.0, 0.0 },
+    { 1.0, 9.0, 0.0 },
+    { 0.0, 10.0, 0.0 },
+    { -1.0, 9.0, 0.0 }
+};
+
+QVector<pointGL> GLWidget::zAxis = {
+    { 0.0, 0.0, 0.0 },
+    { 0.0, 0.0, 10.0 },
+    { 0.0, 0.0, 10.0 },
+    { 1.0, 1.0, 9.0 },
+    { 0.0, 0.0, 10.0 },
+    { -1.0, -1.0, 9.0 }
+};
+
+QVector<pointGL> GLWidget::instrumentArray = {
+    { 0.0, 0.0, 0.0 },
+    { 0.0, 0.0, 4.0 },
+    { -1.0, -1.0, 2.0 },
+    { -1.0, 1.0, 2.0 },
+    { 1.0, -1.0, 2.0 },
+    { 1.0, 1.0, 2.0 },
+    { 1.0, 1.0, 2.0 },
+    { -1.0, 1.0, 2.0 },
+    { 1.0, -1.0, 2.0 },
+    { -1.0, -1.0, 2.0 },
+    { -1.0, -1.0, 2.0 },
+    { 0.0, 0.0, 0.0 },
+    { 1.0, 1.0, 2.0 },
+    { 0.0, 0.0, 0.0 },
+    { 1.0, -1.0, 2.0 },
+    { 0.0, 0.0, 0.0 },
+    { -1.0, 1.0, 2.0 },
+    { 0.0, 0.0, 0.0 }
+};
+
+QVector<pointGL> GLWidget::footArray = { // GL_LINE_LOOP array
+    { 0.0, 0.0, 0.0 },      // 0
+    { 0.0, 22.0, 0.0 },
+    { 0.0, 22.0, 29.0 },
+    { 0.0, 12.0, 29.0 },
+    { 0.0, 0.0, 12.0 },
+    { 0.0, 0.0, 0.0 },
+    { 3.6, 0.0, 0.0 },
+    { 3.6, 22.0, 0.0 },
+    { 3.6, 22.0, 29.0 },
+    { 3.6, 12.0, 29.0 },
+    { 3.6, 0.0, 12.0 },     // 10
+    { 3.6, 0.0, 0.0 },
+    { 0.0, 0.0, 0.0 },
+    { 0.0, 0.0, 12.0 },
+    { 3.6, 0.0, 12.0 },
+    { 3.6, 12.0, 29.0 },
+    { 0.0, 12.0, 29.0 },
+    { 0.0, 22.0, 29.0 },
+    { 3.6, 22.0, 29.0 },
+    { 3.6, 22.0, 0.0 },
+    { 0.0, 22.0, 0.0 },     // 20
+    { 0.0, 0.0, 0.0 }
+};
+
+QVector<pointGL> GLWidget::traverseArray = { // width of traverse is 64 cm
+    { 0.0, 0.0, 0.0 },
+    { 64.0, 0.0, 0.0 },
+    { 0.0, 0.0, 0.0 },
+    { 0.0, 1.2, 0.0 },
+    { 0.0, 0.0, 0.0 },
+    { 0.0, 0.0, 12.0 },
+    { 0.0, 1.2, 0.0 },
+    { 64.0, 1.2, 0.0 },
+    { 0.0, 1.2, 0.0 },
+    { 0.0, 1.2, 12.0 },
+    { 0.0, 0.0, 12.0 },
+    { 0.0, 1.2, 12.0 },
+    { 0.0, 0.0, 12.0 },
+    { 64.0, 0.0, 12.0 },
+    { 0.0, 1.2, 12.0 },
+    { 64.0, 1.2, 12.0 },
+    { 64.0, 0.0, 0.0 },
+    { 64.0, 1.2, 0.0 },
+    { 64.0, 0.0, 12.0 },
+    { 64.0, 1.2, 12.0 },
+    { 64.0, 0.0, 0.0 },
+    { 64.0, 0.0, 12.0 },
+    { 64.0, 1.2, 0.0 },
+    { 64.0, 1.2, 12.0 }
+};
+
+
+/**
+ *
+ *
+ */
+void GLWidget::setIso()
+{
+    parent->PosAngleX = -45;
+    parent->PosAngleY = 0;
+    parent->PosAngleZ = -45;
+    initPreviewSettings();
+}
+
+
+/**
+ *
+ *
+ */
+void GLWidget::setLeft()
+{
+    parent->PosAngleX = 0;
+    parent->PosAngleY = 90;
+    parent->PosAngleZ = 0;
+    initPreviewSettings();
+}
+
+
+/**
+ *
+ *
+ */
+void GLWidget::setTop()
+{
+    parent->PosAngleX = 0;
+    parent->PosAngleY = 0;
+    parent->PosAngleZ = 0;
+    initPreviewSettings();
 }
 
 /**
- * @brief
+ *
+ *
+ */
+void GLWidget::setFront()
+{
+    parent->PosAngleX = 90;
+    parent->PosAngleY = 90;
+    parent->PosAngleZ = 0;
+    initPreviewSettings();
+}
+
+/**
+ * @brief slot from qslider
+ *
+ */
+void GLWidget::setZoom(int i)
+{
+    //     int v = cmdZoom->value();
+    //      qDebug() << "zoom" << v;
+    parent->PosZoom = i; //((v - 50) * 0.01);
+
+    if (Settings::smoothMoving) {
+        update();
+    }
+}
+
+
+/**
+ *
+ *
+ */
+void GLWidget::setFit()
+{
+    qDebug() << "not implemented";
+}
+
+
+/**
+ * @brief initialization of arrays after settings changing
  *
  */
 void GLWidget::initStaticElements()
 {
-    xAxis = {
-        { 0.0, 0.0, 0.0 },
-        { 10.0, 0.0, 0.0 },
-        { 10.0, 0.0, 0.0 },
-        { 9.0, 1.0, 0.0 },
-        { 10.0, 0.0, 0.0 },
-        { 9.0, -1.0, 0.0 }
+    axis.clear();
+    axis << addPointVector(xAxis, Settings::colorSettings[COLOR_X]);
+    axis << addPointVector(yAxis, Settings::colorSettings[COLOR_Y]);
+    axis << addPointVector(zAxis, Settings::colorSettings[COLOR_Z]);
+
+    instrument.clear();
+    instrument << addPointVector(instrumentArray, Settings::colorSettings[COLOR_TOOL]);
+
+    border.clear();
+    border << (VertexData) {
+        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0},
+                   QVector3D{Settings::colorSettings[COLOR_BORDER].r, Settings::colorSettings[COLOR_BORDER].g, Settings::colorSettings[COLOR_BORDER].b}
+    };
+    border << (VertexData) {
+        QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin, 0},
+                   QVector3D{Settings::colorSettings[COLOR_BORDER].r, Settings::colorSettings[COLOR_BORDER].g, Settings::colorSettings[COLOR_BORDER].b}
+    };
+    border << (VertexData) {
+        QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMax, 0},
+                   QVector3D{Settings::colorSettings[COLOR_BORDER].r, Settings::colorSettings[COLOR_BORDER].g, Settings::colorSettings[COLOR_BORDER].b}
+    };
+    border << (VertexData) {
+        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMax, 0},
+                   QVector3D{Settings::colorSettings[COLOR_BORDER].r, Settings::colorSettings[COLOR_BORDER].g, Settings::colorSettings[COLOR_BORDER].b}
+    };
+    border << (VertexData) {
+        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0},
+                   QVector3D{Settings::colorSettings[COLOR_BORDER].r, Settings::colorSettings[COLOR_BORDER].g, Settings::colorSettings[COLOR_BORDER].b}
     };
 
-    yAxis = {
-        { 0.0, 0.0, 0.0 },
-        { 0.0, 10.0, 0.0 },
-        { 0.0, 10.0, 0.0 },
-        { 1.0, 9.0, 0.0 },
-        { 0.0, 10.0, 0.0 },
-        { -1.0, 9.0, 0.0 }
-    };
 
-    zAxis = {
-        { 0.0, 0.0, 0.0 },
-        { 0.0, 0.0, 10.0 },
-        { 0.0, 0.0, 10.0 },
-        { 1.0, 1.0, 9.0 },
-        { 0.0, 0.0, 10.0 },
-        { -1.0, -1.0, 9.0 }
-    };
+    gridLines.clear();
 
-    instrumentArray = {
-        { 0.0, 0.0, 0.0 },
-        { 0.0, 0.0, 4.0 },
-        { -1.0, -1.0, 2.0 },
-        { -1.0, 1.0, 2.0 },
-        { 1.0, -1.0, 2.0 },
-        { 1.0, 1.0, 2.0 },
-        { 1.0, 1.0, 2.0 },
-        { -1.0, 1.0, 2.0 },
-        { 1.0, -1.0, 2.0 },
-        { -1.0, -1.0, 2.0 },
-        { -1.0, -1.0, 2.0 },
-        { 0.0, 0.0, 0.0 },
-        { 1.0, 1.0, 2.0 },
-        { 0.0, 0.0, 0.0 },
-        { 1.0, -1.0, 2.0 },
-        { 0.0, 0.0, 0.0 },
-        { -1.0, 1.0, 2.0 },
-        { 0.0, 0.0, 0.0 }
-    };
+    for (int gX = parent->GridXstart; gX < parent->GridXend + 1; gX += parent->GrigStep) {
+        gridLines << (VertexData) {
+            QVector3D{(GLfloat)gX, (GLfloat)parent->GridYstart, 0.0 },
+                      QVector3D{Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b}
+        };
+        gridLines << (VertexData) {
+            QVector3D{(GLfloat)gX, (GLfloat)parent->GridYend, 0.0},
+                      QVector3D{Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b}
+        };
+    }
 
-    footArray = { // GL_LINE_LOOP array
-        { 0.0, 0.0, 0.0 },      // 0
-        { 0.0, 22.0, 0.0 },     // 1
-        { 0.0, 22.0, 29.0 },    // 2
-        { 0.0, 12.0, 29.0 },    // 3
-        { 0.0, 0.0, 12.0 },     // 4
-        { 0.0, 0.0, 0.0 },      // 5
-        { 3.6, 0.0, 0.0 },      // 6
-        { 3.6, 22.0, 0.0 },     // 7
-        { 3.6, 22.0, 29.0 },    // 8
-        { 3.6, 12.0, 29.0 },    // 9
-        { 3.6, 0.0, 12.0 },     // 10
-        { 3.6, 0.0, 0.0 },      // 11
-        { 0.0, 0.0, 0.0 },      // 12
-        { 0.0, 0.0, 12.0 },     // 13
-        { 3.6, 0.0, 12.0 },     // 14
-        { 3.6, 12.0, 29.0 },    // 15
-        { 0.0, 12.0, 29.0 },    // 16
-        { 0.0, 22.0, 29.0 },    // 17
-        { 3.6, 22.0, 29.0 },    // 18
-        { 3.6, 22.0, 0.0 },     // 19
-        { 0.0, 22.0, 0.0 },     // 20
-        { 0.0, 0.0, 0.0 }       // 21
-    };
+    for (int gY = parent->GridYstart; gY < parent->GridYend + 1; gY += parent->GrigStep) {
+        gridLines << (VertexData) {
+            QVector3D{(GLfloat)parent->GridXstart, (GLfloat)gY, 0.0},
+                      QVector3D{Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b}
+        };
+        gridLines << (VertexData) {
+            QVector3D{(GLfloat)parent->GridXend, (GLfloat)gY, 0.0},
+                      QVector3D{Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b}
+        };
+    }
 
-    traverseArray = { // width of traverse is 64 cm
-        { 0.0, 0.0, 0.0 },
-        { 64.0, 0.0, 0.0 },
-        { 0.0, 0.0, 0.0 },
-        { 0.0, 1.2, 0.0 },
-        { 0.0, 0.0, 0.0 },
-        { 0.0, 0.0, 12.0 },
-        { 0.0, 1.2, 0.0 },
-        { 64.0, 1.2, 0.0 },
-        { 0.0, 1.2, 0.0 },
-        { 0.0, 1.2, 12.0 },
-        { 0.0, 0.0, 12.0 },
-        { 0.0, 1.2, 12.0 },
-        { 0.0, 0.0, 12.0 },
-        { 64.0, 0.0, 12.0 },
-        { 0.0, 1.2, 12.0 },
-        { 64.0, 1.2, 12.0 },
-        { 64.0, 0.0, 0.0 },
-        { 64.0, 1.2, 0.0 },
-        { 64.0, 0.0, 12.0 },
-        { 64.0, 1.2, 12.0 },
-        { 64.0, 0.0, 0.0 },
-        { 64.0, 0.0, 12.0 },
-        { 64.0, 1.2, 0.0 },
-        { 64.0, 1.2, 12.0 }
-    };
+    gridPoints.clear();
+
+    for (int y = parent->GridYstart; y <  parent->GridYend + 1; y += parent->GrigStep) {
+        for (int x = parent->GridXstart; x < parent->GridXend + 1; x += parent->GrigStep) {
+            //point
+            gridPoints << (VertexData) {
+                QVector3D{(GLfloat)x, (GLfloat)y, 0.0},
+                          QVector3D{Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b}
+            };
+        }
+    }
+
+    int maxY, maxX;
+    maxY = parent->surfaceMatrix.size();
+
+    if (maxY == 0) {
+        return;
+    }
+
+    maxX = parent->surfaceMatrix[0].size(); // because of rectangle matrix
+
+    if (maxX == 0) {
+        return;
+    }
+
+    surfaceLines.clear();
+
+    for (int y = 0; y < maxY; y++) {
+        for (int x = 0; x < maxX; x++) {
+            surfaceLines << (VertexData) {
+                QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z},
+                          QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+            };
+
+            if (y > 0) {
+                //line 1
+                surfaceLines << (VertexData) {
+                    QVector3D{parent->surfaceMatrix[y - 1][x].X, parent->surfaceMatrix[y - 1][x].Y, parent->surfaceMatrix[y - 1][x].Z},
+                              QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+                };
+            }
+
+            if (y < maxY - 1) {
+                //line2
+                surfaceLines << (VertexData) {
+                    QVector3D{parent->surfaceMatrix[y + 1][x].X, parent->surfaceMatrix[y + 1][x].Y, parent->surfaceMatrix[y + 1][x].Z},
+                              QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+                };
+            }
+
+            if (x > 0) {
+                //line 3
+                surfaceLines << (VertexData) {
+                    QVector3D{parent->surfaceMatrix[y][x - 1].X, parent->surfaceMatrix[y][x - 1].Y, parent->surfaceMatrix[y][x - 1].Z},
+                              QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+                };
+            }
+
+            if (x < maxX - 1) {
+                //line4
+                surfaceLines << (VertexData) {
+                    QVector3D{parent->surfaceMatrix[y][x + 1].X, parent->surfaceMatrix[y][x + 1].Y, parent->surfaceMatrix[y][x + 1].Z},
+                              QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+                };
+            }
+        }
+    }
+
+    surfacePoints.clear();
+
+    for (int y = 0; y < maxY; y++) {
+        for (int x = 0; x < maxX; x++) {
+            //point
+            surfacePoints << (VertexData) {
+                QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z},
+                          QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+            };
+        }
+    }
 }
+
 
 /**
  * @brief after reload of surface matrix
@@ -225,23 +489,22 @@ void GLWidget::initStaticElements()
  */
 void GLWidget::surfaceReloaded()
 {
-    for (int i = 0; i < coordArray.count(); i++) {
+    for (int i = 0; i < figure.count(); i++) {
         if (parent->deltaFeed) {
-            pointGL p;
+            //             pointGL p;
             float pointX = parent->gCodeList.at(i).X;
             float pointY = parent->gCodeList.at(i).Y;
             float pointZ = parent->gCodeList.at(i).Z;
 
             pointZ += parent->getDeltaZ(pointX, pointY);
 
-            p = (pointGL) {
+            figure[i].coord = {
                 pointX, pointY, pointZ
             };
-
-            coordArray[i] = p;
         }
     }
 }
+
 
 /**
  * @brief send current FPS number to the main widget
@@ -254,29 +517,19 @@ void GLWidget::showFPS()
     fps = 0;
 }
 
-/**
- * @brief processing of fps
- *
- */
-void GLWidget::processing()
-{
-    paintGL();
-    fps++;
-}
 
 /**
  * @brief main object data is reloaded or something in matrix was changed: coordinates or colors
  *        update the visualisation
  *
  */
-void GLWidget::matrixReloaded()
+void GLWidget::loadFigure()
 {
     int workNum = 0;
 
     workNum = parent->gCodeList.count();
-
-    coordArray.clear();
-    colorArray.clear();
+    //     qDebug() << "loadFigure";
+    figure.clear();
 
     if (workNum > 1) {
         int currWorkPoint = 0;
@@ -290,7 +543,6 @@ void GLWidget::matrixReloaded()
                 cl = Settings::colorSettings[COLOR_WORK];
             }
 
-            pointGL p;
             // coordinates of next point
             float pointX = vv.X;
             float pointY = vv.Y;
@@ -299,8 +551,8 @@ void GLWidget::matrixReloaded()
             // moving in G-code
             if (parent->Correction) {
                 // proportions
-                pointX *= parent->koeffSizeX;
-                pointY *= parent->koeffSizeY;
+                pointX *= parent->coeffSizeX;
+                pointY *= parent->coeffSizeY;
 
                 // offset
                 pointX += parent->deltaX;
@@ -313,20 +565,34 @@ void GLWidget::matrixReloaded()
                 }
             }
 
-            p = (pointGL) {
-                pointX, pointY, pointZ
+            figure << (VertexData) {
+                QVector3D { pointX, pointY, pointZ},
+                          QVector3D {cl.r, cl.g, cl.b}
             };
-
-            coordArray << p;
-            colorArray << cl;
 
             currWorkPoint++;
         }
     }
 
-    initPreviewSettings();
+    initStaticElements();
+    //     qDebug() << "coords x,y min " << Settings::coord[X].softLimitMin << Settings::coord[Y].softLimitMin << "x,y max" << Settings::coord[X].softLimitMax << Settings::coord[Y].softLimitMax;
 
-    initializeGL();
+    initPreviewSettings();
+}
+
+
+QVector<VertexData> GLWidget::addPointVector(const QVector<pointGL> &p, const colorGL &c)
+{
+    QVector<VertexData> v;
+
+    for (int i = 0; i < p.count(); i++) {
+        v << (VertexData) {
+            QVector3D{p.at(i).X, p.at(i).Y, p.at(i).Z },
+                      QVector3D{c.r, c.g, c.b}
+        };
+    }
+
+    return v;
 }
 
 /**
@@ -339,8 +605,9 @@ void GLWidget::initPreviewSettings()
     //     emit yRotationChanged(parent->PosAngleY);
     //     emit zRotationChanged(parent->PosAngleZ);
 
-    updateGL();
+    update();
 }
+
 
 /**
  * @brief init of 3d viewing
@@ -348,64 +615,129 @@ void GLWidget::initPreviewSettings()
  */
 void GLWidget::initializeGL()//Init3D()//*OK*
 {
-    makeCurrent();
+    // OpenGLES2
+    initializeOpenGLFunctions();
 
-    if (program != NULL) {
-        delete program;
-    }
+    glClearColor(Settings::colorSettings[COLOR_BACKGROUND].r, Settings::colorSettings[COLOR_BACKGROUND].g, Settings::colorSettings[COLOR_BACKGROUND].b, Settings::colorSettings[COLOR_BACKGROUND].a);
 
-    program = new QGLShaderProgram(context(), this);
-    //     program->addShader(vShader);
-    //     program->addShader(fShader);
+    // Use QBasicTimer because its faster than QTimer
+    timer.start(50, this);
+
+    const char *vsrc =
+        "#ifdef GL_ES\n"
+        "// Set default precision to medium\n"
+        "precision mediump int;\n"
+        "precision mediump float;\n"
+        "#endif\n"
+        "\n"
+        "uniform mat4 mvp_matrix;\n"
+        "uniform mat4 mv_matrix;\n"
+        "uniform float point_size;\n"
+        "\n"
+        "attribute vec4 a_position;\n"
+        "attribute vec4 a_color;\n"
+        //         "attribute vec4 a_start;\n"
+        "\n"
+        "varying vec4 v_color;\n"
+        "varying vec2 v_position;\n"
+        //         "varying vec2 v_start;\n"
+        //         "\n"
+        //         "bool isNan(float val)\n"
+        //         "{\n"
+        //         "    return (val > 65535.0);\n"
+        //         "}\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "    // Calculate interpolated vertex position & line start point\n"
+        "    v_position = (mv_matrix * a_position).xy;\n"
+        "\n"
+        //         "    if (!isNan(a_start.x)) v_start = (mv_matrix * a_start).xy;\n"
+        //         "    else v_start = a_start.xy;\n"
+        //         "\n"
+        "    // Calculate vertex position in screen space\n"
+        "    gl_Position = mvp_matrix * a_position;\n"
+        "\n"
+        "    // Value will be automatically interpolated to fragments inside polygon faces\n"
+        "    v_color = a_color;\n"
+        "\n"
+        "    // Set point size\n"
+        "    gl_PointSize = point_size;\n"
+        "}\n"
+        "\n";
+
+    const char *fsrc =
+        "#ifdef GL_ES\n"
+        "// Set default precision to medium\n"
+        "precision mediump int;\n"
+        "precision mediump float;\n"
+        "#endif\n"
+        "\n"
+        "//Dash grid (px) = factor * pi;\n"
+        "const float factor = 2.0;\n"
+        "\n"
+        "uniform float point_size;\n"
+        "\n"
+        "varying vec4 v_color;\n"
+        "varying vec2 v_position;\n"
+        //         "varying vec2 v_start;\n"
+        //         "\n"
+        //         "bool isNan(float val)\n"
+        //         "{\n"
+        //         "    return (val > 65535.0);\n"
+        //         "}\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        //         "    // Draw dash lines\n"
+        //         "    if (!isNan(v_start.x)) {\n"
+        //         "        vec2 sub = v_position - v_start;\n"
+        //         "        float coord = length(sub.x) > length(sub.y) ? gl_FragCoord.x : gl_FragCoord.y;\n"
+        //         "        if (cos(coord / factor) > 0.0) discard;\n"
+        //         "    }\n"
+        "#ifdef GL_ES\n"
+        "    if (point_size > 0.0) {\n"
+        "        vec2 coord = gl_PointCoord.st - vec2(0.5, 0.5);\n"
+        "        if (length(coord) > 0.5) discard;\n"
+        "    }\n"
+        "#endif\n"
+        "\n"
+        "    // Set fragment color from texture\n"
+        "    gl_FragColor = v_color;\n"
+        "}\n";
+
+    program = new QOpenGLShaderProgram(this);
+
+    program->addShaderFromSourceCode(QOpenGLShader::Vertex, vsrc);
+    program->addShaderFromSourceCode(QOpenGLShader::Fragment, fsrc);
+
     program->link();
 
-    // OpenGLES2
-    initializeGLFunctions();
 
-    //     glClearColor(qglColor(Qt::black));
+    m_posAttr = program->attributeLocation("a_position");
+    //     m_startAttr = program->attributeLocation("a_start");
+    m_colAttr = program->attributeLocation("a_color");
+    m_matrixUniform = program->uniformLocation("mvp_matrix"); // matrix
+    m_mvUniform = program->uniformLocation("mv_matrix");
+    m_pointSizeUniform = program->uniformLocation("point_size");
+    //     m_idx = program->uniformLocation("idx");
 
-#if USE_GLES2 == true
-    //     glScalef( 1, 1, -1 ); // negative z is top
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    program->bind();
 
+
+    // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
+
+    // Enable back face culling
     glEnable(GL_CULL_FACE);
 
-    viewMatrix.perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+    //     glEnable(GL_PROGRAM_POINT_SIZE);
 
-    viewMatrix.lookAt(QVector3D(4, 3, 3), // Camera is at (4,3,3), in Worl$
-                      QVector3D(0, 0, 0), // and looks at the origin
-                      QVector3D(0, 1, 0) // Head is up (set to 0,-1,0 to $
-                     );
+    //     loadFigure();
 
-    viewMatrix.scale(1.0f);
-
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-
-    glGenBuffers(1, &m_posAttrX);
-    glBindBuffer(GL_ARRAY_BUFFER, m_posAttrX);
-
-    glGenBuffers(1, &m_posAttrY);
-    glBindBuffer(GL_ARRAY_BUFFER, m_posAttrY);
-
-    glGenBuffers(1, &m_posAttrZ);
-    glBindBuffer(GL_ARRAY_BUFFER, m_posAttrZ);
-    //     MVP  = Projection * View * Model; // Remember, matrix multiplication is the other way arou$
-
-#else
-    // activate projection matrix
-    glMatrixMode(GL_PROJECTION);
-
-    // clening
-    glLoadIdentity();
-    glScalef( 1, 1, -1 ); // negative z is top
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    glEnable(GL_DEPTH_TEST);
-#endif
+    createButtons();
 }
+
 
 /**
  * @brief redraw the scene
@@ -417,25 +749,23 @@ void GLWidget::paintGL()
     fps++;
 }
 
+
 /**
  * @brief resize the scene
  *
  */
 void GLWidget::resizeGL(int w, int h)
 {
-#if USE_GLES2 == true
-    // Calculate aspect ratio
-    qreal aspect = qreal(w) / qreal(h ? h : 1);
+    cmdIsometric->move(w - (cmdIsometric->width() + 8), 8);
+    cmdTop->move(cmdIsometric->geometry().left() - (cmdTop->width() + 8), 8);
+    cmdLeft->move(w - (cmdLeft->width() + 8), cmdIsometric->geometry().bottom() + 8);
+    cmdFront->move(cmdLeft->geometry().left() - (cmdFront->width() + 8), cmdIsometric->geometry().bottom() + 8);
+    cmdFit->move(w - (cmdFit->width() + 8), cmdLeft->geometry().bottom() + 8);
 
-    // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 3.0, zFar = 7.0, fov = 45.0;
+    cmdZoom->resize(24, this->height() - 120);
+    cmdZoom->move(w - (cmdZoom->width() + 8), cmdFit->geometry().bottom() + 8);
 
-    // Reset projection
-    viewMatrix.setToIdentity();
-
-    // Set perspective projection
-    viewMatrix.perspective(fov, aspect, zNear, zFar);
-#else
+#if 0
     int left = 0, top = 0;
     int width = w, height = h;
     float scale = ((float)w / (float)h);
@@ -454,35 +784,298 @@ void GLWidget::resizeGL(int w, int h)
 }
 
 
-void GLWidget::mousePressEvent(QMouseEvent *event)
+void GLWidget::timerEvent(QTimerEvent *)
 {
-    lastPos = event->pos();
+    // Request an update
+    update();
 }
+
+
+#define GLSCALE 0.05
+
 
 /**
  * @brief
  *
  */
-void GLWidget::wheelEvent(QWheelEvent *e)
+void GLWidget::Draw() // drawing, main function
 {
-    e->delta() > 0 ? parent->PosZoom++ : parent->PosZoom--;
+    if (!program) {
+        return;
+    }
 
-    e->setAccepted(true);
-    updateGL();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    int w = this->width();
+    int h = this->height();
+
+    qreal aspect = qreal(w) / qreal(h ? h : 1);
+
+    QMatrix4x4 matrix;
+
+    matrix.setToIdentity();
+    matrix.perspective(60.0f, aspect, 10.f, 250.0f);
+    matrix.translate(parent->PosX, parent->PosY, -100.0);
+
+    float scaleX = parent->PosZoom * GLSCALE;
+    float scaleY = parent->PosZoom * GLSCALE;
+    float scaleZ = parent->PosZoom * GLSCALE;
+
+    matrix.scale(scaleX, scaleY, scaleZ);
+
+    matrix.rotate(parent->PosAngleX, 1.0f, 0.0f, 0.0f);
+    matrix.rotate(parent->PosAngleY, 0.0f, 1.0f, 0.0f);
+    matrix.rotate(parent->PosAngleZ, 0.0f, 0.0f, 1.0f);
+
+    program->setUniformValue(m_matrixUniform, matrix);
+
+    if (figure.count() > 2) {
+        // draw figure
+        glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &figure[0].coord);
+        glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &figure[0].color);
+
+
+        glEnableVertexAttribArray(m_posAttr);
+        glEnableVertexAttribArray(m_colAttr);
+
+        glDrawArrays(GL_LINE_STRIP, 0, figure.count());
+
+        glDisableVertexAttribArray(m_colAttr);
+        glDisableVertexAttribArray(m_posAttr);
+
+
+        int numSelectStart = -1;
+        int numSelectStop = -1;
+
+        switch (parent->getStatus()) {
+            case Task::Waiting: {
+                numSelectStart = Task::lineCodeStart;
+
+                if (numSelectStart < 0) {
+                    break;
+                }
+
+                numSelectStop = Task::lineCodeEnd;
+
+                break;
+            }
+
+            case Task::Stop:  {
+                if (Task::lineCodeStart < 0) {
+                    break;
+                }
+
+                numSelectStart = Task::lineCodeStart;
+                numSelectStop = Task::lineCodeStart;
+
+                break;
+            }
+
+            case Task::Paused: {
+                int numSelect = cnc->numberCompleatedInstructions() - 1;
+
+                if (numSelect < 0 ) {
+                    break;
+                }
+
+                numSelectStart = numSelect;
+                numSelectStop = numSelect + 1;
+
+                break;
+            }
+
+            case Task::Working: {
+                int numSelect = cnc->numberCompleatedInstructions() - 1;
+
+                if (numSelect >= 0 && numSelect < figure.count()) {
+                    numSelectStart = numSelect;
+                    numSelectStop = numSelect + 1;
+                }
+
+                break;
+            }
+
+            default: {
+                break;
+            }
+        }
+
+        if (numSelectStart != -1 && numSelectStop != -1) {
+            // select with 3.0 the current cut of object
+            glLineWidth((GLfloat)Settings::lineWidth);
+
+            glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &figure[numSelectStart].coord);
+            glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &figure[numSelectStart].color);
+
+
+            glEnableVertexAttribArray(m_posAttr);
+            glEnableVertexAttribArray(m_colAttr);
+
+            glDrawArrays(GL_LINE_STRIP, 0, (numSelectStop - numSelectStart) + 1);
+
+            glDisableVertexAttribArray(m_colAttr);
+            glDisableVertexAttribArray(m_posAttr);
+
+            glLineWidth((GLfloat)1.0);
+        }
+    }
+
+    if (parent->ShowAxes) {
+        glLineWidth((GLfloat)Settings::lineWidth);
+
+        glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &axis[0].coord);
+        glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &axis[0].color);
+
+        glEnableVertexAttribArray(m_posAttr);
+        glEnableVertexAttribArray(m_colAttr);
+
+        glDrawArrays(GL_LINES, 0, axis.count());
+
+        glDisableVertexAttribArray(m_colAttr);
+        glDisableVertexAttribArray(m_posAttr);
+
+        glLineWidth((GLfloat)1.0);
+    }
+
+
+    if (parent->ShowBorder) {
+        glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &border[0].coord);
+        glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &border[0].color);
+
+        glEnableVertexAttribArray(m_posAttr);
+        glEnableVertexAttribArray(m_colAttr);
+
+        glDrawArrays(GL_LINE_STRIP, 0, border.count());
+
+        glDisableVertexAttribArray(m_colAttr);
+        glDisableVertexAttribArray(m_posAttr);
+    }
+
+    //  the scanned surface
+    if (parent->ShowSurface) {
+        if (parent->ShowLines) {
+            glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &surfaceLines[0].coord);
+            glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &surfaceLines[0].color);
+
+            glEnableVertexAttribArray(m_posAttr);
+            glEnableVertexAttribArray(m_colAttr);
+
+            glDrawArrays(GL_LINES, 0, surfaceLines.count());
+
+            glDisableVertexAttribArray(m_colAttr);
+            glDisableVertexAttribArray(m_posAttr);
+        }
+
+        if (parent->ShowPoints) {
+            program->setUniformValue(m_pointSizeUniform, (GLfloat)Settings::pointSize);
+
+            glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &surfacePoints[0].coord);
+            glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &surfacePoints[0].color);
+
+            glEnableVertexAttribArray(m_posAttr);
+            glEnableVertexAttribArray(m_colAttr);
+
+            glDrawArrays(GL_POINTS, 0, surfacePoints.count());
+
+            glDisableVertexAttribArray(m_colAttr);
+            glDisableVertexAttribArray(m_posAttr);
+        }
+    }
+
+    // draw the border
+    if (parent->ShowGrid) {
+        if (parent->ShowLines) {
+            glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridLines[0].coord);
+            glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridLines[0].color);
+
+            glEnableVertexAttribArray(m_posAttr);
+            glEnableVertexAttribArray(m_colAttr);
+
+            glDrawArrays(GL_LINES, 0, gridLines.count());
+
+            glDisableVertexAttribArray(m_colAttr);
+            glDisableVertexAttribArray(m_posAttr);
+        }
+
+        if (parent->ShowPoints) {
+            program->setUniformValue(m_pointSizeUniform, (GLfloat)Settings::pointSize);
+
+            glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridPoints[0].coord);
+            glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridPoints[0].color);
+
+            glEnableVertexAttribArray(m_posAttr);
+            glEnableVertexAttribArray(m_colAttr);
+
+            glDrawArrays(GL_POINTS, 0, gridPoints.count());
+
+            glDisableVertexAttribArray(m_colAttr);
+            glDisableVertexAttribArray(m_posAttr);
+        }
+    }
+
+
+    if (parent->ShowInstrument) {
+        matrix.translate(Settings::coord[X].posMm(), Settings::coord[Y].posMm(), Settings::coord[Z].posMm()); // moving to point x=10, y=10
+
+        program->setUniformValue(m_matrixUniform, matrix);
+
+        glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &instrument[0].coord);
+        glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &instrument[0].color);
+
+        glEnableVertexAttribArray(m_posAttr);
+        glEnableVertexAttribArray(m_colAttr);
+
+        glDrawArrays(GL_LINES, 0, instrument.count());
+
+        glDisableVertexAttribArray(m_colAttr);
+        glDisableVertexAttribArray(m_posAttr);
+    }
+}
+
+
+/**
+ * @brief press event from mouse
+ *
+ */
+void GLWidget::mousePressEvent(QMouseEvent *event)
+{
+    m_lastPos = event->pos();
+}
+
+
+/**
+ * @brief wheel event from mouse
+ *
+ */
+void GLWidget::wheelEvent(QWheelEvent *we)
+{
+    if (we->orientation() == Qt::Vertical) {
+        we->delta() > 0 ? parent->PosZoom += 1.0 : parent->PosZoom -= 1.0;
+
+        cmdZoom->setValue(parent->PosZoom);
+        //         if (Settings::smoothMoving) {
+        //             update();
+        //         }
+    }
+
+    we->setAccepted(true);
 }
 
 /**
- * @brief
+ * @brief move event from mouse druring button pressed
  *
  */
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    int dx = event->x() - lastPos.x();
-    int dy = event->y() - lastPos.y();
+    int dx = event->x() - m_lastPos.x();
+    int dy = m_lastPos.y() - event->y() ;
 
     if (event->buttons() & Qt::LeftButton) {
-        setXCoord(parent->PosX += dx);
-        setYCoord(parent->PosY -= dy);
+        setXCoord(dx);
+        setYCoord(dy);
+
+        if (Settings::smoothMoving) {
+            update();
+        }
     } else if (event->buttons() & Qt::RightButton) {
         switch (parent->fixedAxes) {
             case FixY: {
@@ -503,639 +1096,23 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
                 break;
             }
         }
+
+        if (Settings::smoothMoving) {
+            update();
+        }
     }
 
-    lastPos = event->pos();
+    m_lastPos = event->pos();
 
     event->setAccepted(true);
-    updateGL();
 }
 
-
-#define GLSCALE 2000.0
-
-/**
- * @brief
- *
- */
-void GLWidget::Draw() // drawing, main function
-{
-#if USE_GLES2 == true
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clean color buffer and depth buff
-
-    program->bind();
-
-    glClearColor(Settings::colorSettings[COLOR_BACKGROUND].r, Settings::colorSettings[COLOR_BACKGROUND].g, Settings::colorSettings[COLOR_BACKGROUND].b, 1.0);//()0.45f, 0.45f, 0.45f, 1);
-
-    if (windowState() != Qt::WindowMinimized) {
-        int w = width();
-        int h = height();
-
-        float n = 1;
-
-        if (h < w) {
-            n = (w / h);
-        }
-
-        /// move eyes point for better view of object
-        viewMatrix.translate(parent->PosX / GLSCALE, parent->PosY / GLSCALE, parent->PosZ / GLSCALE);
-
-
-        float scaleX = parent->PosZoom / (GLSCALE * n);
-        float scaleY = parent->PosZoom / GLSCALE;
-        float scaleZ = parent->PosZoom / GLSCALE;
-
-        viewMatrix.scale(scaleX, scaleY, scaleZ);
-    }
-
-    // angle rotatoin
-    viewMatrix.rotate(parent->PosAngleX, 1, 0, 0);
-    viewMatrix.rotate(parent->PosAngleY, 0, 1, 0);
-    viewMatrix.rotate(parent->PosAngleZ, 0, 0, 1);
-
-#else
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clean color buffer and depth buff
-    glClearColor(Settings::colorSettings[COLOR_BACKGROUND].r, Settings::colorSettings[COLOR_BACKGROUND].g, Settings::colorSettings[COLOR_BACKGROUND].b, 1.0);//()0.45f, 0.45f, 0.45f, 1);                  // set gray color of background
-
-    glLoadIdentity();                                   // clean
-
-    glPushMatrix();                                     // push current matrix
-
-    if (windowState() != Qt::WindowMinimized) {
-        int w = width();
-        int h = height();
-
-        float n = 1;
-
-        if (h < w) {
-            n = (w / h);
-        }
-
-        /// move eyes point for better view of object
-        glTranslated(parent->PosX / GLSCALE, parent->PosY / GLSCALE, parent->PosZ / GLSCALE);
-
-
-        float scaleX = parent->PosZoom / (GLSCALE * n);
-        float scaleY = parent->PosZoom / GLSCALE;
-        float scaleZ = parent->PosZoom / GLSCALE;
-
-        glScalef(scaleX, scaleY, scaleZ);
-    }
-
-    // angle rotatoin
-    glRotatef(parent->PosAngleX, 1, 0, 0);
-    glRotatef(parent->PosAngleY, 0, 1, 0);
-    glRotatef(parent->PosAngleZ, 0, 0, 1);
-
-
-    glEnable(GL_LINE_SMOOTH);
-#endif
-
-    // axes
-    if (parent->ShowAxes) {
-        drawAxes();
-    }
-
-    // coordinate grid
-    if (parent->ShowGrid) {
-        drawGrid();
-    }
-
-    //  the scanned surface
-    if (parent->ShowSurface) {
-        drawSurface();
-    }
-
-    // drawTool();
-
-    // draw the tool
-    if (parent->ShowInstrument) {
-        drawInstrument();
-    }
-
-    drawWorkField();
-
-    // draw the border
-    if (parent->ShowGrate) {
-        drawGrate();
-    }
-
-#if USE_GLES2 == true
-
-    swapBuffers();
-
-#else
-    // end of drawing
-    glDisable(GL_LINE_SMOOTH);
-
-    //
-    glPopMatrix();
-    //
-    glFlush();
-#endif
-}
-
-
-/**
- * @brief drawing of coordinate axes
- *
- * @see https://www.khronos.org/opengles/sdk/docs/man/xhtml/glEnable.xml
- */
-void GLWidget::drawAxes()
-{
-#if USE_GLES2 == true
-    glLineWidth(2);
-
-
-
-    glDisable(GL_DEPTH_TEST); // because of text rendering
-
-    // x
-    glBlendColor(Settings::colorSettings[COLOR_X].r, Settings::colorSettings[COLOR_X].g, Settings::colorSettings[COLOR_X].b, 1.0);
-    glVertexAttribPointer(m_posAttrX, 3, GL_FLOAT, GL_FALSE, 0, &xAxis[0]);
-    glEnableVertexAttribArray(0);
-
-    glDrawArrays(GL_LINES, 0, 3);
-
-    renderText(12.0, 0.0, 0.0, QString("X")); //coordinates of text
-
-    glDisableVertexAttribArray(0);
-
-    // y
-    glBlendColor(Settings::colorSettings[COLOR_Y].r, Settings::colorSettings[COLOR_Y].g, Settings::colorSettings[COLOR_Y].b, 1.0);
-
-    glVertexAttribPointer(m_posAttrY, 3, GL_FLOAT, GL_FALSE, 0, &yAxis[0]);
-    glEnableVertexAttribArray(0);
-
-    glDrawArrays(GL_LINES, 0, 3);
-
-    renderText(0.0, 12.0, 0.0, QString("Y")); //coordinates of text
-
-    glDisableVertexAttribArray(0);
-
-    // z
-    glBlendColor(Settings::colorSettings[COLOR_Z].r, Settings::colorSettings[COLOR_Z].g, Settings::colorSettings[COLOR_Z].b, 1.0);
-
-    glVertexAttribPointer(m_posAttrZ, 3, GL_FLOAT, GL_FALSE, 0, &zAxis[0]);
-    glEnableVertexAttribArray(0);
-
-    glDrawArrays(GL_LINES, 0, 3);
-
-    renderText(0.0, 0.0, 12.0, QString("Z")); //coordinates of text
-    glDisableVertexAttribArray(0);
-    // ...
-
-    glEnable(GL_DEPTH_TEST);
-
-#else
-    glLineWidth(2);
-
-    glDisable(GL_DEPTH_TEST); // because of text rendering
-
-    glEnable(GL_VERTEX_ARRAY);
-
-    glDisable(GL_NORMAL_ARRAY);
-
-    // x
-    glColor3f(Settings::colorSettings[COLOR_X].r, Settings::colorSettings[COLOR_X].g, Settings::colorSettings[COLOR_X].b);
-    glVertexPointer(3, GL_FLOAT, 0, &xAxis[0]);
-    glDrawArrays(GL_LINES, 0, xAxis.count()); // draw array of lines
-    renderText(12.0, 0.0, 0.0, QString("X")); //coordinates of text
-
-    // y
-    glColor3f(Settings::colorSettings[COLOR_Y].r, Settings::colorSettings[COLOR_Y].g, Settings::colorSettings[COLOR_Y].b);
-    glVertexPointer(3, GL_FLOAT, 0, &yAxis[0]);
-    glDrawArrays(GL_LINES, 0, yAxis.count());
-    renderText(0.0, 12.0, 0.0, QString("Y")); //coordinates of text
-
-    // z
-    glColor3f(Settings::colorSettings[COLOR_Z].r, Settings::colorSettings[COLOR_Z].g, Settings::colorSettings[COLOR_Z].b);
-    glVertexPointer(3, GL_FLOAT, 0, &zAxis[0]);
-    glDrawArrays(GL_LINES, 0, zAxis.count());
-    renderText(0.0, 0.0, 12.0, QString("Z")); //coordinates of text
-
-    glDisable(GL_VERTEX_ARRAY);
-
-    glEnable(GL_NORMAL_ARRAY);
-
-    glEnable(GL_DEPTH_TEST);
-#endif
-}
-
-/**
- * @brief
- *
- */
-void GLWidget::drawWorkField()
-{
-    if (coordArray.count() < 2) {
-        return;
-    }
-
-#if USE_GLES2 == true
-    glLineWidth(0.3);
-
-    glDisable(GL_DEPTH_TEST); // because of text rendering
-
-    // ...
-    // the object
-    glVertexPointer(3, GL_FLOAT, 0, &coordArray[0]);
-    glColorPointer(4, GL_FLOAT, 0, &colorArray[0]);
-    glDrawArrays(GL_LINE_STRIP, 0, coordArray.count());
-    //
-
-    // select with 3.0 the current cut of object
-    switch (parent->getStatus()) {
-        case Task::Waiting: {
-            int numSelectStart = Task::lineCodeStart;
-
-            if (numSelectStart < 0) {
-                break;
-            }
-
-            int numSelectStop = Task::lineCodeEnd;
-            glLineWidth(3.0f);
-            glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelectStart]);
-            glColorPointer(4, GL_FLOAT, 0, &colorArray[numSelectStart]);
-            glDrawArrays(GL_LINE_STRIP, 0, numSelectStop - numSelectStart - 1);
-            break;
-        }
-
-        case Task::Stop:  {
-            if (Task::lineCodeStart < 0) {
-                break;
-            }
-
-            glLineWidth(3.0f);
-            glVertexPointer(3, GL_FLOAT, 0, &coordArray[Task::lineCodeStart]);
-            glColorPointer(4, GL_FLOAT, 0, &colorArray[Task::lineCodeStart]);
-            glDrawArrays(GL_LINE_STRIP, 0, 2);
-            break;
-        }
-
-        case Task::Paused: {
-            int numSelect = cnc->numberCompleatedInstructions() - 1;
-
-            if (numSelect < 0 ) {
-                break;
-            }
-
-            glLineWidth(3.0f);
-            glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
-            glColorPointer(4, GL_FLOAT, 0, &colorArray[numSelect]);
-            glDrawArrays(GL_LINE_STRIP, 0, 2);
-
-            break;
-        }
-
-        case Task::Working: {
-            int numSelect = cnc->numberCompleatedInstructions() - 1;
-
-            if (numSelect >= 0 && numSelect < coordArray.count()) {
-                glLineWidth(3.0f);
-                glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
-                glColorPointer(4, GL_FLOAT, 0, &colorArray[numSelect + 1]);
-                glDrawArrays(GL_LINE_STRIP, 0, 2);
-            }
-
-            break;
-        }
-    }
-
-    glEnable(GL_DEPTH_TEST);
-
-#else
-    glPushMatrix();
-
-    glEnable(GL_VERTEX_ARRAY);
-    glEnable(GL_COLOR_ARRAY);
-    glDisable(GL_NORMAL_ARRAY);
-    glDisable(GL_TEXTURE_COORD_ARRAY);
-
-    glLineWidth(0.3f);
-
-    // the object
-    glVertexPointer(3, GL_FLOAT, 0, &coordArray[0]);
-    glColorPointer(4, GL_FLOAT, 0, &colorArray[0]);
-    glDrawArrays(GL_LINE_STRIP, 0, coordArray.count());
-    //
-
-    // select with 3.0 the current cut of object
-    switch (parent->getStatus()) {
-        case Task::Waiting: {
-            int numSelectStart = Task::lineCodeStart;
-
-            if (numSelectStart < 0) {
-                break;
-            }
-
-            int numSelectStop = Task::lineCodeEnd;
-            glLineWidth(3.0f);
-            glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelectStart]);
-            glColorPointer(4, GL_FLOAT, 0, &colorArray[numSelectStart]);
-            glDrawArrays(GL_LINE_STRIP, 0, numSelectStop - numSelectStart - 1);
-            break;
-        }
-
-        case Task::Stop:  {
-            if (Task::lineCodeStart < 0) {
-                break;
-            }
-
-            glLineWidth(3.0f);
-            glVertexPointer(3, GL_FLOAT, 0, &coordArray[Task::lineCodeStart]);
-            glColorPointer(4, GL_FLOAT, 0, &colorArray[Task::lineCodeStart]);
-            glDrawArrays(GL_LINE_STRIP, 0, 2);
-            break;
-        }
-
-        case Task::Paused: {
-            int numSelect = cnc->numberCompleatedInstructions() - 1;
-
-            if (numSelect < 0 ) {
-                break;
-            }
-
-            glLineWidth(3.0f);
-            glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
-            glColorPointer(4, GL_FLOAT, 0, &colorArray[numSelect]);
-            glDrawArrays(GL_LINE_STRIP, 0, 2);
-
-            break;
-        }
-
-        case Task::Working: {
-            int numSelect = cnc->numberCompleatedInstructions() - 1;
-
-            if (numSelect >= 0 && numSelect < coordArray.count()) {
-                glLineWidth(3.0f);
-                glVertexPointer(3, GL_FLOAT, 0, &coordArray[numSelect]);
-                glColorPointer(4, GL_FLOAT, 0, &colorArray[numSelect + 1]);
-                glDrawArrays(GL_LINE_STRIP, 0, 2);
-            }
-
-            break;
-        }
-    }
-
-    glDisable(GL_VERTEX_ARRAY);
-    glDisable(GL_COLOR_ARRAY);
-    glEnable(GL_NORMAL_ARRAY);
-    glEnable(GL_TEXTURE_COORD_ARRAY);
-
-    glPopMatrix();
-#endif
-}
-
-
-/**
- * @brief
- *
- */
-void GLWidget::drawGrid()
-{
-#if USE_GLES2 == true
-
-#else
-
-    if (parent->ShowLines) {
-        glLineWidth(0.1f);
-        glColor3f(Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b);
-
-        glBegin(GL_LINES);
-
-        for (int gX = parent->GridXstart; gX < parent->GridXend + 1; gX += parent->GrigStep) {
-            glVertex3f(gX, parent->GridYstart, 0);
-            glVertex3f(gX, parent->GridYend, 0);
-        }
-
-        for (int gY = parent->GridYstart; gY < parent->GridYend + 1; gY += parent->GrigStep) {
-            glVertex3f(parent->GridXstart, gY, 0);
-            glVertex3f(parent->GridXend, gY, 0);
-        }
-
-        glEnd();
-    }
-
-    if (parent->ShowPoints) {
-        glPointSize(1.0f);
-        //         glLineWidth(0.3f);
-        glColor3f(Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b); // white
-
-        glBegin(GL_POINTS);
-
-
-        for (int y = parent->GridYstart; y <  parent->GridYend + 1; y += parent->GrigStep) {
-            for (int x = parent->GridXstart; x < parent->GridXend + 1; x += parent->GrigStep) {
-                //point
-                glVertex3f(x, y, 0);
-            }
-        }
-
-        glEnd();
-    }
-
-#endif
-}
-
-/**
- * @brief
- *
- */
-void GLWidget::drawTool()
-{
-#if USE_GLES2 == true
-
-#else
-    glPushMatrix();
-
-    glLineWidth(2);
-
-    glDisable(GL_DEPTH_TEST); // because of text rendering
-
-    glEnable(GL_VERTEX_ARRAY);
-
-    glDisable(GL_NORMAL_ARRAY);
-
-    glScalef(1.5, 1.5, 1.5);
-
-    // foot
-    glColor3f(Settings::colorSettings[COLOR_TRAVERSE].r, Settings::colorSettings[COLOR_TRAVERSE].g, Settings::colorSettings[COLOR_TRAVERSE].b);
-    glVertexPointer(3, GL_FLOAT, 0, &footArray[0]);
-    // GL_LINE_LOOP or GL_POLYGON
-    glDrawArrays(GL_LINE_LOOP, 0, footArray.count()); // draw array of lines
-
-    glTranslatef(3.6, 16.0, 12.0);
-
-    glVertexPointer(3, GL_FLOAT, 0, &traverseArray[0]);
-    // GL_LINE_LOOP or GL_POLYGON
-    glDrawArrays(GL_LINE_LOOP, 0, traverseArray.count()); // draw array of lines
-
-    glTranslatef(64.0, -16.0, -12.0);
-    glVertexPointer(3, GL_FLOAT, 0, &footArray[0]);
-    // GL_LINE_LOOP or GL_POLYGON
-    glDrawArrays(GL_LINE_LOOP, 0, footArray.count()); // draw array of lines
-
-    glDisable(GL_VERTEX_ARRAY);
-
-    glEnable(GL_NORMAL_ARRAY);
-
-    glEnable(GL_DEPTH_TEST);
-
-    glPopMatrix();
-#endif
-}
-
-/**
- * @brief
- *
- */
-void GLWidget::drawSurface()
-{
-    int maxY, maxX;
-    maxY = parent->surfaceMatrix.size();
-
-    if (maxY == 0) {
-        return;
-    }
-
-    maxX = parent->surfaceMatrix[0].size(); // because of rectangle matrix
-
-    if (maxX == 0) {
-        return;
-    }
-
-#if USE_GLES2 == true
-
-#else
-    //points
-    glColor3f(Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b); // red
-    glPointSize(10.0F);
-
-    glBegin(GL_POINTS);
-
-    for (int y = 0; y < maxY; y++) {
-        for (int x = 0; x < maxX; x++) {
-            //point
-            glVertex3f(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
-        }
-    }
-
-    glEnd();
-
-    // connections between the points
-    //     glColor3f(0.678f, 1.000f, 0.184f); // green
-    glColor3f(Settings::colorSettings[COLOR_CONNECTION].r, Settings::colorSettings[COLOR_CONNECTION].g, Settings::colorSettings[COLOR_CONNECTION].b);
-    glLineWidth(0.4f);
-    glBegin(GL_LINES);
-
-    for (int y = 0; y < maxY; y++) {
-        for (int x = 0; x < maxX; x++) {
-            if (y > 0) {
-                //line 1
-                glVertex3f(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
-                glVertex3f(parent->surfaceMatrix[y - 1][x].X, parent->surfaceMatrix[y - 1][x].Y, parent->surfaceMatrix[y - 1][x].Z);
-            }
-
-            if (y < maxY - 1) {
-                //line2
-                glVertex3f(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
-                glVertex3f(parent->surfaceMatrix[y + 1][x].X, parent->surfaceMatrix[y + 1][x].Y, parent->surfaceMatrix[y + 1][x].Z);
-            }
-
-            if (x > 0) {
-                //line 3
-                glVertex3f(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
-                glVertex3f(parent->surfaceMatrix[y][x - 1].X, parent->surfaceMatrix[y][x - 1].Y, parent->surfaceMatrix[y][x - 1].Z);
-            }
-
-            if (x < maxX - 1) {
-                //line4
-                glVertex3f(parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z);
-                glVertex3f(parent->surfaceMatrix[y][x + 1].X, parent->surfaceMatrix[y][x + 1].Y, parent->surfaceMatrix[y][x + 1].Z);
-            }
-        }
-    }
-
-    glEnd();
-#endif
-}
-
-/**
- * @brief
- *
- */
-void GLWidget::drawInstrument()
-{
-    // instrument
-    float startX =  Settings::coord[X].posMm();
-    float startY =  Settings::coord[Y].posMm();
-    float startZ =  Settings::coord[Z].posMm();
-#if USE_GLES2 == true
-
-#else
-    glColor3f(Settings::colorSettings[COLOR_TOOL].r, Settings::colorSettings[COLOR_TOOL].g, Settings::colorSettings[COLOR_TOOL].b);
-    glLineWidth(3);
-
-    glTranslatef(startX, startY, startZ);
-
-    glVertexPointer(3, GL_FLOAT, 0, &instrumentArray[0]);
-
-    glEnable(GL_VERTEX_ARRAY);
-
-    glDisable(GL_NORMAL_ARRAY);
-    glDisable(GL_TEXTURE_COORD_ARRAY);
-
-    glDrawArrays(GL_LINES, 0, instrumentArray.count());
-
-    glDisable(GL_VERTEX_ARRAY);
-
-    glEnable(GL_NORMAL_ARRAY);
-    glEnable(GL_TEXTURE_COORD_ARRAY);
-#endif
-}
-
-/**
- * @brief
- *
- */
-void GLWidget::drawGrate()
-{
-#if USE_GLES2 == true
-
-#else
-    //
-    glLineWidth(2.0f);
-
-    glColor3f(Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b);
-
-    glEnable(GL_LINE_STIPPLE);
-
-    GLushort pattern = 0x00FF;
-    GLint factor = 2;
-
-    glLineStipple( factor, pattern );
-
-    glBegin(GL_LINE_STRIP); // normal lines
-
-    glVertex3f( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0);
-    glVertex3f( Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin, 0);
-    glVertex3f( Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMax, 0);
-    glVertex3f( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMax, 0);
-    glVertex3f( Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0);
-
-    glEnd();
-
-    glDisable(GL_LINE_STIPPLE);
-#endif
-}
 
 /**
  * @brief when angle over 360 or under 0, normalize it
  *
  */
-void GLWidget::normalizeAngle(int &angle)
+float GLWidget::normalizeAngle(float angle)
 {
     while (angle < 0) {
         angle += 360;
@@ -1144,38 +1121,38 @@ void GLWidget::normalizeAngle(int &angle)
     while (angle > 360) {
         angle -= 360;
     }
+
+    return angle;
 }
 
 
 /**
- * @brief
+ * @brief slot for button signal from mainwindow
  *
  */
-// from slider
-void GLWidget::setXCoord(int x)
+void GLWidget::setXCoord(int dx)
 {
-    if (parent->PosX != x) {
-        parent->PosX = x;
+    if (dx != 0) {
+        parent->PosX += dx * 0.1;
     }
 }
 
 /**
- * @brief
+ * @brief slot for button signal from mainwindow
  *
  */
-void GLWidget::setYCoord(int y)
+void GLWidget::setYCoord(int dy)
 {
-    if (parent->PosY != y) {
-        parent->PosY = y;
+    if (dy != 0) {
+        parent->PosY += dy * 0.1;
     }
 }
 
 
 /**
- * @brief
+ * @brief slot for button signal from mainwindow
  *
  */
-// from slider
 void GLWidget::setXRotation(int angle)
 {
     normalizeAngle(angle);
@@ -1187,7 +1164,7 @@ void GLWidget::setXRotation(int angle)
 }
 
 /**
- * @brief
+ * @brief slot for button signal from mainwindow
  *
  */
 void GLWidget::setYRotation(int angle)
@@ -1200,8 +1177,9 @@ void GLWidget::setYRotation(int angle)
     }
 }
 
+
 /**
- * @brief
+ * @brief slot for button signal from mainwindow
  *
  */
 void GLWidget::setZRotation(int angle)
@@ -1214,8 +1192,9 @@ void GLWidget::setZRotation(int angle)
     }
 }
 
+
 /**
- * @brief
+ * @brief slot for button signal from mainwindow, x minus
  *
  */
 void GLWidget::onPosAngleXm()
@@ -1223,22 +1202,22 @@ void GLWidget::onPosAngleXm()
     --parent->PosAngleX;
     normalizeAngle(parent->PosAngleX);
     emit rotationChanged();
-    updateGL();
 }
 
+
 /**
- * @brief
+ * @brief slot for button signal from mainwindow. reset x
  *
  */
 void GLWidget::onPosAngleX()
 {
     parent->PosAngleX = 0;
     emit rotationChanged();
-    updateGL();
 }
 
+
 /**
- * @brief
+ * @brief slot for button signal from mainwindow, x plus
  *
  */
 void GLWidget::onPosAngleXp()
@@ -1246,11 +1225,11 @@ void GLWidget::onPosAngleXp()
     ++parent->PosAngleX;
     normalizeAngle(parent->PosAngleX);
     emit rotationChanged();
-    updateGL();
 }
 
+
 /**
- * @brief
+ * @brief slot for button signal from mainwindow, y plus
  *
  */
 void GLWidget::onPosAngleYp()
@@ -1258,23 +1237,20 @@ void GLWidget::onPosAngleYp()
     ++parent->PosAngleY;
     normalizeAngle(parent->PosAngleY);
     emit rotationChanged();
-    updateGL();
 }
 
 /**
- * @brief
+ * @brief slot for button signal from mainwindow, reset y
  *
  */
 void GLWidget::onPosAngleY()
 {
     parent->PosAngleY = 0;
     emit rotationChanged();
-    updateGL();
-
 }
 
 /**
- * @brief
+ * @brief slot for button signal from mainwindow, y minus
  *
  */
 void GLWidget::onPosAngleYm()
@@ -1282,11 +1258,10 @@ void GLWidget::onPosAngleYm()
     --parent->PosAngleY;
     normalizeAngle(parent->PosAngleY);
     emit rotationChanged();
-    updateGL();
 }
 
 /**
- * @brief
+ * @brief slot for button signal from mainwindow, z plus
  *
  */
 void GLWidget::onPosAngleZp()
@@ -1294,22 +1269,20 @@ void GLWidget::onPosAngleZp()
     ++parent->PosAngleZ;
     normalizeAngle(parent->PosAngleZ);
     emit rotationChanged();
-    updateGL();
 }
 
 /**
- * @brief
+ * @brief slot for button signal from mainwindow, reset z
  *
  */
 void GLWidget::onPosAngleZ()
 {
     parent->PosAngleZ = 0;
     emit rotationChanged();
-    updateGL();
 }
 
 /**
- * @brief
+ * @brief slot for button signal from mainwindow, z minus
  *
  */
 void GLWidget::onPosAngleZm()
@@ -1317,61 +1290,14 @@ void GLWidget::onPosAngleZm()
     --parent->PosAngleZ;
     normalizeAngle(parent->PosAngleZ);
     emit rotationChanged();
-    updateGL();
 }
 
 /**
- * @brief
+ * @brief slot for button signal from mainwindow
  *
  */
 void GLWidget::onDefaulPreview()
 {
     initPreviewSettings();
-}
-
-/**
- * @brief
- *
- */
-void GLWidget::onRenderTimer()
-{
-    // ??
-    Draw();
-}
-
-/**
- * @brief
- *
- */
-void GLWidget::saveGLState()
-{
-#if USE_GLES2 == true
-
-#else
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-
-    //     glMatrixMode(GL_PROJECTION);
-    //     glPushMatrix();
-    //     glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-#endif
-}
-
-/**
- * @brief
- *
- */
-void GLWidget::restoreGLState()
-{
-#if USE_GLES2 == true
-
-#else
-    //     glMatrixMode(GL_PROJECTION);
-    //     glPopMatrix();
-    //     glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-
-    glPopAttrib();
-#endif
 }
 
