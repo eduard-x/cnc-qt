@@ -837,6 +837,7 @@ void MainWindow::writeSettings()
     s->setValue("size", size());
     //     s->setValue("WorkDir", currentWorkDir);
     s->setValue("LANGUAGE", currentLang);
+    s->setValue("LASTDIR", lastDir);
 
     s->setValue("VelocityCutting", numVeloSubmission->value());
     s->setValue("VelocityMoving", numVeloMoving->value());
@@ -861,10 +862,13 @@ void MainWindow::writeSettings()
     }
 
     s->setValue("KeyControl", (int)currentKeyPad);
-    //     s->setValue("LASTPROJ", currentProject);
+    //         s->setValue("LASTPROJ", currentProject);
     //     s->setValue("FontSize", fontSize);
     //     s->setValue("GUIFont", sysFont);
     // qDebug() << "writeGUISettings";
+
+    lastFiles.removeDuplicates();
+
     int i = 0;
 
     foreach (QString l, lastFiles) {
@@ -872,10 +876,9 @@ void MainWindow::writeSettings()
             break;
         }
 
-        i++;
         s->setValue("LASTFILE" + QString::number(i), l);
+        i++;
     }
-
 
     // opengl settings
     if (enableOpenGL == true) {
@@ -961,7 +964,6 @@ void MainWindow::writeSettings()
         s->setValue("SoftMax" + QString( axisNames.at(c)), (double)Settings::coord[c].softLimitMax);
 
         s->setValue("Home" + QString( axisNames.at(c)), (double)Settings::coord[c].home);
-
     }
 
     s->endGroup();
@@ -1023,6 +1025,8 @@ void MainWindow::readSettings()
 
     currentLang = s->value("LANGUAGE", l).toString();
 
+    lastDir = s->value("LASTDIR", "").toString();
+
     sysFont = sysFont.toString();
 
     int sz = sysFont.pointSize();
@@ -1046,6 +1050,8 @@ void MainWindow::readSettings()
             lastFiles << d;
         }
     }
+
+    lastFiles.removeDuplicates();
 
     reloadRecentList();
 

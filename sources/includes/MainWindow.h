@@ -317,9 +317,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void onButtonZtoZero();
         void onButtonAtoZero();
 
-        //         void getZRotation(int z);
-        //         void getYRotation(int y);
-        //         void getXRotation(int x);
         void getRotation();
         void getFPS(int fps);
         void getScale(int s);

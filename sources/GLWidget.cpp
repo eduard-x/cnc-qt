@@ -1039,6 +1039,8 @@ void GLWidget::Draw() // drawing, main function
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     m_lastPos = event->pos();
+    
+    event->setAccepted(true);
 }
 
 
@@ -1052,9 +1054,6 @@ void GLWidget::wheelEvent(QWheelEvent *we)
         we->delta() > 0 ? parent->PosZoom += 1.0 : parent->PosZoom -= 1.0;
 
         cmdZoom->setValue(parent->PosZoom);
-        //         if (Settings::smoothMoving) {
-        //             update();
-        //         }
     }
 
     we->setAccepted(true);
@@ -1066,8 +1065,8 @@ void GLWidget::wheelEvent(QWheelEvent *we)
  */
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    int dx = event->x() - m_lastPos.x();
-    int dy = m_lastPos.y() - event->y() ;
+    int dx = event->pos().x() - m_lastPos.x();
+    int dy = m_lastPos.y() - event->pos().y();
 
     if (event->buttons() & Qt::LeftButton) {
         setXCoord(dx);
@@ -1104,7 +1103,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
     m_lastPos = event->pos();
 
-    event->setAccepted(true);
+    //     event->setAccepted(true);
 }
 
 
@@ -1133,9 +1132,10 @@ float GLWidget::normalizeAngle(float angle)
 void GLWidget::setXCoord(int dx)
 {
     if (dx != 0) {
-        parent->PosX += dx * 0.1;
+        parent->PosX += dx * 0.5;
     }
 }
+
 
 /**
  * @brief slot for button signal from mainwindow
@@ -1144,7 +1144,7 @@ void GLWidget::setXCoord(int dx)
 void GLWidget::setYCoord(int dy)
 {
     if (dy != 0) {
-        parent->PosY += dy * 0.1;
+        parent->PosY += dy * 0.5;
     }
 }
 

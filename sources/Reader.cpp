@@ -218,9 +218,12 @@ bool Reader::readFile(const QString &fileName)
 bool Reader::OpenFile(QString &fileName)
 {
     QString name;
+    QString dir;
+
+    dir = ( lastDir.length() > 0) ? lastDir : QDir::homePath();
 
     if (fileName == "") {
-        name = QFileDialog::getOpenFileName ( 0, translate(_LOAD_FROM_FILE), QDir::homePath() );
+        name = QFileDialog::getOpenFileName ( 0, translate(_LOAD_FROM_FILE), dir );
 
         if (name.length() == 0) {
             return false;
@@ -235,6 +238,8 @@ bool Reader::OpenFile(QString &fileName)
         if (f == true) {
             QFileInfo fi(name);
             fileName = fi.absoluteFilePath();
+
+            lastDir = QFileInfo(fileName).absoluteDir().absolutePath();
         }
 
         return f;
@@ -268,7 +273,7 @@ bool Reader::readPLT( const QByteArray &arr )
 
         //      qDebug() << "анализ файла строка " + QString::number(index);
         //
-        //начальная точка
+        // begin point 
         if (s.trimmed().mid(0, 2) == "PU") {
             int pos1 = s.indexOf('U');
             int pos2 = s.indexOf(' ');

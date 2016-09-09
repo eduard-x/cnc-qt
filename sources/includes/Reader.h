@@ -259,6 +259,7 @@ class Reader : public GCodeParser , public cTranslator
         void SaveFile();
 
 
+
     public:
         QList<DataCollections> data;
         std::deque<std::pair<float, std::vector<Vec2d> > > layers;
@@ -267,6 +268,7 @@ class Reader : public GCodeParser , public cTranslator
         //         std::vector<Vec3f> cached_points;
         //         std::vector<Vec3f> cached_color;
 
+        QString lastDir;
 
 
         //             signals:
