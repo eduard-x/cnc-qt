@@ -85,11 +85,12 @@ int Settings::lineWidth = 3;
 bool Settings::smoothMoving = false;
 bool Settings::showTraverse = false;
 bool Settings::showWorkbench = false;
+bool Settings::filterRepeat = true;
 
 byte Settings::bb14 = 0x0;
 byte Settings::bb19 = 0x0;
 
-colorGL Settings::colorSettings[COLOR_LINES];
+QColor Settings::colorSettings[COLOR_LINES];
 
 
 axis Settings::coord[] = { axis(), axis(), axis(), axis() };
@@ -206,6 +207,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
 
     checkBoxDemoController->setChecked(Settings::DEMO_DEVICE);
 
+    checkBoxRemove->setChecked(Settings::filterRepeat);
     // visualisation settings
     radioButtonLines->setChecked(parent->ShowLines);
     radioButtonPoints->setChecked(parent->ShowPoints);
@@ -248,15 +250,13 @@ void SettingsDialog::changeColor()
     int num = comboColor->currentIndex();
 
     if (num < COLOR_LINES) {
-        colorGL glc = Settings::colorSettings[num];
-        QColor clr(glc.r * 255.0, glc.g * 255.0, glc.b * 255.0, glc.a * 255.0);
+        QColor glc = Settings::colorSettings[num];
+        QColor clr = glc;// (glc.r * 255.0, glc.g * 255.0, glc.b * 255.0, glc.a * 255.0);
 
         clr = QColorDialog::getColor ( clr, this ) ;
 
         if (clr.isValid()) {
-            Settings::colorSettings[num] = (colorGL) {
-                clr.red() / (float)255.0, clr.green() / (float)255.0, clr.blue() / (float)255.0, clr.alpha() / (float)255.0
-            };
+            Settings::colorSettings[num] = clr;
         }
     }
 }
@@ -276,6 +276,8 @@ void SettingsDialog::translateDialog()
     labelSpeed->setText(translate(_SPEED));
     labelPosition->setText(translate(_POS));
 
+    groupBox_5->setTitle(translate(_LOOKAHEAD));
+
     QStringList fList;
     fList << translate(_WORKTABLE);
     fList << translate(_SPEED);
@@ -283,13 +285,15 @@ void SettingsDialog::translateDialog()
     fList << translate(_PARKING);
     fList << translate(_IO);
     fList << translate(_TOOL);
-    fList << translate(_LOOKAHEAD);
+    fList << translate(_PARSER);
     fList << translate(_ARC_SPLITTING);
     fList << translate(_VISUALISATION);
 
     listWidget->addItems(fList);
 
     groupBoxColors->setTitle(translate(_COLORS));
+
+    checkBoxRemove->setText(translate(_REMOVE_REPEAT));
 
     QStringList colorList = translate(_COLOR_LIST).split("\n");
     comboColor->addItems(colorList);
@@ -450,6 +454,8 @@ void SettingsDialog::onSave()
     parent->ShowGrid = groupBoxGrid->isChecked();
     parent->ShowSurface = checkBoxSurface->isChecked();
     parent->ShowAxes = checkBoxXYZ->isChecked();
+
+    Settings::filterRepeat = checkBoxRemove->isChecked();
 
     //     parent->disableIfSSH = checkDisableIfSSH->isChecked();
     parent->GrigStep = spinBoxGrid->value();

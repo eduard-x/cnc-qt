@@ -23,7 +23,7 @@ SET(MAIN_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Reader.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/GCode.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/About.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/vec.h
+#                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/vec.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Geometry.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/EditGCode.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/CuttingCalc.h

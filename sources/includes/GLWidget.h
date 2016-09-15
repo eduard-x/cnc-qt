@@ -85,7 +85,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         void initPreviewSettings();
         float normalizeAngle(float angle);
         void createButtons();
-        QVector<VertexData> addPointVector(const QVector<pointGL> &p, const colorGL &c);
+        QVector<VertexData> addPointVector(const QVector<QVector3D> &p, const QColor &c);
 
     public slots:
         //         void onRenderTimer();  // not connected
@@ -168,18 +168,18 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
 
         QSlider *cmdZoom;
 
-        static QVector<pointGL> instrumentArray;
-        static QVector<pointGL> footArray;
-        static QVector<pointGL> traverseArray;
+        static QVector<QVector3D> instrumentArray;
+        static QVector<QVector3D> footArray;
+        static QVector<QVector3D> traverseArray;
 
-        QVector<pointGL> holderArray;
-        QVector<pointGL> motorArray;
+        QVector<QVector3D> holderArray;
+        QVector<QVector3D> motorArray;
 
-        static QVector<pointGL> xAxis;
-        static QVector<pointGL> yAxis;
-        static QVector<pointGL> zAxis;
+        static QVector<QVector3D> xAxis;
+        static QVector<QVector3D> yAxis;
+        static QVector<QVector3D> zAxis;
 
-        QVector<pointGL> surfaceArray; //
+        QVector<QVector3D> surfaceArray; //
 
         QVector<VertexData> figure;
         QVector<VertexData> border;

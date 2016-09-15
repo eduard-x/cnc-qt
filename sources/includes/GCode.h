@@ -35,10 +35,12 @@
 
 #include <QString>
 #include <QList>
+#include <QObject>
+#include <QVector3D>
 
 #include <deque>
 #include <utility>
-#include "vec.h"
+// #include "vec.h"
 
 
 enum PlaneEnum {
@@ -122,29 +124,36 @@ class GCodeData
 // };
 
 
-class GCodeParser
+class GCodeParser : public QObject
 {
+        Q_OBJECT
     public:
         GCodeParser(); // constructor
         bool readGCode(const QByteArray &gcode);
         QStringList getGoodList();
         QStringList getBadList();
+        QList<GCodeData> getGCodeData();
 
     private:
-        float determineAngle(const Vec3 &pos, const Vec3 &pos_center, PlaneEnum pl);
+        float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);
         void convertArcToLines(GCodeData *endData);
         void calcAngleOfLines(int pos);
-        bool parseArc(const QString &line, Vec3 &pos, float &R, const float coef);
+        bool parseArc(const QString &line, QVector3D &pos, float &R, const float coef);
         bool addLine(GCodeData* param);
         bool addArc(GCodeData* param);
+        void detectMinMax(const GCodeData &d);
 
-        bool parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F = NULL);
+        bool parseCoord(const QString &line, QVector3D &pos, float &E, const float coef, float *F = NULL);
 
-    public:
-        QList<GCodeData> gCodeList;
+        //     public:
+
+        //         QList<GCodeData> gCodeList;
+
+    signals:
+        void logMessage(const QString &l);
 
     private:
-        //         QList<GCodeData> gCodeList;
+        QList<GCodeData> gCodeList;
         QStringList goodList; // only decoded G-code
         QStringList badList;
 };

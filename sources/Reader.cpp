@@ -118,10 +118,12 @@ void GerberData::CalculateGatePoints(int _accuracy)
 
 
 
-Reader::Reader()
+Reader::Reader(MainWindow *parent)
 //  : mutex(QMutex::Recursive)
 {
     TypeFile = None;
+
+    this->parent = parent;
 }
 
 
@@ -223,7 +225,7 @@ bool Reader::OpenFile(QString &fileName)
     dir = ( lastDir.length() > 0) ? lastDir : QDir::homePath();
 
     if (fileName == "") {
-        name = QFileDialog::getOpenFileName ( 0, translate(_LOAD_FROM_FILE), dir );
+        name = QFileDialog::getOpenFileName ( 0, parent->translate(_LOAD_FROM_FILE), dir );
 
         if (name.length() == 0) {
             return false;
@@ -273,7 +275,7 @@ bool Reader::readPLT( const QByteArray &arr )
 
         //      qDebug() << "анализ файла строка " + QString::number(index);
         //
-        // begin point 
+        // begin point
         if (s.trimmed().mid(0, 2) == "PU") {
             int pos1 = s.indexOf('U');
             int pos2 = s.indexOf(' ');

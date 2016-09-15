@@ -153,7 +153,7 @@ dPoint Geometry::CalcPY(dPoint p1, dPoint p2, dPoint p0)
 
 // t is a value that goes from 0 to 1 to interpolate in a C1 continuous way across uniformly sampled data points.
 // when t is 0, this will return B.  When t is 1, this will return C.
-float Geometry::CubicHermite (Vec4f &v, float t)
+float Geometry::CubicHermite (const QVector4D &v, float t)
 {
     float a0 = -0.5 * v[0] + 1.5 * v[1] - 1.5 * v[2] + 0.5 * v[3];
     float a1 = v[0] - 2.5 * v[1] + 2.0f * v[2] - 0.5 * v[3];
@@ -165,13 +165,13 @@ float Geometry::CubicHermite (Vec4f &v, float t)
 
 
 // call this function for X, Y, Z separate
-float Geometry::BicubicHermitePatch(Vec4x4f &vv, float u, float v)
+float Geometry::BicubicHermitePatch(const QMatrix4x4 &vv, float u, float v)
 {
-    Vec4f uValues;
-    uValues[0] = CubicHermite(vv[0], u);
-    uValues[1] = CubicHermite(vv[1], u);
-    uValues[2] = CubicHermite(vv[2], u);
-    uValues[3] = CubicHermite(vv[2], u);
+    QVector4D uValues;
+    uValues[0] = CubicHermite(vv.row(0), u);
+    uValues[1] = CubicHermite(vv.row(1), u);
+    uValues[2] = CubicHermite(vv.row(2), u);
+    uValues[3] = CubicHermite(vv.row(3), u);
     return CubicHermite(uValues, v);
 }
 

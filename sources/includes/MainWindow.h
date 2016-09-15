@@ -49,28 +49,13 @@
 #include <utility>
 
 #include "version.h"
-#include "vec.h"
+// #include "vec.h"
 
 #include <QtOpenGL/QtOpenGL>
 
-struct pointGL {
-    GLfloat X;       // coord in mm
-    GLfloat Y;       // coord in mm
-    GLfloat Z;       // coord in mm
-};
-
-struct colorGL {
-    GLfloat r;
-    GLfloat g;
-    GLfloat b;
-    GLfloat a;
-};
-Q_DECLARE_METATYPE(colorGL)
-
-
 #include "GLWidget.h"
 
-
+#include "GCode.h"
 #include "Reader.h"
 #include "mk1Controller.h"
 #include "Geometry.h"
@@ -78,6 +63,7 @@ Q_DECLARE_METATYPE(colorGL)
 
 #include "ui_MainWindow.h"
 
+class GCodeData;
 class GLWidget;
 
 class mk1Controller;
@@ -173,7 +159,7 @@ struct speedSettings {
 };
 
 
-class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
+class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslator // , public Reader
 {
         Q_OBJECT
 
@@ -215,6 +201,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         QVector<uKeys> userKeys;
         QVector<speedSettings> veloSettings[4];
 
+        QList<GCodeData> gCodeData;
+
         //
         int veloManual;
 
@@ -233,6 +221,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         float toolDiameter;
         int toolFlutes;
         int toolRPM;
+
 
         int PosX, PosY, PosZ;
         int PosAngleX, PosAngleY, PosAngleZ;
@@ -320,6 +309,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void getRotation();
         void getFPS(int fps);
         void getScale(int s);
+        void logMessage(const QString &s);
 
     private:
         void drawWorkbench();
@@ -328,7 +318,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         int  calculateMinAngleSteps(int pos);
         void patchSpeedAndAccelCode(int begPos, int endPos);
         void fixGCodeList();
-        void detectMinMax(int pos);
+//         void detectMinMax(int pos);
 
         void runNextCommand();
         void fillListWidget(QStringList listCode);
@@ -354,6 +344,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public Reader
         void closeEvent(QCloseEvent *event);
 
     private:
+        Reader *reader;
         Task::StatusTask currentStatus;
         QGraphicsScene *sceneCoordinates;
         //

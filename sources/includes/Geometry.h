@@ -33,8 +33,10 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
+#include <QVector4D>
+#include <QMatrix4x4>
 
-#include "vec.h"
+// #include "vec.h"
 
 
 struct dPoint {
@@ -52,8 +54,8 @@ class Geometry
         static dPoint CalcPX(dPoint p1, dPoint p2, dPoint p0);
         static dPoint CalcPY(dPoint p1, dPoint p2, dPoint p0);
 
-        float CubicHermite (Vec4f &v , float t);
-        float BicubicHermitePatch(Vec4x4f &vv, float u, float v);
+        float CubicHermite (const QVector4D &v , float t);
+        float BicubicHermitePatch(const QMatrix4x4 &vv, float u, float v);
         bool gernerateBicubicHermiteField();
 };
 

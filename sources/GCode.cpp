@@ -35,6 +35,7 @@
 #include <QDebug>
 #include <QTime>
 #include <QString>
+// #include <QStringData>
 
 #include <cmath>
 #include <limits>
@@ -172,6 +173,8 @@ bool GCodeParser::addArc(GCodeData *c)
 
 /**
  * @brief read and parse into GCodeData list and OpenGL list
+ * @see for the optimizations see https://blog.qt.io/blog/2014/06/13/qt-weekly-13-qstringliteral/
+ * TODO convert QString to QStringLiteral
  *
  */
 bool GCodeParser::readGCode(const QByteArray &gcode)
@@ -191,8 +194,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     // or this ? QString.split(QRegExp("\n|\r\n|\r"));
     // if we switch the input methode from QTextStream to QStringList, performance is about 15% higher
 
-    Vec3 origin(0, 0, 0);
-    Vec3 current_pos(0, 0, 0);
+    QVector3D origin(0, 0, 0);
+    QVector3D current_pos(0, 0, 0);
     bool b_absolute = true;
     float coef = 1.0; // 1 or 24.5
 
@@ -301,13 +304,20 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         gCodeLines << lineStream;
     }
 
-    qDebug("read gcode, loaded. Time elapsed: %d ms", t.elapsed());
+    emit logMessage(QString().sprintf("Read gcode, loaded. Time elapsed: %d ms", t.elapsed()));
 
     t.restart();
 
     index = 0;
     PlaneEnum currentPlane;
     currentPlane = XY;
+
+    Settings::coord[X].softLimitMax = 0;
+    Settings::coord[X].softLimitMin = 0;
+    Settings::coord[Y].softLimitMax = 0;
+    Settings::coord[Y].softLimitMin = 0;
+    Settings::coord[Z].softLimitMax = 0;
+    Settings::coord[Z].softLimitMin = 0;
 
     GCodeData *tmpCommand = new GCodeData();
 
@@ -323,7 +333,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         switch(cmd[0].toLatin1()) {
             case 'G': {
                 if (cmd == "G00") { // eilgang
-                    Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
+                    QVector3D next_pos(b_absolute ? current_pos - origin : QVector3D(0, 0, 0));
                     float E;
 
                     if (parseCoord(line, next_pos, E, coef) == false) {
@@ -334,6 +344,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->X = next_pos.x();
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
+
+                    detectMinMax(tmpCommand);
 
                     tmpCommand->splits = 0;
 
@@ -362,7 +374,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                 }
 
                 if (cmd == "G01") { // feed
-                    Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
+                    QVector3D next_pos(b_absolute ? current_pos - origin : QVector3D(0, 0, 0));
                     float E(-1.0);
 
                     if (parseCoord(line, next_pos, E, coef) == false) {
@@ -374,6 +386,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
                     tmpCommand->splits = 0;
+
+                    detectMinMax(tmpCommand);
 
                     tmpCommand->typeMoving = GCodeData::Line;
 
@@ -404,7 +418,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                 // http://www.manufacturinget.org/2011/12/cnc-g-code-g02-and-g03/
                 if (cmd == "G02" || cmd == "G03") { // arc
-                    Vec3 next_pos(b_absolute ? current_pos - origin : Vec3(0, 0, 0));
+                    QVector3D next_pos(b_absolute ? current_pos - origin : QVector3D(0, 0, 0));
                     float E(-1.0);
 
                     if (parseCoord(line, next_pos, E, coef) == false) {
@@ -416,7 +430,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->Y = next_pos.y();
                     tmpCommand->Z = next_pos.z();
 
-                    Vec3 arc_center(current_pos);
+                    detectMinMax(tmpCommand);
+
+                    QVector3D arc_center(current_pos);
                     // float E_arc(-1.0);
                     float radius = 0.0;
 
@@ -516,9 +532,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                 }
 
                 if (cmd == "G28") {
-                    Vec3 next_pos(std::numeric_limits<float>::infinity(),
-                                  std::numeric_limits<float>::infinity(),
-                                  std::numeric_limits<float>::infinity());
+                    QVector3D next_pos(std::numeric_limits<float>::infinity(),
+                                       std::numeric_limits<float>::infinity(),
+                                       std::numeric_limits<float>::infinity());
                     float E;
 
                     if (parseCoord(line, next_pos, E, coef) == false) {
@@ -529,7 +545,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     if (next_pos[0] == std::numeric_limits<float>::infinity()
                             && next_pos[1] == std::numeric_limits<float>::infinity()
                             && next_pos[2] == std::numeric_limits<float>::infinity()) {
-                        current_pos = origin = Vec3(0, 0, 0);
+                        current_pos = origin = QVector3D(0, 0, 0);
                     } else {
                         for(size_t i = 0 ; i < 3 ; ++i) {
                             if (next_pos[i] != std::numeric_limits<float>::infinity()) {
@@ -553,7 +569,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                 }
 
                 if (cmd == "G92") {
-                    Vec3 next_pos(current_pos);
+                    QVector3D next_pos(current_pos);
                     float E;
 
                     if (parseCoord(line, next_pos, E, coef) == false) {
@@ -655,12 +671,63 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         index++;
     }
 
-    qDebug("read gcode, parsed. Time elapsed: %d ms", t.elapsed());
+    //     QString log = "Read gcode, parsed. Time elapsed: " + QString::number(t.elapsed()) + " ms";
+    emit logMessage(QString().sprintf("Read gcode, parsed. Time elapsed: %d ms", t.elapsed()));
+
+    //     qDebug("read gcode, parsed. Time elapsed: %d ms", t.elapsed());
 
     gCodeLines.clear();
     //  unlock();
 
     return true;
+}
+
+
+
+/**
+ * @brief detect the min and max ranges
+ *
+ * @param[in] pos actual index in GCode data list, if pos is 0: init of min/max
+ *
+ */
+void GCodeParser::detectMinMax(const GCodeData &d)
+{
+    //     if (pos > 0 && pos < gCodeData.size()) {
+    if (d.X > Settings::coord[X].softLimitMax) {
+        Settings::coord[X].softLimitMax = d.X;
+    }
+
+    if (d.X < Settings::coord[X].softLimitMin) {
+        Settings::coord[X].softLimitMin = d.X;
+    }
+
+    if (d.Y > Settings::coord[Y].softLimitMax) {
+        Settings::coord[Y].softLimitMax = d.Y;
+    }
+
+    if (d.Y < Settings::coord[Y].softLimitMin) {
+        Settings::coord[Y].softLimitMin = d.Y;
+    }
+
+    if (d.Z > Settings::coord[Z].softLimitMax) {
+        Settings::coord[Z].softLimitMax = d.Z;
+    }
+
+    if (d.Z < Settings::coord[Z].softLimitMin) {
+        Settings::coord[Z].softLimitMin = d.Z;
+    }
+
+    //         return;
+    //     }
+
+    //     if (pos == 0) {
+    //         Settings::coord[X].softLimitMax = gCodeData.at(pos).X;
+    //         Settings::coord[X].softLimitMin = gCodeData.at(pos).X;
+    //         Settings::coord[Y].softLimitMax = gCodeData.at(pos).Y;
+    //         Settings::coord[Y].softLimitMin = gCodeData.at(pos).Y;
+    //         Settings::coord[Z].softLimitMax = gCodeData.at(pos).Z;
+    //         Settings::coord[Z].softLimitMin = gCodeData.at(pos).Z;
+    //     }
 }
 
 
@@ -671,7 +738,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
  * @param[in] pos2 second point
  *
  */
-float GCodeParser::determineAngle(const Vec3 &pos1, const Vec3 &pos2, PlaneEnum pl)
+float GCodeParser::determineAngle(const QVector3D &pos1, const QVector3D &pos2, PlaneEnum pl)
 {
     float radians = 0.0;
 
@@ -799,8 +866,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
     j = endData->J;
     k = endData->K;
 
-    Vec3 pos1(x1, y1, z1);
-    Vec3 pos2(x2, y2, z2);
+    QVector3D pos1(x1, y1, z1);
+    QVector3D pos2(x2, y2, z2);
 
     float dPos = 0.0;
     float begPos = 0.0;
@@ -859,7 +926,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
         return;
     }
 
-    Vec3 posC(i, j, k);
+    QVector3D posC(i, j, k);
 
     alpha_beg = determineAngle (pos1, posC, endData->plane);
     alpha_end = determineAngle (pos2, posC, endData->plane);
@@ -925,6 +992,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
     ncommand->Z = begData.Z;
     ncommand->A = begData.A;
 
+    detectMinMax(ncommand);
+
     ncommand->splits = n;
     ncommand->movingCode = ACCELERAT_CODE;
 
@@ -952,6 +1021,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 ncommand->X = x_new;
                 ncommand->Y = y_new;
                 ncommand->Z = loopPos;
+
+                detectMinMax(ncommand);
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d x=%f y=%f angle=%f sin=%f cos=%f\n", step, x_new, y_new, angle, s, c);
 #endif
@@ -969,6 +1040,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                     ncommand->X = endData->X;
                     ncommand->Y = endData->Y;
                     ncommand->Z = endData->Z;
+
+                    detectMinMax(ncommand);
 
                     n = step;
 
@@ -1008,6 +1081,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 ncommand->Y = y_new;
                 ncommand->Z = z_new;
                 ncommand->X = loopPos;
+
+                detectMinMax(ncommand);
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d y=%f z=%f angle=%f sin=%f cos=%f\n", step, y_new, z_new, angle, s, c);
 #endif
@@ -1025,6 +1100,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                     ncommand->X = endData->X;
                     ncommand->Y = endData->Y;
                     ncommand->Z = endData->Z;
+
+                    detectMinMax(ncommand);
 
                     n = step;
 
@@ -1064,6 +1141,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 ncommand->Z = z_new;
                 ncommand->X = x_new;
                 ncommand->Y = loopPos;
+
+                detectMinMax(ncommand);
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d z=%f x=%f angle=%f sin=%f cos=%f\n", step, z_new, x_new, angle, s, c);
 #endif
@@ -1081,6 +1160,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                     ncommand->X = endData->X;
                     ncommand->Y = endData->Y;
                     ncommand->Z = endData->Z;
+
+                    detectMinMax(ncommand);
 
                     n = step;
 
@@ -1132,7 +1213,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
  * @param
  * @return if anything is detected, return true
  */
-bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float coef)
+bool GCodeParser::parseArc(const QString &line, QVector3D &pos, float &R, const float coef)
 {
     if (line.isEmpty() == true) {
         return false;
@@ -1140,7 +1221,7 @@ bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float
 
     const QStringList &chunks = line.toUpper().simplified().split(' ');
 
-    Vec3 arc(COORD_TOO_BIG, COORD_TOO_BIG, COORD_TOO_BIG); // too big coordinates
+    QVector3D arc(COORD_TOO_BIG, COORD_TOO_BIG, COORD_TOO_BIG); // too big coordinates
 
     if (chunks.count() == 0) {
         return false;
@@ -1155,7 +1236,7 @@ bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float
 
         switch(s[0].toLatin1()) {
             case 'I': {
-                arc.x() = pos.x() + coef * (s.right(s.size() - 1).toDouble(&conv));
+                arc.setX(pos.x() + coef * (s.right(s.size() - 1).toDouble(&conv)));
 
                 if (conv == true) {
                     res = true;
@@ -1165,7 +1246,7 @@ bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float
             }
 
             case 'J': {
-                arc.y() = pos.y() + coef * (s.right(s.size() - 1).toDouble(&conv));
+                arc.setY( pos.y() + coef * (s.right(s.size() - 1).toDouble(&conv)));
 
                 if (conv == true) {
                     res = true;
@@ -1175,7 +1256,7 @@ bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float
             }
 
             case 'K': {
-                arc.z() = pos.z() + coef * (s.right(s.size() - 1).toDouble(&conv));
+                arc.setZ( pos.z() + coef * (s.right(s.size() - 1).toDouble(&conv)));
 
                 if (conv == true) {
                     res = true;
@@ -1212,7 +1293,7 @@ bool GCodeParser::parseArc(const QString &line, Vec3 &pos, float &R, const float
  * @param
  * @return if anything is detected, return true
  */
-bool GCodeParser::parseCoord(const QString &line, Vec3 &pos, float &E, const float coef, float *F)
+bool GCodeParser::parseCoord(const QString &line, QVector3D &pos, float &E, const float coef, float *F)
 {
     if (line.isEmpty() == true) {
         return false;
@@ -1231,7 +1312,7 @@ bool GCodeParser::parseCoord(const QString &line, Vec3 &pos, float &E, const flo
 
         switch(s[0].toLatin1()) {
             case 'X': {
-                pos.x() = coef * (s.right(s.size() - 1).toDouble(&conv));
+                pos.setX( coef * (s.right(s.size() - 1).toDouble(&conv)));
 
                 if (conv == true) {
                     res = true;
@@ -1241,7 +1322,7 @@ bool GCodeParser::parseCoord(const QString &line, Vec3 &pos, float &E, const flo
             }
 
             case 'Y': {
-                pos.y() = coef * (s.right(s.size() - 1).toDouble(&conv));
+                pos.setY( coef * (s.right(s.size() - 1).toDouble(&conv)));
 
                 if (conv == true) {
                     res = true;
@@ -1251,7 +1332,7 @@ bool GCodeParser::parseCoord(const QString &line, Vec3 &pos, float &E, const flo
             }
 
             case 'Z': {
-                pos.z() = coef * (s.right(s.size() - 1).toDouble(&conv));
+                pos.setZ( coef * (s.right(s.size() - 1).toDouble(&conv)));
 
                 if (conv == true) {
                     res = true;
@@ -1315,3 +1396,15 @@ QStringList GCodeParser::getBadList()
 {
     return badList;
 }
+
+
+/**
+ * @brief
+ *
+ */
+QList<GCodeData> GCodeParser::getGCodeData()
+{
+    //     qDebug() << "return gcode data" << gCodeList.count();
+    return gCodeList;
+}
+

@@ -264,14 +264,17 @@ enum TR_CONSTS {
     _DISPLAY_COMMAND, // 208
     _DISPLAY_WORKBENCH,
     _DISPLAY_TRAVERSE, // 210
-    _SMOOTH_MOVING,
-    _POINT_SIZE,
-    _LINE_WIDTH,
-    _ISO,
-    _TOP,
-    _FRONT,
-    _LEFT,
-    _FIT,
+    _SMOOTH_MOVING, // 211
+    _POINT_SIZE, // 212
+    _LINE_WIDTH, // 213
+    _ISO, // 214
+    _TOP, // 215
+    _FRONT, // 216
+    _LEFT, // 217
+    _FIT, // 218
+    _SAVE_GCODE, // 219
+    _PARSER, //220
+    _REMOVE_REPEAT, // 221
     _NULL
 };
 

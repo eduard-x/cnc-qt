@@ -41,6 +41,8 @@ For connection with hardware please copy the file udev/rules.d/z90_cncusb.rules 
 
 Version history
 
+0.2.2   removed structures colorGL, pointGL, file vec.h
+        border refresh after loading of gcode
 0.2.1   moving of GL object fixed
         saving of last selected directory fixed
 0.2.0   overworked for OpenGL ES2.0 compatibility 

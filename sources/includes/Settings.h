@@ -121,7 +121,7 @@ class Settings
         static QChar fromDecimalPoint;
         static QChar toDecimalPoint;
 
-        static colorGL colorSettings[COLOR_LINES];
+        static QColor colorSettings[COLOR_LINES];
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2
 
         //         static bool setSettings;
@@ -131,7 +131,7 @@ class Settings
         //         static bool fluidEnabled;
         //
         //         static bool Estop;
-
+        static bool filterRepeat;
         // for virtual controller
         static bool DEMO_DEVICE;
 };

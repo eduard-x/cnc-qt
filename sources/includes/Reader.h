@@ -43,14 +43,16 @@
 
 #include <deque>
 #include <utility>
-#include "vec.h"
+// #include "vec.h"
 
 #include "GCode.h"
-#include "Translator.h"
+#include "MainWindow.h"
+// #include "Translator.h"
 
 
 #define byte unsigned char
 
+class MainWindow;
 class cTranslator;
 class GCodeParser;
 
@@ -240,10 +242,10 @@ class GerberData
 
 // class for reading of different formats
 
-class Reader : public GCodeParser , public cTranslator
+class Reader : public GCodeParser// , public cTranslator
 {
     public:
-        Reader();
+        Reader(MainWindow *parent = 0);
 
         void BresenhamLine(QVector<QVector<byte> > &p, int x0, int y0, int x1, int y1, typeSpline _Splane);
         void BresenhamCircle(QVector<QVector<byte> > &p,  int x0, int y0, int radius, byte setvalue = 4, bool needFill = false);
@@ -262,7 +264,7 @@ class Reader : public GCodeParser , public cTranslator
 
     public:
         QList<DataCollections> data;
-        std::deque<std::pair<float, std::vector<Vec2d> > > layers;
+        std::deque<std::pair<float, QVector<QVector2D> > > layers;
         //         std::vector<Vec3f> cached_lines;
         //         std::vector<Vec3f> cached_arcs;
         //         std::vector<Vec3f> cached_points;
@@ -304,6 +306,7 @@ class Reader : public GCodeParser , public cTranslator
     private:
         typeFileLoad TypeFile;// = typeFileLoad.None;
 
+        MainWindow* parent;
 
         //         mutable QMutex mutex;
 };

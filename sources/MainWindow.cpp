@@ -57,23 +57,6 @@
 #include "includes/MainWindow.h"
 
 
-QDataStream &operator<<(QDataStream &out, const colorGL &obj)
-{
-
-    out << obj.r << obj.g << obj.b << obj.a;
-    return out;
-
-}
-
-QDataStream &operator>>(QDataStream &in, colorGL &obj)
-{
-
-    in >> obj.r >> obj.g >> obj.b >> obj.a;
-    return in;
-
-}
-
-
 class GLWidget;
 
 
@@ -196,7 +179,7 @@ int Task::instrCounter = -1;
  *
  */
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), Reader ()
+    : QMainWindow(parent)//, Reader ()
 {
     setupUi(this);
 
@@ -231,14 +214,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     filesMenu = 0;
     filesGroup = 0;
-
-    qRegisterMetaType<colorGL>("colorGL");
-    qRegisterMetaTypeStreamOperators<colorGL>("colorGL");
-
+    //
     QFont sysFont = qApp->font();
     sysFont = sysFont;
 
     fontSize = sysFont.pointSize();
+
+    reader = new Reader(this);
 
     userKeys = {
         { "UserAplus", Qt::Key_multiply },
@@ -354,24 +336,33 @@ MainWindow::MainWindow(QWidget *parent)
         if (arguments.at(1).length() > 0) { // as parameter is file name to load
             QString nm = arguments.at(1);
 
-            if (OpenFile(nm) == true) {
+            if (reader->OpenFile(nm) == true) {
 
                 lastFiles.insert(0, nm);
                 lastFiles.removeDuplicates();
 
                 reloadRecentList();
 
-                QStringList l = getGoodList();
+                QStringList l = reader->getGoodList();
                 fillListWidget(l);
 
-                l = getBadList();
+                gCodeData = reader->getGCodeData();
+
+                if (enableOpenGL == true) {
+                    scene3d->loadFigure();
+                }
+
+                l = reader->getBadList();
 
                 if (l.count() != 0) {
                     foreach (QString s, l) {
                         AddLog(s);
                     }
-                } else {
-                    AddLog("File loaded" );
+                }
+
+                if (gCodeData.count() > 0) {
+                    nm.replace(QDir::homePath(), QString("~"));
+                    AddLog("File loaded: " + nm);
                 }
             }
         }
@@ -483,6 +474,8 @@ void MainWindow::addConnections()
     connect(actionOpen, SIGNAL(triggered()), this, SLOT(onOpenFile()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(onSaveFile()));
     connect(actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
+
+    connect(reader, SIGNAL(logMessage(const QString&)), this, SLOT(logMessage(const QString&)));
 
     //     connect(actionOpenGL, SIGNAL(triggered()), this, SLOT(on3dSettings()));
     connect(actionProgram, SIGNAL(triggered()), this, SLOT(onSettings()));
@@ -837,7 +830,7 @@ void MainWindow::writeSettings()
     s->setValue("size", size());
     //     s->setValue("WorkDir", currentWorkDir);
     s->setValue("LANGUAGE", currentLang);
-    s->setValue("LASTDIR", lastDir);
+    s->setValue("LASTDIR", reader->lastDir);
 
     s->setValue("VelocityCutting", numVeloSubmission->value());
     s->setValue("VelocityMoving", numVeloMoving->value());
@@ -850,6 +843,8 @@ void MainWindow::writeSettings()
     s->setValue("ToolDiameter", toolDiameter);
     s->setValue("ToolFlutes", toolFlutes);
     s->setValue("ToolRPM", toolRPM);
+
+    s->setValue("FilterRepeatData", Settings::filterRepeat);
 
     s->setValue("CuttedMaterial", cuttedMaterial);
 
@@ -914,19 +909,19 @@ void MainWindow::writeSettings()
         s->setValue("Zoom", (int)PosZoom); //
 
 
-        s->setValue("ColorX", qVariantFromValue(Settings::colorSettings[COLOR_X]));
-        s->setValue("ColorY", qVariantFromValue(Settings::colorSettings[COLOR_Y]));
-        s->setValue("ColorZ", qVariantFromValue(Settings::colorSettings[COLOR_Z]));
-        s->setValue("ColorBG", qVariantFromValue(Settings::colorSettings[COLOR_BACKGROUND]));
-        s->setValue("ColorTool", qVariantFromValue(Settings::colorSettings[COLOR_TOOL]));
-        s->setValue("ColorWB", qVariantFromValue(Settings::colorSettings[COLOR_WORKBENCH]));
-        s->setValue("ColorTraverse", qVariantFromValue(Settings::colorSettings[COLOR_TRAVERSE]));
-        s->setValue("ColorRapid", qVariantFromValue(Settings::colorSettings[COLOR_RAPID]));
-        s->setValue("ColorWork", qVariantFromValue(Settings::colorSettings[COLOR_WORK]));
-        s->setValue("ColorGrid", qVariantFromValue(Settings::colorSettings[COLOR_GRID]));
-        s->setValue("ColorBorder", qVariantFromValue(Settings::colorSettings[COLOR_BORDER]));
-        s->setValue("ColorSurface", qVariantFromValue(Settings::colorSettings[COLOR_SURFACE]));
-        s->setValue("ColorConnect", qVariantFromValue(Settings::colorSettings[COLOR_CONNECTION]));
+        s->setValue("Color_X", (QColor)Settings::colorSettings[COLOR_X]);
+        s->setValue("Color_Y", (QColor)Settings::colorSettings[COLOR_Y]);
+        s->setValue("Color_Z", (QColor)Settings::colorSettings[COLOR_Z]);
+        s->setValue("Color_BG", (QColor)Settings::colorSettings[COLOR_BACKGROUND]);
+        s->setValue("Color_Tool", (QColor)Settings::colorSettings[COLOR_TOOL]);
+        s->setValue("Color_WB", (QColor)Settings::colorSettings[COLOR_WORKBENCH]);
+        s->setValue("Color_Traverse", (QColor)Settings::colorSettings[COLOR_TRAVERSE]);
+        s->setValue("Color_Rapid", (QColor)Settings::colorSettings[COLOR_RAPID]);
+        s->setValue("Color_Work", (QColor)Settings::colorSettings[COLOR_WORK]);
+        s->setValue("Color_Grid", (QColor)Settings::colorSettings[COLOR_GRID]);
+        s->setValue("Color_Border", (QColor)Settings::colorSettings[COLOR_BORDER]);
+        s->setValue("Color_Surface", (QColor)Settings::colorSettings[COLOR_SURFACE]);
+        s->setValue("Color_Connect", (QColor)Settings::colorSettings[COLOR_CONNECTION]);
 
         s->setValue("LineWidth", (int)Settings::lineWidth);
         s->setValue("PointSize", (int)Settings::pointSize);
@@ -1010,6 +1005,8 @@ void MainWindow::readSettings()
     toolFlutes = s->value("ToolFlutes", 2).toInt();
     toolRPM = s->value("ToolRPM", 10000).toInt();
 
+    Settings::filterRepeat = s->value("FilterRepeatData", true).toBool();
+
     foreach(uKeys k, userKeys) {
         k.code = (Qt::Key)s->value(k.name, (quint32)k.code).toUInt();
     }
@@ -1025,7 +1022,7 @@ void MainWindow::readSettings()
 
     currentLang = s->value("LANGUAGE", l).toString();
 
-    lastDir = s->value("LASTDIR", "").toString();
+    reader->lastDir = s->value("LASTDIR", "").toString();
 
     sysFont = sysFont.toString();
 
@@ -1118,45 +1115,45 @@ void MainWindow::readSettings()
 
         PosZoom = s->value("Zoom", 20 ).toInt(); //
 
-        Settings::colorSettings[COLOR_X] = s->value("ColorX", qVariantFromValue((colorGL) {
-            0.0f, 1.0f, 0.0f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_Y] = s->value("ColorY", qVariantFromValue((colorGL) {
-            1.0f, 0.0f, 0.0f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_Z] = s->value("ColorZ", qVariantFromValue((colorGL) {
-            0.0f, 1.0f, 1.0f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_BACKGROUND] = s->value("ColorBG", qVariantFromValue((colorGL) {
-            0.45f, 0.45f, 0.45f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_TOOL] = s->value("ColorTool", qVariantFromValue((colorGL) {
-            1.0f, 1.0f, 0.0f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_WORKBENCH] = s->value("ColorWB", qVariantFromValue((colorGL) {
-            0.0f, 0.0f, 1.0f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_TRAVERSE] = s->value("ColorTraverse", qVariantFromValue((colorGL) {
-            1.0f, 1.0f, 1.0f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_RAPID] = s->value("ColorRapid", qVariantFromValue((colorGL) {
-            1.0f, 0.0f, 0.0f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_WORK] = s->value("ColorWork", qVariantFromValue((colorGL) {
-            0.0f, 1.0f, 0.0f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_GRID] = s->value("ColorGrid", qVariantFromValue((colorGL) {
-            0.8f, 0.8f, 0.8f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_BORDER] = s->value("ColorBorder", qVariantFromValue((colorGL) {
-            0.8f, 0.8f, 0.8f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_SURFACE] = s->value("ColorSurface", qVariantFromValue((colorGL) {
-            1.0f, 1.0f, 1.0f, 1.0f
-        })).value<colorGL>();
-        Settings::colorSettings[COLOR_CONNECTION] = s->value("ColorConnect", qVariantFromValue((colorGL) {
-            0.68f, 1.0f, 0.45f, 1.0f
-        })).value<colorGL>();
+        Settings::colorSettings[COLOR_X] = s->value("Color_X", QColor {
+            0, 255, 0, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_Y] = s->value("Color_Y", QColor {
+            255, 0, 0, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_Z] = s->value("Color_Z", QColor {
+            0, 255, 255, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_BACKGROUND] = s->value("Color_BG", QColor {
+            100, 100, 100, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_TOOL] = s->value("Color_Tool", QColor {
+            255, 255, 0, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_WORKBENCH] = s->value("Color_WB", QColor {
+            0, 0, 255, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_TRAVERSE] = s->value("Color_Traverse", QColor {
+            255, 255, 255, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_RAPID] = s->value("Color_Rapid", QColor {
+            255, 0, 0, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_WORK] = s->value("Color_Work", QColor {
+            0, 255, 0, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_GRID] = s->value("Color_Grid", QColor {
+            200, 200, 200, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_BORDER] = s->value("Color_Border", QColor {
+            200, 200, 200, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_SURFACE] = s->value("Color_Surface", QColor {
+            255, 255, 255, 255
+        }).value<QColor>();
+        Settings::colorSettings[COLOR_CONNECTION] = s->value("Color_Connect", QColor {
+            150, 255, 100, 255
+        }).value<QColor>();
 
         Settings::pointSize = s->value("PointSize", 1).toInt();
         Settings::lineWidth = s->value("LineWidth", 3).toInt();
@@ -1285,21 +1282,30 @@ void MainWindow::setFile(QAction* a)
 
     fileStr = fileStr.remove("&");
 
-    if (OpenFile(fileStr) == false) {
+    if (reader->OpenFile(fileStr) == false) {
         AddLog("File loading error: " + fileStr );
         return;
     }
 
-    QStringList l = getGoodList();
+    QStringList l = reader->getGoodList();
     fillListWidget(l);
 
-    l = getBadList();
+    gCodeData = reader->getGCodeData();
+
+    if (enableOpenGL == true) {
+        scene3d->loadFigure();
+    }
+
+    l = reader->getBadList();
 
     if (l.count() != 0) {
         foreach (QString s, l) {
             AddLog(s);
         }
-    } else {
+    }
+
+    if (gCodeData.count() > 0) {
+        fileStr.replace(QDir::homePath(), QString("~"));
         AddLog("File loaded: " + fileStr );
     }
 }
@@ -1525,6 +1531,12 @@ void MainWindow::translateGUI()
     menuHelp->setTitle(translate(_HELP));
 
     actionOpen->setText(translate(_OPEN_FILE));
+
+    if (filesMenu != 0) {
+        filesMenu->setTitle( translate(_RECENTFILES));
+    }
+
+    actionSave->setText(translate(_SAVE_GCODE));
     actionExit->setText(translate(_EXIT));
 
     actionFluid->setText(translate(_COOLANT));
@@ -1555,7 +1567,7 @@ void MainWindow::onStartTask()
         return;
     }
 
-    if (gCodeList.count() == 0) {
+    if (gCodeData.count() == 0) {
         // no data
         MessageBox::exec(this, translate(_ERR), translate(_MSG_NO_DATA), QMessageBox::Critical);
         return;
@@ -1626,7 +1638,7 @@ void MainWindow::onStartTask()
 
 #endif
 
-    qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd /*<< "code" << Task::instructionStart << Task::instructionEnd*/ << "size of code" << gCodeList.count();
+    qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd /*<< "code" << Task::instructionStart << Task::instructionEnd*/ << "size of code" << gCodeData.count();
     QString s = translate(_FROM_TO).arg( Task::lineCodeStart + 1).arg( Task::lineCodeEnd + 1);
     labelTask->setText( s );
 
@@ -1784,8 +1796,8 @@ void MainWindow::runNextCommand()
 #endif
     GCodeData gcodeNow;
 
-    if (Task::instrCounter < gCodeList.count()) {
-        gcodeNow = gCodeList.at(Task::instrCounter);
+    if (Task::instrCounter < gCodeData.count()) {
+        gcodeNow = gCodeData.at(Task::instrCounter);
     } else {
         currentStatus = Task::Stop;
     }
@@ -2034,8 +2046,8 @@ void MainWindow::runNextCommand()
 
             cnc->packCA(&mParams); // move to init position
 
-            if (Task::instrCounter < gCodeList.count()) {
-                gcodeNow = gCodeList.at(Task::instrCounter);
+            if (Task::instrCounter < gCodeData.count()) {
+                gcodeNow = gCodeData.at(Task::instrCounter);
             } else {
                 currentStatus = Task::Stop;
                 break;
@@ -2528,7 +2540,7 @@ void  MainWindow::refreshElementsForms()
             int lineNum = 0;
 
             // TODO to link with line number
-            for (auto v : gCodeList) {
+            foreach (GCodeData v, gCodeData) {
                 if (v.numberInstruction > complectaed) {
                     break;
                 }
@@ -2646,10 +2658,6 @@ void MainWindow::fillListWidget(QStringList listCode)
     statusProgress->setValue(0);
 
     fixGCodeList();
-
-    if (enableOpenGL == true) {
-        scene3d->loadFigure();
-    }
 }
 
 
@@ -2659,46 +2667,47 @@ void MainWindow::fillListWidget(QStringList listCode)
  * @param[in] pos actual index in GCode data list, if pos is 0: init of min/max
  *
  */
+#if 0
 void MainWindow::detectMinMax(int pos)
 {
-    if (pos > 0 && pos < gCodeList.size()) {
-        if (gCodeList.at(pos).X > Settings::coord[X].softLimitMax) {
-            Settings::coord[X].softLimitMax = gCodeList.at(pos).X;
+    if (pos > 0 && pos < gCodeData.size()) {
+        if (gCodeData.at(pos).X > Settings::coord[X].softLimitMax) {
+            Settings::coord[X].softLimitMax = gCodeData.at(pos).X;
         }
 
-        if (gCodeList.at(pos).X < Settings::coord[X].softLimitMin) {
-            Settings::coord[X].softLimitMin = gCodeList.at(pos).X;
+        if (gCodeData.at(pos).X < Settings::coord[X].softLimitMin) {
+            Settings::coord[X].softLimitMin = gCodeData.at(pos).X;
         }
 
-        if (gCodeList.at(pos).Y > Settings::coord[Y].softLimitMax) {
-            Settings::coord[Y].softLimitMax = gCodeList.at(pos).Y;
+        if (gCodeData.at(pos).Y > Settings::coord[Y].softLimitMax) {
+            Settings::coord[Y].softLimitMax = gCodeData.at(pos).Y;
         }
 
-        if (gCodeList.at(pos).Y < Settings::coord[Y].softLimitMin) {
-            Settings::coord[Y].softLimitMin = gCodeList.at(pos).Y;
+        if (gCodeData.at(pos).Y < Settings::coord[Y].softLimitMin) {
+            Settings::coord[Y].softLimitMin = gCodeData.at(pos).Y;
         }
 
-        if (gCodeList.at(pos).Z > Settings::coord[Z].softLimitMax) {
-            Settings::coord[Z].softLimitMax = gCodeList.at(pos).Z;
+        if (gCodeData.at(pos).Z > Settings::coord[Z].softLimitMax) {
+            Settings::coord[Z].softLimitMax = gCodeData.at(pos).Z;
         }
 
-        if (gCodeList.at(pos).Z < Settings::coord[Z].softLimitMin) {
-            Settings::coord[Z].softLimitMin = gCodeList.at(pos).Z;
+        if (gCodeData.at(pos).Z < Settings::coord[Z].softLimitMin) {
+            Settings::coord[Z].softLimitMin = gCodeData.at(pos).Z;
         }
 
         return;
     }
 
     if (pos == 0) {
-        Settings::coord[X].softLimitMax = gCodeList.at(pos).X;
-        Settings::coord[X].softLimitMin = gCodeList.at(pos).X;
-        Settings::coord[Y].softLimitMax = gCodeList.at(pos).Y;
-        Settings::coord[Y].softLimitMin = gCodeList.at(pos).Y;
-        Settings::coord[Z].softLimitMax = gCodeList.at(pos).Z;
-        Settings::coord[Z].softLimitMin = gCodeList.at(pos).Z;
+        Settings::coord[X].softLimitMax = gCodeData.at(pos).X;
+        Settings::coord[X].softLimitMin = gCodeData.at(pos).X;
+        Settings::coord[Y].softLimitMax = gCodeData.at(pos).Y;
+        Settings::coord[Y].softLimitMin = gCodeData.at(pos).Y;
+        Settings::coord[Z].softLimitMax = gCodeData.at(pos).Z;
+        Settings::coord[Z].softLimitMin = gCodeData.at(pos).Z;
     }
 }
-
+#endif
 
 /**
  * @brief function patches the data list before sending to mk1
@@ -2708,20 +2717,20 @@ void MainWindow::detectMinMax(int pos)
  */
 void MainWindow::fixGCodeList()
 {
-    if (gCodeList.count() < 2) {
+    if (gCodeData.count() < 2) {
         return;
     }
 
-    detectMinMax(0);
+//     detectMinMax(0);
 
     // grad to rad
     maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;
 
     // calculate the number of steps in one direction, if exists
-    for (int idx = 0; idx < gCodeList.size(); idx++) {
-        detectMinMax(idx);
+    for (int idx = 0; idx < gCodeData.size(); idx++) {
+//         detectMinMax(idx);
 
-        if (gCodeList[idx].movingCode == RAPID_LINE_CODE) {
+        if (gCodeData[idx].movingCode == RAPID_LINE_CODE) {
             continue;
         }
 
@@ -2753,7 +2762,7 @@ void MainWindow::fixGCodeList()
  * before sending data to microcontroller we need to calculate the vector speed and acceleration code
  * acceleration codes: ACCELERAT_CODE, DECELERAT_CODE, CONSTSPEED_CODE or FEED_LINE_CODE
  *
- * gCodeList [begPos .. endPos]
+ * gCodeData [begPos .. endPos]
  *
  * @param[in] begPos from this position in gcode list
  * @param[in] endPos inclusively end position
@@ -2761,7 +2770,7 @@ void MainWindow::fixGCodeList()
  */
 void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
 {
-    if (begPos < 1 || begPos >= gCodeList.count() - 1) {
+    if (begPos < 1 || begPos >= gCodeData.count() - 1) {
         qDebug() << "wrong position number patchSpeedAndAccelCode()" << begPos;
         return;
     }
@@ -2789,13 +2798,13 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVeloLimit * Settings::coord[Z].pulsePerMm);
     }
 
-    switch (gCodeList[begPos].plane) {
+    switch (gCodeData[begPos].plane) {
         case XY: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                detectMinMax(i);
-                float dX = fabs(gCodeList.at(i - 1).X - gCodeList.at(i).X);
-                float dY = fabs(gCodeList.at(i - 1).Y - gCodeList.at(i).Y);
+//                 detectMinMax(i);
+                float dX = fabs(gCodeData.at(i - 1).X - gCodeData.at(i).X);
+                float dY = fabs(gCodeData.at(i - 1).Y - gCodeData.at(i).Y);
                 float dH = sqrt(dX * dX + dY * dY);
                 float coeff = 1.0;
 
@@ -2805,20 +2814,20 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                     }
 
                     // calculation of vect speed
-                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdX); //
-                    gCodeList[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
+                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdX); //
+                    gCodeData[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
                 } else {
                     if (dY != 0.0) {
                         coeff = dH / dY;
                     }
 
-                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdY); //
-                    gCodeList[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
+                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdY); //
+                    gCodeData[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
                 }
 
-                sumSteps += gCodeList[i].stepsCounter;
+                sumSteps += gCodeData[i].stepsCounter;
 
-                gCodeList[i].vectorCoeff = coeff;
+                gCodeData[i].vectorCoeff = coeff;
             }
 
             break;
@@ -2827,10 +2836,10 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         case YZ: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                detectMinMax(i);
+//                 detectMinMax(i);
 
-                float dY = fabs(gCodeList.at(i - 1).Y - gCodeList.at(i).Y);
-                float dZ = fabs(gCodeList.at(i - 1).Z - gCodeList.at(i).Z);
+                float dY = fabs(gCodeData.at(i - 1).Y - gCodeData.at(i).Y);
+                float dZ = fabs(gCodeData.at(i - 1).Z - gCodeData.at(i).Z);
                 float dH = sqrt(dZ * dZ + dY * dY);
                 float coeff = 1.0;
 
@@ -2839,20 +2848,20 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dY;
                     }
 
-                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdY); //
-                    gCodeList[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
+                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdY); //
+                    gCodeData[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
                 } else {
                     if (dZ != 0.0) {
                         coeff = dH / dZ;
                     }
 
-                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdZ); //
-                    gCodeList[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
+                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdZ); //
+                    gCodeData[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
                 }
 
-                sumSteps += gCodeList[i].stepsCounter;
+                sumSteps += gCodeData[i].stepsCounter;
 
-                gCodeList[i].vectorCoeff = coeff;
+                gCodeData[i].vectorCoeff = coeff;
             }
 
             break;
@@ -2861,10 +2870,10 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         case ZX: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                detectMinMax(i);
+//                 detectMinMax(i);
 
-                float dZ = fabs(gCodeList.at(i - 1).Z - gCodeList.at(i).Z);
-                float dX = fabs(gCodeList.at(i - 1).X - gCodeList.at(i).X);
+                float dZ = fabs(gCodeData.at(i - 1).Z - gCodeData.at(i).Z);
+                float dX = fabs(gCodeData.at(i - 1).X - gCodeData.at(i).X);
                 float dH = sqrt(dX * dX + dZ * dZ);
                 float coeff = 1.0;
 
@@ -2873,27 +2882,27 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dZ;
                     }
 
-                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdZ); //
-                    gCodeList[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
+                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdZ); //
+                    gCodeData[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
                 } else {
                     if (dX != 0.0) {
                         coeff = dH / dX;
                     }
 
-                    gCodeList[i].vectSpeed = (int)(coeff * dnewSpdX); //
-                    gCodeList[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
+                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdX); //
+                    gCodeData[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
                 }
 
-                sumSteps += gCodeList[i].stepsCounter;
+                sumSteps += gCodeData[i].stepsCounter;
 
-                gCodeList[i].vectorCoeff = coeff;
+                gCodeData[i].vectorCoeff = coeff;
             }
 
             break;
         }
 
         default: {
-            qDebug() << "no plane information: pos " << begPos << "x" << gCodeList[begPos].X << "y" << gCodeList[begPos].Y << "z" << gCodeList[begPos].Z;
+            qDebug() << "no plane information: pos " << begPos << "x" << gCodeData[begPos].X << "y" << gCodeData[begPos].Y << "z" << gCodeData[begPos].Z;
         }
     }
 
@@ -2901,14 +2910,14 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         // now for steps
         for (int i = begPos; i < endPos; i++) {
             int tmpStps;
-            tmpStps = gCodeList[i].stepsCounter;
-            gCodeList[i].stepsCounter = sumSteps;
+            tmpStps = gCodeData[i].stepsCounter;
+            gCodeData[i].stepsCounter = sumSteps;
             sumSteps -= tmpStps;
-            gCodeList[i].movingCode = CONSTSPEED_CODE;
+            gCodeData[i].movingCode = CONSTSPEED_CODE;
         }
 
-        gCodeList[begPos].movingCode = ACCELERAT_CODE;
-        gCodeList[endPos].movingCode = DECELERAT_CODE;
+        gCodeData[begPos].movingCode = ACCELERAT_CODE;
+        gCodeData[endPos].movingCode = DECELERAT_CODE;
     }
 }
 
@@ -2926,32 +2935,32 @@ int MainWindow::calculateMinAngleSteps(int startPos)
 {
     int idx = startPos;
 
-    if (startPos > gCodeList.count() - 1 || startPos < 1) {
+    if (startPos > gCodeData.count() - 1 || startPos < 1) {
         qDebug() << "steps counter bigger than list";
         return -1;
     }
 
 #if 1
 
-    if (gCodeList.at(startPos).splits > 0) { // it's arc, splits inforamtion already calculated
-        idx += gCodeList.at(startPos).splits;
+    if (gCodeData.at(startPos).splits > 0) { // it's arc, splits inforamtion already calculated
+        idx += gCodeData.at(startPos).splits;
         return idx;
     }
 
 #endif
 
     // or for lines
-    for (idx = startPos; idx < gCodeList.count() - 1; idx++) {
+    for (idx = startPos; idx < gCodeData.count() - 1; idx++) {
 #if 1
 
-        if (gCodeList.at(idx).movingCode == ACCELERAT_CODE && gCodeList.at(idx).splits > 0) {
-            idx += gCodeList.at(idx).splits;
+        if (gCodeData.at(idx).movingCode == ACCELERAT_CODE && gCodeData.at(idx).splits > 0) {
+            idx += gCodeData.at(idx).splits;
             return idx;
         }
 
 #endif
 
-        if (gCodeList.at(idx + 1).movingCode == RAPID_LINE_CODE) {
+        if (gCodeData.at(idx + 1).movingCode == RAPID_LINE_CODE) {
             return idx;
         }
 
@@ -2960,12 +2969,12 @@ int MainWindow::calculateMinAngleSteps(int startPos)
                  << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx + 1].X << gCodeList[idx + 1].Y;
 #endif
 
-        float a1 = gCodeList.at(idx).angle;
-        float a2 = gCodeList.at(idx + 1).angle;
+        float a1 = gCodeData.at(idx).angle;
+        float a2 = gCodeData.at(idx + 1).angle;
 
-        gCodeList[idx].deltaAngle = (a1 - a2);
+        gCodeData[idx].deltaAngle = (a1 - a2);
 
-        if (fabs(gCodeList[idx].deltaAngle) > fabs(PI - maxLookaheadAngleRad)) {
+        if (fabs(gCodeData[idx].deltaAngle) > fabs(PI - maxLookaheadAngleRad)) {
             break;
         }
     }
@@ -2989,7 +2998,7 @@ int MainWindow::calculateMinAngleSteps(int startPos)
  */
 void MainWindow::onSaveFile()
 {
-    SaveFile();
+    reader->SaveFile();
 }
 
 
@@ -3003,7 +3012,7 @@ void MainWindow::onOpenFile()
 
     statusProgress->setValue(0);
 
-    if (OpenFile(nm) == false) {
+    if (reader->OpenFile(nm) == false) {
         AddLog("File loading error: " + nm );
         return;
     }
@@ -3013,16 +3022,25 @@ void MainWindow::onOpenFile()
 
     reloadRecentList();
 
-    QStringList l = getGoodList();
+    QStringList l = reader->getGoodList();
     fillListWidget(l);
 
-    l = getBadList();
+    gCodeData = reader->getGCodeData();
+
+    if (enableOpenGL == true) {
+        scene3d->loadFigure();
+    }
+
+    l = reader->getBadList();
 
     if (l.count() != 0) {
         foreach (QString s, l) {
             AddLog(s);
         }
-    } else {
+    }
+
+    if (gCodeData.count() > 0) {
+        nm.replace(QDir::homePath(), QString("~"));
         AddLog("File loaded: " + nm );
     }
 }
@@ -3278,6 +3296,15 @@ void MainWindow::onButtonZtoZero()
     numPosZ->setValue(0.0);
 }
 
+
+/**
+ * @brief slot for log messages from other objects
+ *
+ */
+void MainWindow::logMessage(const QString &msg)
+{
+    AddLog(msg);
+}
 
 /**
  * @brief slot for resetting of "a" angle

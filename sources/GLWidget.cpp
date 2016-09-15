@@ -45,7 +45,7 @@
 
 #include <deque>
 #include <utility>
-#include "includes/vec.h"
+// #include "includes/vec.h"
 
 #include "includes/Settings.h"
 #include "includes/MainWindow.h"
@@ -163,7 +163,7 @@ void GLWidget::createButtons()
 }
 
 
-QVector<pointGL> GLWidget::xAxis = {
+QVector<QVector3D> GLWidget::xAxis = {
     { 0.0, 0.0, 0.0 },
     { 10.0, 0.0, 0.0 },
     { 10.0, 0.0, 0.0 },
@@ -172,7 +172,7 @@ QVector<pointGL> GLWidget::xAxis = {
     { 9.0, -1.0, 0.0 }
 };
 
-QVector<pointGL> GLWidget:: yAxis = {
+QVector<QVector3D> GLWidget:: yAxis = {
     { 0.0, 0.0, 0.0 },
     { 0.0, 10.0, 0.0 },
     { 0.0, 10.0, 0.0 },
@@ -181,7 +181,7 @@ QVector<pointGL> GLWidget:: yAxis = {
     { -1.0, 9.0, 0.0 }
 };
 
-QVector<pointGL> GLWidget::zAxis = {
+QVector<QVector3D> GLWidget::zAxis = {
     { 0.0, 0.0, 0.0 },
     { 0.0, 0.0, 10.0 },
     { 0.0, 0.0, 10.0 },
@@ -190,7 +190,7 @@ QVector<pointGL> GLWidget::zAxis = {
     { -1.0, -1.0, 9.0 }
 };
 
-QVector<pointGL> GLWidget::instrumentArray = {
+QVector<QVector3D> GLWidget::instrumentArray = {
     { 0.0, 0.0, 0.0 },
     { 0.0, 0.0, 4.0 },
     { -1.0, -1.0, 2.0 },
@@ -211,7 +211,7 @@ QVector<pointGL> GLWidget::instrumentArray = {
     { 0.0, 0.0, 0.0 }
 };
 
-QVector<pointGL> GLWidget::footArray = { // GL_LINE_LOOP array
+QVector<QVector3D> GLWidget::footArray = { // GL_LINE_LOOP array
     { 0.0, 0.0, 0.0 },      // 0
     { 0.0, 22.0, 0.0 },
     { 0.0, 22.0, 29.0 },
@@ -236,7 +236,7 @@ QVector<pointGL> GLWidget::footArray = { // GL_LINE_LOOP array
     { 0.0, 0.0, 0.0 }
 };
 
-QVector<pointGL> GLWidget::traverseArray = { // width of traverse is 64 cm
+QVector<QVector3D> GLWidget::traverseArray = { // width of traverse is 64 cm
     { 0.0, 0.0, 0.0 },
     { 64.0, 0.0, 0.0 },
     { 0.0, 0.0, 0.0 },
@@ -346,6 +346,50 @@ void GLWidget::setFit()
  */
 void GLWidget::initStaticElements()
 {
+    int i = 0;
+
+    foreach (GCodeData vv, parent->gCodeData) {
+        QColor cl;
+
+        if (vv.movingCode == RAPID_LINE_CODE) {
+            cl = Settings::colorSettings[COLOR_RAPID];
+        } else {
+            cl = Settings::colorSettings[COLOR_WORK];
+        }
+
+#if 0
+        // coordinates of next point
+        float pointX = vv.X;
+        float pointY = vv.Y;
+        float pointZ = vv.Z;
+
+        // moving in G-code
+        if (parent->Correction) {
+            // proportions
+            pointX *= parent->coeffSizeX;
+            pointY *= parent->coeffSizeY;
+
+            // offset
+            pointX += parent->deltaX;
+            pointY += parent->deltaY;
+            pointZ += parent->deltaZ;
+
+            // to use the scanned surface, z correcture
+            if (parent->deltaFeed) {
+                pointZ += parent->getDeltaZ(pointX, pointY);
+            }
+        }
+
+#endif
+        figure[i].color = QVector3D (cl.redF(), cl.greenF(), cl.blueF()); //QVector3D {cl.r, cl.g, cl.b};
+        i++;
+        //         vv << (VertexData) {
+        //             QVector3D { pointX, pointY, pointZ},
+        //                         QVector3D {cl.r, cl.g, cl.b}
+        //         };
+
+    }
+
     axis.clear();
     axis << addPointVector(xAxis, Settings::colorSettings[COLOR_X]);
     axis << addPointVector(yAxis, Settings::colorSettings[COLOR_Y]);
@@ -354,26 +398,32 @@ void GLWidget::initStaticElements()
     instrument.clear();
     instrument << addPointVector(instrumentArray, Settings::colorSettings[COLOR_TOOL]);
 
+    qDebug() << "reload border" << Settings::coord[X].softLimitMin << Settings::coord[Y].softLimitMin;
     border.clear();
     border << (VertexData) {
         QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0},
-                   QVector3D{Settings::colorSettings[COLOR_BORDER].r, Settings::colorSettings[COLOR_BORDER].g, Settings::colorSettings[COLOR_BORDER].b}
+                   QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF())
+                   //                    glColor3f(Settings::colorSettings[COLOR_BORDER])
     };
     border << (VertexData) {
         QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin, 0},
-                   QVector3D{Settings::colorSettings[COLOR_BORDER].r, Settings::colorSettings[COLOR_BORDER].g, Settings::colorSettings[COLOR_BORDER].b}
+                   QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF())
+                   //                    glColor3f(Settings::colorSettings[COLOR_BORDER])
     };
     border << (VertexData) {
         QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMax, 0},
-                   QVector3D{Settings::colorSettings[COLOR_BORDER].r, Settings::colorSettings[COLOR_BORDER].g, Settings::colorSettings[COLOR_BORDER].b}
+                   QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF())
+                   //                    glColor3f(Settings::colorSettings[COLOR_BORDER])
     };
     border << (VertexData) {
         QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMax, 0},
-                   QVector3D{Settings::colorSettings[COLOR_BORDER].r, Settings::colorSettings[COLOR_BORDER].g, Settings::colorSettings[COLOR_BORDER].b}
+                   QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF())
+                   //                    glColor3f(Settings::colorSettings[COLOR_BORDER])
     };
     border << (VertexData) {
         QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0},
-                   QVector3D{Settings::colorSettings[COLOR_BORDER].r, Settings::colorSettings[COLOR_BORDER].g, Settings::colorSettings[COLOR_BORDER].b}
+                   QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF())
+                   //                    glColor3f(Settings::colorSettings[COLOR_BORDER])
     };
 
 
@@ -382,22 +432,26 @@ void GLWidget::initStaticElements()
     for (int gX = parent->GridXstart; gX < parent->GridXend + 1; gX += parent->GrigStep) {
         gridLines << (VertexData) {
             QVector3D{(GLfloat)gX, (GLfloat)parent->GridYstart, 0.0 },
-                      QVector3D{Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b}
+                      QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
+                      //                       glColor3f(Settings::colorSettings[COLOR_GRID])
         };
         gridLines << (VertexData) {
             QVector3D{(GLfloat)gX, (GLfloat)parent->GridYend, 0.0},
-                      QVector3D{Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b}
+                      QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
+                      //                       glColor3f(Settings::colorSettings[COLOR_GRID])
         };
     }
 
     for (int gY = parent->GridYstart; gY < parent->GridYend + 1; gY += parent->GrigStep) {
         gridLines << (VertexData) {
             QVector3D{(GLfloat)parent->GridXstart, (GLfloat)gY, 0.0},
-                      QVector3D{Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b}
+                      QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
+                      //                       glColor3f(Settings::colorSettings[COLOR_GRID])
         };
         gridLines << (VertexData) {
             QVector3D{(GLfloat)parent->GridXend, (GLfloat)gY, 0.0},
-                      QVector3D{Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b}
+                      QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
+                      //                       glColor3f(Settings::colorSettings[COLOR_GRID])
         };
     }
 
@@ -408,7 +462,8 @@ void GLWidget::initStaticElements()
             //point
             gridPoints << (VertexData) {
                 QVector3D{(GLfloat)x, (GLfloat)y, 0.0},
-                          QVector3D{Settings::colorSettings[COLOR_GRID].r, Settings::colorSettings[COLOR_GRID].g, Settings::colorSettings[COLOR_GRID].b}
+                          QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
+                          //                           glColor3f(Settings::colorSettings[COLOR_GRID])
             };
         }
     }
@@ -432,14 +487,14 @@ void GLWidget::initStaticElements()
         for (int x = 0; x < maxX; x++) {
             surfaceLines << (VertexData) {
                 QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z},
-                          QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+                          QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
             };
 
             if (y > 0) {
                 //line 1
                 surfaceLines << (VertexData) {
                     QVector3D{parent->surfaceMatrix[y - 1][x].X, parent->surfaceMatrix[y - 1][x].Y, parent->surfaceMatrix[y - 1][x].Z},
-                              QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+                              QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
                 };
             }
 
@@ -447,7 +502,7 @@ void GLWidget::initStaticElements()
                 //line2
                 surfaceLines << (VertexData) {
                     QVector3D{parent->surfaceMatrix[y + 1][x].X, parent->surfaceMatrix[y + 1][x].Y, parent->surfaceMatrix[y + 1][x].Z},
-                              QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+                              QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
                 };
             }
 
@@ -455,7 +510,7 @@ void GLWidget::initStaticElements()
                 //line 3
                 surfaceLines << (VertexData) {
                     QVector3D{parent->surfaceMatrix[y][x - 1].X, parent->surfaceMatrix[y][x - 1].Y, parent->surfaceMatrix[y][x - 1].Z},
-                              QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+                              QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
                 };
             }
 
@@ -463,7 +518,7 @@ void GLWidget::initStaticElements()
                 //line4
                 surfaceLines << (VertexData) {
                     QVector3D{parent->surfaceMatrix[y][x + 1].X, parent->surfaceMatrix[y][x + 1].Y, parent->surfaceMatrix[y][x + 1].Z},
-                              QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+                              QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
                 };
             }
         }
@@ -476,7 +531,7 @@ void GLWidget::initStaticElements()
             //point
             surfacePoints << (VertexData) {
                 QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z},
-                          QVector3D{Settings::colorSettings[COLOR_SURFACE].r, Settings::colorSettings[COLOR_SURFACE].g, Settings::colorSettings[COLOR_SURFACE].b}
+                          QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
             };
         }
     }
@@ -491,10 +546,10 @@ void GLWidget::surfaceReloaded()
 {
     for (int i = 0; i < figure.count(); i++) {
         if (parent->deltaFeed) {
-            //             pointGL p;
-            float pointX = parent->gCodeList.at(i).X;
-            float pointY = parent->gCodeList.at(i).Y;
-            float pointZ = parent->gCodeList.at(i).Z;
+            //             QVector3D p;
+            float pointX = parent->gCodeData.at(i).X;
+            float pointY = parent->gCodeData.at(i).Y;
+            float pointZ = parent->gCodeData.at(i).Z;
 
             pointZ += parent->getDeltaZ(pointX, pointY);
 
@@ -525,17 +580,17 @@ void GLWidget::showFPS()
  */
 void GLWidget::loadFigure()
 {
-    int workNum = 0;
+    //     int workNum = 0;
 
-    workNum = parent->gCodeList.count();
-    //     qDebug() << "loadFigure";
+    //     workNum = parent->gCodeData.count();
+    qDebug() << "loadFigure";
     figure.clear();
 
-    if (workNum > 1) {
-        int currWorkPoint = 0;
+    if (parent->gCodeData.count() > 1) {
+        //         int currWorkPoint = 0;
 
-        foreach (GCodeData vv, parent->gCodeList) {
-            colorGL cl;
+        foreach (GCodeData vv, parent->gCodeData) {
+            QColor cl;
 
             if (vv.movingCode == RAPID_LINE_CODE) {
                 cl = Settings::colorSettings[COLOR_RAPID];
@@ -567,10 +622,10 @@ void GLWidget::loadFigure()
 
             figure << (VertexData) {
                 QVector3D { pointX, pointY, pointZ},
-                          QVector3D {cl.r, cl.g, cl.b}
+                          QVector3D(cl.redF(), cl.greenF(), cl.blueF())
             };
 
-            currWorkPoint++;
+            //             currWorkPoint++;
         }
     }
 
@@ -581,14 +636,13 @@ void GLWidget::loadFigure()
 }
 
 
-QVector<VertexData> GLWidget::addPointVector(const QVector<pointGL> &p, const colorGL &c)
+QVector<VertexData> GLWidget::addPointVector(const QVector<QVector3D> &p, const QColor &col)
 {
     QVector<VertexData> v;
 
     for (int i = 0; i < p.count(); i++) {
         v << (VertexData) {
-            QVector3D{p.at(i).X, p.at(i).Y, p.at(i).Z },
-                      QVector3D{c.r, c.g, c.b}
+            p.at(i), QVector3D(col.redF(), col.greenF(), col.blueF())
         };
     }
 
@@ -618,7 +672,7 @@ void GLWidget::initializeGL()//Init3D()//*OK*
     // OpenGLES2
     initializeOpenGLFunctions();
 
-    glClearColor(Settings::colorSettings[COLOR_BACKGROUND].r, Settings::colorSettings[COLOR_BACKGROUND].g, Settings::colorSettings[COLOR_BACKGROUND].b, Settings::colorSettings[COLOR_BACKGROUND].a);
+    glClearColor(Settings::colorSettings[COLOR_BACKGROUND].redF(), Settings::colorSettings[COLOR_BACKGROUND].greenF(), Settings::colorSettings[COLOR_BACKGROUND].blueF(), 1.0f);
 
     // Use QBasicTimer because its faster than QTimer
     timer.start(50, this);
@@ -1039,7 +1093,7 @@ void GLWidget::Draw() // drawing, main function
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     m_lastPos = event->pos();
-    
+
     event->setAccepted(true);
 }
 

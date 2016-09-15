@@ -253,7 +253,7 @@ QString cTranslator::engText[] = {
     "Disable visualisation during remote controlling",
     "X axis\nY axis\nZ axis\nBackground\nTool\nWorkbench\nTraverse\nRapid moving\nWorking\nGrid\nSurface\nConnections",
     "Step distance",
-    "_DISPLAY_COMMAND",
+    "Display commands",
     "Display workbench",
     "Show traverse", // 210
     "Smooth moving",
@@ -264,6 +264,9 @@ QString cTranslator::engText[] = {
     "Front",
     "Left",
     "Fit",
+    "Save G-Code",
+    "Parser",
+    "Remove repeatable data from list",
     ""
 };
 
