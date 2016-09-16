@@ -150,10 +150,9 @@ dPoint Geometry::CalcPY(dPoint p1, dPoint p2, dPoint p0)
 // //         }
 // };
 
-
 // t is a value that goes from 0 to 1 to interpolate in a C1 continuous way across uniformly sampled data points.
 // when t is 0, this will return B.  When t is 1, this will return C.
-float Geometry::CubicHermite (const QVector4D &v, float t)
+float Geometry::cubicHermiteInterpolate (const float v[4], float t)
 {
     float a0 = -0.5 * v[0] + 1.5 * v[1] - 1.5 * v[2] + 0.5 * v[3];
     float a1 = v[0] - 2.5 * v[1] + 2.0f * v[2] - 0.5 * v[3];
@@ -165,14 +164,65 @@ float Geometry::CubicHermite (const QVector4D &v, float t)
 
 
 // call this function for X, Y, Z separate
-float Geometry::BicubicHermitePatch(const QMatrix4x4 &vv, float u, float v)
+float Geometry::bicubicHermitePatch(const float vv[4][4], float u, float v)
 {
-    QVector4D uValues;
-    uValues[0] = CubicHermite(vv.row(0), u);
-    uValues[1] = CubicHermite(vv.row(1), u);
-    uValues[2] = CubicHermite(vv.row(2), u);
-    uValues[3] = CubicHermite(vv.row(3), u);
-    return CubicHermite(uValues, v);
+    float uValues[4];
+    uValues[0] = cubicHermiteInterpolate(vv[0], u);
+    uValues[1] = cubicHermiteInterpolate(vv[1], u);
+    uValues[2] = cubicHermiteInterpolate(vv[2], u);
+    uValues[3] = cubicHermiteInterpolate(vv[3], u);
+    return cubicHermiteInterpolate(uValues, v);
+}
+
+
+float Geometry::bicubicInterpolate(QRectF borderRect, QAbstractTableModel *basePoints, float x, float y)
+{
+    // Setup grid
+    int gridPointsX = basePoints->columnCount();
+    int gridPointsY = basePoints->rowCount();
+
+    float gridStepX = gridPointsX > 1 ? borderRect.width() / (gridPointsX - 1) : 0;
+    float gridStepY = gridPointsY > 1 ? borderRect.height() / (gridPointsY - 1) : 0;
+
+    // Get 16 points
+    x -= borderRect.x();
+    y -= borderRect.y();
+
+    int ix = trunc(x / gridStepX);
+    int iy = trunc(y / gridStepY);
+
+    if (ix > basePoints->columnCount() - 2) {
+        ix = basePoints->columnCount() - 2;
+    }
+
+    if (iy > basePoints->rowCount() - 2) {
+        iy = basePoints->rowCount() - 2;
+    }
+
+    float p[4][4];
+
+    p[0][0] = basePoints->data(basePoints->index((iy > 0 ? iy - 1 : iy), (ix > 0 ? ix - 1 : ix)), Qt::UserRole).toFloat();
+    p[0][1] = basePoints->data(basePoints->index((iy > 0 ? iy - 1 : iy), ix), Qt::UserRole).toFloat();
+    p[0][2] = basePoints->data(basePoints->index((iy > 0 ? iy - 1 : iy), ix + 1), Qt::UserRole).toFloat();
+    p[0][3] = basePoints->data(basePoints->index((iy > 0 ? iy - 1 : iy), (ix < basePoints->columnCount() - 2 ? ix + 2 : ix + 1)), Qt::UserRole).toFloat();
+
+    p[1][0] = basePoints->data(basePoints->index(iy, ix > 0 ? ix - 1 : ix), Qt::UserRole).toFloat();
+    p[1][1] = basePoints->data(basePoints->index(iy, ix), Qt::UserRole).toFloat();
+    p[1][2] = basePoints->data(basePoints->index(iy, ix + 1), Qt::UserRole).toFloat();
+    p[1][3] = basePoints->data(basePoints->index(iy, ix < basePoints->columnCount() - 2 ? ix + 2 : ix + 1), Qt::UserRole).toFloat();
+
+    p[2][0] = basePoints->data(basePoints->index(iy + 1, ix > 0 ? ix - 1 : ix), Qt::UserRole).toFloat();
+    p[2][1] = basePoints->data(basePoints->index(iy + 1, ix), Qt::UserRole).toFloat();
+    p[2][2] = basePoints->data(basePoints->index(iy + 1, ix + 1), Qt::UserRole).toFloat();
+    p[2][3] = basePoints->data(basePoints->index(iy + 1, ix < basePoints->columnCount() - 2 ? ix + 2 : ix + 1), Qt::UserRole).toFloat();
+
+    p[3][0] = basePoints->data(basePoints->index(iy < basePoints->rowCount() - 2 ? iy + 2 : iy + 1, ix > 0 ? ix - 1 : ix), Qt::UserRole).toFloat();
+    p[3][1] = basePoints->data(basePoints->index(iy < basePoints->rowCount() - 2 ? iy + 2 : iy + 1, ix), Qt::UserRole).toFloat();
+    p[3][2] = basePoints->data(basePoints->index(iy < basePoints->rowCount() - 2 ? iy + 2 : iy + 1, ix + 1), Qt::UserRole).toFloat();
+    p[3][3] = basePoints->data(basePoints->index(iy < basePoints->rowCount() - 2 ? iy + 2 : iy + 1, ix < basePoints->columnCount() - 2 ? ix + 2 : ix + 1), Qt::UserRole).toFloat();
+
+    // Interpolate
+    return bicubicHermitePatch(p, x / gridStepX - ix, y / gridStepY - iy);
 }
 
 

@@ -212,10 +212,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
 
         // 3d Settings
         bool ShowBorder;
-        //         float grateXmin;
-        //         float grateXmax;
-        //         float grateYmin;
-        //         float grateYmax;
 
         MATERIAL cuttedMaterial;
         float toolDiameter;
@@ -318,7 +314,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         int  calculateMinAngleSteps(int pos);
         void patchSpeedAndAccelCode(int begPos, int endPos);
         void fixGCodeList();
-//         void detectMinMax(int pos);
 
         void runNextCommand();
         void fillListWidget(QStringList listCode);

@@ -2662,54 +2662,6 @@ void MainWindow::fillListWidget(QStringList listCode)
 
 
 /**
- * @brief detect the min and max ranges
- *
- * @param[in] pos actual index in GCode data list, if pos is 0: init of min/max
- *
- */
-#if 0
-void MainWindow::detectMinMax(int pos)
-{
-    if (pos > 0 && pos < gCodeData.size()) {
-        if (gCodeData.at(pos).X > Settings::coord[X].softLimitMax) {
-            Settings::coord[X].softLimitMax = gCodeData.at(pos).X;
-        }
-
-        if (gCodeData.at(pos).X < Settings::coord[X].softLimitMin) {
-            Settings::coord[X].softLimitMin = gCodeData.at(pos).X;
-        }
-
-        if (gCodeData.at(pos).Y > Settings::coord[Y].softLimitMax) {
-            Settings::coord[Y].softLimitMax = gCodeData.at(pos).Y;
-        }
-
-        if (gCodeData.at(pos).Y < Settings::coord[Y].softLimitMin) {
-            Settings::coord[Y].softLimitMin = gCodeData.at(pos).Y;
-        }
-
-        if (gCodeData.at(pos).Z > Settings::coord[Z].softLimitMax) {
-            Settings::coord[Z].softLimitMax = gCodeData.at(pos).Z;
-        }
-
-        if (gCodeData.at(pos).Z < Settings::coord[Z].softLimitMin) {
-            Settings::coord[Z].softLimitMin = gCodeData.at(pos).Z;
-        }
-
-        return;
-    }
-
-    if (pos == 0) {
-        Settings::coord[X].softLimitMax = gCodeData.at(pos).X;
-        Settings::coord[X].softLimitMin = gCodeData.at(pos).X;
-        Settings::coord[Y].softLimitMax = gCodeData.at(pos).Y;
-        Settings::coord[Y].softLimitMin = gCodeData.at(pos).Y;
-        Settings::coord[Z].softLimitMax = gCodeData.at(pos).Z;
-        Settings::coord[Z].softLimitMin = gCodeData.at(pos).Z;
-    }
-}
-#endif
-
-/**
  * @brief function patches the data list before sending to mk1
  *
  * the data list will be patched dependend from current user settings:
@@ -2721,15 +2673,11 @@ void MainWindow::fixGCodeList()
         return;
     }
 
-//     detectMinMax(0);
-
     // grad to rad
     maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;
 
     // calculate the number of steps in one direction, if exists
     for (int idx = 0; idx < gCodeData.size(); idx++) {
-//         detectMinMax(idx);
-
         if (gCodeData[idx].movingCode == RAPID_LINE_CODE) {
             continue;
         }
@@ -2802,7 +2750,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         case XY: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-//                 detectMinMax(i);
+
                 float dX = fabs(gCodeData.at(i - 1).X - gCodeData.at(i).X);
                 float dY = fabs(gCodeData.at(i - 1).Y - gCodeData.at(i).Y);
                 float dH = sqrt(dX * dX + dY * dY);
@@ -2836,8 +2784,6 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         case YZ: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-//                 detectMinMax(i);
-
                 float dY = fabs(gCodeData.at(i - 1).Y - gCodeData.at(i).Y);
                 float dZ = fabs(gCodeData.at(i - 1).Z - gCodeData.at(i).Z);
                 float dH = sqrt(dZ * dZ + dY * dY);
@@ -2870,8 +2816,6 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         case ZX: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-//                 detectMinMax(i);
-
                 float dZ = fabs(gCodeData.at(i - 1).Z - gCodeData.at(i).Z);
                 float dX = fabs(gCodeData.at(i - 1).X - gCodeData.at(i).X);
                 float dH = sqrt(dX * dX + dZ * dZ);

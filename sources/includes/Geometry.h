@@ -35,7 +35,7 @@
 
 #include <QVector4D>
 #include <QMatrix4x4>
-
+#include <QAbstractTableModel>
 // #include "vec.h"
 
 
@@ -54,8 +54,9 @@ class Geometry
         static dPoint CalcPX(dPoint p1, dPoint p2, dPoint p0);
         static dPoint CalcPY(dPoint p1, dPoint p2, dPoint p0);
 
-        float CubicHermite (const QVector4D &v , float t);
-        float BicubicHermitePatch(const QMatrix4x4 &vv, float u, float v);
+        float cubicHermiteInterpolate (const float v[4] , float t);
+        float bicubicHermitePatch(const float vv[4][4], float u, float v);
+        float bicubicInterpolate(QRectF borderRect, QAbstractTableModel *basePoints, float x, float y);
         bool gernerateBicubicHermiteField();
 };
 

@@ -203,13 +203,18 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     t.start();
 
     bool decoded;
-    int index = 0;
+
     QStringList gCodeLines;
     QString lastCmd;
+    int lineNr = 0;
+    QString lastCommand;
+    QString paramX, paramY, paramZ, paramA, paramF;
 
     while(!stream.atEnd()) { // restruct lines
-        QString lineStream = stream.readLine().toUpper().trimmed();
+        QString lineStream = stream.readLine().toUpper();
+        lineNr++;
 
+        // ignore commentars
         if (lineStream.isEmpty() || lineStream.at(0) == ';' || lineStream.at(0) == '(' || lineStream.at(0) == '%') {
             continue;
         }
@@ -224,6 +229,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             }
         }
 
+        // this is commentar too : ( ... )
         int commentBeg = lineStream.indexOf('(');
         int commentEnd = -1;
 
@@ -235,80 +241,144 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             }
         }
 
-        //      while (lineStream.length() > 0 && commentBeg >= 0 && commentEnd >= 0) {
-        //  lineStream = lineStream.remove(commentBeg, commentEnd - commentBeg + 1);
-        //  if (lineStream.length() > 0){
-        //   commentBeg = lineStream.indexOf('(');
-        //   commentEnd = lineStream.lastIndexOf(')');
-        //  }
-        //      }
-
         if (lineStream.length() == 0) {
             continue;
         }
 
-        //      lineStream = lineStream.remove(' ');
-
-        lineStream = lineStream.replace(Settings::fromDecimalPoint, Settings::toDecimalPoint);
-
-        int pos = lineStream.indexOf(QRegExp("N(\\d+)"));
-
-        if ( pos == 0) { // remove command number from lineStream
-            int posNotDigit = lineStream.indexOf(QRegExp("([A-Z])"), pos + 1);
-
-            if (posNotDigit > 0) {
-                lineStream = lineStream.mid(posNotDigit);
-            }
-        }
-
-        for (int iPos = 1; iPos >= 0; ) {
-            iPos = lineStream.indexOf(QRegExp("([A-Z])"), iPos);
-
-            if (iPos > 0) {
-                lineStream.insert(iPos, " ");
-                iPos += 2;
-            }
-        }
+        QRegExp rx("([A-Z])((\\-)?(\\+)?\\d+(\\.\\d+)?)");
+        int pos = 0;
+        QString tmpStr;
 
 
-        if (lineStream.indexOf(QRegExp("[G|M|F](\\d+)($|\\s)")) == -1) { // Gxx, Fxx or Mxx not found
-            if (lastCmd.length() > 0) {
-                lineStream = QString(lastCmd + " " + lineStream);
-            } else {
-                //                 QString msg = translate(_NOT_DECODED);
-                //                 badList << msg.arg(QString::number(index)) + lineStream;
-                badList << QString::number(index) + ": " + lineStream;
+        if (Settings::filterRepeat == true) {
+            while ((pos = rx.indexIn(lineStream, pos)) != -1) {
+                QString currentText = rx.cap(0);
+                QChar c = currentText.at(0);
+
+                if (c == 'N') { // ignore line number
+                    pos += rx.matchedLength();
+                    continue;
+                }
+
+                if (pos == 0) {
+                    if (currentText == "G1" || currentText == "G01") {
+                        lastCommand = currentText;
+                    } else {
+                        lastCommand = "";
+                        paramX = "";
+                        paramY = "";
+                        paramZ = "";
+                        paramA = "";
+                        paramF = "";
+                    }
+
+                    pos += rx.matchedLength();
+                } else {
+                    // when last command exists
+                    pos += rx.matchedLength();
+
+                    if (lastCommand.length() > 0) {
+                        if (c == 'X') {
+                            if (currentText == paramX) {
+                                continue;
+                            } else {
+                                paramX = currentText;
+                            }
+                        }
+
+                        if (c == 'Y') {
+                            if (currentText == paramY) {
+                                continue;
+                            } else {
+                                paramY = currentText;
+                            }
+                        }
+
+                        if (c == 'Z') {
+                            if (currentText == paramZ) {
+                                continue;
+                            } else {
+                                paramZ = currentText;
+                            }
+                        }
+
+                        if (c == 'A') {
+                            if (currentText == paramA) {
+                                continue;
+                            } else {
+                                paramA = currentText;
+                            }
+                        }
+
+                        if (c == 'F') {
+                            if (currentText == paramF) {
+                                continue;
+                            } else {
+                                paramF = currentText;
+                            }
+                        }
+                    }
+                }
+
+                tmpStr += currentText;
+                tmpStr += " ";
             }
         } else {
-            int posSpace = lineStream.indexOf(" ");
+            while ((pos = rx.indexIn(lineStream, pos)) != -1) {
+                QChar c = rx.cap(0).at(0);
+
+                if (c == 'N') { // ignore line number
+                    continue;
+                }
+
+                tmpStr += rx.cap(0);
+                tmpStr += " ";
+                pos += rx.matchedLength();
+            }
+        }
+
+        if (tmpStr.length() == 0) {
+            badList << lineStream;
+            continue;
+        }
+
+        QChar c = tmpStr.at(0);
+
+        if (!(c == 'G' || c == 'M' || c == 'F')) {
+            if (lastCmd.length() > 0) {
+                tmpStr = QString(lastCmd + " " + tmpStr);
+            } else {
+                badList << QString::number(lineNr - 1) + ": " + tmpStr;
+            }
+        } else {
+            int posSpace = tmpStr.indexOf(" ");
 
             if (posSpace > 0) { // command with parameter
                 if (posSpace == 2) { // insert '0' if two characters
-                    lineStream.insert(1, "0");
+                    tmpStr.insert(1, "0");
                     posSpace++;
                 }
 
-                lastCmd = lineStream.left(posSpace);
+                lastCmd = tmpStr.left(posSpace);
 
             } else { // command without parameter
-                if (lineStream.length() == 2) { // insert '0' if two characters
-                    lineStream.insert(1, "0");
+                if (tmpStr.length() == 2) { // insert '0' if two characters
+                    tmpStr.insert(1, "0");
                     posSpace++;
                 }
 
-                lastCmd = lineStream;
+                lastCmd = tmpStr;
             }
         }
 
-        index++;
-        gCodeLines << lineStream;
+        gCodeLines << tmpStr;
     }
 
     emit logMessage(QString().sprintf("Read gcode, loaded. Time elapsed: %d ms", t.elapsed()));
 
     t.restart();
 
-    index = 0;
+    int index = 0;
     PlaneEnum currentPlane;
     currentPlane = XY;
 
