@@ -471,6 +471,7 @@ void GLWidget::initStaticElements()
     }
 
     surfaceLines.clear();
+    surfacePoints.clear();
 
     for (int y = 0; y < maxY; y++) {
         for (int x = 0; x < maxX; x++) {
@@ -510,11 +511,17 @@ void GLWidget::initStaticElements()
                               QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
                 };
             }
+            
+            // now points 
+            surfacePoints << (VertexData) {
+                QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z},
+                          QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
+            };
         }
     }
 
-    surfacePoints.clear();
-
+  
+#if 0
     for (int y = 0; y < maxY; y++) {
         for (int x = 0; x < maxX; x++) {
             //point
@@ -524,6 +531,7 @@ void GLWidget::initStaticElements()
             };
         }
     }
+#endif 
 }
 
 

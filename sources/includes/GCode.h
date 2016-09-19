@@ -36,6 +36,7 @@
 #include <QString>
 #include <QList>
 #include <QObject>
+#include <QVector>
 #include <QVector3D>
 
 #include <deque>
@@ -130,9 +131,9 @@ class GCodeParser : public QObject
     public:
         GCodeParser(); // constructor
         bool readGCode(const QByteArray &gcode);
-        QStringList getGoodList();
-        QStringList getBadList();
-        QList<GCodeData> getGCodeData();
+        QVector<QString> getGoodList();
+//         QVector<QString> getBadList();
+        QVector<GCodeData> getGCodeData();
 
     private:
         float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);
@@ -153,9 +154,9 @@ class GCodeParser : public QObject
         void logMessage(const QString &l);
 
     private:
-        QList<GCodeData> gCodeList;
-        QStringList goodList; // only decoded G-code
-        QStringList badList;
+        QVector<GCodeData> gCodeList;
+        QVector<QString> goodList; // only decoded G-code
+//         QVector<QString> badList;
 };
 
 

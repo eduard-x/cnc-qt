@@ -201,7 +201,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         QVector<uKeys> userKeys;
         QVector<speedSettings> veloSettings[4];
 
-        QList<GCodeData> gCodeData;
+        QVector<GCodeData> gCodeData;
 
         //
         int veloManual;
@@ -316,7 +316,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         void fixGCodeList();
 
         void runNextCommand();
-        void fillListWidget(QStringList listCode);
+        void fillListWidget(QVector<QString> listCode);
         QString getLocaleString();
         bool getLangTable();
         void setLangGUI();

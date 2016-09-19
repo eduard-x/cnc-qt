@@ -39,7 +39,7 @@
 
 
 /******************************************************************************
-** ManualControlDialog
+// ** ManualControlDialogadd
 */
 
 ManualControlDialog::ManualControlDialog(QWidget * p)

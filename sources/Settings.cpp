@@ -241,6 +241,8 @@ SettingsDialog::SettingsDialog(QWidget *p)
 
     translateDialog();
 
+    emit onChangeColor(0);
+
     adjustSize();
 }
 
@@ -257,6 +259,8 @@ void SettingsDialog::changeColor()
 
         if (clr.isValid()) {
             Settings::colorSettings[num] = clr;
+
+            emit onChangeColor(num);
         }
     }
 }
@@ -278,6 +282,8 @@ void SettingsDialog::translateDialog()
 
     groupBox_5->setTitle(translate(_LOOKAHEAD));
 
+    groupBoxArc->setTitle(translate(_ARC_SPLITTING));
+
     QStringList fList;
     fList << translate(_WORKTABLE);
     fList << translate(_SPEED);
@@ -286,7 +292,7 @@ void SettingsDialog::translateDialog()
     fList << translate(_IO);
     fList << translate(_TOOL);
     fList << translate(_PARSER);
-    fList << translate(_ARC_SPLITTING);
+    fList << "Reserved"; // translate(_ARC_SPLITTING);
     fList << translate(_VISUALISATION);
 
     listWidget->addItems(fList);
@@ -303,6 +309,8 @@ void SettingsDialog::translateDialog()
 
     connect(listWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(onSelection(QListWidgetItem*)));
     //     connect(listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onSelection(QListWidgetItem*)));
+
+    connect(comboColor, SIGNAL(activated(int)), this, SLOT(onChangeColor(int)));
 
     listWidget->item(0)->setSelected(true);
 
@@ -361,6 +369,15 @@ void SettingsDialog::onSelection(QListWidgetItem* it)
     int idx = listWidget->currentRow();
     //     qDebug() << idx;
     tabWidget->setCurrentIndex(idx);
+}
+
+
+void SettingsDialog::onChangeColor(int i)
+{
+    QPalette palette = frameColor->palette();
+    palette.setColor( backgroundRole(), Settings::colorSettings[i] );
+    frameColor->setPalette( palette );
+    frameColor->setAutoFillBackground( true );
 }
 
 

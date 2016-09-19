@@ -183,7 +183,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setupUi(this);
 
-    textLog->document()->setMaximumBlockCount(4000);
+    textLog->document()->setMaximumBlockCount(10000);
 
     setWindowTitle(translate(_PROG_NAME));
 
@@ -343,7 +343,7 @@ MainWindow::MainWindow(QWidget *parent)
 
                 reloadRecentList();
 
-                QStringList l = reader->getGoodList();
+                QVector<QString> l = reader->getGoodList();
                 fillListWidget(l);
 
                 gCodeData = reader->getGCodeData();
@@ -352,13 +352,13 @@ MainWindow::MainWindow(QWidget *parent)
                     scene3d->loadFigure();
                 }
 
-                l = reader->getBadList();
-
-                if (l.count() != 0) {
-                    foreach (QString s, l) {
-                        AddLog(s);
-                    }
-                }
+//                 l = reader->getBadList();
+// 
+//                 if (l.count() != 0) {
+//                     foreach (QString s, l) {
+//                         AddLog(s);
+//                     }
+//                 }
 
                 if (gCodeData.count() > 0) {
                     nm.replace(QDir::homePath(), QString("~"));
@@ -1287,7 +1287,7 @@ void MainWindow::setFile(QAction* a)
         return;
     }
 
-    QStringList l = reader->getGoodList();
+    QVector<QString> l = reader->getGoodList();
     fillListWidget(l);
 
     gCodeData = reader->getGCodeData();
@@ -1296,13 +1296,13 @@ void MainWindow::setFile(QAction* a)
         scene3d->loadFigure();
     }
 
-    l = reader->getBadList();
-
-    if (l.count() != 0) {
-        foreach (QString s, l) {
-            AddLog(s);
-        }
-    }
+//     l = reader->getBadList();
+// 
+//     if (l.count() != 0) {
+//         foreach (QString s, l) {
+//             AddLog(s);
+//         }
+//     }
 
     if (gCodeData.count() > 0) {
         fileStr.replace(QDir::homePath(), QString("~"));
@@ -2621,7 +2621,7 @@ void MainWindow::onManualControlDialog()
  * @brief fill the table widget with text data
  *
  */
-void MainWindow::fillListWidget(QStringList listCode)
+void MainWindow::fillListWidget(QVector<QString> listCode)
 {
     listGCodeWidget->clear();
     listGCodeWidget->setRowCount( 0);
@@ -2966,7 +2966,7 @@ void MainWindow::onOpenFile()
 
     reloadRecentList();
 
-    QStringList l = reader->getGoodList();
+    QVector<QString> l = reader->getGoodList();
     fillListWidget(l);
 
     gCodeData = reader->getGCodeData();
@@ -2975,13 +2975,13 @@ void MainWindow::onOpenFile()
         scene3d->loadFigure();
     }
 
-    l = reader->getBadList();
-
-    if (l.count() != 0) {
-        foreach (QString s, l) {
-            AddLog(s);
-        }
-    }
+//     l = reader->getBadList();
+// 
+//     if (l.count() != 0) {
+//         foreach (QString s, l) {
+//             AddLog(s);
+//         }
+//     }
 
     if (gCodeData.count() > 0) {
         nm.replace(QDir::homePath(), QString("~"));

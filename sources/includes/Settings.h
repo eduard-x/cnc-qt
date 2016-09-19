@@ -147,6 +147,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
     private slots:
         void onSave();
         void onSelection(QListWidgetItem* it);
+        void onChangeColor(int i);
         void changeColor();
 
     private:
