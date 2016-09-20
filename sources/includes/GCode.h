@@ -132,7 +132,6 @@ class GCodeParser : public QObject
         GCodeParser(); // constructor
         bool readGCode(const QByteArray &gcode);
         QVector<QString> getGoodList();
-//         QVector<QString> getBadList();
         QVector<GCodeData> getGCodeData();
 
     private:
@@ -146,17 +145,13 @@ class GCodeParser : public QObject
 
         bool parseCoord(const QString &line, QVector3D &pos, float &E, const float coef, float *F = NULL);
 
-        //     public:
-
-        //         QList<GCodeData> gCodeList;
-
     signals:
         void logMessage(const QString &l);
 
     private:
         QVector<GCodeData> gCodeList;
         QVector<QString> goodList; // only decoded G-code
-//         QVector<QString> badList;
+        //         QVector<QString> badList;
 };
 
 

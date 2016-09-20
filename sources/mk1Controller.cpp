@@ -56,7 +56,7 @@ QString mk1Controller::devDescriptor;
 
 
 /**
- * @brief callback function fot hotplug
+ * @brief callback function for hotplug
  *
  */
 static int LIBUSB_CALL hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
@@ -275,6 +275,50 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     }
 }
 
+
+/**
+ * @brief destructor
+ *
+ */
+mk1Controller::~mk1Controller()
+{
+    //   int class_id   = LIBUSB_HOTPLUG_MATCH_ANY;
+    //
+    //   libusb_hotplug_deregister_callback (NULL, hotplug[0]);
+    //    libusb_hotplug_deregister_callback (NULL, hotplug[1]);
+
+    if (handle) {
+        //          int r = libusb_release_interface(handle, 0); //release the claimed interface
+        //
+        //         if(r != 0) {
+        //             qDebug() << "Cannot Release Interface" << endl;
+        //         } else {
+        //             qDebug() << "Released Interface" << endl;
+        //             libusb_close(handle);
+        //         }
+
+        if (readThread) {
+            //             readThread->quit();
+            disconnect(readThread, SIGNAL(readEvent()), this, SLOT(onReadNewData()));
+
+            delete readThread;
+        }
+
+#if 1
+
+        if (hotplugThread) {
+            //             hotplugThread->quit();
+            disconnect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(onHandleHotplug()));
+            delete hotplugThread;
+        }
+
+#endif
+    }
+
+    libusb_exit(NULL);
+}
+
+
 /**
  * @brief read device description if connected
  *
@@ -339,21 +383,6 @@ int mk1Controller::getDeviceInfo()
     return 0;
 }
 
-/**
- * @brief destructor
- *
- */
-mk1Controller::~mk1Controller()
-{
-    if (handle) {
-        //         int e =
-        //          connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(onHandleHotplug()));
-        disconnect(readThread, SIGNAL(readEvent()), this, SLOT(onReadNewData()));
-        delete readThread;
-    }
-
-    libusb_exit(NULL);
-}
 
 /**
  * @brief clean device desription

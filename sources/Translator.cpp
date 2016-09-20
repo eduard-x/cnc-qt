@@ -417,21 +417,26 @@ QString cTranslator::translate( int id )
         return "";
     }
 
+    if (id >= (int)(sizeof(engText) / sizeof(char*))) {
+        return "";
+    }
+
     if (translateTable.size() == 0) {
         return QString(engText[id]);
     }
 
-    if ((id >= 0) && (id < (int)(sizeof(engText) / sizeof(char*)))) {
-        if(translateTable[id].length() == 0) {
-            m = QString(engText[id]);
-        } else {
-            m = translateTable[id];
-        }
-
-        if (m.indexOf("%HOME%") >= 0) {
-            m.replace("%HOME%", QDir::homePath());
-        }
+    //     if (id < (int)(sizeof(engText) / sizeof(char*))) {
+    if(translateTable[id].length() == 0) {
+        m = QString(engText[id]);
+    } else {
+        m = translateTable[id];
     }
+
+    if (m.indexOf("%HOME%") >= 0) {
+        m.replace("%HOME%", QDir::homePath());
+    }
+
+    //     }
 
     return m;
 }

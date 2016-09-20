@@ -268,7 +268,7 @@ MainWindow::MainWindow(QWidget *parent)
     sceneCoordinates = NULL;
 
     //
-    cnc = new mk1Controller();
+    mk1 = new mk1Controller();
 
 
     drawWorkbench();
@@ -352,13 +352,13 @@ MainWindow::MainWindow(QWidget *parent)
                     scene3d->loadFigure();
                 }
 
-//                 l = reader->getBadList();
-// 
-//                 if (l.count() != 0) {
-//                     foreach (QString s, l) {
-//                         AddLog(s);
-//                     }
-//                 }
+                //                 l = reader->getBadList();
+                //
+                //                 if (l.count() != 0) {
+                //                     foreach (QString s, l) {
+                //                         AddLog(s);
+                //                     }
+                //                 }
 
                 if (gCodeData.count() > 0) {
                     nm.replace(QDir::homePath(), QString("~"));
@@ -440,7 +440,7 @@ bool MainWindow::getLangTable()
     QString lang = currentLang;
     QString fileLang = "";
 
-    foreach (QString iLang, langFiles) {
+    foreach (const QString iLang, langFiles) {
         int pos = iLang.lastIndexOf(":" + lang);
 
         if (pos > 0) {
@@ -537,11 +537,11 @@ void MainWindow::addConnections()
     connect(toolRunMoving, SIGNAL(clicked()), this, SLOT(onRunToPoint()));
 
     // connected or disconnected
-    connect(cnc, SIGNAL(hotplugSignal ()), this, SLOT(onCncHotplug())); // cnc->WasConnected += CncConnect;
-    //     connect(cnc, SIGNAL(hotplugDisconnected ()), this, SLOT(onCncHotplug())); // cnc->WasDisconnected += CncDisconnect;
+    connect(mk1, SIGNAL(hotplugSignal ()), this, SLOT(onCncHotplug())); // cnc->WasConnected += CncConnect;
+    //     connect(mk1, SIGNAL(hotplugDisconnected ()), this, SLOT(onCncHotplug())); // cnc->WasDisconnected += CncDisconnect;
 
-    connect(cnc, SIGNAL(newDataFromMK1Controller ()), this, SLOT(onCncNewData())); // cnc->NewDataFromController += CncNewData;
-    connect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message += CncMessage;
+    connect(mk1, SIGNAL(newDataFromMK1Controller ()), this, SLOT(onCncNewData())); // cnc->NewDataFromController += CncNewData;
+    connect(mk1, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message += CncMessage;
 
     connect(&mainGUITimer, SIGNAL(timeout()), this, SLOT(onRefreshGUITimer()));
     mainGUITimer.start(500);// every 0.5 sec update
@@ -593,7 +593,7 @@ void MainWindow::onDeviceInfo()
 {
     QDialog *gamatosdialog = new QDialog(this);
     gamatosdialog->setWindowTitle("Device information");
-    QLabel *label = new QLabel(cnc->getDescription());
+    QLabel *label = new QLabel(mk1->getDescription());
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(label);
     gamatosdialog->setLayout(mainLayout);
@@ -648,7 +648,7 @@ bool MainWindow::readLangDir()
     QDir dir;
     dirsLang << "/usr/share/cnc-qt/" << "/usr/local/share/cnc-qt/" << currentAppDir;
 
-    foreach(QString entry, dirsLang) {
+    foreach(const QString entry, dirsLang) {
         lngDirName = entry + "/lang/";
 
         dir = QDir(lngDirName);
@@ -682,7 +682,7 @@ bool MainWindow::readLangDir()
     langGroup = new QActionGroup(this);
 
 
-    foreach (QString iL, fList) {
+    foreach (const QString iL, fList) {
         QFile fLang(lngDirName + iL);
 
         if (fLang.exists() == false) {
@@ -1296,13 +1296,13 @@ void MainWindow::setFile(QAction* a)
         scene3d->loadFigure();
     }
 
-//     l = reader->getBadList();
-// 
-//     if (l.count() != 0) {
-//         foreach (QString s, l) {
-//             AddLog(s);
-//         }
-//     }
+    //     l = reader->getBadList();
+    //
+    //     if (l.count() != 0) {
+    //         foreach (QString s, l) {
+    //             AddLog(s);
+    //         }
+    //     }
 
     if (gCodeData.count() > 0) {
         fileStr.replace(QDir::homePath(), QString("~"));
@@ -1412,11 +1412,11 @@ void MainWindow::closeEvent(QCloseEvent* ce)
         return;
     }
 
-    disconnect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
+    disconnect(mk1, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 
     writeSettings();
 
-    delete cnc;
+    delete mk1;
 
     ce->accept();
 
@@ -1440,11 +1440,11 @@ void MainWindow::onExit()
         return;
     }
 
-    disconnect(cnc, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
+    disconnect(mk1, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 
     writeSettings();
 
-    delete cnc;
+    delete mk1;
 
     QCoreApplication::quit();
 }
@@ -1562,7 +1562,7 @@ void MainWindow::onStartTask()
     //         return;    //timer is active, task is running
     //     }
 
-    if (!cnc->isConnected()) {
+    if (!mk1->isConnected()) {
         MessageBox::exec(this, translate(_ERR), translate(_MSG_NO_CONN), QMessageBox::Critical);
         return;
     }
@@ -1622,7 +1622,7 @@ void MainWindow::onStartTask()
     Task::instructionStart = -1;
     Task::instructionNow = -1;
 
-    foreach (GCodeData c, gCodeList) {
+    foreach (const GCodeData c, gCodeList) {
         if(c.numberLine == Task::lineCodeStart && Task::instructionStart == -1) { // get the first only
             Task::instructionStart = c.numberInstruct;
         }
@@ -1820,12 +1820,12 @@ void MainWindow::runNextCommand()
             //             int MaxSpeedZ = 100;
             //             int MaxSpeedA = 100;
 
-            cnc->pack9E(0x05);
+            mk1->pack9E(0x05);
 
-            //             cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
-            cnc->packBF((int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit); // set max velocities
+            //             mk1->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
+            mk1->packBF((int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit); // set max velocities
 
-            cnc->packC0();
+            mk1->packC0();
 
             //moving to the first point axes X and Y
             //TODO: spindle move higher, now 10 mm
@@ -1839,7 +1839,7 @@ void MainWindow::runNextCommand()
             mParams.restPulses = 0;//gcodeNow.stepsCounter;
             mParams.numberInstruction = Task::instrCounter++;
 
-            cnc->packCA(&mParams); // move to init position
+            mk1->packCA(&mParams); // move to init position
 
             //             mParams.posX = gcodeNow.X;
             //             mParams.posY = gcodeNow.Y;
@@ -1850,26 +1850,26 @@ void MainWindow::runNextCommand()
             //             mParams.restPulses = gcodeNow.stepsCounter;
             //             mParams.numberInstruction = Task::instrCounter;
 
-            //             cnc->packCA(&mParams); // move to init position
+            //             mk1->packCA(&mParams); // move to init position
         }
 
         //TODO: move spindle up, possible moving to "home" position
 
-        cnc->packFF();
+        mk1->packFF();
 
-        cnc->pack9D();
+        mk1->pack9D();
 
-        cnc->pack9E(0x02);
+        mk1->pack9E(0x02);
 
-        cnc->packFF();
+        mk1->packFF();
 
-        cnc->packFF();
+        mk1->packFF();
 
-        cnc->packFF();
+        mk1->packFF();
 
-        cnc->packFF();
+        mk1->packFF();
 
-        cnc->packFF();
+        mk1->packFF();
 
         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
 
@@ -1900,12 +1900,12 @@ void MainWindow::runNextCommand()
         //         int MaxSpeedZ = 100;
         //         int MaxSpeedA = 100;
 
-        cnc->pack9E(0x05);
+        mk1->pack9E(0x05);
 
-        //         cnc->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
-        cnc->packBF((int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit); // set max velocities
+        //         mk1->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
+        mk1->packBF((int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit); // set max velocities
 
-        cnc->packC0();
+        mk1->packC0();
 
         //moving to the first point axes X and Y
         //TODO: spindle move higher, now 10 mm
@@ -1919,7 +1919,7 @@ void MainWindow::runNextCommand()
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
         mParams.numberInstruction = 0;
 
-        cnc->packCA(&mParams); // move to init position
+        mk1->packCA(&mParams); // move to init position
 
         mParams.posX = gcodeNow.X;
         mParams.posY = gcodeNow.Y;
@@ -1930,7 +1930,7 @@ void MainWindow::runNextCommand()
         mParams.restPulses = gcodeNow.stepsCounter;
         mParams.numberInstruction = Task::instrCounter;
 
-        cnc->packCA(&mParams); // move to init position
+        mk1->packCA(&mParams); // move to init position
 
         currentStatus = Task::Working;
 
@@ -1955,20 +1955,20 @@ void MainWindow::runNextCommand()
 
 
     //TODO: to add in parameter the value
-    if (cnc->availableBufferSize() <= 3) {
+    if (mk1->availableBufferSize() <= 3) {
         return;    // nothing before buffer clean
     }
 
 #if 1
 
     //TODO: to add in parameter the value
-    if (Task::instrCounter > (cnc->numberCompleatedInstructions() + cnc->availableBufferSize())) {
+    if (Task::instrCounter > (mk1->numberCompleatedInstructions() + mk1->availableBufferSize())) {
         return;    // don't send more than N commands
     }
 
 #endif
 
-    //     qDebug() << "buff size free: " << cnc->availableBufferSize() - 3 << "current instruction: " << Task::instrCounter << "compleate instructions: " << cnc->numberCompleatedInstructions();
+    //     qDebug() << "buff size free: " << mk1->availableBufferSize() - 3 << "current instruction: " << Task::instrCounter << "compleate instructions: " << mk1->numberCompleatedInstructions();
 
     //command G4 or M0
     if (gcodeNow.pauseMSeconds != -1) {
@@ -1998,9 +1998,9 @@ void MainWindow::runNextCommand()
 
     int commands = 1;
 
-    if (Task::instrCounter > cnc->numberCompleatedInstructions()) {
-        commands = cnc->availableBufferSize() - 3;
-        //         commands = (Task::instrCounter - (cnc->numberCompleatedInstructions() - cnc->availableBufferSize()));
+    if (Task::instrCounter > mk1->numberCompleatedInstructions()) {
+        commands = mk1->availableBufferSize() - 3;
+        //         commands = (Task::instrCounter - (mk1->numberCompleatedInstructions() - mk1->availableBufferSize()));
     }
 
     for (int i = 0; i < commands; i++) {
@@ -2044,7 +2044,7 @@ void MainWindow::runNextCommand()
 
             gcodeNow.numberInstruction = mParams.numberInstruction;
 
-            cnc->packCA(&mParams); // move to init position
+            mk1->packCA(&mParams); // move to init position
 
             if (Task::instrCounter < gCodeData.count()) {
                 gcodeNow = gCodeData.at(Task::instrCounter);
@@ -2094,7 +2094,7 @@ void MainWindow::moveToPoint(bool surfaceScan)
     int speed = 0;
     float posX, posY, posZ, posA;
 
-    if (cnc->isConnected() == false) {
+    if (mk1->isConnected() == false) {
         return;
     }
 
@@ -2118,11 +2118,11 @@ void MainWindow::moveToPoint(bool surfaceScan)
         posA = numAngleGrad->value();
     }
 
-    cnc->pack9E(0x05);
+    mk1->pack9E(0x05);
 
-    cnc->packBF(speed, speed, speed, speed);
+    mk1->packBF(speed, speed, speed, speed);
 
-    cnc->packC0();
+    mk1->packC0();
 
     {
         moveParameters mParams;
@@ -2135,24 +2135,24 @@ void MainWindow::moveToPoint(bool surfaceScan)
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
         mParams.numberInstruction = 0;
 
-        cnc->packCA(&mParams);
+        mk1->packCA(&mParams);
     }
 
-    cnc->packFF();
+    mk1->packFF();
 
-    cnc->pack9D();
+    mk1->pack9D();
 
-    cnc->pack9E(0x02);
+    mk1->pack9E(0x02);
 
-    cnc->packFF();
+    mk1->packFF();
 
-    cnc->packFF();
+    mk1->packFF();
 
-    cnc->packFF();
+    mk1->packFF();
 
-    cnc->packFF();
+    mk1->packFF();
 
-    cnc->packFF();
+    mk1->packFF();
 }
 
 
@@ -2162,11 +2162,11 @@ void MainWindow::moveToPoint(bool surfaceScan)
  */
 void MainWindow::onRunToPoint()
 {
-    if (!cnc->testAllowActions()) {
+    if (!mk1->testAllowActions()) {
         return;
     }
 
-    cnc->sendSettings();
+    mk1->sendSettings();
 
     moveToPoint();
 }
@@ -2191,12 +2191,12 @@ void MainWindow::SendSignal()
     }
 
     if (checkEnSpindle->isChecked()) {
-        cnc->spindleON();
+        mk1->spindleON();
     } else {
-        cnc->spindleOFF();
+        mk1->spindleOFF();
     }
 
-    cnc->packB5(checkEnSpindle->isChecked(), (int)spinBoxChann->value(), tSign, (int)spinBoxVelo->value());
+    mk1->packB5(checkEnSpindle->isChecked(), (int)spinBoxChann->value(), tSign, (int)spinBoxVelo->value());
 }
 
 /**
@@ -2312,7 +2312,7 @@ void MainWindow::onCncMessage(int n_msg)
  */
 void MainWindow::onCncHotplug()
 {
-    bool e = cnc->isConnected();
+    bool e = mk1->isConnected();
 
     if (e == true) {
         AddLog(translate(_HOTPLUGED));
@@ -2334,7 +2334,7 @@ void MainWindow::onCncHotplug()
  */
 void  MainWindow::refreshElementsForms()
 {
-    bool cncConnected = cnc->isConnected();
+    bool cncConnected = mk1->isConnected();
 
     groupPosition->setEnabled( cncConnected );
     groupManualControl->setEnabled( cncConnected );
@@ -2346,8 +2346,8 @@ void  MainWindow::refreshElementsForms()
     actionMist->setEnabled( cncConnected );
     actionFluid->setEnabled( cncConnected );
 
-    labelSpeed->setText( QString::number(cnc->getSpindleMoveSpeed()) + translate(_MM_MIN));
-    //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(cnc->numberCompleatedInstructions()));
+    labelSpeed->setText( QString::number(mk1->getSpindleMoveSpeed()) + translate(_MM_MIN));
+    //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(mk1->numberCompleatedInstructions()));
 
     if (!cncConnected ) {
         QPixmap grayPix = QPixmap(":/images/ball_gray.png");
@@ -2409,10 +2409,10 @@ void  MainWindow::refreshElementsForms()
     lineVpulses->setText(QString::number(Settings::coord[V].actualPosPulses));
     lineWpulses->setText(QString::number(Settings::coord[W].actualPosPulses));
 
-    lineInstructions->setText(QString::number(cnc->numberCompleatedInstructions()));
+    lineInstructions->setText(QString::number(mk1->numberCompleatedInstructions()));
 #if 0
 
-    if (cnc->isEmergencyStopOn()) {
+    if (mk1->isEmergencyStopOn()) {
         actionStop->setStyleSheet("" );
         QPalette palette = actionStop->palette();
         palette.setColor(actionStop->backgroundRole(), Qt::red);
@@ -2428,7 +2428,7 @@ void  MainWindow::refreshElementsForms()
     // QLabel* pLabel = new QLabel;
     // pLabel->setStyleSheet("QLabel { background-color : red; color : blue; }" );
 
-    if (cnc->isSpindelOn()) {
+    if (mk1->isSpindelOn()) {
         actionSpindle->BackColor = Color.Green;
         actionSpindle->ForeColor = Color.White;
     } else {
@@ -2536,11 +2536,11 @@ void  MainWindow::refreshElementsForms()
         }
 
         if (currentStatus == Task::Working) {
-            int complectaed = cnc->numberCompleatedInstructions();
+            int complectaed = mk1->numberCompleatedInstructions();
             int lineNum = 0;
 
             // TODO to link with line number
-            foreach (GCodeData v, gCodeData) {
+            foreach (const GCodeData v, gCodeData) {
                 if (v.numberInstruction > complectaed) {
                     break;
                 }
@@ -2550,9 +2550,9 @@ void  MainWindow::refreshElementsForms()
 
             statusProgress->setValue( lineNum );
 
-            //listGkodeForUser.Rows[cnc->NumberComleatedInstructions].Selected = true;
+            //listGkodeForUser.Rows[mk1->NumberComleatedInstructions].Selected = true;
             //TODO: to overwork it, because of resetting of selected ragne
-            //listGCodeWidget->currentIndex() = cnc->NumberComleatedInstructions;
+            //listGCodeWidget->currentIndex() = mk1->NumberComleatedInstructions;
             toolRun->setEnabled( false );
             toolStop->setEnabled( true);
             toolPause->setEnabled( true );
@@ -2694,7 +2694,7 @@ void MainWindow::fixGCodeList()
 #if 0
 
     // now debug
-    foreach (GCodeData d, gCodeList) {
+    foreach (const GCodeData d, gCodeList) {
         qDebug() << "line:" << d.numberLine << "accel:" << (hex) << d.movingCode << (dec) << "max coeff:" << d.vectorCoeff << "splits:" <<  d.splits
                  << "steps:" << d.stepsCounter << "vector speed:" << d.vectSpeed << "coords:" << d.X << d.Y << "delta angle:" << d.deltaAngle;
     }
@@ -2975,13 +2975,13 @@ void MainWindow::onOpenFile()
         scene3d->loadFigure();
     }
 
-//     l = reader->getBadList();
-// 
-//     if (l.count() != 0) {
-//         foreach (QString s, l) {
-//             AddLog(s);
-//         }
-//     }
+    //     l = reader->getBadList();
+    //
+    //     if (l.count() != 0) {
+    //         foreach (QString s, l) {
+    //             AddLog(s);
+    //         }
+    //     }
 
     if (gCodeData.count() > 0) {
         nm.replace(QDir::homePath(), QString("~"));
@@ -3025,7 +3025,7 @@ void MainWindow::onSettings()
     int dlgResult = setfrm->exec();
 
     if (dlgResult == QMessageBox::Accepted) {
-        cnc->sendSettings();
+        mk1->sendSettings();
         writeSettings();
 
         if (enableOpenGL == true) {
@@ -3097,12 +3097,12 @@ void MainWindow::onAbout()
  */
 void MainWindow::onMist()
 {
-    if (cnc->isMistOn()) {
+    if (mk1->isMistOn()) {
         actionMist->setIcon(QIcon(QPixmap(":/images/mist_off.png")));
-        cnc->mistOFF();
+        mk1->mistOFF();
     } else {
         actionMist->setIcon(QIcon(QPixmap(":/images/mist_on.png")));
-        cnc->mistON();
+        mk1->mistON();
     }
 }
 
@@ -3113,12 +3113,12 @@ void MainWindow::onMist()
  */
 void MainWindow::onFluid()
 {
-    if (cnc->isFluidOn()) {
+    if (mk1->isFluidOn()) {
         actionFluid->setIcon(QIcon(QPixmap(":/images/coolant_off.png")));
-        cnc->fluidOFF();
+        mk1->fluidOFF();
     } else {
         actionFluid->setIcon(QIcon(QPixmap(":/images/coolant_on.png")));
-        cnc->fluidON();
+        mk1->fluidON();
     }
 }
 
@@ -3128,12 +3128,12 @@ void MainWindow::onFluid()
  */
 void MainWindow::onSpindel()
 {
-    if (cnc->isSpindelOn()) {
+    if (mk1->isSpindelOn()) {
         actionSpindle->setIcon(QIcon(QPixmap(":/images/forward_off.png")));
-        cnc->spindleOFF();
+        mk1->spindleOFF();
     } else {
         actionSpindle->setIcon(QIcon(QPixmap(":/images/forward_on.png")));
-        cnc->spindleON();
+        mk1->spindleON();
     }
 }
 
@@ -3144,7 +3144,7 @@ void MainWindow::onSpindel()
  */
 void MainWindow::onEmergyStop()
 {
-    cnc->emergyStop();
+    mk1->emergyStop();
 }
 
 #if 0
@@ -3214,7 +3214,7 @@ void MainWindow::onEditGCode(int row, int col)
  */
 void MainWindow::onButtonXtoZero()
 {
-    cnc->deviceNewPosition(0, Settings::coord[Y].actualPosPulses, Settings::coord[Z].actualPosPulses, Settings::coord[A].actualPosPulses);
+    mk1->deviceNewPosition(0, Settings::coord[Y].actualPosPulses, Settings::coord[Z].actualPosPulses, Settings::coord[A].actualPosPulses);
     numPosX->setValue(0.0);
 }
 
@@ -3225,7 +3225,7 @@ void MainWindow::onButtonXtoZero()
  */
 void MainWindow::onButtonYtoZero()
 {
-    cnc->deviceNewPosition(Settings::coord[X].actualPosPulses, 0, Settings::coord[Z].actualPosPulses, Settings::coord[A].actualPosPulses);
+    mk1->deviceNewPosition(Settings::coord[X].actualPosPulses, 0, Settings::coord[Z].actualPosPulses, Settings::coord[A].actualPosPulses);
     numPosY->setValue(0.0);
 }
 
@@ -3236,7 +3236,7 @@ void MainWindow::onButtonYtoZero()
  */
 void MainWindow::onButtonZtoZero()
 {
-    cnc->deviceNewPosition(Settings::coord[X].actualPosPulses, Settings::coord[Y].actualPosPulses, 0, Settings::coord[A].actualPosPulses);
+    mk1->deviceNewPosition(Settings::coord[X].actualPosPulses, Settings::coord[Y].actualPosPulses, 0, Settings::coord[A].actualPosPulses);
     numPosZ->setValue(0.0);
 }
 
@@ -3256,7 +3256,7 @@ void MainWindow::logMessage(const QString &msg)
  */
 void MainWindow::onButtonAtoZero()
 {
-    cnc->deviceNewPosition(Settings::coord[X].actualPosPulses, Settings::coord[Y].actualPosPulses, Settings::coord[Z].actualPosPulses, 0);
+    mk1->deviceNewPosition(Settings::coord[X].actualPosPulses, Settings::coord[Y].actualPosPulses, Settings::coord[Z].actualPosPulses, 0);
     numAngleGrad->setValue(0.0);
 }
 

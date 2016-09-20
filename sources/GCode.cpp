@@ -33,12 +33,12 @@
 #include <QObject>
 #include <QRegExp>
 #include <QDebug>
-#include <QTime>
+// #include <QTime>
 #include <QString>
 // #include <QStringData>
 
 #include <cmath>
-#include <limits>
+// #include <limits>
 
 #include "includes/Settings.h"
 #include "includes/GCode.h"
@@ -185,7 +185,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     //  lock();
 
     goodList.clear();
-//     badList.clear();
+    //     badList.clear();
 
     //  unlock();
 
@@ -326,19 +326,20 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             while ((pos = rx.indexIn(lineStream, pos)) != -1) {
                 QChar c = rx.cap(0).at(0);
 
+                pos += rx.matchedLength();
+
                 if (c == 'N') { // ignore line number
                     continue;
                 }
 
                 tmpStr += rx.cap(0);
                 tmpStr += " ";
-                pos += rx.matchedLength();
             }
         }
 
         if (tmpStr.length() == 0) {
             emit logMessage(QString("gcode parsing error: " + lineStream));
-//             badList << lineStream;
+            //             badList << lineStream;
             continue;
         }
 
@@ -349,7 +350,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                 tmpStr = QString(lastCmd + " " + tmpStr);
             } else {
                 emit logMessage(QString("gcode parsing error: " + lineStream));
-//                 badList << QString::number(lineNr - 1) + ": " + lineStream;
+                //                 badList << QString::number(lineNr - 1) + ": " + lineStream;
             }
         } else {
             int posSpace = tmpStr.indexOf(" ");
@@ -394,13 +395,13 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
     foreach(QString line, gCodeLines) {
         decoded = true;
-        QVector<QStringRef> vctRO = line.simplified().splitRef(" ", QString::SkipEmptyParts);
-        QString cmd = vctRO.at(0).toString();
+        QStringList vct_ref = line.simplified().split(" ", QString::SkipEmptyParts);
+        const QString cmd = vct_ref.at(0);
 
         if (cmd.isEmpty()) {
             continue;
         }
-
+// qDebug() << cmd << line;
         switch(cmd.at(0).toLatin1()) {
             case 'G': {
                 if (cmd == "G00") { // eilgang
@@ -507,7 +508,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     // float E_arc(-1.0);
                     float radius = 0.0;
 
-                     if (parseArc(line, arc_center, radius, coef ) == false) {
+                    if (parseArc(line, arc_center, radius, coef ) == false) {
                         decoded = false;
                         break;
                     }
@@ -551,8 +552,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                 if (cmd == "G04") {
                     // need next parameter
-                    QStringRef property1 = vctRO.at(1).mid(0, 1);
-                    QStringRef value1 = vctRO.at(1).mid(1);
+                    QString property1 = vct_ref.at(1).mid(0, 1);
+                    QString value1 = vct_ref.at(1).mid(1);
 
                     if (property1 == "P") {
                         bool res;
@@ -603,9 +604,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                 }
 
                 if (cmd == "G28") {
-                    QVector3D next_pos(std::numeric_limits<float>::infinity(),
-                                       std::numeric_limits<float>::infinity(),
-                                       std::numeric_limits<float>::infinity());
+                    QVector3D next_pos(qInf(),
+                                       qInf(),
+                                       qInf());
                     float E;
 
                     if (parseCoord(line, next_pos, E, coef) == false) {
@@ -613,13 +614,13 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                         break;
                     }
 
-                    if (next_pos[0] == std::numeric_limits<float>::infinity()
-                            && next_pos[1] == std::numeric_limits<float>::infinity()
-                            && next_pos[2] == std::numeric_limits<float>::infinity()) {
+                    if (qIsInf(next_pos[0])
+                            && qIsInf(next_pos[1])
+                            && qIsInf(next_pos[2])) {
                         current_pos = origin = QVector3D(0, 0, 0);
                     } else {
                         for(size_t i = 0 ; i < 3 ; ++i) {
-                            if (next_pos[i] != std::numeric_limits<float>::infinity()) {
+                            if (qIsInf(next_pos[i])) {
                                 current_pos[i] = 0;
                                 origin[i] = 0;
                             }
@@ -649,14 +650,16 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     }
 
                     origin = current_pos - next_pos;
-                    
+
                     break;
                 }
-                
+
+                // Home axes to minimum
                 if (cmd == "G161") {
                     break;
                 }
-                
+
+                // Home axes to maximum
                 if (cmd == "G162") {
                     break;
                 }
@@ -683,8 +686,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                 if (cmd == "M06") {
                     // need next parameter
-                    QStringRef property1 = vctRO.at(1).mid(0, 1);
-                    QStringRef value1 = vctRO.at(1).mid(1);
+                    QString property1 = vct_ref.at(1).mid(0, 1);
+                    QString value1 = vct_ref.at(1).mid(1);
 
                     if (property1 == "T") {
                         tmpCommand->changeInstrument = true;
@@ -701,11 +704,11 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                             decoded = false;
                         }
 
-                        if (vctRO.count() > 2) {
-                            QStringRef property2 = vctRO.at(2).mid(0, 1);
+                        if (vct_ref.count() > 2) {
+                            QString property2 = vct_ref.at(2).mid(0, 1);
 
                             if ( property2 == "D" ) {
-                                QString value2 = vctRO.at(2).mid(1).toString().replace(Settings::fromDecimalPoint, Settings::toDecimalPoint);
+                                QString value2 = vct_ref.at(2).mid(1).replace(Settings::fromDecimalPoint, Settings::toDecimalPoint);
 
                                 tmpCommand->diametr = value2.toDouble(&res);
 
@@ -720,46 +723,57 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     break;
                 }
 
+                // Disable all stepper motors
                 if (cmd == "M18") {
                     break;
                 }
-                
+
+                // Turn extruder 1 on (Forward), Undo Retraction
                 if (cmd == "M101") {
                     break;
                 }
-                
+
+                // Turn extruder 1 on (Reverse)
                 if (cmd == "M102") {
                     break;
                 }
-                
+
+                // Turn all extruders off, Extruder Retraction
                 if (cmd == "M103") {
                     break;
                 }
-                
+
+                // Set Extruder Temperature
                 if (cmd == "M104") {
                     break;
                 }
-                
+
+                // Get Extruder Temperature
                 if (cmd == "M105") {
                     break;
                 }
-                
+
+                // Set Extruder Speed (BFB)
                 if (cmd == "M108") {
                     break;
                 }
-                
+
+                // Set Extruder Temperature and Wait
                 if (cmd == "M109") {
                     break;
                 }
-                
+
+                // Set Extruder PWM
                 if (cmd == "M113") {
                     break;
                 }
-                
+
+                //
                 if (cmd == "M132") {
                     break;
                 }
-                
+
+                //
                 if (cmd == "M206") {
                     float E;
 
@@ -815,7 +829,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
  */
 void GCodeParser::detectMinMax(const GCodeData &d)
 {
-    //     if (pos > 0 && pos < gCodeData.size()) {
     if (d.X > Settings::coord[X].softLimitMax) {
         Settings::coord[X].softLimitMax = d.X;
     }
@@ -839,18 +852,6 @@ void GCodeParser::detectMinMax(const GCodeData &d)
     if (d.Z < Settings::coord[Z].softLimitMin) {
         Settings::coord[Z].softLimitMin = d.Z;
     }
-
-    //         return;
-    //     }
-
-    //     if (pos == 0) {
-    //         Settings::coord[X].softLimitMax = gCodeData.at(pos).X;
-    //         Settings::coord[X].softLimitMin = gCodeData.at(pos).X;
-    //         Settings::coord[Y].softLimitMax = gCodeData.at(pos).Y;
-    //         Settings::coord[Y].softLimitMin = gCodeData.at(pos).Y;
-    //         Settings::coord[Z].softLimitMax = gCodeData.at(pos).Z;
-    //         Settings::coord[Z].softLimitMin = gCodeData.at(pos).Z;
-    //     }
 }
 
 
@@ -1342,11 +1343,11 @@ bool GCodeParser::parseArc(const QString &line, QVector3D &pos, float &R, const 
         return false;
     }
 
-    QVector<QStringRef> chunksRO = line.splitRef(" ", QString::SkipEmptyParts);
-    
-    QVector3D arc(COORD_TOO_BIG, COORD_TOO_BIG, COORD_TOO_BIG); // too big coordinates
+    QVector<QStringRef> chunks_ref = line.splitRef(" ", QString::SkipEmptyParts);
 
-    if (chunksRO.count() <= 1) {
+    QVector3D arc(qInf(), qInf(), qInf()); // too big coordinates
+
+    if (chunks_ref.count() <= 1) {
         return false;
     }
 
@@ -1354,8 +1355,8 @@ bool GCodeParser::parseArc(const QString &line, QVector3D &pos, float &R, const 
 
     R = 0.0;
 
-    for (int i = 1; i < chunksRO.count(); i++) {
-        QStringRef s = chunksRO.at(i);
+    for (int i = 1; i < chunks_ref.count(); i++) {
+        QStringRef s = chunks_ref.at(i);
         bool conv;
 
         switch(s.at(0).toLatin1()) {
@@ -1364,9 +1365,6 @@ bool GCodeParser::parseArc(const QString &line, QVector3D &pos, float &R, const 
 
                 if (conv == true) {
                     res = true;
-                }
-                else{
-                    qDebug() << "i" << s.right(s.size() - 1) << s.right(s.size() - 1).toDouble();
                 }
 
                 break;
@@ -1377,9 +1375,6 @@ bool GCodeParser::parseArc(const QString &line, QVector3D &pos, float &R, const 
 
                 if (conv == true) {
                     res = true;
-                }
-                else{
-                    qDebug() << "j" << s.right(s.size() - 1) << s.right(s.size() - 1).toDouble();
                 }
 
                 break;
@@ -1429,16 +1424,16 @@ bool GCodeParser::parseCoord(const QString &line, QVector3D &pos, float &E, cons
         return false;
     }
 
-    QVector<QStringRef> chunksRO = line.splitRef(" ", QString::SkipEmptyParts);
+    QVector<QStringRef> chunks_ref = line.splitRef(" ", QString::SkipEmptyParts);
 
-    if (chunksRO.count() <= 1) {
+    if (chunks_ref.count() <= 1) {
         return false;
     }
 
     bool res = false;
 
-    for (int i=1; i< chunksRO.count(); i++) {
-        QStringRef s = chunksRO.at(i);
+    for (int i = 1; i < chunks_ref.count(); i++) {
+        QStringRef s = chunks_ref.at(i);
         bool conv;
 
         switch(s.at(0).toLatin1()) {
@@ -1447,9 +1442,6 @@ bool GCodeParser::parseCoord(const QString &line, QVector3D &pos, float &E, cons
 
                 if (conv == true) {
                     res = true;
-                }
-                else{
-                    qDebug() << "x" << s.right(s.size() - 1) << s.right(s.size() - 1).toDouble();
                 }
 
                 break;
@@ -1461,9 +1453,6 @@ bool GCodeParser::parseCoord(const QString &line, QVector3D &pos, float &E, cons
                 if (conv == true) {
                     res = true;
                 }
-                else{
-                    qDebug() << "y" << s.right(s.size() - 1) << s.right(s.size() - 1).toDouble();
-                }
 
                 break;
             }
@@ -1473,6 +1462,9 @@ bool GCodeParser::parseCoord(const QString &line, QVector3D &pos, float &E, cons
 
                 if (conv == true) {
                     res = true;
+                }
+                else{
+                    qDebug () << "z" << s.right(s.size() - 1);
                 }
 
                 break;
@@ -1523,16 +1515,6 @@ QVector<QString> GCodeParser::getGoodList()
 {
     return goodList;
 }
-
-
-/**
- * @brief
- *
- */
-// QVector<QString> GCodeParser::getBadList()
-// {
-//     return badList;
-// }
 
 
 /**

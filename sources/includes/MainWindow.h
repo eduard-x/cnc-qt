@@ -173,7 +173,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         Task::StatusTask getStatus();
 
     public:
-        mk1Controller *cnc;
+        mk1Controller *mk1;
 
         QVector<QVector<dPoint> > surfaceMatrix; // scanned points of surface
         int scanPosX;

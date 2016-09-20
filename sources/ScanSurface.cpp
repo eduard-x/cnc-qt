@@ -46,7 +46,7 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
 
     parent = static_cast<MainWindow*>(p);
 
-    cnc = parent->cnc;
+    cnc = parent->mk1;
 
     setStyleSheet(parent->programStyleSheet);
 
@@ -423,7 +423,7 @@ ScanThread::ScanThread(QObject* p)
 {
     sParent = static_cast<ScanSurfaceDialog*>(p);
     parent = sParent->parent;
-    cnc = parent->cnc;
+    cnc = parent->mk1;
 
     setTerminationEnabled(true);
 }

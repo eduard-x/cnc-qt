@@ -74,7 +74,7 @@ GLWidget::GLWidget(QWidget *p)
 
     parent = (MainWindow*)p;
 
-    cnc = parent->cnc;
+    cnc = parent->mk1;
 
     parent->PosX = -50;
     parent->PosY = -50;
@@ -348,7 +348,7 @@ void GLWidget::initStaticElements()
 {
     int i = 0;
 
-    foreach (GCodeData vv, parent->gCodeData) {
+    foreach (const GCodeData vv, parent->gCodeData) {
         QColor cl;
 
         if (vv.movingCode == RAPID_LINE_CODE) {
@@ -511,8 +511,8 @@ void GLWidget::initStaticElements()
                               QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
                 };
             }
-            
-            // now points 
+
+            // now points
             surfacePoints << (VertexData) {
                 QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z},
                           QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
@@ -520,8 +520,9 @@ void GLWidget::initStaticElements()
         }
     }
 
-  
+
 #if 0
+
     for (int y = 0; y < maxY; y++) {
         for (int x = 0; x < maxX; x++) {
             //point
@@ -531,7 +532,8 @@ void GLWidget::initStaticElements()
             };
         }
     }
-#endif 
+
+#endif
 }
 
 
@@ -580,7 +582,7 @@ void GLWidget::loadFigure()
     figure.clear();
 
     if (parent->gCodeData.count() > 1) {
-        foreach (GCodeData vv, parent->gCodeData) {
+        foreach (const GCodeData vv, parent->gCodeData) {
             QColor cl;
 
             if (vv.movingCode == RAPID_LINE_CODE) {

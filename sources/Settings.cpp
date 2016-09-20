@@ -108,7 +108,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
 
     parent = static_cast<MainWindow*>(p);
 
-    cnc = parent->cnc;
+    cnc = parent->mk1;
 
     setStyleSheet(parent->programStyleSheet);
 

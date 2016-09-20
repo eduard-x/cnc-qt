@@ -57,7 +57,7 @@ class cTranslator;
 class GCodeParser;
 
 
-#define COORD_TOO_BIG 10e6
+// #define COORD_TOO_BIG 10e6
 #define MAX_FILE_SIZE 20e6
 
 
