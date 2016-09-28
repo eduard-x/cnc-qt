@@ -41,6 +41,8 @@ For connection with hardware please copy the file udev/rules.d/z90_cncusb.rules 
 
 Version history
 
+0.2.4   overworked coordinates structures
+        ticket #1 fixed: include for Geometry.cpp
 0.2.3   option "filtering" of duplicated gcode parameter
         gcode parser 20% faster 
 0.2.2   removed structures colorGL, pointGL, file vec.h
