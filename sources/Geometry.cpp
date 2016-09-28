@@ -29,8 +29,10 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-
+#include <QtCore/qmath.h>
 #include "includes/Geometry.h"
+
+enum AxisNames { X = 0, Y, Z, A, B, C, U, V, W };
 
 
 /******************************************************************************
@@ -39,34 +41,33 @@
 // http://people.sc.fsu.edu/~jburkardt/m_src/m_src.html
 // see the Hermite polynomial calculation
 
-//класс для работы с геометрией
 // public static class Geometry
 // {
 /*
- *    Корректировка высоты по оси Z, у точки №5, зная высоту по Z у точек 1,2,3,4
+ *    Корректировка высоты по axis Z, у точки 5, зная высоту по Z у точек 1,2,3,4
  *
- *  /\ ось Y
+ *  /\ axis Y
  *  |
- *  |    (точка №1) -------------*--------------- (точка №2)
+ *  |     (point 1) -------------*--------------- (point 2)
  *  |                            |
  *  |                            |
  *  |                            |
- *  |                       (точка №5)
+ *  |                        (point 5)
  *  |                            |
  *  |                            |
- *  |    (точка №3) -------------*--------------- (точка №4)
+ *  |     (point 3) -------------*--------------- (point 4)
  *  |
  *  |
- *  *----------------------------------------------------------------> ось X
+ *  *----------------------------------------------------------------> axis X
  *  Корректировка выполняется следующим образом:
- *  1) зная координату X у точки 5, и координаты точек 1 и 2, вычисляем высоту Z в точке которая находится на линии точек 1,2 и перпендикулярно 5-й точке (получает точку №12)
- *  2) Тоже самое вычисляется для точки на линии точек 3,4 (получает точку №34)
- *  3) Зная координаты точек №12, №34 и значение по оси Y у точки 5, вычисляем высоту по оси Z
+ *  1) зная координату X у точки 5, и координаты точек 1 и 2, вычисляем высоту Z в точке которая находится на линии точек 1,2 и перпендикулярно 5-й точке (получает точку 1..2)
+ *  2) Тоже самое вычисляется для точки на линии точек 3,4 (получает точку 3..4)
+ *  3) Зная координаты точек 1..2, 3..4 и значение по axis Y у точки 5, вычисляем высоту по axis Z
  */
 
 
 ///
-/// Функция корректирует высоту по оси Z
+/// methode for correction of heght of Z axis
 ///
 /// p1 first point of second line X
 /// p2 second point of first line X
@@ -75,42 +76,45 @@
 /// p5 correcture pont for the Z calculation
 ///
 
-dPoint Geometry::GetZ(dPoint p1, dPoint p2, dPoint p3, dPoint p4, dPoint p5)
+coord Geometry::GetZ(coord p1, coord p2, coord p3, coord p4, coord p5)
 {
-    dPoint p12 = CalcPX(p1, p2, p5);
-    dPoint p34 = CalcPX(p3, p4, p5);
+    coord p12 = CalcPX(p1, p2, p5);
+    coord p34 = CalcPX(p3, p4, p5);
 
-    dPoint p1234 = CalcPY(p12, p34, p5);
+    coord p1234 = CalcPY(p12, p34, p5);
 
     return p1234;
 }
 
 
 //нахождение высоты Z точки p0, лежащей на прямой которая паралельна оси X
-dPoint Geometry::CalcPX(dPoint p1, dPoint p2, dPoint p0)
+coord Geometry::CalcPX(coord p1, coord p2, coord p0)
 {
-    dPoint retPoint = (dPoint) {
-        p0.X, p0.Y, p0.Z, 0.0
+    coord retPoint = (coord) {
+        p0.pos[X], p0.pos[Y], p0.pos[Z], 0.0
     };
 
-    retPoint.Z = p1.Z + (((p1.Z - p2.Z) / (p1.X - p2.X)) * (p0.X - p1.X));
+    if ((p1.pos[X] != p2.pos[X]) && (p0.pos[X] != p1.pos[X])) {
+        retPoint.pos[Z] = p1.pos[Z] + (((p1.pos[Z] - p2.pos[Z]) / (p1.pos[X] - p2.pos[X])) * (p0.pos[X] - p1.pos[X]));
+    }
 
     //TODO: учесть на будущее что точка 1 и 2 могут лежать не на одной паралльной линии оси Х
-    retPoint.Y = p1.Y;
+    retPoint.pos[Y] = p1.pos[Y];
 
     return retPoint;
 }
 
-
-//TODO: деление на ноль
+//
 //нахождение высоты Z точки p0, лежащей на прямой между точками p3 p4  (прямая паралельна оси Y)
-dPoint Geometry::CalcPY(dPoint p1, dPoint p2, dPoint p0)
+coord Geometry::CalcPY(coord p1, coord p2, coord p0)
 {
-    dPoint retPoint  = (dPoint) {
-        p0.X, p0.Y, p0.Z, 0.0
+    coord retPoint  = (coord) {
+        p0.pos[X], p0.pos[Y], p0.pos[Z], 0.0
     };
 
-    retPoint.Z = p1.Z + (((p1.Z - p2.Z) / (p1.Y - p2.Y)) * (p0.Y - p1.Y));
+    if ((p1.pos[Y] != p2.pos[Y]) && (p0.pos[Y] != p1.pos[Y])) {
+        retPoint.pos[Z] = p1.pos[Z] + (((p1.pos[Z] - p2.pos[Z]) / (p1.pos[Y] - p2.pos[Y])) * (p0.pos[Y] - p1.pos[Y]));
+    }
 
     return retPoint;
 }
@@ -188,8 +192,8 @@ float Geometry::bicubicInterpolate(QRectF borderRect, QAbstractTableModel *baseP
     x -= borderRect.x();
     y -= borderRect.y();
 
-    int ix = trunc(x / gridStepX);
-    int iy = trunc(y / gridStepY);
+    int ix = qFloor(x / gridStepX);
+    int iy = qFloor(y / gridStepY);
 
     if (ix > basePoints->columnCount() - 2) {
         ix = basePoints->columnCount() - 2;

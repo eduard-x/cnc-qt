@@ -39,20 +39,24 @@
 // #include "vec.h"
 
 
-struct dPoint {
-    float X;       // coord in mm
-    float Y;       // coord in mm
-    float Z;       // coord in mm
-    float A;       // angle in °
+// struct dPoint {
+//   float X;       // coord in mm
+//     float Y;       // coord in mm
+//     float Z;       // coord in mm
+//     float A;       // angle in °
+// };
+
+struct coord {
+    float pos[4];
 };
 
 
 class Geometry
 {
     public:
-        static dPoint GetZ(dPoint p1, dPoint p2, dPoint p3, dPoint p4, dPoint p5);
-        static dPoint CalcPX(dPoint p1, dPoint p2, dPoint p0);
-        static dPoint CalcPY(dPoint p1, dPoint p2, dPoint p0);
+        static coord GetZ(coord p1, coord p2, coord p3, coord p4, coord p5);
+        static coord CalcPX(coord p1, coord p2, coord p0);
+        static coord CalcPY(coord p1, coord p2, coord p0);
 
         float cubicHermiteInterpolate (const float v[4] , float t);
         float bicubicHermitePatch(const float vv[4][4], float u, float v);

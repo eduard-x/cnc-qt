@@ -1823,17 +1823,18 @@ void MainWindow::runNextCommand()
             mk1->pack9E(0x05);
 
             //             mk1->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
-            mk1->packBF((int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit); // set max velocities
+            int limits[4] = {(int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit};
+            mk1->packBF(limits); // set max velocities
 
             mk1->packC0();
 
             //moving to the first point axes X and Y
             //TODO: spindle move higher, now 10 mm
             moveParameters mParams;
-            mParams.posX = Settings::coord[X].startPos;
-            mParams.posY = Settings::coord[Y].startPos;
-            mParams.posZ = Settings::coord[Z].startPos + 10.0;
-            mParams.posA = Settings::coord[A].startPos;//, userSpeedG0;
+            mParams.pos[X] = Settings::coord[X].startPos;
+            mParams.pos[Y] = Settings::coord[Y].startPos;
+            mParams.pos[Z] = Settings::coord[Z].startPos + 10.0;
+            mParams.pos[A] = Settings::coord[A].startPos;//, userSpeedG0;
             mParams.speed = 0;//gcodeNow.vectSpeed;
             mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.movingCode;
             mParams.restPulses = 0;//gcodeNow.stepsCounter;
@@ -1903,17 +1904,18 @@ void MainWindow::runNextCommand()
         mk1->pack9E(0x05);
 
         //         mk1->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
-        mk1->packBF((int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit); // set max velocities
+        int limits[4] = {(int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit};
+        mk1->packBF(limits); // set max velocities
 
         mk1->packC0();
 
         //moving to the first point axes X and Y
         //TODO: spindle move higher, now 10 mm
         moveParameters mParams;
-        mParams.posX = Settings::coord[X].startPos;
-        mParams.posY = Settings::coord[Y].startPos;
-        mParams.posZ = Settings::coord[Z].startPos + 10.0;
-        mParams.posA = Settings::coord[A].startPos;//, userSpeedG0;
+        mParams.pos[X] = Settings::coord[X].startPos;
+        mParams.pos[Y] = Settings::coord[Y].startPos;
+        mParams.pos[Z] = Settings::coord[Z].startPos + 10.0;
+        mParams.pos[A] = Settings::coord[A].startPos;//, userSpeedG0;
         mParams.speed = 0;//gcodeNow.vectSpeed;
         mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.movingCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
@@ -1921,10 +1923,10 @@ void MainWindow::runNextCommand()
 
         mk1->packCA(&mParams); // move to init position
 
-        mParams.posX = gcodeNow.X;
-        mParams.posY = gcodeNow.Y;
-        mParams.posZ = gcodeNow.Z + 10.0;
-        mParams.posA = gcodeNow.A;//, userSpeedG0;
+        mParams.pos[X] = gcodeNow.xyz.x();
+        mParams.pos[Y] = gcodeNow.xyz.y();
+        mParams.pos[Z] = gcodeNow.xyz.z() + 10.0;
+        mParams.pos[A] = gcodeNow.abc.x();//, userSpeedG0;
         mParams.speed = gcodeNow.vectSpeed;
         mParams.movingCode = gcodeNow.movingCode;
         mParams.restPulses = gcodeNow.stepsCounter;
@@ -2004,10 +2006,10 @@ void MainWindow::runNextCommand()
     }
 
     for (int i = 0; i < commands; i++) {
-        float pointX = gcodeNow.X;
-        float pointY = gcodeNow.Y;
-        float pointZ = gcodeNow.Z;
-        float pointA = gcodeNow.A;
+        float pointX = gcodeNow.xyz.x();
+        float pointY = gcodeNow.xyz.y();
+        float pointZ = gcodeNow.xyz.z();
+        float pointA = gcodeNow.abc.x();
 
         Task::lineCodeNow = gcodeNow.numberLine;
 
@@ -2032,10 +2034,10 @@ void MainWindow::runNextCommand()
             //TODO: additional velocity control manual/automatical
             //     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
             moveParameters mParams;
-            mParams.posX = pointX;
-            mParams.posY = pointY;
-            mParams.posZ = pointZ;
-            mParams.posA = pointA;//, userSpeedG0;
+            mParams.pos[X] = pointX;
+            mParams.pos[Y] = pointY;
+            mParams.pos[Z] = pointZ;
+            mParams.pos[A] = pointA;//, userSpeedG0;
             mParams.speed = gcodeNow.vectSpeed;
             mParams.movingCode = gcodeNow.movingCode; //
             mParams.restPulses = gcodeNow.stepsCounter;//
@@ -2092,7 +2094,7 @@ void MainWindow::onCleanStatus()
 void MainWindow::moveToPoint(bool surfaceScan)
 {
     int speed = 0;
-    float posX, posY, posZ, posA;
+    float pos[4];//X, posY, posZ, posA;
 
     if (mk1->isConnected() == false) {
         return;
@@ -2105,31 +2107,31 @@ void MainWindow::moveToPoint(bool surfaceScan)
             return;
         }
 
-        posX = surfaceMatrix[scanPosY][scanPosX].X;
-        posY = surfaceMatrix[scanPosY][scanPosX].Y;
-        posZ = surfaceMatrix[scanPosY][scanPosX].Z;
-        posA = surfaceMatrix[scanPosY][scanPosX].A;
+        pos[X] = surfaceMatrix[scanPosY][scanPosX].pos[X];
+        pos[Y] = surfaceMatrix[scanPosY][scanPosX].pos[Y];
+        pos[Z] = surfaceMatrix[scanPosY][scanPosX].pos[Z];
+        pos[A] = surfaceMatrix[scanPosY][scanPosX].pos[A];
     } else {
         speed = spinMoveVelo->value();
 
-        posX = doubleSpinMoveX->value();
-        posY = doubleSpinMoveY->value();
-        posZ = doubleSpinMoveZ->value();
-        posA = numAngleGrad->value();
+        pos[X] = doubleSpinMoveX->value();
+        pos[Y] = doubleSpinMoveY->value();
+        pos[Z] = doubleSpinMoveZ->value();
+        pos[A] = numAngleGrad->value();
     }
 
     mk1->pack9E(0x05);
-
-    mk1->packBF(speed, speed, speed, speed);
+    int limits[4] = {speed, speed, speed, speed};
+    mk1->packBF(limits);
 
     mk1->packC0();
 
     {
         moveParameters mParams;
-        mParams.posX = posX;
-        mParams.posY = posY;
-        mParams.posZ = posZ;
-        mParams.posA = posA;//, userSpeedG0;
+        mParams.pos[X] = pos[X];
+        mParams.pos[Y] = pos[Y];
+        mParams.pos[Z] = pos[Z];
+        mParams.pos[A] = pos[A];//, userSpeedG0;
         mParams.speed = speed;
         mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.movingCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
@@ -2257,7 +2259,7 @@ void MainWindow::onGeneratorCode()
 float MainWindow::getDeltaZ(float _x, float _y)
 {
     //point to calculate
-    dPoint pResult = {_x, _y, 0.0, 0.0}; //new dobPoint(_x, _y, 0);
+    coord pResult = {_x, _y, 0.0, 0.0}; //new dobPoint(_x, _y, 0);
 
     int indexXmin = 0;
     int indexYmin = 0;
@@ -2275,23 +2277,23 @@ float MainWindow::getDeltaZ(float _x, float _y)
 
     for (int y = 0; y < sizeY - 1; y++) {
         for (int x = 0; x < sizeX - 1; x++) {
-            if ((_x > surfaceMatrix[y][0].X) && (_x < surfaceMatrix[y + 1][0].X) && (surfaceMatrix[0][x].Y < _y) && (surfaceMatrix[0][x + 1].Y > _y)) {
+            if ((_x > surfaceMatrix[y][0].pos[X]) && (_x < surfaceMatrix[y + 1][0].pos[X]) && (surfaceMatrix[0][x].pos[Y] < _y) && (surfaceMatrix[0][x + 1].pos[Y] > _y)) {
                 indexXmin = x;
                 indexYmin = y;
             }
         }
     }
 
-    dPoint p1 = {surfaceMatrix[indexYmin][indexXmin].X, surfaceMatrix[indexYmin][indexXmin].Y, surfaceMatrix[indexYmin][indexXmin].Z, 0.0};
-    dPoint p3 = {surfaceMatrix[indexYmin + 1][indexXmin].X, surfaceMatrix[indexYmin + 1][indexXmin].Y, surfaceMatrix[indexYmin + 1][indexXmin].Z, 0.0};
-    dPoint p2 = {surfaceMatrix[indexYmin][indexXmin + 1].X, surfaceMatrix[indexYmin][indexXmin + 1].Y, surfaceMatrix[indexYmin][indexXmin + 1].Z, 0.0};
-    dPoint p4 = {surfaceMatrix[indexYmin + 1][indexXmin + 1].X, surfaceMatrix[indexYmin + 1][indexXmin + 1].Y, surfaceMatrix[indexYmin + 1][indexXmin + 1].Z, 0.0};
+    coord p1 = {surfaceMatrix[indexYmin][indexXmin].pos[X], surfaceMatrix[indexYmin][indexXmin].pos[Y], surfaceMatrix[indexYmin][indexXmin].pos[Z], 0.0};
+    coord p3 = {surfaceMatrix[indexYmin + 1][indexXmin].pos[X], surfaceMatrix[indexYmin + 1][indexXmin].pos[Y], surfaceMatrix[indexYmin + 1][indexXmin].pos[Z], 0.0};
+    coord p2 = {surfaceMatrix[indexYmin][indexXmin + 1].pos[X], surfaceMatrix[indexYmin][indexXmin + 1].pos[Y], surfaceMatrix[indexYmin][indexXmin + 1].pos[Z], 0.0};
+    coord p4 = {surfaceMatrix[indexYmin + 1][indexXmin + 1].pos[X], surfaceMatrix[indexYmin + 1][indexXmin + 1].pos[Y], surfaceMatrix[indexYmin + 1][indexXmin + 1].pos[Z], 0.0};
 
-    dPoint p12 = Geometry::CalcPX(p1, p2, pResult);
-    dPoint p34 = Geometry::CalcPX(p3, p4, pResult);
-    dPoint p1234 = Geometry::CalcPY(p12, p34, pResult);
+    coord p12 = Geometry::CalcPX(p1, p2, pResult);
+    coord p34 = Geometry::CalcPX(p3, p4, pResult);
+    coord p1234 = Geometry::CalcPY(p12, p34, pResult);
 
-    return p1234.Z;
+    return p1234.pos[Z];
 }
 
 
@@ -2751,8 +2753,8 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
 
-                float dX = fabs(gCodeData.at(i - 1).X - gCodeData.at(i).X);
-                float dY = fabs(gCodeData.at(i - 1).Y - gCodeData.at(i).Y);
+                float dX = fabs(gCodeData.at(i - 1).xyz.x() - gCodeData.at(i).xyz.x());
+                float dY = fabs(gCodeData.at(i - 1).xyz.y() - gCodeData.at(i).xyz.y());
                 float dH = sqrt(dX * dX + dY * dY);
                 float coeff = 1.0;
 
@@ -2784,8 +2786,8 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         case YZ: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                float dY = fabs(gCodeData.at(i - 1).Y - gCodeData.at(i).Y);
-                float dZ = fabs(gCodeData.at(i - 1).Z - gCodeData.at(i).Z);
+                float dY = fabs(gCodeData.at(i - 1).xyz.y() - gCodeData.at(i).xyz.y());
+                float dZ = fabs(gCodeData.at(i - 1).xyz.z() - gCodeData.at(i).xyz.z());
                 float dH = sqrt(dZ * dZ + dY * dY);
                 float coeff = 1.0;
 
@@ -2816,8 +2818,8 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         case ZX: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                float dZ = fabs(gCodeData.at(i - 1).Z - gCodeData.at(i).Z);
-                float dX = fabs(gCodeData.at(i - 1).X - gCodeData.at(i).X);
+                float dZ = fabs(gCodeData.at(i - 1).xyz.z() - gCodeData.at(i).xyz.z());
+                float dX = fabs(gCodeData.at(i - 1).xyz.x() - gCodeData.at(i).xyz.x());
                 float dH = sqrt(dX * dX + dZ * dZ);
                 float coeff = 1.0;
 
@@ -2846,7 +2848,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         }
 
         default: {
-            qDebug() << "no plane information: pos " << begPos << "x" << gCodeData[begPos].X << "y" << gCodeData[begPos].Y << "z" << gCodeData[begPos].Z;
+            qDebug() << "no plane information: pos " << begPos << "x" << gCodeData[begPos].xyz.x() << "y" << gCodeData[begPos].xyz.y() << "z" << gCodeData[begPos].xyz.z();
         }
     }
 

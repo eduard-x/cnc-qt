@@ -41,9 +41,8 @@
 #include <QStringList>
 #include <QMutex>
 
-#include <deque>
-#include <utility>
-// #include "vec.h"
+// #include <deque>
+// #include <utility>
 
 #include "GCode.h"
 #include "MainWindow.h"
@@ -53,7 +52,7 @@
 #define byte unsigned char
 
 class MainWindow;
-class cTranslator;
+// class cTranslator;
 class GCodeParser;
 
 
@@ -73,11 +72,11 @@ class GCodeParser;
 //
 // result parsing of g-code
 //
-struct GCode_resultParse {
-    //     QString FullStr; //
-    QString GoodStr; // for decoded
-    QString BadStr;  // for unknown
-};
+// struct GCode_resultParse {
+//     //     QString FullStr; //
+//     QString GoodStr; // for decoded
+//     QString BadStr;  // for unknown
+// };
 
 
 

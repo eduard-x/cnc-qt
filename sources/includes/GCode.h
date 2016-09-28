@@ -39,13 +39,13 @@
 #include <QVector>
 #include <QVector3D>
 
-#include <deque>
-#include <utility>
+// #include <deque>
+// #include <utility>
 // #include "vec.h"
 
 
 enum PlaneEnum {
-    None,
+    None = 0,
     XY,
     YZ,
     ZX,
@@ -75,18 +75,30 @@ class GCodeData
         int  pauseMSeconds;  // if waiting = 0, no pause = -1. other pause in milliseconds
         //
         // coordinates in mm
+        QVector3D xyz;
+        QVector3D abc;
+        QVector3D ijk;
+        QVector3D uvw;
+        //         float axis[16];
+#if 0
         float X;
         float Y;
         float Z;
         //
         // angle in grad
         float A;
+        float B;
+        float C;
 
         // curve settings: G02, G03
         float I;
         float J;
         float K;
 
+        float U;
+        float V;
+        float W;
+#endif
         PlaneEnum plane;
 
         int   vectSpeed; // telegr CA offset

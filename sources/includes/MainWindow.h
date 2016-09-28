@@ -175,7 +175,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
     public:
         mk1Controller *mk1;
 
-        QVector<QVector<dPoint> > surfaceMatrix; // scanned points of surface
+        QVector<QVector<coord> > surfaceMatrix; // scanned points of surface
         int scanPosX;
         int scanPosY;
 

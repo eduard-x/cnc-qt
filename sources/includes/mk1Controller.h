@@ -45,6 +45,7 @@
 
 #include "MainWindow.h"
 #include "Translator.h"
+// #include "Settings.h"
 
 #include <libusb-1.0/libusb.h>
 
@@ -55,11 +56,13 @@
 class mk1Controller;
 
 
+// use enum AxisNames for 'pos' array
 struct moveParameters {
-    float posX;
-    float posY;
-    float posZ;
-    float posA;
+    float pos[4]; // X, Y, Z, A
+    //     float posX;
+    //     float posY;
+    //     float posZ;
+    //     float posA;
     int   restPulses; // offset 46
     int   speed; // vector speed, offset 43
     int   numberInstruction;
@@ -112,7 +115,7 @@ class mk1Data //: public mk1Settings
         void packBE(byte direction, int speed, int lenInPulses, bool send = true);
         void pack9E(byte value, bool send = true);
         void pack9F( bool send = true);
-        void packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send = true);
+        void packBF(int speedLimit[4], bool send = true);
         //         void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, int _code, bool send = true);
         //         void packCA(float _posX, float _posY, float _posZ, float _posA, int _speed, int _NumberInstruction, int _code, bool send = true);
         void packCA(moveParameters *params, bool send = true);
@@ -286,8 +289,10 @@ class usbReadThread : public QThread
          */
         ~usbReadThread()
         {
-            libusb_release_interface(p->handle, 0);
-            libusb_close(p->handle);
+            if (p->handle) {
+                libusb_release_interface(p->handle, 0);
+                libusb_close(p->handle);
+            }
         }
 
         void run()

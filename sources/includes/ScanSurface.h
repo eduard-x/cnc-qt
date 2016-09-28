@@ -85,7 +85,7 @@ class ScanSurfaceDialog : public QDialog, public Ui::ScanSurfaceDialog,  public 
         int selectedX;
         int selectedY;
 
-        QVector< QVector<dPoint> >surfaceArr;
+        QVector< QVector<coord> >surfaceArr;
 
         int sizeX;
         int sizeY;

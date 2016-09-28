@@ -510,7 +510,9 @@ void mk1Controller::sendSettings()
     packA0(); // set acceleration
     packA1(); // set allowed limits
 
-    packBF((int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit); // set max velocities
+    int limits[4] = {(int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit};
+
+    packBF(limits); // set max velocities
 
     packB5(spindleSetEnable); // spindle off
 
@@ -1531,7 +1533,7 @@ void mk1Data::packBE(byte direction, int speed, int lenInPulses, bool send)
  * @brief set speed limits
  *
  */
-void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int speedLimitA, bool send)
+void mk1Data::packBF(int speedLimit[4], bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1544,8 +1546,8 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
     if (Settings::coord[X].enabled == true) {
         float dnewSpdX  = 3600; // 3584?
 
-        if (speedLimitX != 0 && Settings::coord[X].pulsePerMm != 0) {
-            dnewSpdX = 7.2e8 / ((float)speedLimitX * Settings::coord[X].pulsePerMm);
+        if (speedLimit[X] != 0 && Settings::coord[X].pulsePerMm != 0) {
+            dnewSpdX = 7.2e8 / ((float)speedLimit[X] * Settings::coord[X].pulsePerMm);
         }
 
         packFourBytes(7, (int)dnewSpdX);
@@ -1554,8 +1556,8 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
     if (Settings::coord[Y].enabled == true) {
         float dnewSpdY = 3600;
 
-        if (speedLimitY != 0 && Settings::coord[Y].pulsePerMm != 0) {
-            dnewSpdY = 7.2e8 / ((float)speedLimitY * Settings::coord[Y].pulsePerMm);
+        if (speedLimit[Y] != 0 && Settings::coord[Y].pulsePerMm != 0) {
+            dnewSpdY = 7.2e8 / ((float)speedLimit[Y] * Settings::coord[Y].pulsePerMm);
         }
 
         packFourBytes(11, (int)dnewSpdY);
@@ -1564,8 +1566,8 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
     if (Settings::coord[Z].enabled == true) {
         float dnewSpdZ = 3600;
 
-        if (speedLimitZ != 0 && Settings::coord[Z].pulsePerMm != 0) {
-            dnewSpdZ = 7.2e8 / ((float)speedLimitZ * Settings::coord[Z].pulsePerMm);
+        if (speedLimit[Z] != 0 && Settings::coord[Z].pulsePerMm != 0) {
+            dnewSpdZ = 7.2e8 / ((float)speedLimit[Z] * Settings::coord[Z].pulsePerMm);
         }
 
         packFourBytes(15, (int)dnewSpdZ);
@@ -1574,8 +1576,8 @@ void mk1Data::packBF(int speedLimitX, int speedLimitY, int speedLimitZ, int spee
     if (Settings::coord[A].enabled == true) {
         float dnewSpdA = 3600;
 
-        if (speedLimitA != 0 && Settings::coord[A].pulsePerMm != 0) {
-            dnewSpdA = 7.2e8 / ((float)speedLimitA * Settings::coord[A].pulsePerMm);
+        if (speedLimit[A] != 0 && Settings::coord[A].pulsePerMm != 0) {
+            dnewSpdA = 7.2e8 / ((float)speedLimit[A] * Settings::coord[A].pulsePerMm);
         }
 
         packFourBytes(19, (int)dnewSpdA);
@@ -1673,10 +1675,10 @@ void mk1Data::packCA(moveParameters *params, bool send)
 
     writeBuf[5] = params->movingCode;
 
-    int pulsesX  = Settings::coord[X].posPulse(params->posX);
-    int pulsesY  = Settings::coord[Y].posPulse(params->posY);
-    int pulsesZ  = Settings::coord[Z].posPulse(params->posZ);
-    int pulsesA  = Settings::coord[A].posPulse(params->posA);
+    int pulsesX  = Settings::coord[X].posPulse(params->pos[X]);
+    int pulsesY  = Settings::coord[Y].posPulse(params->pos[Y]);
+    int pulsesZ  = Settings::coord[Z].posPulse(params->pos[Z]);
+    int pulsesA  = Settings::coord[A].posPulse(params->pos[A]);
 
     //how many pulses
     packFourBytes(6, pulsesX );

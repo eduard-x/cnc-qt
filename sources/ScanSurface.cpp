@@ -227,7 +227,7 @@ void ScanSurfaceDialog::resizeDataGrid()
     for (int y = 0; y < sizeY; y++) {
         for (int x = 0; x < sizeX; x++) {
             // init of coordinates: x, y, z, a
-            surfaceArr[y][x] = (dPoint) {
+            surfaceArr[y][x] = (coord) {
                 0.0, 0.0, 0.0, 0.0
             };
             dataGridView->setItem(y, x, new QTableWidgetItem(""));
@@ -258,11 +258,11 @@ void ScanSurfaceDialog::refreshDataGrid()
 
     for (int y = 0; y < sizeY; y++) {
         for (int x = 0; x < sizeX; x++) {
-            surfaceArr[y][x].X = offsetX + (x * stepX);
-            surfaceArr[y][x].Y = offsetX + (y * stepY);
+            surfaceArr[y][x].pos[X] = offsetX + (x * stepX);
+            surfaceArr[y][x].pos[Y] = offsetX + (y * stepY);
             //             surfaceArr[y][x].Z = offsetZ;
 
-            dataGridView->item(y, x)->setText(QString().sprintf("Z %4.2f", (surfaceArr[y][x].Z + offsetZ)));
+            dataGridView->item(y, x)->setText(QString().sprintf("Z %4.2f", (surfaceArr[y][x].pos[Z] + offsetZ)));
 
             if (edit == true) {
                 dataGridView->item(y, x)->setFlags(Qt::ItemIsEditable);
@@ -336,7 +336,7 @@ void ScanSurfaceDialog::itemChanged( QTableWidgetItem * item)
     float val = ss.replace(Settings::fromDecimalPoint, Settings::toDecimalPoint).toDouble(&res);
 
     if (res == true) {
-        surfaceArr[y][x].Z = val;
+        surfaceArr[y][x].pos[Z] = val;
     }
 }
 
@@ -414,7 +414,7 @@ void ScanSurfaceDialog::onScan()
 void ScanSurfaceDialog::onTimer()
 {
     if (dataGridView->item(indexScanY, indexScanX) != NULL) {
-        dataGridView->item(indexScanY, indexScanX)->setText( QString().sprintf("Z %4.2f", surfaceArr[indexScanY][indexScanX].Z));
+        dataGridView->item(indexScanY, indexScanX)->setText( QString().sprintf("Z %4.2f", surfaceArr[indexScanY][indexScanX].pos[Z]));
     }
 }
 
@@ -439,19 +439,19 @@ void ScanThread::run()
     // coordinates for moving
     //     {
     //float px = dataCode.Matrix[indexScanY].X[indexScanX].X;
-    float px = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].X;
+    float px = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].pos[X];
     //float pz = dataCode.Matrix[indexScanY].X[indexScanX].Z;
     float pz = sParent->startOffsetZ->value();
     //float py = dataCode.Matrix[indexScanY].Y;
-    float py = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Y;
+    float py = sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].pos[Y];
     //     float pa = 0;//sParent->numPosA->value();
 
     // move to point
     moveParameters mParams;
-    mParams.posX = px;
-    mParams.posY = py;
-    mParams.posZ = pz;
-    mParams.posA = 0;//, userSpeedG0;
+    mParams.pos[X] = px;
+    mParams.pos[Y] = py;
+    mParams.pos[Z] = pz;
+    mParams.pos[A] = 0;//, userSpeedG0;
     mParams.speed = (int)sParent->numSpeed->value();
     mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.accelCode;
     mParams.restPulses = 0;//gcodeNow.stepsCounter;
@@ -479,7 +479,7 @@ void ScanThread::run()
 
     usleep(300);
     //dataCode.Matrix[indexScanY].X[indexScanX].Z = cnc->PositionZmm;
-    sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].Z = (float)Settings::coord[Z].posMm();
+    sParent->surfaceArr[sParent->indexScanY][sParent->indexScanX].pos[Z] = (float)Settings::coord[Z].posMm();
 
     cnc->packC0(0x01); // on
 
@@ -520,7 +520,7 @@ void ScanSurfaceDialog::onTimer1()
         return;
     }
 
-    label10->setText(QString().sprintf("X: %4.2f Y: %4.2f", surfaceArr[selectedY][selectedX].X, surfaceArr[selectedY][selectedX].Y));
+    label10->setText(QString().sprintf("X: %4.2f Y: %4.2f", surfaceArr[selectedY][selectedX].pos[X], surfaceArr[selectedY][selectedX].pos[Y]));
 }
 
 
@@ -552,8 +552,8 @@ void ScanSurfaceDialog::buttonSetZ()
         return;
     }
 
-    surfaceArr[selectedY][selectedX].Z = Settings::coord[Z].posMm();
-    dataGridView->item(selectedY, selectedX)->setText( QString().sprintf("Z %4.2f", surfaceArr[selectedY][selectedX].Z));
+    surfaceArr[selectedY][selectedX].pos[Z] = Settings::coord[Z].posMm();
+    dataGridView->item(selectedY, selectedX)->setText( QString().sprintf("Z %4.2f", surfaceArr[selectedY][selectedX].pos[Z]));
 
 }
 

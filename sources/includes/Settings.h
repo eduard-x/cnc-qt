@@ -46,6 +46,7 @@ class MainWindow;
 
 enum AxisNames { X = 0, Y, Z, A, B, C, U, V, W };
 
+enum ParamNames { PARAM_CMD = 0, PARAM_X, PARAM_Y, PARAM_Z, PARAM_A, PARAM_B, PARAM_C, PARAM_I, PARAM_J, PARAM_K, PARAM_F };
 
 class axis
 {
