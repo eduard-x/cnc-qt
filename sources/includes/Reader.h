@@ -40,6 +40,7 @@
 #include <QString>
 #include <QStringList>
 #include <QMutex>
+#include <QPair>
 
 // #include <deque>
 // #include <utility>
@@ -263,7 +264,7 @@ class Reader : public GCodeParser// , public cTranslator
 
     public:
         QList<DataCollections> data;
-        std::deque<std::pair<float, QVector<QVector2D> > > layers;
+        QVector<QPair<float, QVector<QVector2D> > > layers;
         //         std::vector<Vec3f> cached_lines;
         //         std::vector<Vec3f> cached_arcs;
         //         std::vector<Vec3f> cached_points;

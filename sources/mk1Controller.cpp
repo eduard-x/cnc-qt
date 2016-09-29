@@ -37,7 +37,6 @@
 
 #include <QString>
 
-using namespace std;
 
 /******************************************************************************
 ** mk1Controller
@@ -1122,7 +1121,7 @@ void mk1Data::packA0(bool send)
     int AccelX = 0;
 
     if ((Settings::coord[X].acceleration > 0) && (Settings::coord[X].pulsePerMm > 0)) {
-        AccelX = (int)11446815.5 / sqrt(Settings::coord[X].acceleration * Settings::coord[X].pulsePerMm);
+        AccelX = (int)11446815.5 / qSqrt(Settings::coord[X].acceleration * Settings::coord[X].pulsePerMm);
     }
 
     packFourBytes(6, AccelX);
@@ -1130,7 +1129,7 @@ void mk1Data::packA0(bool send)
     int AccelY = 0;
 
     if ((Settings::coord[Y].acceleration > 0) && (Settings::coord[Y].pulsePerMm > 0)) {
-        AccelY = (int)11446815.5  / sqrt(Settings::coord[Y].acceleration * Settings::coord[Y].pulsePerMm);
+        AccelY = (int)11446815.5  / qSqrt(Settings::coord[Y].acceleration * Settings::coord[Y].pulsePerMm);
     }
 
     packFourBytes(10, AccelY);
@@ -1138,7 +1137,7 @@ void mk1Data::packA0(bool send)
     int AccelZ = 0;
 
     if ((Settings::coord[Z].acceleration > 0) && (Settings::coord[Z].pulsePerMm > 0)) {
-        AccelZ = (int)11446815.5  / sqrt(Settings::coord[Z].acceleration * Settings::coord[Z].pulsePerMm);
+        AccelZ = (int)11446815.5  / qSqrt(Settings::coord[Z].acceleration * Settings::coord[Z].pulsePerMm);
     }
 
     packFourBytes(14, AccelZ);
@@ -1146,7 +1145,7 @@ void mk1Data::packA0(bool send)
     int AccelA = 0;
 
     if ((Settings::coord[A].acceleration > 0) && (Settings::coord[A].pulsePerMm > 0)) {
-        AccelA = (int)11446815.5 / sqrt(Settings::coord[A].acceleration * Settings::coord[A].pulsePerMm);
+        AccelA = (int)11446815.5 / qSqrt(Settings::coord[A].acceleration * Settings::coord[A].pulsePerMm);
     }
 
     packFourBytes(18, AccelA);

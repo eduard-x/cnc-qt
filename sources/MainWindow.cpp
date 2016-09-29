@@ -45,6 +45,8 @@
 #include <QToolButton>
 
 
+#include <QtCore/qmath.h>
+
 #include "includes/Settings.h"
 #include "includes/About.h"
 #include "includes/Reader.h"
@@ -828,7 +830,6 @@ void MainWindow::writeSettings()
 
     s->setValue("pos", pos());
     s->setValue("size", size());
-    //     s->setValue("WorkDir", currentWorkDir);
     s->setValue("LANGUAGE", currentLang);
     s->setValue("LASTDIR", reader->lastDir);
 
@@ -1813,16 +1814,8 @@ void MainWindow::runNextCommand()
             Settings::coord[Z].startPos = doubleSpinHomeZ->value();
             Settings::coord[A].startPos = 0.0;
 
-            //             AddLog(translate(_START_TASK_AT) + QDateTime().currentDateTime().toString());
-
-            //             int MaxSpeedX = 100;
-            //             int MaxSpeedY = 100;
-            //             int MaxSpeedZ = 100;
-            //             int MaxSpeedA = 100;
-
             mk1->pack9E(0x05);
 
-            //             mk1->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
             int limits[4] = {(int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit};
             mk1->packBF(limits); // set max velocities
 
@@ -1841,17 +1834,6 @@ void MainWindow::runNextCommand()
             mParams.numberInstruction = Task::instrCounter++;
 
             mk1->packCA(&mParams); // move to init position
-
-            //             mParams.posX = gcodeNow.X;
-            //             mParams.posY = gcodeNow.Y;
-            //             mParams.posZ = gcodeNow.Z + 10.0;
-            //             mParams.posA = gcodeNow.A;//, userSpeedG0;
-            //             mParams.speed = gcodeNow.vectSpeed;
-            //             mParams.movingCode = gcodeNow.movingCode;
-            //             mParams.restPulses = gcodeNow.stepsCounter;
-            //             mParams.numberInstruction = Task::instrCounter;
-
-            //             mk1->packCA(&mParams); // move to init position
         }
 
         //TODO: move spindle up, possible moving to "home" position
@@ -1896,14 +1878,8 @@ void MainWindow::runNextCommand()
 
         AddLog(translate(_START_TASK_AT) + QDateTime().currentDateTime().toString());
 
-        //         int MaxSpeedX = 100;
-        //         int MaxSpeedY = 100;
-        //         int MaxSpeedZ = 100;
-        //         int MaxSpeedA = 100;
-
         mk1->pack9E(0x05);
 
-        //         mk1->packBF(MaxSpeedX, MaxSpeedY, MaxSpeedZ, MaxSpeedA);
         int limits[4] = {(int)Settings::coord[X].maxVeloLimit, (int)Settings::coord[Y].maxVeloLimit, (int)Settings::coord[Z].maxVeloLimit, (int)Settings::coord[A].maxVeloLimit};
         mk1->packBF(limits); // set max velocities
 
@@ -2753,9 +2729,9 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
 
-                float dX = fabs(gCodeData.at(i - 1).xyz.x() - gCodeData.at(i).xyz.x());
-                float dY = fabs(gCodeData.at(i - 1).xyz.y() - gCodeData.at(i).xyz.y());
-                float dH = sqrt(dX * dX + dY * dY);
+                float dX = qFabs(gCodeData.at(i - 1).xyz.x() - gCodeData.at(i).xyz.x());
+                float dY = qFabs(gCodeData.at(i - 1).xyz.y() - gCodeData.at(i).xyz.y());
+                float dH = qSqrt(dX * dX + dY * dY);
                 float coeff = 1.0;
 
                 if (dX > dY) {
@@ -2786,9 +2762,9 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         case YZ: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                float dY = fabs(gCodeData.at(i - 1).xyz.y() - gCodeData.at(i).xyz.y());
-                float dZ = fabs(gCodeData.at(i - 1).xyz.z() - gCodeData.at(i).xyz.z());
-                float dH = sqrt(dZ * dZ + dY * dY);
+                float dY = qFabs(gCodeData.at(i - 1).xyz.y() - gCodeData.at(i).xyz.y());
+                float dZ = qFabs(gCodeData.at(i - 1).xyz.z() - gCodeData.at(i).xyz.z());
+                float dH = qSqrt(dZ * dZ + dY * dY);
                 float coeff = 1.0;
 
                 if (dY > dZ) {
@@ -2818,9 +2794,9 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         case ZX: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                float dZ = fabs(gCodeData.at(i - 1).xyz.z() - gCodeData.at(i).xyz.z());
-                float dX = fabs(gCodeData.at(i - 1).xyz.x() - gCodeData.at(i).xyz.x());
-                float dH = sqrt(dX * dX + dZ * dZ);
+                float dZ = qFabs(gCodeData.at(i - 1).xyz.z() - gCodeData.at(i).xyz.z());
+                float dX = qFabs(gCodeData.at(i - 1).xyz.x() - gCodeData.at(i).xyz.x());
+                float dH = qSqrt(dX * dX + dZ * dZ);
                 float coeff = 1.0;
 
                 if (dZ > dX) {
@@ -2920,7 +2896,7 @@ int MainWindow::calculateMinAngleSteps(int startPos)
 
         gCodeData[idx].deltaAngle = (a1 - a2);
 
-        if (fabs(gCodeData[idx].deltaAngle) > fabs(PI - maxLookaheadAngleRad)) {
+        if (qFabs(gCodeData[idx].deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
             break;
         }
     }

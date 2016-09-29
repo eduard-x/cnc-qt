@@ -45,11 +45,9 @@
 #include <QImage>
 #include <QTimeLine>
 
-#include <deque>
-#include <utility>
+#include <QtCore/qmath.h>
 
 #include "version.h"
-// #include "vec.h"
 
 #include <QtOpenGL/QtOpenGL>
 

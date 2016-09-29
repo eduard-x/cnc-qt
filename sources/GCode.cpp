@@ -35,10 +35,8 @@
 #include <QDebug>
 // #include <QTime>
 #include <QString>
-// #include <QStringData>
 
-#include <cmath>
-// #include <limits>
+#include <QtCore/qmath.h>
 
 #include "includes/Settings.h"
 #include "includes/GCode.h"
@@ -64,10 +62,10 @@ GCodeData::GCodeData()
      */
     pauseMSeconds = -1;
 
-    xyz = { 0.0, 0.0, 0.0};
-    ijk = { 0.0, 0.0, 0.0};
-    abc = { 0.0, 0.0, 0.0};
-    uvw = { 0.0, 0.0, 0.0};
+    xyz = { 0.0, 0.0, 0.0 };
+    ijk = { 0.0, 0.0, 0.0 };
+    abc = { 0.0, 0.0, 0.0 };
+    uvw = { 0.0, 0.0, 0.0 };
     //     for(int i=0; i< 16; i++){
     //         axis[i] = 0.0;
     //     }
@@ -114,9 +112,9 @@ GCodeData::GCodeData()
 GCodeData::GCodeData(GCodeData *d)
 {
     xyz = d->xyz;
-    ijk = { 0.0, 0.0, 0.0};
-    abc = { 0.0, 0.0, 0.0};
-    uvw = { 0.0, 0.0, 0.0};
+    ijk = { 0.0, 0.0, 0.0 };
+    abc = { 0.0, 0.0, 0.0 };
+    uvw = { 0.0, 0.0, 0.0 };
     //     for(int i=A; i< 16; i++){
     //         axis[i] = 0.0;
     //     }
@@ -361,7 +359,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         }
 
         if (tmpStr.length() == 0) {
-            emit logMessage(QString("gcode parsing error: " + lineStream));
+            emit logMessage(QString("gcode parqSing error: " + lineStream));
             //             badList << lineStream;
             continue;
         }
@@ -372,7 +370,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             if (lastCmd.length() > 0) {
                 tmpStr = QString(lastCmd + " " + tmpStr);
             } else {
-                emit logMessage(QString("gcode parsing error: " + lineStream));
+                emit logMessage(QString("gcode parqSing error: " + lineStream));
                 //                 badList << QString::number(lineNr - 1) + ": " + lineStream;
             }
         } else {
@@ -896,7 +894,7 @@ float GCodeParser::determineAngle(const QVector3D &pos1, const QVector3D &pos2, 
                 return 0.0;
             }
 
-            radians = atan2(pos1[Y] - pos2[Y], pos1[X] - pos2[X]);
+            radians = qAtan2(pos1[Y] - pos2[Y], pos1[X] - pos2[X]);
 
             break;
         }
@@ -906,7 +904,7 @@ float GCodeParser::determineAngle(const QVector3D &pos1, const QVector3D &pos2, 
                 return 0.0;
             }
 
-            radians = atan2(pos1[Z] - pos2[Z], pos1[Y] - pos2[Y]);
+            radians = qAtan2(pos1[Z] - pos2[Z], pos1[Y] - pos2[Y]);
 
             break;
         }
@@ -916,7 +914,7 @@ float GCodeParser::determineAngle(const QVector3D &pos1, const QVector3D &pos2, 
                 return 0.0;
             }
 
-            radians = atan2(pos1[X] - pos2[X], pos1[Z] - pos2[Z]);
+            radians = qAtan2(pos1[X] - pos2[X], pos1[Z] - pos2[Z]);
 
             break;
         }
@@ -948,17 +946,17 @@ void GCodeParser::calcAngleOfLines(int pos)
 
     switch (gCodeList.at(pos).plane) {
         case XY: {
-            gCodeList[pos].angle = atan2(gCodeList.at(pos).xyz.y() - gCodeList.at(pos - 1).xyz.y(), gCodeList.at(pos).xyz.x() - gCodeList.at(pos - 1).xyz.x());
+            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).xyz.y() - gCodeList.at(pos - 1).xyz.y(), gCodeList.at(pos).xyz.x() - gCodeList.at(pos - 1).xyz.x());
             break;
         }
 
         case YZ: {
-            gCodeList[pos].angle = atan2(gCodeList.at(pos).xyz.z() - gCodeList.at(pos - 1).xyz.z(), gCodeList.at(pos).xyz.y() - gCodeList.at(pos - 1).xyz.y());
+            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).xyz.z() - gCodeList.at(pos - 1).xyz.z(), gCodeList.at(pos).xyz.y() - gCodeList.at(pos - 1).xyz.y());
             break;
         }
 
         case ZX: {
-            gCodeList[pos].angle = atan2(gCodeList.at(pos).xyz.x() - gCodeList.at(pos - 1).xyz.x(), gCodeList.at(pos).xyz.z() - gCodeList.at(pos - 1).xyz.z());
+            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).xyz.x() - gCodeList.at(pos - 1).xyz.x(), gCodeList.at(pos).xyz.z() - gCodeList.at(pos - 1).xyz.z());
             break;
         }
 
@@ -1026,7 +1024,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
     switch (endData->plane) {
         case XY: {
             if (endData->Radius == 0.0) {
-                r = sqrt(pow(beginPos.x() - i, 2) + pow(beginPos.y() - j, 2));
+                r = qSqrt(qPow(beginPos.x() - i, 2) + qPow(beginPos.y() - j, 2));
             } else {
                 r = endData->Radius;
                 // compute i, j
@@ -1041,7 +1039,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
         case YZ: {
             if (endData->Radius == 0.0) {
-                r = sqrt(pow(beginPos.y() - j, 2) + pow(beginPos.z() - k, 2));
+                r = qSqrt(qPow(beginPos.y() - j, 2) + qPow(beginPos.z() - k, 2));
             } else {
                 r = endData->Radius;
                 // compute j, k
@@ -1054,7 +1052,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
         case ZX: {
             if (endData->Radius == 0.0) {
-                r = sqrt(pow(beginPos.z() - k, 2) + pow(beginPos.x() - i, 2));
+                r = qSqrt(qPow(beginPos.z() - k, 2) + qPow(beginPos.x() - i, 2));
             } else {
                 r = endData->Radius;
                 // compute k, i
@@ -1090,7 +1088,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
         alpha = alpha_beg - alpha_end;
 
         if (alpha_beg < alpha_end) {
-            alpha = fabs(alpha_beg + (2.0 * PI - alpha_end));
+            alpha = qFabs(alpha_beg + (2.0 * PI - alpha_end));
         }
 
     } else {
@@ -1101,7 +1099,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
         alpha = alpha_end - alpha_beg;
 
         if (alpha_beg > alpha_end) {
-            alpha = fabs(alpha_end + (2.0 * PI - alpha_beg));
+            alpha = qFabs(alpha_end + (2.0 * PI - alpha_beg));
         }
     }
 
@@ -1156,13 +1154,13 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 angle += dAlpha;
                 loopPos += deltaPos;
 
-                float c = cos(angle);
-                float s = sin(angle);
+                float c = qCos(angle);
+                float s = qSin(angle);
 
                 float x_new = i + r * c;
                 float y_new = j + r * s;
 
-                float angle = atan2(y_new - ncommand->xyz.y(), x_new - ncommand->xyz.x());
+                float angle = qAtan2(y_new - ncommand->xyz.y(), x_new - ncommand->xyz.x());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
@@ -1173,12 +1171,12 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 detectMinMax(ncommand);
 #if DEBUG_ARC
-                dbg += QString().sprintf("n=%d x=%f y=%f angle=%f sin=%f cos=%f\n", step, x_new, y_new, angle, s, c);
+                dbg += QString().sprintf("n=%d x=%f y=%f angle=%f qSin=%f qCos=%f\n", step, x_new, y_new, angle, s, c);
 #endif
 
                 /** detection of end because of rounding */
-                if (sqrt((x_new - endData->xyz.x()) * (x_new - endData->xyz.x()) + (y_new - endData->xyz.y()) * (y_new - endData->xyz.y())) <= splitLen) {
-                    float t_angle = atan2(y_new - endData->xyz.y(), x_new - endData->xyz.x());
+                if (qSqrt((x_new - endData->xyz.x()) * (x_new - endData->xyz.x()) + (y_new - endData->xyz.y()) * (y_new - endData->xyz.y())) <= splitLen) {
+                    float t_angle = qAtan2(y_new - endData->xyz.y(), x_new - endData->xyz.x());
 
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
@@ -1214,13 +1212,13 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 angle += dAlpha;
                 loopPos += deltaPos;
 
-                float c = cos(angle);
-                float s = sin(angle);
+                float c = qCos(angle);
+                float s = qSin(angle);
 
                 float y_new = j + r * c;
                 float z_new = k + r * s;
 
-                float angle = atan2(z_new - ncommand->xyz.z(), y_new - ncommand->xyz.y());
+                float angle = qAtan2(z_new - ncommand->xyz.z(), y_new - ncommand->xyz.y());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
@@ -1232,12 +1230,12 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 detectMinMax(ncommand);
 #if DEBUG_ARC
-                dbg += QString().sprintf("n=%d y=%f z=%f angle=%f sin=%f cos=%f\n", step, y_new, z_new, angle, s, c);
+                dbg += QString().sprintf("n=%d y=%f z=%f angle=%f qSin=%f qCos=%f\n", step, y_new, z_new, angle, s, c);
 #endif
 
                 /** detection of end because of rounding */
-                if (sqrt((y_new - endData->xyz.y()) * (y_new - endData->xyz.y()) + (z_new - endData->xyz.z()) * (z_new - endData->xyz.z())) <= splitLen) {
-                    float t_angle = atan2(z_new - endData->xyz.z(), y_new - endData->xyz.y());
+                if (qSqrt((y_new - endData->xyz.y()) * (y_new - endData->xyz.y()) + (z_new - endData->xyz.z()) * (z_new - endData->xyz.z())) <= splitLen) {
+                    float t_angle = qAtan2(z_new - endData->xyz.z(), y_new - endData->xyz.y());
 
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
@@ -1273,13 +1271,13 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 angle += dAlpha;
                 loopPos += deltaPos;
 
-                float c = cos(angle);
-                float s = sin(angle);
+                float c = qCos(angle);
+                float s = qSin(angle);
 
                 float z_new = k + r * c;
                 float x_new = i + r * s;
 
-                float angle = atan2(x_new - ncommand->xyz.x(), z_new - ncommand->xyz.z());
+                float angle = qAtan2(x_new - ncommand->xyz.x(), z_new - ncommand->xyz.z());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
@@ -1292,12 +1290,12 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                 detectMinMax(ncommand);
 #if DEBUG_ARC
-                dbg += QString().sprintf("n=%d z=%f x=%f angle=%f sin=%f cos=%f\n", step, z_new, x_new, angle, s, c);
+                dbg += QString().sprintf("n=%d z=%f x=%f angle=%f qSin=%f qCos=%f\n", step, z_new, x_new, angle, s, c);
 #endif
 
                 /** detection of end because of rounding */
-                if (sqrt((x_new - endData->xyz.x()) * (x_new - endData->xyz.x()) + (z_new - endData->xyz.z()) * (z_new - endData->xyz.z())) <= splitLen) {
-                    float t_angle = atan2(x_new - endData->xyz.x(), z_new - endData->xyz.z());
+                if (qSqrt((x_new - endData->xyz.x()) * (x_new - endData->xyz.x()) + (z_new - endData->xyz.z()) * (z_new - endData->xyz.z())) <= splitLen) {
+                    float t_angle = qAtan2(x_new - endData->xyz.x(), z_new - endData->xyz.z());
 
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
@@ -1344,7 +1342,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
 #if DEBUG_ARC
 
-    if ((fabs (x2 - gCodeList.last().X) > (bLength / splitsPerMm)) || (fabs (y2 - gCodeList.last().Y) > (bLength / splitsPerMm))) { // wenn zu weit vom ziel...
+    if ((qFabs (x2 - gCodeList.last().X) > (bLength / splitsPerMm)) || (qFabs (y2 - gCodeList.last().Y) > (bLength / splitsPerMm))) { // wenn zu weit vom ziel...
         qDebug() << "begin: " << x1 << y1 << "end" << x2 << y2 << "center" << i << j;
         qDebug() << "bogen " << bLength << "mm" << "r" << r << "a" << a << "triangle alpha" << alpha;
         qDebug() << "alpha:" << alpha_beg << "->" << alpha_end << "d alpha: " << dAlpha; // rad
@@ -1436,7 +1434,7 @@ bool GCodeParser::parseArc(const QString &line, QVector3D &pos, float &R, const 
 
 
 /**
- * @brief parsing X, Y, Z, E, F of G-Code parameters
+ * @brief parqSing X, Y, Z, E, F of G-Code parameters
  * rotation parameters A, B, C are not implemented
  *
  * @param

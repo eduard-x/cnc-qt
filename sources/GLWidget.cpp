@@ -43,10 +43,6 @@
 
 // for GLES2 are QGLFunctions to implement
 
-#include <deque>
-#include <utility>
-// #include "includes/vec.h"
-
 #include "includes/Settings.h"
 #include "includes/MainWindow.h"
 #include "includes/mk1Controller.h"
@@ -54,7 +50,6 @@
 
 #define ZOOMSTEP 1.1
 
-#include <math.h>
 
 /**
  * @brief constructor
@@ -348,6 +343,7 @@ void GLWidget::initStaticElements()
 {
     int i = 0;
 
+    // color correcture in the main object
     foreach (const GCodeData vv, parent->gCodeData) {
         QColor cl;
 

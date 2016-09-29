@@ -38,8 +38,7 @@
 #include <QString>
 #include <QDir>
 
-#include <cmath>
-#include <limits>
+#include <QtCore/qmath.h>
 
 #include "includes/Settings.h"
 #include "includes/GCode.h"
@@ -571,7 +570,7 @@ void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, 
 
     //if (x0 == x1 && y0 == y1) return;
 
-    bool steep = abs(y1 - y0) > abs(x1 - x0); // Проверяем рост отрезка по оси икс и по оси игрек
+    bool steep = qAbs(y1 - y0) > qAbs(x1 - x0); // Проверяем рост отрезка по оси икс и по оси игрек
 
     // Отражаем линию по диагонали, если угол наклона слишком большой
     if (steep) {
@@ -586,7 +585,7 @@ void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, 
     }
 
     int dx = x1 - x0;
-    int dy = abs(y1 - y0);
+    int dy = qAbs(y1 - y0);
     int error = dx / 2; // Здесь используется оптимизация с умножением на dx, чтобы избавиться от лишних дробей
     int ystep = (y0 < y1) ? 1 : -1; // Выбираем направление роста координаты y
     int y = y0;
