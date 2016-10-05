@@ -7,7 +7,18 @@
         <file>images/icon.png</file>
         <file>images/forw_step.png</file>
         <file>images/back_step.png</file>
-        <!--file>images/pin-icon.png</file-->
+	<file>images/frz01.png</file>
+	<file>images/frz02.png</file>
+	<file>images/frz03.png</file>
+	<file>images/frz04.png</file>
+	<file>images/frz05.png</file>
+	<file>images/frz06.png</file>
+	<file>images/frz07.png</file>
+	<file>images/frz08.png</file>
+	<file>images/frz09.png</file>
+	<file>images/frz10.png</file>
+	<file>images/frz11.png</file>
+	<file>images/frz12.png</file>
         <file>images/cube.png</file>
         <file>images/cubeTop.png</file>
         <file>images/cubeFront.png</file>
