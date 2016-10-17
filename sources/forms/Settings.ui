@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>698</width>
-    <height>602</height>
+    <width>759</width>
+    <height>865</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -87,7 +87,7 @@
         <enum>QTabWidget::West</enum>
        </property>
        <property name="currentIndex">
-        <number>6</number>
+        <number>7</number>
        </property>
        <property name="iconSize">
         <size>
@@ -131,8 +131,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>476</width>
-              <height>519</height>
+              <width>537</width>
+              <height>790</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_24">
@@ -371,8 +371,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>476</width>
-              <height>519</height>
+              <width>537</width>
+              <height>790</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_23">
@@ -1031,8 +1031,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>476</width>
-              <height>519</height>
+              <width>537</width>
+              <height>790</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_22">
@@ -1601,8 +1601,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>476</width>
-              <height>519</height>
+              <width>537</width>
+              <height>790</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_21">
@@ -1881,8 +1881,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>476</width>
-              <height>519</height>
+              <width>537</width>
+              <height>790</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_25">
@@ -2151,8 +2151,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>476</width>
-              <height>519</height>
+              <width>537</width>
+              <height>790</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_26">
@@ -2371,8 +2371,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>476</width>
-              <height>519</height>
+              <width>537</width>
+              <height>790</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_27">
@@ -2472,7 +2472,7 @@
          </sizepolicy>
         </property>
         <attribute name="title">
-         <string>arc</string>
+         <string>material</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_15">
          <item row="0" column="0" colspan="2">
@@ -2494,8 +2494,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>476</width>
-              <height>519</height>
+              <width>537</width>
+              <height>790</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_28">
@@ -2548,8 +2548,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>460</width>
-              <height>687</height>
+              <width>537</width>
+              <height>790</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_29">

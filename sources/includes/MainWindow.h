@@ -39,7 +39,7 @@
 #include <QSettings>
 #include <QCloseEvent>
 #include <QKeyEvent>
-
+#include <QThread>
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QImage>
@@ -47,9 +47,14 @@
 
 #include <QtCore/qmath.h>
 
+#include <libusb-1.0/libusb.h>
+
 #include "version.h"
 
 #include <QtOpenGL/QtOpenGL>
+
+#define MK1_PRODUCT_ID   0x2130
+#define MK1_VENDOR_ID    0x2121
 
 #include "GLWidget.h"
 
@@ -161,6 +166,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
 {
         Q_OBJECT
 
+    signals:
+        void mk1Connected();
+        void mk1Disconnected();
+
     public:
         MainWindow(QWidget *parent = 0);
         ~MainWindow();
@@ -243,7 +252,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         // connect to controller
         void onCncMessage(int n_msg);
         void onCncNewData();
-        void onCncHotplug();
+        //         void onCncHotplug();
 
 
     private slots:
@@ -305,6 +314,12 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         void getScale(int s);
         void logMessage(const QString &s);
 
+
+
+    private slots:
+        void hotplugTimerTick(void);
+
+
     private:
         void drawWorkbench();
         //
@@ -337,18 +352,19 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         void closeEvent(QCloseEvent *event);
 
     private:
+        libusb_context *context;
         Reader *reader;
         Task::StatusTask currentStatus;
         QGraphicsScene *sceneCoordinates;
         //
         QString axisNames;
-        QTimer  mainGUITimer;
+        //
         QStringList lastFiles;
         QLabel *statusLabel1;
         QProgressBar *statusProgress;
         QLabel *statusLabel2;
         //         bool useHome;
-        QTimer  renderTimer;
+        //         QTimer  renderTimer;
         QList<QAction*> actLangSelect;
         QList<QAction*> actFileSelect;
         QMenu *langMenu;
@@ -368,6 +384,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         int minVelo;
         int maxVelo;
         int veloMoving;
+
+        QTimer *hotplugTimer;
+        QTimer *refreshGUITimer;
 
         //         int xAngle, yAngle, zAngle;
         int scale;

@@ -35,6 +35,7 @@
 #include "includes/Settings.h"
 #include "includes/mk1Controller.h"
 
+
 #include <QString>
 
 
@@ -42,7 +43,7 @@
 ** mk1Controller
 */
 
-
+// #define CLASS_ID LIBUSB_HOTPLUG_MATCH_ANY
 
 // static
 libusb_device_handle *mk1Data::handle = 0;
@@ -152,32 +153,178 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 {
     int rc;
 
-    vendor_id  =  0x2121;
-    product_id = 0x2130;
+    //     vendor_id  =  0x2121;
+    //     product_id = 0x2130;
 
     handle = NULL;
 
     devConnected = false;
 
-    int class_id   = LIBUSB_HOTPLUG_MATCH_ANY;
 
-    rc = libusb_init (NULL);
 
-    if (rc < 0) {
-        qDebug() << QString("failed to initialise libusb: %1").arg(libusb_error_name(rc));
-    }
+    //     rc = libusb_init (NULL);
+    //
+    //     if (rc < 0) {
+    //         qDebug() << QString("failed to initialise libusb: %1").arg(libusb_error_name(rc));
+    //     }
 
-    hotplugThread = 0;
+    //     hotplugThread = 0;
 
     spindleSetEnable = false;
     fluidSetEnable = false;
     mistSetEnable = false;
 
     readThread = 0;
+}
 
+
+/**
+ * @brief destructor
+ *
+ */
+mk1Controller::~mk1Controller()
+{
+    //   int class_id   = LIBUSB_HOTPLUG_MATCH_ANY;
+    //
+    //   libusb_hotplug_deregister_callback (NULL, hotplug[0]);
+    //    libusb_hotplug_deregister_callback (NULL, hotplug[1]);
+
+    if (handle) {
+        libusb_close(handle);
+        handle = 0;
+    }
+
+    //          int r = libusb_release_interface(handle, 0); //release the claimed interface
+    //
+    //         if(r != 0) {
+    //             qDebug() << "Cannot Release Interface" << endl;
+    //         } else {
+    //             qDebug() << "Released Interface" << endl;
+    //             libusb_close(handle);
+    //         }
+
+    if (readThread) {
+
+        readThread->quit();
+
+        //             disconnect(readThread, SIGNAL(readEvent()), this, SLOT(onReadNewData()));
+        //             delete readThread;
+        readThread = 0;
+    }
+
+#if 1
+
+    //         if (hotplugThread) {
+    //             //             hotplugThread->quit();
+    //             disconnect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(onHandleHotplug()));
+    //             delete hotplugThread;
+    //         }
+
+#endif
+    //     }
+
+    //     libusb_exit(NULL);
+}
+
+
+// Event:
+// Our device appeared in the system
+void mk1Controller::onDeviceConnected()
+{
+#if 0
+    // List storing all detected devices
+    libusb_device **devs;
+
+    // Get all devices connected to system
+    if (libusb_get_device_list(NULL, &devs) < 0) {
+        qDebug() << "Failed to get devices list";
+        return;
+    }
+
+    // Scan for LaunchpadDevice VID & PID
+    libusb_device *dev;
+    // retdev stores the first device detected
+    libusb_device *retdev = NULL;
+    int i = 0;
+    int count = 0;
+
+    while ( (dev = devs[i++]) != NULL ) {
+        struct libusb_device_descriptor desc;
+
+        if (libusb_get_device_descriptor(dev, &desc) < 0) {
+            qDebug() << "failed to get device descriptor";
+            continue;
+        }
+
+        // Is this device the one we are looking for?
+        if ( (desc.idVendor == VENDOR_ID) && (desc.idProduct == PRODUCT_ID) ) {
+
+            count++;
+
+            if ( retdev == NULL ) {
+                retdev = dev;
+            }
+        }
+    }
+
+    if (count <= 0) {
+        qDebug() << "Warning! No device found";
+        return;
+    }
+
+    if (count > 1 ) {
+        qDebug() << "Warning! More than one device found. Using first from the list";
+    }
+
+    if (libusb_open(retdev, &this->LaunchpadDevice) < 0) {
+        qDebug() << "Error! Failed to open device";
+        return;
+    }
+
+    libusb_free_device_list(devs, 1);
+
+    // now connect to interface
+
+    if (libusb_claim_interface(this->LaunchpadDevice, 0) != LIBUSB_SUCCESS) {
+        qDebug() << "Error! Failed to claim interface";
+        return;
+    }
+
+#endif
+
+    qDebug() << "DeviceConnected";
+    devConnected = false;
+
+
+    if (readThread != 0) {
+        disconnect(readThread, SIGNAL(readEvent()), this, SLOT(onReadNewData()));
+
+        readThread->quit();
+
+        delete readThread;
+        readThread = 0;
+    }
+
+#if 0
+    // If all ok enable control
+    this->ui->slider_R->setEnabled(true);
+    this->ui->slider_G->setEnabled(true);
+    this->ui->slider_B->setEnabled(true);
+    this->ui->button_ONOFF->setEnabled(true);
+
+    // Send some data for embedded device initial conditions
+    slider_Change();
+    USBSendONOFF(false);
+
+    // Start the timer to pool updates from device
+    this->queryTimer->start(500);
+
+    ui->statusBar->showMessage("Device connected.");
+#endif
+    int rc;
     bool devAlreadyConnected = false;
 
-    handle = libusb_open_device_with_vid_pid(NULL, vendor_id, product_id); //these are vendorID and productID I found for my usb device
+    handle = libusb_open_device_with_vid_pid(NULL, MK1_VENDOR_ID, MK1_PRODUCT_ID); //these are vendorID and productID I found for my usb device
 
     if(handle == NULL) {
         qDebug() << "Device not connected" << endl;
@@ -226,37 +373,40 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
     if (!libusb_has_capability (LIBUSB_CAP_HAS_HOTPLUG)) {
         qDebug() << "Hotplug capabilites are not supported on this platform";
-        libusb_exit (NULL);
+        //         libusb_exit (NULL);
     } else {
-        rc = libusb_hotplug_register_callback (NULL, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED, LIBUSB_HOTPLUG_ENUMERATE, vendor_id,
-                                               product_id, class_id, hotplug_callback, NULL, &hotplug[0]);
+#if 0
+        rc = libusb_hotplug_register_callback (NULL, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED, LIBUSB_HOTPLUG_ENUMERATE, MK1_VENDOR_ID,
+                                               MK1_PRODUCT_ID, LIBUSB_HOTPLUG_MATCH_ANY, hotplug_callback, NULL, &hotplug[0]);
 
         if (LIBUSB_SUCCESS != rc) {
             qDebug() << "Error registering callback 0";
-            libusb_exit (NULL);
+            //             libusb_exit (NULL);
         } else {
             qDebug() << "Device registering attach callback";
         }
 
-        rc = libusb_hotplug_register_callback (NULL, LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT, LIBUSB_HOTPLUG_ENUMERATE, vendor_id,
-                                               product_id, class_id, hotplug_callback_detach, NULL, &hotplug[1]);
+        rc = libusb_hotplug_register_callback (NULL, LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT, LIBUSB_HOTPLUG_ENUMERATE, MK1_VENDOR_ID,
+                                               MK1_PRODUCT_ID, LIBUSB_HOTPLUG_MATCH_ANY, hotplug_callback_detach, NULL, &hotplug[1]);
 
         if (LIBUSB_SUCCESS != rc) {
             qDebug() << "Error registering callback 1";
-            libusb_exit (NULL);
-        } else {
-            qDebug() << "Device registering detach callback";
-            hotplugThread = new usbHotplugThread();
-            connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(onHandleHotplug()));
-            hotplugThread->start();
+            //             libusb_exit (NULL);
+            //         } else {
+            //             qDebug() << "Device registering detach callback";
+            //             hotplugThread = new usbHotplugThread();
+            //             connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(onHandleHotplug()));
+            //             hotplugThread->start();
         }
+
+#endif
 
         if (devAlreadyConnected == true) {
             if (handle != 0) {
                 libusb_close(handle);
             }
 
-            handle = libusb_open_device_with_vid_pid(NULL, vendor_id, product_id); //these are vendorID and productID I found for my usb device
+            handle = libusb_open_device_with_vid_pid(NULL, MK1_VENDOR_ID, MK1_PRODUCT_ID); //these are vendorID and productID I found for my usb device
             int e = libusb_set_configuration (handle, 1);
 
             if(e < 0) {
@@ -265,6 +415,13 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
                 handle = 0;
             } else    {
                 qDebug() << "Claimed Interface";
+                devConnected = true;
+
+                readThread = new usbReadThread(this);
+
+                connect(readThread, SIGNAL(readEvent()), this, SLOT(onReadNewData()));
+
+                readThread->start();
             }
 
             getDeviceInfo();
@@ -272,50 +429,54 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
             pack9D(); // to get actual info from device
         }
     }
+
 }
 
-
-/**
- * @brief destructor
- *
- */
-mk1Controller::~mk1Controller()
+// Event:
+// Device was disconnected
+void mk1Controller::onDeviceDisconnected()
 {
-    //   int class_id   = LIBUSB_HOTPLUG_MATCH_ANY;
-    //
-    //   libusb_hotplug_deregister_callback (NULL, hotplug[0]);
-    //    libusb_hotplug_deregister_callback (NULL, hotplug[1]);
+    qDebug() << "DeviceDisconnected";
 
-    if (handle) {
-        //          int r = libusb_release_interface(handle, 0); //release the claimed interface
-        //
-        //         if(r != 0) {
-        //             qDebug() << "Cannot Release Interface" << endl;
-        //         } else {
-        //             qDebug() << "Released Interface" << endl;
-        //             libusb_close(handle);
-        //         }
+    handle = 0;
 
-        if (readThread) {
-            //             readThread->quit();
-            disconnect(readThread, SIGNAL(readEvent()), this, SLOT(onReadNewData()));
+    devConnected = false;
 
-            delete readThread;
-        }
+    if (readThread != 0) {
+        disconnect(readThread, SIGNAL(readEvent()), this, SLOT(onReadNewData()));
+        //         readThread->quit();
 
-#if 1
-
-        if (hotplugThread) {
-            //             hotplugThread->quit();
-            disconnect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(onHandleHotplug()));
-            delete hotplugThread;
-        }
-
-#endif
+        delete readThread;
+        readThread = 0;
     }
 
-    libusb_exit(NULL);
+    // Disable timer
+#if 0
+    this->queryTimer->stop();
+
+    // Disable controls and reset them to initial state
+
+    this->ui->slider_R->setValue(200);
+    this->ui->slider_G->setValue(200);
+    this->ui->slider_B->setValue(200);
+    this->ui->button_ONOFF->setChecked(false);
+
+    this->ui->slider_R->setEnabled(false);
+    this->ui->slider_G->setEnabled(false);
+    this->ui->slider_B->setEnabled(false);
+    this->ui->button_ONOFF->setEnabled(false);
+
+    if(this->LaunchpadDevice != NULL) {
+        libusb_release_interface(this->LaunchpadDevice, 0);
+        libusb_close(this->LaunchpadDevice);
+        this->LaunchpadDevice = NULL;
+    }
+
+    ui->statusBar->showMessage("Awaiting device connection.");
+#endif
+
 }
+
 
 
 /**
@@ -326,6 +487,11 @@ int mk1Controller::getDeviceInfo()
 {
     int rc;
     QString descrStr;
+
+    if (handle == 0) {
+        devDescriptor = "Device not comnnected";
+        return -1;
+    }
 
     libusb_device *dev = libusb_get_device(handle);
 
@@ -447,6 +613,7 @@ void mk1Controller::onBufFree()
     qDebug() << "signal: read buffer is free";
 }
 
+#if 0
 /**
  * @brief slot from hotplugThread
  *
@@ -492,7 +659,7 @@ void mk1Controller::onHandleHotplug()
 
     connect(hotplugThread, SIGNAL(hotplugEvent()), this, SLOT(onHandleHotplug()));
 }
-
+#endif
 /**
  * @brief send settings to mk
  *
@@ -534,7 +701,7 @@ void mk1Controller::sendSettings()
  */
 bool mk1Controller::isConnected()
 {
-    return (handle != 0);
+    return devConnected;
 }
 
 

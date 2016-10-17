@@ -265,8 +265,10 @@ QString cTranslator::engText[] = {
     "Left",
     "Fit",
     "Save G-Code",
-    "Parser",
+    "Parser", // 220
     "Remove repeatable data from list",
+    "Work material",
+    "Joypad",
     ""
 };
 

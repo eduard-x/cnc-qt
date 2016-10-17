@@ -292,7 +292,7 @@ void SettingsDialog::translateDialog()
     fList << translate(_IO);
     fList << translate(_TOOL);
     fList << translate(_PARSER);
-    fList << "Reserved"; // translate(_ARC_SPLITTING);
+    fList << translate(_WORK_MATERIAL);
     fList << translate(_VISUALISATION);
 
     listWidget->addItems(fList);

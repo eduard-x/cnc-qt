@@ -237,6 +237,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     labelTask->setText("");
 
+    int rc = 0;
+    context = NULL;
+    rc = libusb_init(&context);
+
+    if (rc != 0) {
+        qApp->quit();
+    }
+
+
     readSettings();
 
     setWindowIcon(QIcon(QPixmap(":/images/icon.png")));
@@ -531,7 +540,6 @@ void MainWindow::addConnections()
     connect(checkBoxLimitsAmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
     // end of workbench
 
-
     connect(listGCodeWidget, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(onEditGCode(int, int)));
     connect(listGCodeWidget, SIGNAL(cellActivated(int, int)), this, SLOT(onCellSelect(int, int)));
 
@@ -539,14 +547,27 @@ void MainWindow::addConnections()
     connect(toolRunMoving, SIGNAL(clicked()), this, SLOT(onRunToPoint()));
 
     // connected or disconnected
-    connect(mk1, SIGNAL(hotplugSignal ()), this, SLOT(onCncHotplug())); // cnc->WasConnected += CncConnect;
+    //     connect(mk1, SIGNAL(hotplugSignal ()), this, SLOT(onCncHotplug())); // cnc->WasConnected += CncConnect;
     //     connect(mk1, SIGNAL(hotplugDisconnected ()), this, SLOT(onCncHotplug())); // cnc->WasDisconnected += CncDisconnect;
 
-    connect(mk1, SIGNAL(newDataFromMK1Controller ()), this, SLOT(onCncNewData())); // cnc->NewDataFromController += CncNewData;
-    connect(mk1, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message += CncMessage;
+    if (mk1 != 0) {
+        connect(mk1, SIGNAL(newDataFromMK1Controller ()), this, SLOT(onCncNewData())); // cnc->NewDataFromController += CncNewData;
+        connect(mk1, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message += CncMessage;
 
-    connect(&mainGUITimer, SIGNAL(timeout()), this, SLOT(onRefreshGUITimer()));
-    mainGUITimer.start(500);// every 0.5 sec update
+        connect(this, SIGNAL(mk1Connected()),      mk1,  SLOT(onDeviceConnected()) );
+        connect(this, SIGNAL(mk1Disconnected()),   mk1,  SLOT(onDeviceDisconnected()) );
+    }
+
+    // Start timer that will periodicaly check if hardware is connected
+    hotplugTimer = new QTimer(this);
+    // this signal-slot connection is Qt5
+    connect(hotplugTimer, SIGNAL(timeout()), this, SLOT(hotplugTimerTick()) );
+    hotplugTimer->start(250); // every 0.25 sec
+
+
+    refreshGUITimer = new QTimer(this);
+    connect(refreshGUITimer, SIGNAL(timeout()), this, SLOT(onRefreshGUITimer()));
+    refreshGUITimer->start(500);// every 0.5 sec update
 
 
     if (enableOpenGL == true) {
@@ -583,7 +604,64 @@ void MainWindow::addConnections()
 
     radioFixY->setChecked(true);
 
-    onCncHotplug();
+    //     onCncHotplug();
+}
+
+
+
+// Function pools messges from udev
+// Linux specific
+void MainWindow::hotplugTimerTick()
+{
+    size_t count = 0;
+    static bool mk1_connected = false;
+
+    libusb_device **list = NULL;
+
+    count = libusb_get_device_list(context, &list);
+
+    if(count == 0) {
+        mk1_connected = false;
+        emit mk1Disconnected();
+        return;
+    }
+
+    bool mk1_detected = false;
+
+    for (size_t idx = 0; idx < count; ++idx) {
+        libusb_device *device = list[idx];
+        libusb_device_descriptor desc = {0};
+
+        int rc = libusb_get_device_descriptor(device, &desc);
+
+        if (rc != 0) {
+            continue;
+        }
+
+        if (desc.idVendor == MK1_VENDOR_ID && desc.idProduct == MK1_PRODUCT_ID) {
+            mk1_detected = true;
+            //      printf("Vendor:Device = %04x:%04x\n", desc.idVendor, desc.idProduct);
+        }
+    }
+
+    libusb_free_device_list(list, 1);
+
+    if (mk1_detected != mk1_connected) {
+        if (mk1_detected == true) {
+            AddLog(translate(_HOTPLUGED));
+            emit mk1Connected();
+        } else {
+            AddLog(translate(_DETACHED));
+            emit mk1Disconnected();
+        }
+
+        actionInfo->setEnabled(mk1_detected);
+        mk1_connected = mk1_detected;
+
+        if (refreshGUITimer->isActive() == false) {
+            refreshElementsForms();
+        }
+    }
 }
 
 
@@ -1385,6 +1463,11 @@ void MainWindow::displayRotation()
 
 MainWindow::~MainWindow()
 {
+    //     emit mk1Disconnected();
+    //
+    //     libusb_exit(context);
+    //
+    //     hotplugTimer->stop();
 };
 
 
@@ -1413,6 +1496,14 @@ void MainWindow::closeEvent(QCloseEvent* ce)
         return;
     }
 
+    emit mk1Disconnected();
+
+    if (context != 0) {
+        libusb_exit(context);
+    }
+
+    hotplugTimer->stop();
+
     disconnect(mk1, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 
     writeSettings();
@@ -1440,6 +1531,14 @@ void MainWindow::onExit()
         //         ce->ignore();
         return;
     }
+
+    emit mk1Disconnected();
+
+    if (context != 0) {
+        libusb_exit(context);
+    }
+
+    hotplugTimer->stop();
 
     disconnect(mk1, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 
@@ -2283,7 +2382,7 @@ void MainWindow::onCncMessage(int n_msg)
 }
 
 
-
+#if 0
 /**
  * @brief slot for signals from usb connector: detach or hotplug of controller
  *
@@ -2300,11 +2399,11 @@ void MainWindow::onCncHotplug()
 
     actionInfo->setEnabled(e);
 
-    if (mainGUITimer.isActive() == false) {
+    if (refreshGUITimer->isActive() == false) {
         refreshElementsForms();
     }
 }
-
+#endif
 
 /**
  * @brief update the widgtes after new data from microcontroller

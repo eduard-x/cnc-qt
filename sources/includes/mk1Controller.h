@@ -69,7 +69,7 @@ struct moveParameters {
     byte  movingCode; // 0x39, 0x31, 0x21, 0x11, 0x01, offset 5
 };
 
-
+#if 0
 class usbHotplugThread : public QThread
 {
         Q_OBJECT
@@ -88,7 +88,7 @@ class usbHotplugThread : public QThread
     signals:
         void hotplugEvent();
 };
-
+#endif
 
 // class for communication with device
 class mk1Data //: public mk1Settings
@@ -200,7 +200,10 @@ class mk1Controller : public QObject, public mk1Data
         void newDataFromMK1Controller();
 
     public slots:
-        void onHandleHotplug();
+        //         void onHandleHotplug();
+        void onDeviceConnected();
+        void onDeviceDisconnected();
+
         void onReadNewData();
         void onBufFree();
 
@@ -213,7 +216,7 @@ class mk1Controller : public QObject, public mk1Data
 
         static libusb_hotplug_callback_handle hotplug[2];
 
-        usbHotplugThread *hotplugThread;
+        //         usbHotplugThread *hotplugThread;
 
         static QString devDescriptor;
 
@@ -223,7 +226,7 @@ class mk1Controller : public QObject, public mk1Data
 
         int _error_code;
 
-        int product_id, vendor_id;//, class_id;
+        //         int product_id, vendor_id;//, class_id;
 
         bool availableNewData;
 

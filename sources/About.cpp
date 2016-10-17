@@ -35,7 +35,7 @@
 
 
 #include "includes/About.h"
-#include "version.h"
+#include "includes/version.h"
 
 
 /******************************************************************************
