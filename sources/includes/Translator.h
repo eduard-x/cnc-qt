@@ -277,6 +277,7 @@ enum TR_CONSTS {
     _REMOVE_REPEAT, // 221
     _WORK_MATERIAL, // 222
     _JOYPAD, // 223
+    _SYSTEM, // 224
     _NULL
 };
 

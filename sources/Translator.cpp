@@ -269,6 +269,7 @@ QString cTranslator::engText[] = {
     "Remove repeatable data from list",
     "Work material",
     "Joypad",
+    "System",
     ""
 };
 

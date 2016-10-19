@@ -429,7 +429,6 @@ void mk1Controller::onDeviceConnected()
             pack9D(); // to get actual info from device
         }
     }
-
 }
 
 // Event:

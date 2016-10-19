@@ -285,15 +285,16 @@ void SettingsDialog::translateDialog()
     groupBoxArc->setTitle(translate(_ARC_SPLITTING));
 
     QStringList fList;
-    fList << translate(_WORKTABLE);
+    fList << translate(_WORKBENCH);
     fList << translate(_SPEED);
-    fList << translate(_LIMITS);
-    fList << translate(_PARKING);
+    //     fList << translate(_LIMITS);
     fList << translate(_IO);
-    fList << translate(_TOOL);
+    fList << translate(_SYSTEM);
     fList << translate(_PARSER);
+    fList << translate(_TOOL);
     fList << translate(_WORK_MATERIAL);
     fList << translate(_VISUALISATION);
+    fList << translate(_JOYPAD);
 
     listWidget->addItems(fList);
 
@@ -374,10 +375,7 @@ void SettingsDialog::onSelection(QListWidgetItem* it)
 
 void SettingsDialog::onChangeColor(int i)
 {
-    QPalette palette = frameColor->palette();
-    palette.setColor( backgroundRole(), Settings::colorSettings[i] );
-    frameColor->setPalette( palette );
-    frameColor->setAutoFillBackground( true );
+    toolSelectColor->setStyleSheet(QString("background-color: %1; ").arg(Settings::colorSettings[i].name()));
 }
 
 
