@@ -292,7 +292,7 @@ void SettingsDialog::translateDialog()
     fList << translate(_SYSTEM);
     fList << translate(_PARSER);
     fList << translate(_TOOL);
-    fList << translate(_WORK_MATERIAL);
+//     fList << translate(_WORK_MATERIAL);
     fList << translate(_VISUALISATION);
     fList << translate(_JOYPAD);
     
