@@ -474,7 +474,7 @@
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="currentIndex">
-            <number>1</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="tab1">
             <attribute name="title">
@@ -872,8 +872,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>766</width>
-                    <height>502</height>
+                    <width>777</width>
+                    <height>501</height>
                    </rect>
                   </property>
                  </widget>
@@ -1293,6 +1293,15 @@ min/max</string>
                  <width>450</width>
                  <height>300</height>
                 </size>
+               </property>
+               <property name="acceptDrops">
+                <bool>false</bool>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="lineWidth">
+                <number>0</number>
                </property>
               </widget>
              </item>
@@ -2395,7 +2404,7 @@ min/max</string>
      <x>0</x>
      <y>0</y>
      <width>1002</width>
-     <height>28</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -2546,7 +2555,7 @@ min/max</string>
   </action>
   <action name="actionAboutQt">
    <property name="icon">
-    <iconset resource="../CNC-Qt.qrc">
+    <iconset>
      <normaloff>:/images/qtlogo.png</normaloff>:/images/qtlogo.png</iconset>
    </property>
    <property name="text">

@@ -229,3 +229,24 @@ t215=Сверху
 t216=Фронтально
 t217=Слева
 t218=По размеру
+t219=Сохранить G-Code
+t220=Парсер
+t221=Чистить от повторяющихся данных
+t222=Рабочий материал
+t223=Джойпэд
+t224=Система
+t225=Стержень
+t226=Описание
+t227=Применение
+t228=0,3..3 mm\t 3/3,175\t VHM-Spiralbohrer\t Platinenbearbeitung für Pertinax und FR4 gleichermaßen, allgemeine feine Bohrarbeiten\
+1..3 mm\t 3/3,175\t VHM-Einsatzfräser\t Kunststoffe, weiches Alluminium, großer Spnnraum für weiche Werkstoffe\
+0,8..3 mm\t 3/3,175\t VHM-Schaftfräser, 2-schneidig\t Kunststoffe, mittelhartes Alluminium, auch als Radiusfräser mit rundem Kopf, gerade Stirn ermöglicht glatte Flächen\
+0,8..3 mm\t 3/3,175\t VHM-Schaftfräser mit Schwalbenschwanz\t Kunststoffe, mittelhartes Alluminium, erleichertes Eintauchen, Schlitz- und Konturfräsen\
+0,8..3 mm\t 3/3,175\t VHM-Schaftfräser feingezahnt\t diamantverzahnt oder beschichtet für CFK, GFK, FR4-Platinen als Schlitz- und Konturfräsen\
+0,8..3 mm\t 3/3,175\t VHM-Schaftfräser mit Bohrspitze\t Kunststoffe, mittelhartes bis hartes Alluminium, erleichertes Eintauchen, Schlitz- und Konturfräsen\
+0,8..3 mm\t 3/3,175\t VHM-Gravierstichel\t Kunststoffe, weiches und eloxiertes Alluminium, Kupfer, Isolationsfräsen; verschiedene Spitzenwinkel und Spitzenradien erhältlich, für feine Gravurarbeiten \
+6..8 mm\t 6\t VHM-Gravierstichel\t Kunststoffe, mit abgerundeter Spitze und 60°/90° auch Messing, Kupfer und Alluminium\
+0,8..3 mm\t 3/3,175\t VHM-V-Nut-Fräser\t Harte Kunststoffe, Buntmetalle; verschiedene Spitzenwinkel und Spitzenradien erhältlich, für Gravurarbeiten, oder als V-Nut-"Kistenstichel"\
+6..20 mm\t 6/8\t Fräser mit Hartmetallschneiden\t Holzbearbeitung, verschiedene Spitzenformen erhältlich, vor allem für Oberfräsen\
+6..20 mm\t 6/8\t Schlitzfräser\t Holzbearbeitung, oft auch für Hartmetall-Schneiden, vor allem für Oberfräsen\
+3..8 mm\t 6/8\t Schaftfräser\t Metallbearbeitung mit geringeren Drehzahlen, 2- bis 4-schneidig, HSS oder VHM; eher für größere Fräsemaschinen geeignet

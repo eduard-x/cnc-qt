@@ -438,6 +438,8 @@ void MainWindow::drawWorkbench()
 
     item_p1->setVisible(true);
 
+    graphicsView->setStyleSheet("background: transparent");
+    
     graphicsView->setScene(sceneCoordinates);
 }
 

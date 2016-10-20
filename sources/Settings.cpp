@@ -295,6 +295,10 @@ void SettingsDialog::translateDialog()
     fList << translate(_WORK_MATERIAL);
     fList << translate(_VISUALISATION);
     fList << translate(_JOYPAD);
+    
+    QString tblText = translate(_TOOL_TABLE);
+    toolTable = tblText.split("\\");
+    qDebug() << toolTable;
 
     listWidget->addItems(fList);
 

@@ -157,6 +157,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
     private:
         MainWindow* parent;
         mk1Controller *cnc;
+        QStringList toolTable;
 };
 
 
