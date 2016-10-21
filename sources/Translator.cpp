@@ -273,18 +273,20 @@ QString cTranslator::engText[] = {
     "Shaft",
     "Description",
     "Using",
-    "0,3..3 mm\\t 3/3,175\\t VHM spiral drill\\t PCB machining of Pertinax and FR4 equally, general fine drilling work\\"
-    "1..3 mm\\t 3/3,175\\t VHM miling cutter\\t Plastics, soft aluminum, large chip space for soft materials\\"
-    "0,8..3 mm\\t 3/3,175\\t VHM end mill, 2-edged\\t Plastics, medium hard aluminum, also as a radius cutter with round head, straight forehead allows smooth surfaces\\"
-    "0,8..3 mm\\t 3/3,175\\t VHM end mill with dovetail\\t Plastics, medium-hard aluminum, facilitated immersion, slit and contours\\"
-    "0,8..3 mm\\t 3/3,175\\t VHM end mill, fine toothed\\t Diamond-toothed or coated for CFRP, GRP, FR4 boards as slotted and contoured racks\\"
-    "0,8..3 mm\\t 3/3,175\\t VHM end mill with drill tip\\t Plastics, medium hard to hard aluminum, facilitated immersion, slit and contours\\"
-    "0,8..3 mm\\t 3/3,175\\t VHM-engraving tool\\t Plastics, soft and anodized aluminum, copper, insulation milling; Different tip angles and tip radii available, for fine engraving work \\"
-    "6..8 mm\\t 6\\t VHM-engraving tool\\t Plastics, with rounded tip and 60 ° / 90 ° also brass, copper and alluminium\\"
-    "0,8..3 mm\\t 3/3,175\\t VHM V-milling cutter\\t Hard plastics, non-ferrous metals; Different tip angles and tip radii available, for engraving work, or as a V-groove \"crate tool\"\\"
-    "6..20 mm\\t 6/8\\t Milling cutters with carbide cutting edges\\t Woodworking, various top molds available, especially for top milling machines\\"
-    "6..20 mm\\t 6/8\\t Slot milling cutter\\t Woodworking, often also for hard metal cutting, especially for top milling\\"
-    "3..8 mm\\t 6/8\\t End mill\\t Metal machining with low speeds, 2- to 4-blade, HSS or VHM; More suitable for larger milling machines",
+    "0,3..3 mm\t 3/3,175\t VHM spiral drill\t PCB machining of Pertinax and FR4 equally, general fine drilling work\\"
+    "1..3 mm\t 3/3,175\t VHM single tooth cutter\t Plastics, soft aluminum, large chip space for soft materials\\"
+    "0,8..3 mm\t 3/3,175\t VHM end mill, 2-edged\t Plastics, medium hard aluminum, also as a radius cutter with round head, straight forehead allows smooth surfaces\\"
+    "0,8..3 mm\t 3/3,175\t VHM end mill with dovetail\t Plastics, medium-hard aluminum, facilitated immersion, slit and contours\\"
+    "0,8..3 mm\t 3/3,175\t VHM end mill, fine toothed\t Diamond-toothed or coated for CFRP, GRP, FR4 boards as slotted and contoured racks\\"
+    "0,8..3 mm\t 3/3,175\t VHM end mill with drill tip\t Plastics, medium hard to hard aluminum, facilitated immersion, slit and contours\\"
+    "0,8..3 mm\t 3/3,175\t VHM-engraving tool\t Plastics, soft and anodized aluminum, copper, insulation milling; Different tip angles and tip radii available, for fine engraving work \\"
+    "6..8 mm\t 6\t VHM-engraving tool\t Plastics, with rounded tip and 60 ° / 90 ° also brass, copper and alluminium\\"
+    "0,8..3 mm\t 3/3,175\t VHM V-milling cutter\t Hard plastics, non-ferrous metals; Different tip angles and tip radii available, for engraving work, or as a V-groove \"crate tool\"\\"
+    "6..20 mm\t 6/8\t Milling cutters with carbide cutting edges\t Woodworking, various top molds available, especially for top milling machines\\"
+    "6..20 mm\t 6/8\t Slot milling cutter\t Woodworking, often also for hard metal cutting, especially for top milling\\"
+    "3..8 mm\t 6/8\t End mill\t Metal machining with low speeds, 2- to 4-blade, HSS or VHM; More suitable for larger milling machines",
+    "Controlling",
+    "Select tool:",
     ""
 };
 
@@ -330,13 +332,13 @@ bool cTranslator::loadTranslation(const QString fname)
         }
 
         QString tmpText = convertString(llEng);
-        // when at end of string 
-        if (tmpText.lastIndexOf("\\")>= tmpText.length() -2){
+
+        // when at end of string
+        if (tmpText.lastIndexOf("\\") >= tmpText.length() - 2) {
             llEng += tmpText;
-//             qDebug() << tmpText;
+            //             qDebug() << tmpText;
             continue;
-        }
-        else{
+        } else {
             llEng = tmpText;
         }
 

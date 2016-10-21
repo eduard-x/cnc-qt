@@ -279,9 +279,11 @@ enum TR_CONSTS {
     _JOYPAD, // 223
     _SYSTEM, // 224
     _SHAFT, // 225
-    _DESCRIPTION, // 226 
+    _DESCRIPTION, // 226
     _USING, // 227
     _TOOL_TABLE, // 228
+    _CONTROLLING, // 229
+    _SELECT_TOOL, // 230
     _NULL
 };
 

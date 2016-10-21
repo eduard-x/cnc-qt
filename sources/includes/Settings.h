@@ -34,6 +34,9 @@
 #define SETTINGS_H
 
 #include <QColor>
+#include <QGraphicsScene>
+#include <QVector>
+#include <QPixmap>
 
 #include "MainWindow.h"
 #include "ui_Settings.h"
@@ -149,6 +152,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
         void onSave();
         void onSelection(QListWidgetItem* it);
         void onChangeColor(int i);
+        void onChangeTool(int i);
         void changeColor();
 
     private:
@@ -157,7 +161,9 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
     private:
         MainWindow* parent;
         mk1Controller *cnc;
-        QStringList toolTable;
+        QVector< QVector<QString> > toolArray;
+        QVector<QPixmap> frz_png;
+        QGraphicsScene *grph;
 };
 
 

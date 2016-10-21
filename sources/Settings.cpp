@@ -110,6 +110,15 @@ SettingsDialog::SettingsDialog(QWidget *p)
 
     cnc = parent->mk1;
 
+    // pictures of
+    for (int i = 1 ; i < 13; i++) {
+        QString name;
+        name = QString().sprintf(":/images/frz%02d.png", i);
+        frz_png <<  QPixmap(name);
+    }
+
+    graphicsView->setStyleSheet("background: transparent");
+
     setStyleSheet(parent->programStyleSheet);
 
     QStringList seqList = (QStringList() << "1" << "2" << "3" << "4");
@@ -239,14 +248,46 @@ SettingsDialog::SettingsDialog(QWidget *p)
     spinBoxLineWidth->setValue(Settings::lineWidth);
     //end of visualisation settings
 
+    grph = 0;
+
     translateDialog();
 
     emit onChangeColor(0);
+
+    emit onChangeTool(0);
 
     adjustSize();
 }
 
 
+/**
+ *
+ */
+void SettingsDialog::onChangeTool(int i)
+{
+    if (i >= frz_png.count()) {
+        qDebug() << "picture vector is too small";
+        return;
+    }
+
+    if (grph != NULL) {
+        delete grph;
+    }
+
+    grph = new QGraphicsScene();
+    QGraphicsPixmapItem *item_p = grph->addPixmap(frz_png.at(i));
+
+    item_p->setVisible(true);
+
+    graphicsView->setScene(grph);
+
+    textBrowser->setText(toolArray[i][3]);
+}
+
+
+/**
+ *
+ */
 void SettingsDialog::changeColor()
 {
     int num = comboColor->currentIndex();
@@ -282,6 +323,12 @@ void SettingsDialog::translateDialog()
 
     groupBox_5->setTitle(translate(_LOOKAHEAD));
 
+    labelFlutes->setText(translate(_FLUTES));
+    labelDiameter->setText(translate(_DIAMETER));
+    labelShaft->setText(translate(_SHAFT));
+    labelDiam->setText(translate(_DIAMETER));
+    labelTool->setText(translate(_SELECT_TOOL));
+
     groupBoxArc->setTitle(translate(_ARC_SPLITTING));
 
     QStringList fList;
@@ -292,13 +339,31 @@ void SettingsDialog::translateDialog()
     fList << translate(_SYSTEM);
     fList << translate(_PARSER);
     fList << translate(_TOOL);
-//     fList << translate(_WORK_MATERIAL);
+    //     fList << translate(_WORK_MATERIAL);
     fList << translate(_VISUALISATION);
-    fList << translate(_JOYPAD);
-    
+    fList << translate(_CONTROLLING);
+
     QString tblText = translate(_TOOL_TABLE);
-    toolTable = tblText.split("\\");
-    qDebug() << toolTable;
+    QStringList tTable = tblText.split("\\");
+
+    toolArray.clear();
+    QStringList cmbList;
+
+    foreach (QString s, tTable) {
+        QStringList slst = s.split("\t");
+
+        if(slst.count() < 4) {
+            continue;
+        }
+
+        cmbList << slst.at(2);
+        toolArray << slst.toVector();
+    }
+
+    comboBoxTool->addItems(cmbList);
+    connect(comboBoxTool, SIGNAL (activated(int)), this, SLOT(onChangeTool(int)));
+
+    //     qDebug() << toolArray;
 
     listWidget->addItems(fList);
 

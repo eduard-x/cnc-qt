@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>826</width>
-    <height>794</height>
+    <width>762</width>
+    <height>832</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -131,8 +131,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>604</width>
-              <height>719</height>
+              <width>523</width>
+              <height>559</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_21">
@@ -839,8 +839,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>604</width>
-              <height>719</height>
+              <width>411</width>
+              <height>293</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_23">
@@ -1499,8 +1499,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>604</width>
-              <height>719</height>
+              <width>299</width>
+              <height>492</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_10">
@@ -2040,8 +2040,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>604</width>
-              <height>719</height>
+              <width>476</width>
+              <height>222</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_26">
@@ -2260,8 +2260,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>604</width>
-              <height>719</height>
+              <width>359</width>
+              <height>123</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_27">
@@ -2381,6 +2381,24 @@
                <height>110</height>
               </size>
              </property>
+             <property name="maximumSize">
+              <size>
+               <width>200</width>
+               <height>110</height>
+              </size>
+             </property>
+             <property name="acceptDrops">
+              <bool>false</bool>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
             </widget>
            </item>
            <item row="4" column="0" colspan="3">
@@ -2415,9 +2433,6 @@
            <item row="6" column="3" colspan="2">
             <widget class="QComboBox" name="comboBoxMaterial"/>
            </item>
-           <item row="5" column="4">
-            <widget class="QSpinBox" name="spinBox"/>
-           </item>
            <item row="0" column="0" colspan="3">
             <widget class="QLabel" name="labelTool">
              <property name="text">
@@ -2430,13 +2445,6 @@
            </item>
            <item row="5" column="0">
             <widget class="QLabel" name="labelDiameter">
-             <property name="text">
-              <string>TextLabel</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="2" colspan="2">
-            <widget class="QLabel" name="labelFlutes">
              <property name="text">
               <string>TextLabel</string>
              </property>
@@ -2458,12 +2466,34 @@
            <item row="1" column="0" colspan="5">
             <widget class="QTextBrowser" name="textBrowser">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>110</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>110</height>
+              </size>
+             </property>
             </widget>
+           </item>
+           <item row="5" column="2">
+            <widget class="QLabel" name="labelFlutes">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="3">
+            <widget class="QSpinBox" name="spinBox"/>
            </item>
           </layout>
          </item>
@@ -2627,7 +2657,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>587</width>
+              <width>279</width>
               <height>761</height>
              </rect>
             </property>
