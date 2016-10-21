@@ -282,6 +282,9 @@ void SettingsDialog::onChangeTool(int i)
     graphicsView->setScene(grph);
 
     textBrowser->setText(toolArray[i][3]);
+    
+      labelDiam->setText(toolArray[i][0]);
+      labelShaft->setText(toolArray[i][1]);
 }
 
 
@@ -357,6 +360,8 @@ void SettingsDialog::translateDialog()
         }
 
         cmbList << slst.at(2);
+        slst[0] = translate(_DIAMETER) + slst.at(0);
+        slst[1] = translate(_SHAFT) + slst.at(1);
         toolArray << slst.toVector();
     }
 
