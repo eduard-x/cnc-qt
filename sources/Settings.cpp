@@ -346,6 +346,9 @@ void SettingsDialog::translateDialog()
     fList << translate(_VISUALISATION);
     fList << translate(_CONTROLLING);
 
+    
+    // tool settings 
+    
     QString tblText = translate(_TOOL_TABLE);
     QStringList tTable = tblText.split("\\");
 
@@ -360,15 +363,16 @@ void SettingsDialog::translateDialog()
         }
 
         cmbList << slst.at(2);
-        slst[0] = translate(_DIAMETER) + slst.at(0);
-        slst[1] = translate(_SHAFT) + slst.at(1);
+        slst[0] = translate(_DIAMETER) + ": " + slst.at(0);
+        slst[1] = translate(_SHAFT) + ": " + slst.at(1);
+        slst[3] = slst.at(3).simplified();
         toolArray << slst.toVector();
     }
 
     comboBoxTool->addItems(cmbList);
     connect(comboBoxTool, SIGNAL (activated(int)), this, SLOT(onChangeTool(int)));
 
-    //     qDebug() << toolArray;
+    // end of tool settings
 
     listWidget->addItems(fList);
 
@@ -390,19 +394,13 @@ void SettingsDialog::translateDialog()
     listWidget->item(0)->setSelected(true);
 
     tabWidget->setCurrentIndex(0);
-    //     tabWidget->tabBar()->setFixedHeight(0);
-    //     tabWidget->tabBar()->setMaximumWidth(500);
     tabWidget->setStyleSheet("QTabBar::tab { height: 0px; width: 0px; border: 0px solid #333; }" );
-
-    //     tabWidget->setTabText(0, translate(_WORKTABLE));
-    //     tabWidget->setTabText(1, translate(_VELO));
-    //     tabWidget->setTabText(2, translate(_LIMITS));
-    //     tabWidget->setTabText(3, translate(_PARKING));
-    //     tabWidget->setTabText(4, translate(_TOOL));
 
     labelStart->setText(translate(_STARTVELO));
     labelEnd->setText(translate(_ENDVELO));
     labelAcceleration->setText(translate(_ACCELERATION));
+    
+    labelMaterial->setText(translate(_MATERIAL));
 
     QList<QAbstractButton*> l = buttonBox->buttons();
     QStringList strl = (QStringList() << translate(_SET) << translate(_CANCEL));
