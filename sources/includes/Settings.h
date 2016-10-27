@@ -150,7 +150,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
 
     private slots:
         void onSave();
-        void onSelection(QListWidgetItem* it);
+        void onSelection(QTreeWidgetItem* it, int i);
         void onChangeColor(int i);
         void onChangeTool(int i);
         void changeColor();

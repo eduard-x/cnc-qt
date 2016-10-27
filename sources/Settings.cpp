@@ -373,8 +373,30 @@ void SettingsDialog::translateDialog()
     connect(comboBoxTool, SIGNAL (activated(int)), this, SLOT(onChangeTool(int)));
 
     // end of tool settings
+    
+//     QTreeWidget *treeWidget = new QTreeWidget();
+    treeWidget->setColumnCount(1);
+    QList<QTreeWidgetItem *> items;
+    foreach (QString s, fList){
+        QStringList sub = s.split(";");
+        QTreeWidgetItem *m = new QTreeWidgetItem(treeWidget, QStringList(sub.at(0)));
+        items.append(m);
+        if (sub.count() > 1){
+            sub.removeAt(0);
+            foreach (QString ssub, sub){
+                items.append(new QTreeWidgetItem(m, QStringList(ssub)));
+            }
+             m->setExpanded(true);
+        }
+    }
+    treeWidget->header()->close();
+   
+//     treeWidget->horizontalHeader()->hide();
+//     treeWidget->insertTopLevelItems(items);
 
-    listWidget->addItems(fList);
+//     QListWidgetItem *it ? listWidget->
+//      item = new QTreeWidgetItem(parent);
+//             parent->setExpanded( true );
 
     groupBoxColors->setTitle(translate(_COLORS));
 
@@ -383,15 +405,17 @@ void SettingsDialog::translateDialog()
     QStringList colorList = translate(_COLOR_LIST).split("\n");
     comboColor->addItems(colorList);
 
-    int width = listWidget->sizeHintForColumn(0);
-    listWidget->setFixedWidth(width + 20);
+//     int width = treeWidget->sizeHintForColumn(0);
+//     treeWidget->setFixedWidth(width + 20);
 
-    connect(listWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(onSelection(QListWidgetItem*)));
+    connect(treeWidget, SIGNAL(itemActivated ( QTreeWidgetItem *, int )), this, SLOT(onSelection(QTreeWidgetItem*, int)));
+    connect(treeWidget, SIGNAL(itemClicked ( QTreeWidgetItem *, int )), this, SLOT(onSelection(QTreeWidgetItem*, int)));
+//     connect(treeWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(onSelection(QListWidgetItem*)));
     //     connect(listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onSelection(QListWidgetItem*)));
 
     connect(comboColor, SIGNAL(activated(int)), this, SLOT(onChangeColor(int)));
 
-    listWidget->item(0)->setSelected(true);
+//     treeWidget->item(0)->setSelected(true);
 
     tabWidget->setCurrentIndex(0);
     tabWidget->setStyleSheet("QTabBar::tab { height: 0px; width: 0px; border: 0px solid #333; }" );
@@ -437,11 +461,11 @@ void SettingsDialog::translateDialog()
 }
 
 
-void SettingsDialog::onSelection(QListWidgetItem* it)
+void SettingsDialog::onSelection(QTreeWidgetItem* it, int i)
 {
-    int idx = listWidget->currentRow();
-    //     qDebug() << idx;
-    tabWidget->setCurrentIndex(idx);
+//     int idx = treeWidget->currentItem().text();
+//     //     qDebug() << idx;
+//     tabWidget->setCurrentIndex(idx);
 }
 
 
