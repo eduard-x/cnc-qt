@@ -322,7 +322,6 @@ void SettingsDialog::changeColor()
 void SettingsDialog::translateDialog()
 {
     setWindowTitle(translate(_SETTINGS_TITLE));
-//     groupRanges->setTitle(translate(_LIMITS));
     checkBoxDemoController->setText(translate(_DEV_SIMULATION));
     //     labelInfo->setText(translate(_DEV_SIM_HELP));
     labelUse->setText(translate(_USE));
@@ -333,16 +332,11 @@ void SettingsDialog::translateDialog()
     labelSpeed->setText(translate(_SPEED));
     labelPosition->setText(translate(_POS));
 
-//     groupLookahead->setTitle(translate(_LOOKAHEAD));
-
     labelFlutes->setText(translate(_FLUTES));
     labelDiameter->setText(translate(_DIAMETER));
     labelShaft->setText(translate(_SHAFT));
     labelDiam->setText(translate(_DIAMETER));
     labelTool->setText(translate(_SELECT_TOOL));
-
-//     groupBoxArc->setTitle(translate(_ARC_SPLITTING));
-
 
     // tool settings
 
@@ -415,23 +409,14 @@ void SettingsDialog::translateDialog()
         }
     }
 
-//       grpArr << (QVector <QGroupBox*>() << groupRanges << groupHome << groupSoftwareLimits); // workbench
-//     grpArr << (QVector <QGroupBox*>() << groupSpeed); // speed
-//     grpArr << (QVector <QGroupBox*>() << groupHardwareLimits << groupOutput << groupJog << groupExtPin); // I/O
-//     grpArr << (QVector <QGroupBox*>() << groupBacklash << groupLookahead); // system
-//     grpArr << (QVector <QGroupBox*>() << groupBoxArc); // parser
-//     grpArr << (QVector <QGroupBox*>() << groupTool << groupMaterial << groupCalc); // tool
-//     grpArr << (QVector <QGroupBox*>() << groupViewing << groupBoxColors << groupBoxGrid << groupBoxShowRang); // 3d
-//     grpArr << (QVector <QGroupBox*>() << groupRemote << groupKeyboard << groupJoypad); // control
     int width = treeWidget->sizeHint().width();
     treeWidget->setFixedWidth(width);
 
     connect(treeWidget, SIGNAL(currentItemChanged ( QTreeWidgetItem *, QTreeWidgetItem * )), this, SLOT(onSelection(QTreeWidgetItem*, QTreeWidgetItem *)));
 
     treeWidget->setCurrentItem( items.at(0));
+    
     // end of menu items
-
-//     groupBoxColors->setTitle(translate(_COLORS));
 
     checkBoxRemove->setText(translate(_REMOVE_REPEAT));
 
