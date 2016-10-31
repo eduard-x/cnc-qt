@@ -275,8 +275,8 @@ enum TR_CONSTS {
     _SAVE_GCODE, // 219
     _PARSER, //220
     _REMOVE_REPEAT, // 221
-    _WORK_MATERIAL, // 222
-    _JOYPAD, // 223
+    _WORK_TOOL, // 222
+    _CONTROL, // 223
     _SYSTEM, // 224
     _SHAFT, // 225
     _DESCRIPTION, // 226

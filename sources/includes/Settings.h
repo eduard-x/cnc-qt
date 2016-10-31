@@ -150,7 +150,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
 
     private slots:
         void onSave();
-        void onSelection(QTreeWidgetItem* it, int i);
+        void onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip);
         void onChangeColor(int i);
         void onChangeTool(int i);
         void changeColor();
@@ -164,6 +164,8 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
         QVector< QVector<QString> > toolArray;
         QVector<QPixmap> frz_png;
         QGraphicsScene *grph;
+        QVector< QVector<QString> > menuArr;
+        QVector< QVector<QGroupBox*> > grpArr;
 };
 
 

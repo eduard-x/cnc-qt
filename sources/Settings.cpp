@@ -127,6 +127,15 @@ SettingsDialog::SettingsDialog(QWidget *p)
     comboSeqZ->addItems(seqList);
     comboSeqA->addItems(seqList);
 
+    grpArr.clear();
+    grpArr << (QVector <QGroupBox*>() << groupRanges << groupHome << groupSoftwareLimits); // workbench
+    grpArr << (QVector <QGroupBox*>() << groupSpeed); // speed
+    grpArr << (QVector <QGroupBox*>() << groupHardwareLimits << groupOutput << groupJog << groupExtPin); // I/O
+    grpArr << (QVector <QGroupBox*>() << groupBacklash << groupLookahead); // system
+    grpArr << (QVector <QGroupBox*>() << groupBoxArc); // parser
+    grpArr << (QVector <QGroupBox*>() << groupTool << groupMaterial << groupCalc); // tool
+    grpArr << (QVector <QGroupBox*>() << groupViewing << groupBoxColors << groupBoxGrid << groupBoxShowRang); // 3d
+    grpArr << (QVector <QGroupBox*>() << groupRemote << groupKeyboard << groupJoypad); // control
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
@@ -282,9 +291,9 @@ void SettingsDialog::onChangeTool(int i)
     graphicsView->setScene(grph);
 
     textBrowser->setText(toolArray[i][3]);
-    
-      labelDiam->setText(toolArray[i][0]);
-      labelShaft->setText(toolArray[i][1]);
+
+    labelDiam->setText(toolArray[i][0]);
+    labelShaft->setText(toolArray[i][1]);
 }
 
 
@@ -313,7 +322,7 @@ void SettingsDialog::changeColor()
 void SettingsDialog::translateDialog()
 {
     setWindowTitle(translate(_SETTINGS_TITLE));
-    groupRanges->setTitle(translate(_LIMITS));
+//     groupRanges->setTitle(translate(_LIMITS));
     checkBoxDemoController->setText(translate(_DEV_SIMULATION));
     //     labelInfo->setText(translate(_DEV_SIM_HELP));
     labelUse->setText(translate(_USE));
@@ -324,7 +333,7 @@ void SettingsDialog::translateDialog()
     labelSpeed->setText(translate(_SPEED));
     labelPosition->setText(translate(_POS));
 
-    groupBox_5->setTitle(translate(_LOOKAHEAD));
+//     groupLookahead->setTitle(translate(_LOOKAHEAD));
 
     labelFlutes->setText(translate(_FLUTES));
     labelDiameter->setText(translate(_DIAMETER));
@@ -332,23 +341,11 @@ void SettingsDialog::translateDialog()
     labelDiam->setText(translate(_DIAMETER));
     labelTool->setText(translate(_SELECT_TOOL));
 
-    groupBoxArc->setTitle(translate(_ARC_SPLITTING));
+//     groupBoxArc->setTitle(translate(_ARC_SPLITTING));
 
-    QStringList fList;
-    fList << translate(_WORKBENCH);
-    fList << translate(_SPEED);
-    //     fList << translate(_LIMITS);
-    fList << translate(_IO);
-    fList << translate(_SYSTEM);
-    fList << translate(_PARSER);
-    fList << translate(_TOOL);
-    //     fList << translate(_WORK_MATERIAL);
-    fList << translate(_VISUALISATION);
-    fList << translate(_CONTROLLING);
 
-    
-    // tool settings 
-    
+    // tool settings
+
     QString tblText = translate(_TOOL_TABLE);
     QStringList tTable = tblText.split("\\");
 
@@ -373,57 +370,83 @@ void SettingsDialog::translateDialog()
     connect(comboBoxTool, SIGNAL (activated(int)), this, SLOT(onChangeTool(int)));
 
     // end of tool settings
-    
-//     QTreeWidget *treeWidget = new QTreeWidget();
+
+    //    menu items
+
+    QStringList menuList;
+    menuList << translate(_WORKBENCH);
+    menuList << translate(_SPEED);
+    menuList << translate(_IO);
+    menuList << translate(_SYSTEM);
+    menuList << translate(_PARSER);
+    menuList << translate(_WORK_TOOL);
+    menuList << translate(_VISUALISATION);
+    menuList << translate(_CONTROL);
+
+
     treeWidget->setColumnCount(1);
     QList<QTreeWidgetItem *> items;
-    foreach (QString s, fList){
+
+    foreach (QString s, menuList) {
         QStringList sub = s.split(";");
+        QVector <QString> v = sub.toVector();
+        menuArr << v;
         QTreeWidgetItem *m = new QTreeWidgetItem(treeWidget, QStringList(sub.at(0)));
         items.append(m);
-        if (sub.count() > 1){
+
+        if (sub.count() > 1) {
             sub.removeAt(0);
-            foreach (QString ssub, sub){
+
+            foreach (QString ssub, sub) {
                 items.append(new QTreeWidgetItem(m, QStringList(ssub)));
             }
-             m->setExpanded(true);
+
+            m->setExpanded(true);
         }
     }
+
     treeWidget->header()->close();
-   
-//     treeWidget->horizontalHeader()->hide();
-//     treeWidget->insertTopLevelItems(items);
 
-//     QListWidgetItem *it ? listWidget->
-//      item = new QTreeWidgetItem(parent);
-//             parent->setExpanded( true );
+    for (int i = 0; i < menuArr.count(); i++) {
+        if ((grpArr.at(i).count() == menuArr.at(i).count() -1)) {
+            for (int j = 0; j < menuArr.at(i).count() -1; j++) {
+                ((QGroupBox*)(grpArr.at(i).at(j)))->setTitle(menuArr.at(i).at(j+1));
+            }
+        }
+    }
 
-    groupBoxColors->setTitle(translate(_COLORS));
+//       grpArr << (QVector <QGroupBox*>() << groupRanges << groupHome << groupSoftwareLimits); // workbench
+//     grpArr << (QVector <QGroupBox*>() << groupSpeed); // speed
+//     grpArr << (QVector <QGroupBox*>() << groupHardwareLimits << groupOutput << groupJog << groupExtPin); // I/O
+//     grpArr << (QVector <QGroupBox*>() << groupBacklash << groupLookahead); // system
+//     grpArr << (QVector <QGroupBox*>() << groupBoxArc); // parser
+//     grpArr << (QVector <QGroupBox*>() << groupTool << groupMaterial << groupCalc); // tool
+//     grpArr << (QVector <QGroupBox*>() << groupViewing << groupBoxColors << groupBoxGrid << groupBoxShowRang); // 3d
+//     grpArr << (QVector <QGroupBox*>() << groupRemote << groupKeyboard << groupJoypad); // control
+    int width = treeWidget->sizeHint().width();
+    treeWidget->setFixedWidth(width);
+
+    connect(treeWidget, SIGNAL(currentItemChanged ( QTreeWidgetItem *, QTreeWidgetItem * )), this, SLOT(onSelection(QTreeWidgetItem*, QTreeWidgetItem *)));
+
+    treeWidget->setCurrentItem( items.at(0));
+    // end of menu items
+
+//     groupBoxColors->setTitle(translate(_COLORS));
 
     checkBoxRemove->setText(translate(_REMOVE_REPEAT));
 
     QStringList colorList = translate(_COLOR_LIST).split("\n");
     comboColor->addItems(colorList);
 
-//     int width = treeWidget->sizeHintForColumn(0);
-//     treeWidget->setFixedWidth(width + 20);
-
-    connect(treeWidget, SIGNAL(itemActivated ( QTreeWidgetItem *, int )), this, SLOT(onSelection(QTreeWidgetItem*, int)));
-    connect(treeWidget, SIGNAL(itemClicked ( QTreeWidgetItem *, int )), this, SLOT(onSelection(QTreeWidgetItem*, int)));
-//     connect(treeWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(onSelection(QListWidgetItem*)));
-    //     connect(listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onSelection(QListWidgetItem*)));
-
     connect(comboColor, SIGNAL(activated(int)), this, SLOT(onChangeColor(int)));
 
-//     treeWidget->item(0)->setSelected(true);
-
-    tabWidget->setCurrentIndex(0);
     tabWidget->setStyleSheet("QTabBar::tab { height: 0px; width: 0px; border: 0px solid #333; }" );
+
 
     labelStart->setText(translate(_STARTVELO));
     labelEnd->setText(translate(_ENDVELO));
     labelAcceleration->setText(translate(_ACCELERATION));
-    
+
     labelMaterial->setText(translate(_MATERIAL));
 
     QList<QAbstractButton*> l = buttonBox->buttons();
@@ -435,7 +458,7 @@ void SettingsDialog::translateDialog()
 
     // visualisation translations
     //     checkDisableIfSSH->setText(translate(_DISABLE_VISUALISATION));
-    groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
+//     groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
     radioButtonLines->setText(translate(_DISPLAY_LINES));
     radioButtonPoints->setText(translate(_DISPLAY_POINTS));
     labelBeg->setText(translate(_BEGIN));
@@ -452,7 +475,7 @@ void SettingsDialog::translateDialog()
     labelPoint->setText(translate(_POINT_SIZE));
     labelLine->setText(translate(_LINE_WIDTH));
 
-    groupBoxShowRang->setTitle(translate(_DISPLAY_RANG));
+//     groupBoxShowRang->setTitle(translate(_DISPLAY_RANG));
 
     labelStep->setText(translate(_STEP));
     labelMin->setText(translate(_MINIMUM));
@@ -461,11 +484,52 @@ void SettingsDialog::translateDialog()
 }
 
 
-void SettingsDialog::onSelection(QTreeWidgetItem* it, int i)
+void SettingsDialog::onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip)
 {
-//     int idx = treeWidget->currentItem().text();
-//     //     qDebug() << idx;
-//     tabWidget->setCurrentIndex(idx);
+    QString mainText;
+    QString childText;
+
+    disconnect(treeWidget, SIGNAL(currentItemChanged ( QTreeWidgetItem *, QTreeWidgetItem * )), this, SLOT(onSelection(QTreeWidgetItem*, QTreeWidgetItem *)));
+
+    if (it->parent() != NULL) {
+        mainText =  it->parent()->text(0);
+        childText = it->text(0);
+//         qDebug() << mainText << childText;
+    } else {
+        mainText = it->text(0);
+//         qDebug() << mainText;
+    }
+
+    for (int idxRow = 0; idxRow < menuArr.count(); idxRow++) {
+        if (menuArr.at(idxRow).at(0) == mainText) { // selected element was found
+            tabWidget->setCurrentIndex(idxRow);
+
+            // display selected widget
+            if (childText.length() > 0) {
+                for (int idxCol = 1; idxCol < menuArr.at(idxRow).count(); ++idxCol) {
+                    // check the sizing of arrays
+                    if ((grpArr.count() == menuArr.count()) && (grpArr.at(idxRow).count() == menuArr.at(idxRow).count() - 1)) {
+                        if (childText == menuArr.at(idxRow).at(idxCol)) {
+                            grpArr.at(idxRow).at(idxCol - 1)->setHidden(false);
+                        } else {
+                            grpArr.at(idxRow).at(idxCol - 1)->setHidden(true);
+                        }
+                    }
+                }
+            } else { // display all widgets
+                for (int idxCol = 1; idxCol < menuArr.at(idxRow).count(); ++idxCol) {
+                    // check the sizing of arrays
+                    if ((grpArr.count() == menuArr.count()) && (grpArr.at(idxRow).count() == menuArr.at(idxRow).count() - 1)) {
+                        grpArr.at(idxRow).at(idxCol - 1)->setHidden(false);
+                    }
+                }
+            }
+
+            break;
+        }
+    }
+
+    connect(treeWidget, SIGNAL(currentItemChanged ( QTreeWidgetItem *, QTreeWidgetItem * )), this, SLOT(onSelection(QTreeWidgetItem*, QTreeWidgetItem *)));
 }
 
 
