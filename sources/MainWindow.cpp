@@ -391,6 +391,7 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::drawWorkbench()
 {
     //
+#if 0
     QPixmap p1 = QPixmap(":/images/workbench.png");
 
     if (sceneCoordinates != NULL) {
@@ -441,6 +442,7 @@ void MainWindow::drawWorkbench()
     graphicsView->setStyleSheet("background: transparent");
 
     graphicsView->setScene(sceneCoordinates);
+#endif
 }
 
 
@@ -525,7 +527,7 @@ void MainWindow::addConnections()
     connect(pushSetHome, SIGNAL(clicked()), this, SLOT(onSetHome()));
     connect(pushCopyHome, SIGNAL(clicked()), this, SLOT(onCopyHome()));
     // end menu
-
+#if 0
     // workbench
     connect(checkBoxSwapX, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
     connect(checkBoxSwapY, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchSwap()));
@@ -541,7 +543,7 @@ void MainWindow::addConnections()
     connect(checkBoxLimitsAmin, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
     connect(checkBoxLimitsAmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
     // end of workbench
-
+#endif
     connect(listGCodeWidget, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(onEditGCode(int, int)));
     connect(listGCodeWidget, SIGNAL(cellActivated(int, int)), this, SLOT(onCellSelect(int, int)));
 
@@ -876,6 +878,7 @@ QString MainWindow::getLocaleString()
  * @brief update settings on main gui after change
  *
  */
+#if 0
 void MainWindow::updateSettingsOnGUI()
 {
     checkBoxSwapX->setChecked(Settings::coord[X].invertDirection);
@@ -895,7 +898,7 @@ void MainWindow::updateSettingsOnGUI()
     checkBoxLimitsAmin->setChecked(Settings::coord[A].useLimitMin);
     checkBoxLimitsAmax->setChecked(Settings::coord[A].useLimitMax);
 }
-
+#endif
 
 /**
  * @brief save settings of program
@@ -1046,7 +1049,7 @@ void MainWindow::writeSettings()
 
     s->sync();
 
-    updateSettingsOnGUI();
+//     updateSettingsOnGUI();
 
     delete s;
 }
@@ -1296,7 +1299,7 @@ void MainWindow::readSettings()
 
     s->endGroup();
 
-    updateSettingsOnGUI();
+//     updateSettingsOnGUI();
 
     delete s;
 }
@@ -1596,16 +1599,16 @@ void MainWindow::translateGUI()
     if (enableOpenGL == true) {
         tabWidget->setTabText(0, translate(_DATA));
         tabWidget->setTabText(1, translate(_3D_VIEW));
-        tabWidget->setTabText(2, translate(_WORKBENCH));
-        tabWidget->setTabText(3, translate(_DIAGNOSTIC));
-        tabWidget->setTabText(4, translate(_ADDITIONAL));
-        tabWidget->setTabText(5, translate(_LOG));
-    } else {
-        tabWidget->setTabText(0, translate(_DATA));
-        tabWidget->setTabText(1, translate(_WORKBENCH));
+//         tabWidget->setTabText(2, translate(_WORKBENCH));
         tabWidget->setTabText(2, translate(_DIAGNOSTIC));
         tabWidget->setTabText(3, translate(_ADDITIONAL));
         tabWidget->setTabText(4, translate(_LOG));
+    } else {
+        tabWidget->setTabText(0, translate(_DATA));
+//         tabWidget->setTabText(1, translate(_WORKBENCH));
+        tabWidget->setTabText(1, translate(_DIAGNOSTIC));
+        tabWidget->setTabText(2, translate(_ADDITIONAL));
+        tabWidget->setTabText(3, translate(_LOG));
     }
 
     labelSubmission->setText(translate(_SUBMISSION));
@@ -1774,6 +1777,7 @@ void MainWindow::onPauseTask()
 /**
  * @brief slot for checkboxes of workbench tab
  */
+#if 0
 void MainWindow::onCheckBoxWorkbenchLimits()
 {
     QCheckBox* c  = static_cast<QCheckBox*>(sender());
@@ -1839,7 +1843,7 @@ void MainWindow::onCheckBoxWorkbenchSwap()
 
     drawWorkbench();
 }
-
+#endif
 /**
  * @brief slot for task stop after "stop" button
  * TODO check this
