@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>755</width>
+    <width>751</width>
     <height>714</height>
    </rect>
   </property>
@@ -71,7 +71,7 @@
         <enum>QTabWidget::West</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <property name="iconSize">
         <size>
@@ -106,13 +106,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>500</width>
+             <width>400</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>600</width>
+             <width>700</width>
              <height>16777215</height>
             </size>
            </property>
@@ -127,7 +127,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>533</width>
+              <width>530</width>
               <height>639</height>
              </rect>
             </property>
@@ -152,6 +152,12 @@
                     <height>30</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="2" column="7">
@@ -162,6 +168,12 @@
                     <height>30</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="3" column="7">
@@ -170,6 +182,12 @@
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -187,6 +205,12 @@
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -215,6 +239,12 @@
                     <height>30</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="3" column="5">
@@ -223,6 +253,12 @@
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -290,6 +326,12 @@
                     <height>30</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="3" column="8">
@@ -298,6 +340,12 @@
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -332,6 +380,12 @@
                     <height>30</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="2" column="1">
@@ -356,6 +410,12 @@
                     <height>30</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="2" column="2">
@@ -364,6 +424,12 @@
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -376,6 +442,12 @@
                     <height>30</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="1" column="4">
@@ -384,6 +456,12 @@
                    <size>
                     <width>0</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -426,6 +504,12 @@
                     <height>30</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="0" column="5">
@@ -446,6 +530,12 @@
                     <height>30</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="2" column="5">
@@ -454,6 +544,12 @@
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -466,6 +562,12 @@
                     <height>30</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="3" column="3">
@@ -474,6 +576,12 @@
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -486,6 +594,12 @@
                     <height>30</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="3" column="5">
@@ -494,6 +608,12 @@
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -552,10 +672,22 @@
                 </item>
                 <item row="1" column="4">
                  <widget class="QDoubleSpinBox" name="doubleZmax">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -571,10 +703,22 @@
                 </item>
                 <item row="3" column="1">
                  <widget class="QDoubleSpinBox" name="doubleXmin">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -600,10 +744,22 @@
                 </item>
                 <item row="1" column="5">
                  <widget class="QDoubleSpinBox" name="doubleAmax">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -619,10 +775,22 @@
                 </item>
                 <item row="3" column="2">
                  <widget class="QDoubleSpinBox" name="doubleYmin">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -638,10 +806,22 @@
                 </item>
                 <item row="1" column="1">
                  <widget class="QDoubleSpinBox" name="doubleXmax">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -657,10 +837,22 @@
                 </item>
                 <item row="1" column="2">
                  <widget class="QDoubleSpinBox" name="doubleYmax">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -676,10 +868,22 @@
                 </item>
                 <item row="3" column="4">
                  <widget class="QDoubleSpinBox" name="doubleZmin">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -695,10 +899,22 @@
                 </item>
                 <item row="3" column="5">
                  <widget class="QDoubleSpinBox" name="doubleAmin">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>75</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -826,13 +1042,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>500</width>
+             <width>400</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>600</width>
+             <width>700</width>
              <height>16777215</height>
             </size>
            </property>
@@ -847,11 +1063,24 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>533</width>
+              <width>530</width>
               <height>639</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_24">
+             <item row="2" column="0">
+              <spacer name="verticalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
              <item row="0" column="0">
               <widget class="QGroupBox" name="groupSpeed">
                <property name="sizePolicy">
@@ -874,6 +1103,12 @@
                       <height>30</height>
                      </size>
                     </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>100</width>
+                      <height>35</height>
+                     </size>
+                    </property>
                     <property name="minimum">
                      <number>1</number>
                     </property>
@@ -890,6 +1125,12 @@
                       <height>30</height>
                      </size>
                     </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>100</width>
+                      <height>35</height>
+                     </size>
+                    </property>
                     <property name="minimum">
                      <number>1</number>
                     </property>
@@ -904,6 +1145,12 @@
                      <size>
                       <width>75</width>
                       <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>100</width>
+                      <height>35</height>
                      </size>
                     </property>
                     <property name="minimum">
@@ -1272,6 +1519,12 @@
                       <height>30</height>
                      </size>
                     </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>100</width>
+                      <height>35</height>
+                     </size>
+                    </property>
                     <property name="minimum">
                      <number>1</number>
                     </property>
@@ -1474,17 +1727,60 @@
               </widget>
              </item>
              <item row="1" column="0">
-              <spacer name="verticalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
+              <widget class="QGroupBox" name="groupDirections">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
-               <property name="sizeHint" stdset="0">
+               <property name="minimumSize">
                 <size>
-                 <width>20</width>
-                 <height>40</height>
+                 <width>0</width>
+                 <height>50</height>
                 </size>
                </property>
-              </spacer>
+               <property name="title">
+                <string>GroupBox</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_36">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_31">
+                  <property name="text">
+                   <string>Swap directions:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QCheckBox" name="checkBox_25">
+                  <property name="text">
+                   <string>X</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QCheckBox" name="checkBox_26">
+                  <property name="text">
+                   <string>Y</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QCheckBox" name="checkBox_27">
+                  <property name="text">
+                   <string>Z</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="4">
+                 <widget class="QCheckBox" name="checkBox_28">
+                  <property name="text">
+                   <string>A</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -1513,13 +1809,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>500</width>
+             <width>400</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>600</width>
+             <width>700</width>
              <height>16777215</height>
             </size>
            </property>
@@ -1534,7 +1830,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>533</width>
+              <width>530</width>
               <height>639</height>
              </rect>
             </property>
@@ -1810,7 +2106,7 @@
                </layout>
               </widget>
              </item>
-             <item row="1" column="0">
+             <item row="2" column="0">
               <widget class="QGroupBox" name="groupOutput">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -1881,7 +2177,7 @@
                </layout>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item row="3" column="0">
               <widget class="QGroupBox" name="groupJog">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -1952,7 +2248,7 @@
                </layout>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item row="4" column="0">
               <widget class="QGroupBox" name="groupExtPin">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -2023,7 +2319,7 @@
                </layout>
               </widget>
              </item>
-             <item row="4" column="0">
+             <item row="5" column="0">
               <spacer name="verticalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
@@ -2035,6 +2331,163 @@
                 </size>
                </property>
               </spacer>
+             </item>
+             <item row="1" column="0">
+              <widget class="QGroupBox" name="groupConnectors">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="title">
+                <string>GroupBox</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_35">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_27">
+                  <property name="text">
+                   <string>1:</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="comboBox">
+                  <item>
+                   <property name="text">
+                    <string>X</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Y</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Z</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>A</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="label_28">
+                  <property name="text">
+                   <string>2:</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QComboBox" name="comboBox_2">
+                  <item>
+                   <property name="text">
+                    <string>X</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Y</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Z</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>A</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="0" column="4">
+                 <widget class="QLabel" name="label_29">
+                  <property name="text">
+                   <string>3:</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="5">
+                 <widget class="QComboBox" name="comboBox_3">
+                  <item>
+                   <property name="text">
+                    <string>X</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Y</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Z</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>A</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="0" column="6">
+                 <widget class="QLabel" name="label_30">
+                  <property name="text">
+                   <string>4:</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="7">
+                 <widget class="QComboBox" name="comboBox_4">
+                  <item>
+                   <property name="text">
+                    <string>X</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Y</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Z</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>A</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -2063,13 +2516,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>500</width>
+             <width>400</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>600</width>
+             <width>700</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2087,7 +2540,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>533</width>
+              <width>530</width>
               <height>639</height>
              </rect>
             </property>
@@ -2108,8 +2561,14 @@
                  <widget class="QDoubleSpinBox" name="backlashZ">
                   <property name="minimumSize">
                    <size>
-                    <width>75</width>
+                    <width>50</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -2138,8 +2597,14 @@
                  <widget class="QDoubleSpinBox" name="backlashX">
                   <property name="minimumSize">
                    <size>
-                    <width>75</width>
+                    <width>50</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -2158,8 +2623,14 @@
                  <widget class="QDoubleSpinBox" name="backlashY">
                   <property name="minimumSize">
                    <size>
-                    <width>75</width>
+                    <width>50</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -2178,8 +2649,14 @@
                  <widget class="QDoubleSpinBox" name="backlashA">
                   <property name="minimumSize">
                    <size>
-                    <width>75</width>
+                    <width>50</width>
                     <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                  </widget>
@@ -2217,7 +2694,7 @@
                   <item>
                    <widget class="QLabel" name="label_5">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -2228,25 +2705,9 @@
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_3">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                     <enum>QSizePolicy::MinimumExpanding</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>158</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
                    <widget class="QSpinBox" name="spinBoxLookLines">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -2254,7 +2715,7 @@
                     <property name="maximumSize">
                      <size>
                       <width>75</width>
-                      <height>16777215</height>
+                      <height>35</height>
                      </size>
                     </property>
                     <property name="minimum">
@@ -2304,13 +2765,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>500</width>
+             <width>400</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>600</width>
+             <width>700</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2325,7 +2786,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>533</width>
+              <width>530</width>
               <height>639</height>
              </rect>
             </property>
@@ -2369,30 +2830,23 @@
                   </property>
                   <item>
                    <widget class="QLabel" name="label_7">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>Splitting arc to short lines (mk1)</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_4">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
                    <widget class="QSpinBox" name="spinArcSplitPermm">
                     <property name="maximumSize">
                      <size>
                       <width>75</width>
-                      <height>16777215</height>
+                      <height>35</height>
                      </size>
                     </property>
                     <property name="minimum">
@@ -2408,6 +2862,12 @@
                   </item>
                   <item>
                    <widget class="QLabel" name="label_8">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>per mm</string>
                     </property>
@@ -2439,13 +2899,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>500</width>
+             <width>400</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>600</width>
+             <width>700</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2457,7 +2917,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>529</width>
+              <width>526</width>
               <height>635</height>
              </rect>
             </property>
@@ -2482,35 +2942,10 @@
                <layout class="QGridLayout" name="gridLayout_32">
                 <item row="0" column="0">
                  <layout class="QGridLayout" name="gridLayout_2">
-                  <item row="0" column="2">
-                   <widget class="QComboBox" name="comboBoxTool"/>
-                  </item>
-                  <item row="1" column="0" colspan="3">
-                   <widget class="QTextBrowser" name="textBrowser">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>0</width>
-                      <height>110</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>16777215</width>
-                      <height>110</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="2" column="0">
                    <widget class="QLabel" name="labelDiam">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -2522,18 +2957,31 @@
                   </item>
                   <item row="3" column="0">
                    <widget class="QLabel" name="labelFlutes">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>TextLabel</string>
                     </property>
                    </widget>
                   </item>
                   <item row="3" column="1">
-                   <widget class="QSpinBox" name="spinBox"/>
+                   <widget class="QSpinBox" name="spinBox">
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>35</height>
+                     </size>
+                    </property>
+                   </widget>
                   </item>
                   <item row="3" column="2" rowspan="2">
                    <widget class="QGraphicsView" name="graphicsView">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -2566,18 +3014,8 @@
                   </item>
                   <item row="4" column="0">
                    <widget class="QLabel" name="labelDiameter">
-                    <property name="text">
-                     <string>TextLabel</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="1">
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLabel" name="labelShaft">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -2587,10 +3025,71 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="0" colspan="2">
-                   <widget class="QLabel" name="labelTool">
+                  <item row="4" column="1">
+                   <widget class="QDoubleSpinBox" name="doubleSpinBox">
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>35</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLabel" name="labelShaft">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>TextLabel</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="labelTool">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>TextLabel</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1" colspan="2">
+                   <widget class="QComboBox" name="comboBoxTool">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0" colspan="3">
+                   <widget class="QTextBrowser" name="textBrowser">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>110</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>110</height>
+                     </size>
                     </property>
                    </widget>
                   </item>
@@ -2615,13 +3114,26 @@
                  <layout class="QHBoxLayout" name="horizontalLayout_6">
                   <item>
                    <widget class="QLabel" name="labelMaterial">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>TextLabel</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="comboBoxMaterial"/>
+                   <widget class="QComboBox" name="comboBoxMaterial">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -2648,6 +3160,12 @@
                <layout class="QGridLayout" name="gridLayout_15">
                 <item row="1" column="0">
                  <widget class="QLabel" name="labelSpendleSpeed">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string>Spindle speed</string>
                   </property>
@@ -2655,6 +3173,12 @@
                 </item>
                 <item row="1" column="2">
                  <widget class="QLabel" name="labelRangeSpindle">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string>TextLabel</string>
                   </property>
@@ -2662,6 +3186,12 @@
                 </item>
                 <item row="2" column="0">
                  <widget class="QLabel" name="labelChipLoad">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string>Chip load</string>
                   </property>
@@ -2669,6 +3199,12 @@
                 </item>
                 <item row="0" column="2">
                  <widget class="QLabel" name="labelRange">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string>Range</string>
                   </property>
@@ -2682,10 +3218,22 @@
                     <height>35</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="2" column="2">
                  <widget class="QLabel" name="labelRangeChipLoad">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string>TextLabel</string>
                   </property>
@@ -2693,6 +3241,12 @@
                 </item>
                 <item row="3" column="0">
                  <widget class="QLabel" name="labelFeedRate">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string>Feed rate</string>
                   </property>
@@ -2706,6 +3260,12 @@
                     <height>35</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                   <property name="maximum">
                    <double>999.899999999999977</double>
                   </property>
@@ -2716,6 +3276,12 @@
                   <property name="minimumSize">
                    <size>
                     <width>0</width>
+                    <height>35</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
                     <height>35</height>
                    </size>
                   </property>
@@ -2773,13 +3339,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>500</width>
+             <width>400</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>600</width>
+             <width>700</width>
              <height>16777215</height>
             </size>
            </property>
@@ -2794,8 +3360,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>516</width>
-              <height>809</height>
+              <width>513</width>
+              <height>797</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_25">
@@ -2819,57 +3385,14 @@
                   <property name="bottomMargin">
                    <number>0</number>
                   </property>
-                  <item row="0" column="0">
-                   <widget class="QCheckBox" name="checkBoxTool">
-                    <property name="text">
-                     <string>Display tool</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="6" column="0">
-                   <widget class="QCheckBox" name="checkBoxSmooth">
-                    <property name="text">
-                     <string>smooth moving</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QCheckBox" name="checkBoxCommand">
-                    <property name="text">
-                     <string>current command</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QCheckBox" name="checkBoxTraverse">
-                    <property name="text">
-                     <string>Display traverse</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QCheckBox" name="checkBoxSurface">
-                    <property name="text">
-                     <string>Display scanned surface</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0">
-                   <widget class="QCheckBox" name="checkBoxWorkbench">
-                    <property name="text">
-                     <string>Display workbench</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QCheckBox" name="checkBoxXYZ">
-                    <property name="text">
-                     <string>Display X, Y, Z</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="9" column="0">
                    <widget class="QLabel" name="labelLine">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>Selection width</string>
                     </property>
@@ -2877,6 +3400,12 @@
                   </item>
                   <item row="7" column="0">
                    <widget class="QLabel" name="labelPoint">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>Point size</string>
                     </property>
@@ -2884,6 +3413,12 @@
                   </item>
                   <item row="7" column="1">
                    <widget class="QSpinBox" name="spinBoxPointSize">
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>35</height>
+                     </size>
+                    </property>
                     <property name="minimum">
                      <number>1</number>
                     </property>
@@ -2894,11 +3429,108 @@
                   </item>
                   <item row="9" column="1">
                    <widget class="QSpinBox" name="spinBoxLineWidth">
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>35</height>
+                     </size>
+                    </property>
                     <property name="minimum">
                      <number>1</number>
                     </property>
                     <property name="maximum">
                      <number>5</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="0" colspan="2">
+                   <widget class="QCheckBox" name="checkBoxSmooth">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>smooth moving</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0" colspan="2">
+                   <widget class="QCheckBox" name="checkBoxTraverse">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Display traverse</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0" colspan="2">
+                   <widget class="QCheckBox" name="checkBoxWorkbench">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Display workbench</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0" colspan="2">
+                   <widget class="QCheckBox" name="checkBoxSurface">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Display scanned surface</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0" colspan="2">
+                   <widget class="QCheckBox" name="checkBoxCommand">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>current command</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0" colspan="2">
+                   <widget class="QCheckBox" name="checkBoxXYZ">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Display X, Y, Z</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0" colspan="2">
+                   <widget class="QCheckBox" name="checkBoxTool">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Display tool</string>
                     </property>
                    </widget>
                   </item>
@@ -2980,6 +3612,12 @@
                 </item>
                 <item row="4" column="0">
                  <widget class="QLabel" name="label_23">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>45</width>
@@ -2989,6 +3627,9 @@
                   <property name="text">
                    <string>X</string>
                   </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
                  </widget>
                 </item>
                 <item row="4" column="1">
@@ -2997,6 +3638,12 @@
                    <size>
                     <width>75</width>
                     <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -3015,6 +3662,12 @@
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                   <property name="minimum">
                    <number>-100</number>
                   </property>
@@ -3025,6 +3678,12 @@
                 </item>
                 <item row="5" column="0">
                  <widget class="QLabel" name="label_24">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>45</width>
@@ -3034,6 +3693,9 @@
                   <property name="text">
                    <string>Y</string>
                   </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
                  </widget>
                 </item>
                 <item row="5" column="1">
@@ -3042,6 +3704,12 @@
                    <size>
                     <width>75</width>
                     <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -3058,6 +3726,12 @@
                    <size>
                     <width>75</width>
                     <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -3079,6 +3753,12 @@
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <item>
                    <widget class="QLabel" name="labelStep">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>Step, mm</string>
                     </property>
@@ -3134,6 +3814,12 @@
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                   <property name="minimum">
                    <number>-100</number>
                   </property>
@@ -3158,6 +3844,12 @@
                 </item>
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_25">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>45</width>
@@ -3167,6 +3859,9 @@
                   <property name="text">
                    <string>X</string>
                   </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
                  </widget>
                 </item>
                 <item row="1" column="1">
@@ -3175,6 +3870,12 @@
                    <size>
                     <width>75</width>
                     <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -3193,6 +3894,12 @@
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
+                   </size>
+                  </property>
                   <property name="minimum">
                    <number>-100</number>
                   </property>
@@ -3203,6 +3910,12 @@
                 </item>
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_26">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>45</width>
@@ -3212,6 +3925,9 @@
                   <property name="text">
                    <string>Y</string>
                   </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
                  </widget>
                 </item>
                 <item row="2" column="2">
@@ -3220,6 +3936,12 @@
                    <size>
                     <width>75</width>
                     <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>35</height>
                    </size>
                   </property>
                   <property name="minimum">
@@ -3265,6 +3987,18 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>400</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>700</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="widgetResizable">
             <bool>true</bool>
            </property>
@@ -3273,7 +4007,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>529</width>
+              <width>526</width>
               <height>635</height>
              </rect>
             </property>
@@ -3285,6 +4019,12 @@
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>50</height>
+                </size>
                </property>
                <property name="title">
                 <string>GroupBox</string>
@@ -3299,6 +4039,12 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>50</height>
+                </size>
+               </property>
                <property name="title">
                 <string>GroupBox</string>
                </property>
@@ -3311,6 +4057,12 @@
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>50</height>
+                </size>
                </property>
                <property name="title">
                 <string>GroupBox</string>

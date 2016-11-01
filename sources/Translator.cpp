@@ -242,7 +242,7 @@ QString cTranslator::engText[] = {
     "Open recent files",
     "Lookahead",
     "Arc splitting",
-    "Input/Output;Hardware Limits;Output;Jog;Ext Pin",
+    "Input/Output;Hardware Limits;Connectors;Output;Jog;Ext Pin",
     "Enable hardware limits",
     "Go to 'home' at start",
     "Go to 'home' at end", // 200
@@ -285,8 +285,8 @@ QString cTranslator::engText[] = {
     "6..20 mm\t 6/8\t Milling cutters with carbide cutting edges\t Woodworking, various top molds available, especially for top milling machines\\"
     "6..20 mm\t 6/8\t Slot milling cutter\t Woodworking, often also for hard metal cutting, especially for top milling\\"
     "3..8 mm\t 6/8\t End mill\t Metal machining with low speeds, 2- to 4-blade, HSS or VHM; More suitable for larger milling machines",
-    "Controlling",
     "Select tool:",
+    "Moving;Speed;Directions", // 230
     ""
 };
 

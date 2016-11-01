@@ -127,10 +127,10 @@ SettingsDialog::SettingsDialog(QWidget *p)
     comboSeqZ->addItems(seqList);
     comboSeqA->addItems(seqList);
 
-    grpArr.clear();
+//     grpArr.clear();
     grpArr << (QVector <QGroupBox*>() << groupRanges << groupHome << groupSoftwareLimits); // workbench
-    grpArr << (QVector <QGroupBox*>() << groupSpeed); // speed
-    grpArr << (QVector <QGroupBox*>() << groupHardwareLimits << groupOutput << groupJog << groupExtPin); // I/O
+    grpArr << (QVector <QGroupBox*>() << groupSpeed << groupDirections); // moving
+    grpArr << (QVector <QGroupBox*>() << groupHardwareLimits << groupConnectors << groupOutput << groupJog << groupExtPin); // I/O
     grpArr << (QVector <QGroupBox*>() << groupBacklash << groupLookahead); // system
     grpArr << (QVector <QGroupBox*>() << groupBoxArc); // parser
     grpArr << (QVector <QGroupBox*>() << groupTool << groupMaterial << groupCalc); // tool
@@ -369,7 +369,7 @@ void SettingsDialog::translateDialog()
 
     QStringList menuList;
     menuList << translate(_WORKBENCH);
-    menuList << translate(_SPEED);
+    menuList << translate(_MOVING_SETTINGS);
     menuList << translate(_IO);
     menuList << translate(_SYSTEM);
     menuList << translate(_PARSER);

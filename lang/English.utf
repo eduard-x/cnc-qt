@@ -207,7 +207,7 @@ t193=Motors
 t194=Open recent files
 t195=Lookahead
 t196=Arc splitting
-t197=Input/Output;Hardware Limits;Output;Jog;Ext Pin
+t197=Input/Output;Hardware Limits;Connectors;Output;Jog;Ext Pin
 t198=Enable hardware limits
 t199=Go to 'home' at start
 t200=Go to 'home' at end
@@ -250,4 +250,5 @@ t228=0,3..3 mm\t 3/3,175\t VHM spiral drill\t PCB machining of Pertinax and FR4 
 6..20 mm\t 6/8\t Milling cutters with carbide cutting edges\t Woodworking, various top molds available, especially for top milling machines\
 6..20 mm\t 6/8\t Slot milling cutter\t Woodworking, often also for hard metal cutting, especially for top milling\
 3..8 mm\t 6/8\t End mill\t Metal machining with low speeds, 2- to 4-blade, HSS or VHM; More suitable for larger milling machines
-t229=Controlling
+t229=Select tool:
+t230=Moving;Speed;Directions

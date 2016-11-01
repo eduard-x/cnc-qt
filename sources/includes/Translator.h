@@ -282,8 +282,8 @@ enum TR_CONSTS {
     _DESCRIPTION, // 226
     _USING, // 227
     _TOOL_TABLE, // 228
-    _CONTROLLING, // 229
-    _SELECT_TOOL, // 230
+    _SELECT_TOOL, // 229
+    _MOVING_SETTINGS, // 230
     _NULL
 };
 
