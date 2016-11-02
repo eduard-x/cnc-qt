@@ -285,8 +285,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         void onStartTask();
         void onPauseTask();
         void onStopTask();
-//         void onCheckBoxWorkbenchLimits();
-//         void onCheckBoxWorkbenchSwap();
+        //         void onCheckBoxWorkbenchLimits();
+        //         void onCheckBoxWorkbenchSwap();
         void onRefreshGUITimer();
 
         void onCleanStatus(); // not connected

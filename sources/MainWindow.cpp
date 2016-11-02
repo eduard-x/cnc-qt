@@ -1019,6 +1019,7 @@ void MainWindow::writeSettings()
     s->beginGroup("mk1");
 
     for (int c = 0; c < axisNames.length(); c++) {
+        s->setValue("Connector" + QString( axisNames.at(c)), Settings::coord[c].connector);
         s->setValue("Pulse" + QString( axisNames.at(c)), Settings::coord[c].pulsePerMm);
         s->setValue("Accel" + QString( axisNames.at(c)), (double)Settings::coord[c].acceleration);
         s->setValue("StartVelo" + QString( axisNames.at(c)), (double)Settings::coord[c].minVeloLimit);
@@ -1049,7 +1050,7 @@ void MainWindow::writeSettings()
 
     s->sync();
 
-//     updateSettingsOnGUI();
+    //     updateSettingsOnGUI();
 
     delete s;
 }
@@ -1253,7 +1254,10 @@ void MainWindow::readSettings()
     s->beginGroup("mk1");
 
     for (int c = 0; c < axisNames.length(); c++) {
-        int i = s->value("Pulse" + QString( axisNames.at(c)), 200).toInt( &res);
+        int i = s->value("Connector" + QString( axisNames.at(c)), c).toInt( &res);
+        Settings::coord[c].connector = (res == true) ? i : c;
+
+        i = s->value("Pulse" + QString( axisNames.at(c)), 200).toInt( &res);
         Settings::coord[c].pulsePerMm = (res == true) ? i : 200;
 
         float f = s->value("Accel" + QString( axisNames.at(c)), 15).toFloat( &res);
@@ -1299,7 +1303,7 @@ void MainWindow::readSettings()
 
     s->endGroup();
 
-//     updateSettingsOnGUI();
+    //     updateSettingsOnGUI();
 
     delete s;
 }
@@ -1599,13 +1603,13 @@ void MainWindow::translateGUI()
     if (enableOpenGL == true) {
         tabWidget->setTabText(0, translate(_DATA));
         tabWidget->setTabText(1, translate(_3D_VIEW));
-//         tabWidget->setTabText(2, translate(_WORKBENCH));
+        //         tabWidget->setTabText(2, translate(_WORKBENCH));
         tabWidget->setTabText(2, translate(_DIAGNOSTIC));
         tabWidget->setTabText(3, translate(_ADDITIONAL));
         tabWidget->setTabText(4, translate(_LOG));
     } else {
         tabWidget->setTabText(0, translate(_DATA));
-//         tabWidget->setTabText(1, translate(_WORKBENCH));
+        //         tabWidget->setTabText(1, translate(_WORKBENCH));
         tabWidget->setTabText(1, translate(_DIAGNOSTIC));
         tabWidget->setTabText(2, translate(_ADDITIONAL));
         tabWidget->setTabText(3, translate(_LOG));

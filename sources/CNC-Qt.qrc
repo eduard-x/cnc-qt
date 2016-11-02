@@ -28,7 +28,7 @@
         <file>images/forward_off.png</file>
         <file>images/mist_on.png</file>
         <file>images/mist_off.png</file>
-        <file>images/workbench.png</file>
+        <!--file>images/workbench.png</file-->
         <file>images/coolant_on.png</file>
         <file>images/coolant_off.png</file>
         <file>images/open_folder.png</file>

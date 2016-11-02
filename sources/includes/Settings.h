@@ -76,6 +76,7 @@ class axis
         bool  actualLimitMax; // get from HW
         bool  actualLimitMin; // get from HW
 
+        int connector; // physical connector number
         float startPos;
         bool  checkSoftLimits;
 
@@ -154,6 +155,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
         void onChangeColor(int i);
         void onChangeTool(int i);
         void changeColor();
+        void onChangeConnector(int i);
 
     private:
         void translateDialog();

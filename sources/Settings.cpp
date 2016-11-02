@@ -46,6 +46,7 @@ axis::axis()
     actualLimitMin = false;
     enabled = true;
     backlash = 0.0;
+    connector = 0;
     invertDirection = false;
     invertPulses = false;
     invLimitMax = false;
@@ -127,7 +128,7 @@ SettingsDialog::SettingsDialog(QWidget *p)
     comboSeqZ->addItems(seqList);
     comboSeqA->addItems(seqList);
 
-//     grpArr.clear();
+    //     grpArr.clear();
     grpArr << (QVector <QGroupBox*>() << groupRanges << groupHome << groupSoftwareLimits); // workbench
     grpArr << (QVector <QGroupBox*>() << groupSpeed << groupDirections); // moving
     grpArr << (QVector <QGroupBox*>() << groupHardwareLimits << groupConnectors << groupOutput << groupJog << groupExtPin); // I/O
@@ -139,6 +140,11 @@ SettingsDialog::SettingsDialog(QWidget *p)
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    connect(comboConnect1, SIGNAL(currentIndexChanged ( int )), this, SLOT(onChangeConnector(int)));
+    connect(comboConnect2, SIGNAL(currentIndexChanged ( int )), this, SLOT(onChangeConnector(int)));
+    connect(comboConnect3, SIGNAL(currentIndexChanged ( int )), this, SLOT(onChangeConnector(int)));
+    connect(comboConnect4, SIGNAL(currentIndexChanged ( int )), this, SLOT(onChangeConnector(int)));
 
     connect(toolSelectColor, SIGNAL (clicked()), this, SLOT(changeColor()));
 
@@ -265,12 +271,31 @@ SettingsDialog::SettingsDialog(QWidget *p)
 
     emit onChangeTool(0);
 
-    adjustSize();
+    // set the connector names
+    comboConnect1->setCurrentIndex( Settings::coord[X].connector);
+    comboConnect2->setCurrentIndex( Settings::coord[Y].connector);
+    comboConnect3->setCurrentIndex( Settings::coord[Z].connector);
+    comboConnect4->setCurrentIndex( Settings::coord[A].connector);
+
+    emit onChangeConnector(0);
+
+    //     adjustSize();
 }
 
 
 /**
- *
+ * @brief change connector of axis 0..3 for X..A
+ */
+void SettingsDialog::onChangeConnector(int i)
+{
+    QComboBox* cmbArr[] = {comboConnect1, comboConnect2, comboConnect3, comboConnect4};
+    QComboBox* c = static_cast<QComboBox*>(sender());
+    
+}
+
+
+/**
+ * @brief change the selection for color 
  */
 void SettingsDialog::onChangeTool(int i)
 {
@@ -319,6 +344,9 @@ void SettingsDialog::changeColor()
 }
 
 
+/**
+ * @brief translate the window elements
+ */
 void SettingsDialog::translateDialog()
 {
     setWindowTitle(translate(_SETTINGS_TITLE));
@@ -395,16 +423,16 @@ void SettingsDialog::translateDialog()
                 items.append(new QTreeWidgetItem(m, QStringList(ssub)));
             }
 
-            m->setExpanded(true);
+            //             m->setExpanded(true);
         }
     }
 
     treeWidget->header()->close();
 
     for (int i = 0; i < menuArr.count(); i++) {
-        if ((grpArr.at(i).count() == menuArr.at(i).count() -1)) {
-            for (int j = 0; j < menuArr.at(i).count() -1; j++) {
-                ((QGroupBox*)(grpArr.at(i).at(j)))->setTitle(menuArr.at(i).at(j+1));
+        if ((grpArr.at(i).count() == menuArr.at(i).count() - 1)) {
+            for (int j = 0; j < menuArr.at(i).count() - 1; j++) {
+                ((QGroupBox*)(grpArr.at(i).at(j)))->setTitle(menuArr.at(i).at(j + 1));
             }
         }
     }
@@ -415,7 +443,7 @@ void SettingsDialog::translateDialog()
     connect(treeWidget, SIGNAL(currentItemChanged ( QTreeWidgetItem *, QTreeWidgetItem * )), this, SLOT(onSelection(QTreeWidgetItem*, QTreeWidgetItem *)));
 
     treeWidget->setCurrentItem( items.at(0));
-    
+
     // end of menu items
 
     checkBoxRemove->setText(translate(_REMOVE_REPEAT));
@@ -443,7 +471,7 @@ void SettingsDialog::translateDialog()
 
     // visualisation translations
     //     checkDisableIfSSH->setText(translate(_DISABLE_VISUALISATION));
-//     groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
+    //     groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
     radioButtonLines->setText(translate(_DISPLAY_LINES));
     radioButtonPoints->setText(translate(_DISPLAY_POINTS));
     labelBeg->setText(translate(_BEGIN));
@@ -460,15 +488,20 @@ void SettingsDialog::translateDialog()
     labelPoint->setText(translate(_POINT_SIZE));
     labelLine->setText(translate(_LINE_WIDTH));
 
-//     groupBoxShowRang->setTitle(translate(_DISPLAY_RANG));
+    //     groupBoxShowRang->setTitle(translate(_DISPLAY_RANG));
 
     labelStep->setText(translate(_STEP));
     labelMin->setText(translate(_MINIMUM));
     labelMax->setText(translate(_MAXIMUM));
     // end
+
+    //     tabWidget->sizeHint();
 }
 
-
+/**
+ * @brief selection in menu tree
+ * 
+ */
 void SettingsDialog::onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip)
 {
     QString mainText;
@@ -479,10 +512,23 @@ void SettingsDialog::onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip)
     if (it->parent() != NULL) {
         mainText =  it->parent()->text(0);
         childText = it->text(0);
-//         qDebug() << mainText << childText;
+
+        if (ip != NULL) {
+            ip->setSelected(false);
+        }
+
+        it->setSelected(true);
     } else {
         mainText = it->text(0);
-//         qDebug() << mainText;
+
+        treeWidget->collapseAll();
+
+        if (ip != NULL) {
+            ip->setSelected(false);
+        }
+
+        it->setExpanded(true);
+        it->setSelected(true);
     }
 
     for (int idxRow = 0; idxRow < menuArr.count(); idxRow++) {
@@ -517,15 +563,23 @@ void SettingsDialog::onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip)
     connect(treeWidget, SIGNAL(currentItemChanged ( QTreeWidgetItem *, QTreeWidgetItem * )), this, SLOT(onSelection(QTreeWidgetItem*, QTreeWidgetItem *)));
 }
 
-
+/**
+ * @brief after changing of color the color of button to change
+ * 
+ */
 void SettingsDialog::onChangeColor(int i)
 {
     toolSelectColor->setStyleSheet(QString("background-color: %1; ").arg(Settings::colorSettings[i].name()));
 }
 
 
+/**
+ * @brief save serrings
+ * 
+ */
 void SettingsDialog::onSave()
 {
+    Settings::coord[X].connector = comboConnect1->currentIndex();
     Settings::coord[X].useLimitMin = checkXmin->isChecked();
     Settings::coord[X].useLimitMax = checkXplus->isChecked();
     Settings::coord[Y].useLimitMin = checkYmin->isChecked();
@@ -554,6 +608,7 @@ void SettingsDialog::onSave()
     Settings::coord[X].workAreaMin = doubleRangeMinX->value();
     Settings::coord[X].workAreaMax = doubleRangeMaxX->value();
 
+    Settings::coord[Y].connector = comboConnect2->currentIndex();
     Settings::coord[Y].checkSoftLimits = checkSoftY->isChecked();
     Settings::coord[Y].invertDirection = checkSwapY->isChecked();
     Settings::coord[Y].invertPulses = checkInvStepsY->isChecked();
@@ -564,6 +619,7 @@ void SettingsDialog::onSave()
     Settings::coord[Y].workAreaMin = doubleRangeMinY->value();
     Settings::coord[Y].workAreaMax = doubleRangeMaxY->value();
 
+    Settings::coord[Z].connector = comboConnect3->currentIndex();
     Settings::coord[Z].checkSoftLimits = checkSoftZ->isChecked();
     Settings::coord[Z].invertDirection = checkSwapZ->isChecked();
     Settings::coord[Z].invertPulses = checkInvStepsZ->isChecked();
@@ -574,6 +630,7 @@ void SettingsDialog::onSave()
     Settings::coord[Z].workAreaMin = doubleRangeMinZ->value();
     Settings::coord[Z].workAreaMax = doubleRangeMaxZ->value();
 
+    Settings::coord[A].connector = comboConnect4->currentIndex();
     Settings::coord[A].checkSoftLimits = checkSoftA->isChecked();
     Settings::coord[A].invertDirection = checkSwapA->isChecked();
     Settings::coord[A].invertPulses = checkInvStepsA->isChecked();

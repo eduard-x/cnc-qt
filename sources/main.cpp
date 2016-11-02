@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 #endif
 
     MainWindow win;
-    win.resize(800, 600);
+//     win.resize(800, 600);
     win.show();
 
     return app.exec();
