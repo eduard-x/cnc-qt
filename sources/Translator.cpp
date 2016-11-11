@@ -268,7 +268,7 @@ QString cTranslator::engText[] = {
     "Parser;Arc splitting", // 220
     "Remove repeatable data from list",
     "Work tool/material;Tool;Material;Calc",
-    "Control;Remote;Keyboard;Joypad",
+    "Control;Remote;Keyboard",
     "System;Backlash;Lookahead",
     "Shaft",
     "Description",

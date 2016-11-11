@@ -198,10 +198,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         float coeffSizeY;
         int  fixedAxes;
         bool deltaFeed;
-        bool unitMm;
+
         bool enableOpenGL;
 
-        int veloCutting;
+
         //         bool scale;
 
         // user defined control keys
@@ -217,35 +217,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
 
         GLWidget *scene3d; // OpenGL widget
 
-        // 3d Settings
-        bool ShowBorder;
 
-        MATERIAL cuttedMaterial;
-        float toolDiameter;
-        int toolFlutes;
-        int toolRPM;
-
-
-        int PosX, PosY, PosZ;
-        int PosAngleX, PosAngleY, PosAngleZ;
-
-        int PosZoom;
-
-        bool ShowInstrument;
-        bool ShowGrid;
-        bool ShowLines;
-        bool ShowPoints;
-        bool ShowSurface;
-        bool ShowAxes;
-
-        //         bool disableIfSSH;
-
-        int GridXstart;
-        int GridXend;
-        int GridYstart;
-        int GridYend;
-        int GrigStep;
-        // end of 3d
 
 
     public slots:

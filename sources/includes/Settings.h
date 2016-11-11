@@ -41,9 +41,24 @@
 #include "MainWindow.h"
 #include "ui_Settings.h"
 
-class cTranslator;
+#include "sControl.h"
+#include "sMaterial.h"
+#include "sWorkbench.h"
+#include "sSpeed.h"
+#include "sSystem.h"
+#include "sParser.h"
+#include "sVis.h"
+#include "sIO.h"
+
+// class cTranslator;
 class MainWindow;
 
+class SettingsParser;
+class SettingsSystem;
+class SettingsWorkbench;
+class SettingsSpeed;
+class SettingsVis;
+class SettingsIO;
 
 #define COLOR_LINES 16
 
@@ -139,6 +154,37 @@ class Settings
         static bool filterRepeat;
         // for virtual controller
         static bool DEMO_DEVICE;
+        static    bool unitMm;
+        static int veloCutting;
+        // 3d Settings
+        static bool ShowBorder;
+
+        static MATERIAL cuttedMaterial;
+        static float toolDiameter;
+        static int toolFlutes;
+        static int toolRPM;
+
+
+        static int PosX, PosY, PosZ;
+        static int PosAngleX, PosAngleY, PosAngleZ;
+
+        static float PosZoom;
+
+        static bool ShowInstrument;
+        static bool ShowGrid;
+        static bool ShowLines;
+        static bool ShowPoints;
+        static bool ShowSurface;
+        static bool ShowAxes;
+
+        //         bool disableIfSSH;
+
+        static int GridXstart;
+        static int GridXend;
+        static int GridYstart;
+        static int GridYend;
+        static int GrigStep;
+        // end of 3d
 };
 
 
@@ -149,13 +195,14 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
     public:
         SettingsDialog(QWidget *parent = 0);
 
+
     private slots:
         void onSave();
         void onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip);
-        void onChangeColor(int i);
-        void onChangeTool(int i);
-        void changeColor();
-        void onChangeConnector(int i);
+        //         void onChangeColor(int i);
+        //         void onChangeTool(int i);
+        //         void changeColor();
+        //         void onChangeConnector(int i);
 
     private:
         void translateDialog();
@@ -163,11 +210,18 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
     private:
         MainWindow* parent;
         mk1Controller *cnc;
-        QVector< QVector<QString> > toolArray;
-        QVector<QPixmap> frz_png;
-        QGraphicsScene *grph;
-        QVector< QVector<QString> > menuArr;
         QVector< QVector<QGroupBox*> > grpArr;
+
+        QVector< QVector<QString> > menuArr;
+
+        SettingsIO *sIO;
+        SettingsVis *sVis;
+        SettingsControl *sControl;
+        SettingsSystem *sSystem;
+        SettingsMaterial *sMaterial;
+        SettingsSpeed *sSpeed;
+        SettingsParser *sParser;
+        SettingsWorkbench *sWorkbench;
 };
 
 

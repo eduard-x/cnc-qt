@@ -923,14 +923,14 @@ void MainWindow::writeSettings()
     s->setValue("SplitArcPerMM", Settings::splitsPerMm);
     s->setValue("LookaheadAngle", Settings::maxLookaheadAngle);
 
-    s->setValue("UnitMM", unitMm);
-    s->setValue("ToolDiameter", toolDiameter);
-    s->setValue("ToolFlutes", toolFlutes);
-    s->setValue("ToolRPM", toolRPM);
+    s->setValue("UnitMM", Settings::unitMm);
+    s->setValue("ToolDiameter", Settings::toolDiameter);
+    s->setValue("ToolFlutes", Settings::toolFlutes);
+    s->setValue("ToolRPM", Settings::toolRPM);
 
     s->setValue("FilterRepeatData", Settings::filterRepeat);
 
-    s->setValue("CuttedMaterial", cuttedMaterial);
+    s->setValue("CuttedMaterial", Settings::cuttedMaterial);
 
     foreach (uKeys k, userKeys) {
         s->setValue(k.name, (quint32)k.code);
@@ -963,34 +963,34 @@ void MainWindow::writeSettings()
     if (enableOpenGL == true) {
         s->beginGroup("OpenGL");
 
-        s->setValue("ShowLines", ShowLines);
-        s->setValue("ShowPoints", ShowPoints);
+        s->setValue("ShowLines", Settings::ShowLines);
+        s->setValue("ShowPoints", Settings::ShowPoints);
 
-        s->setValue("ShowInstrument", ShowInstrument);
-        s->setValue("ShowGrid", ShowGrid);
-        s->setValue("ShowSurface", ShowSurface);
-        s->setValue("ShowAxes", ShowAxes);
+        s->setValue("ShowInstrument", Settings::ShowInstrument);
+        s->setValue("ShowGrid", Settings::ShowGrid);
+        s->setValue("ShowSurface", Settings::ShowSurface);
+        s->setValue("ShowAxes", Settings::ShowAxes);
 
         //         s->setValue("DisableOpenGL", disableIfSSH);
 
-        s->setValue("GrigStep", (int)GrigStep);
+        s->setValue("GrigStep", (int)Settings::GrigStep);
 
-        s->setValue("GridXstart", (int)GridXstart);
-        s->setValue("GridXend", (int)GridXend);
-        s->setValue("GridYstart", (int)GridYstart);
-        s->setValue("GridYend", (int)GridYend);
+        s->setValue("GridXstart", (int)Settings::GridXstart);
+        s->setValue("GridXend", (int)Settings::GridXend);
+        s->setValue("GridYstart", (int)Settings::GridYstart);
+        s->setValue("GridYend", (int)Settings::GridYend);
 
-        s->setValue("ShowGrate", (bool)ShowBorder); // grenzen
+        s->setValue("ShowGrate", (bool)Settings::ShowBorder); // grenzen
 
-        s->setValue("PosX", (int)PosX); //
-        s->setValue("PosY", (int)PosY); //
-        s->setValue("PosZ", (int)PosZ); //
+        s->setValue("PosX", (int)Settings::PosX); //
+        s->setValue("PosY", (int)Settings::PosY); //
+        s->setValue("PosZ", (int)Settings::PosZ); //
 
-        s->setValue("AngleX", (int)PosAngleX); //
-        s->setValue("AngleY", (int)PosAngleY); //
-        s->setValue("AngleZ", (int)PosAngleZ); //
+        s->setValue("AngleX", (int)Settings::PosAngleX); //
+        s->setValue("AngleY", (int)Settings::PosAngleY); //
+        s->setValue("AngleZ", (int)Settings::PosAngleZ); //
 
-        s->setValue("Zoom", (int)PosZoom); //
+        s->setValue("Zoom", (int)Settings::PosZoom); //
 
 
         s->setValue("Color_X", (QColor)Settings::colorSettings[COLOR_X]);
@@ -1076,19 +1076,19 @@ void MainWindow::readSettings()
     minVelo = s->value("MinVelocity", 20).toInt();
     maxVelo = s->value("MaxVelocity", 400).toInt();
 
-    veloCutting = s->value("VelocityCutting", 200).toInt();
+    Settings::veloCutting = s->value("VelocityCutting", 200).toInt();
     veloMoving = s->value("VelocityMoving", 500).toInt();
     veloManual = s->value("VelocityManual", 400).toInt();
     currentKeyPad = s->value("KeyControl", -1).toInt();
 
-    unitMm = s->value("UnitMM", 1.0).toBool();
+    Settings::unitMm = s->value("UnitMM", 1.0).toBool();
     Settings::splitsPerMm =   s->value("SplitArcPerMM", 10).toInt();
     Settings::maxLookaheadAngle = s->value("LookaheadAngle", 170.0).toFloat();
-    cuttedMaterial = (MATERIAL)s->value("CuttedMaterial", 0).toInt();
+    Settings::cuttedMaterial = (MATERIAL)s->value("CuttedMaterial", 0).toInt();
 
-    toolDiameter = s->value("ToolDiameter", 3.0).toFloat();
-    toolFlutes = s->value("ToolFlutes", 2).toInt();
-    toolRPM = s->value("ToolRPM", 10000).toInt();
+    Settings::toolDiameter = s->value("ToolDiameter", 3.0).toFloat();
+    Settings::toolFlutes = s->value("ToolFlutes", 2).toInt();
+    Settings::toolRPM = s->value("ToolRPM", 10000).toInt();
 
     Settings::filterRepeat = s->value("FilterRepeatData", true).toBool();
 
@@ -1098,7 +1098,7 @@ void MainWindow::readSettings()
 
     groupManualControl->setChecked(currentKeyPad != -1);
 
-    numVeloSubmission->setValue(veloCutting);
+    numVeloSubmission->setValue(Settings::veloCutting);
     numVeloMoving->setValue(veloMoving);
     numVeloManual->setValue(veloManual);
 
@@ -1171,34 +1171,34 @@ void MainWindow::readSettings()
         // opengl settings
         s->beginGroup("OpenGL");
 
-        ShowLines = s->value("ShowLines", false).toBool();
-        ShowPoints = s->value("ShowPoints", true).toBool();
+        Settings::ShowLines = s->value("ShowLines", false).toBool();
+        Settings::ShowPoints = s->value("ShowPoints", true).toBool();
 
-        ShowInstrument = s->value("ShowInstrument", true).toBool();
-        ShowGrid = s->value("ShowGrid", true).toBool();
-        ShowSurface = s->value("ShowSurface", false).toBool();
-        ShowAxes = s->value("ShowAxes", true).toBool();
+        Settings::ShowInstrument = s->value("ShowInstrument", true).toBool();
+        Settings::ShowGrid = s->value("ShowGrid", true).toBool();
+        Settings::ShowSurface = s->value("ShowSurface", false).toBool();
+        Settings::ShowAxes = s->value("ShowAxes", true).toBool();
 
         //         disableIfSSH =  s->value("DisableOpenGL", false).toBool();
 
-        GrigStep = s->value("GrigStep", 10).toInt();
+        Settings::GrigStep = s->value("GrigStep", 10).toInt();
 
-        GridXstart = s->value("GridXstart", -100).toInt();
-        GridXend = s->value("GridXend", 100).toInt();
-        GridYstart = s->value("GridYstart", -100).toInt();
-        GridYend = s->value("GridYend", 100).toInt();
+        Settings::GridXstart = s->value("GridXstart", -100).toInt();
+        Settings::GridXend = s->value("GridXend", 100).toInt();
+        Settings::GridYstart = s->value("GridYstart", -100).toInt();
+        Settings::GridYend = s->value("GridYend", 100).toInt();
 
-        ShowBorder = s->value("ShowGrate", true).toBool(); // grenzen
+        Settings::ShowBorder = s->value("ShowGrate", true).toBool(); // grenzen
 
-        PosX = s->value("PosX", -96 ).toInt(); //
-        PosY = s->value("PosY", -64 ).toInt(); //
-        PosZ = s->value("PosZ", -300 ).toInt(); //
+        Settings::PosX = s->value("PosX", -96 ).toInt(); //
+        Settings::PosY = s->value("PosY", -64 ).toInt(); //
+        Settings::PosZ = s->value("PosZ", -300 ).toInt(); //
 
-        PosAngleX = s->value("AngleX", 180 ).toInt(); //
-        PosAngleY = s->value("AngleY", 180 ).toInt(); //
-        PosAngleZ = s->value("AngleZ", 180 ).toInt(); //
+        Settings::PosAngleX = s->value("AngleX", 180 ).toInt(); //
+        Settings::PosAngleY = s->value("AngleY", 180 ).toInt(); //
+        Settings::PosAngleZ = s->value("AngleZ", 180 ).toInt(); //
 
-        PosZoom = s->value("Zoom", 20 ).toInt(); //
+        Settings::PosZoom = s->value("Zoom", 20 ).toInt(); //
 
         Settings::colorSettings[COLOR_X] = s->value("Color_X", QColor {
             0, 255, 0, 255
@@ -1464,9 +1464,9 @@ void MainWindow::getScale(int s)
  */
 void MainWindow::displayRotation()
 {
-    posAngleX->setText( QString().sprintf("%d°", PosAngleX));
-    posAngleY->setText( QString().sprintf("%d°", PosAngleY));
-    posAngleZ->setText( QString().sprintf("%d°", PosAngleZ));
+    posAngleX->setText( QString().sprintf("%d°", Settings::PosAngleX));
+    posAngleY->setText( QString().sprintf("%d°", Settings::PosAngleY));
+    posAngleZ->setText( QString().sprintf("%d°", Settings::PosAngleZ));
 }
 
 
@@ -1582,8 +1582,8 @@ void MainWindow::translateGUI()
     QStringList m = translate(_MATERIAL_LIST).split("\n");
 
     if (m.count() > 0) {
-        if (cuttedMaterial < m.count()) {
-            labelMaterial->setText(m.at(cuttedMaterial));
+        if (Settings::cuttedMaterial < m.count()) {
+            labelMaterial->setText(m.at(Settings::cuttedMaterial));
         } else {
             labelMaterial->setText(m.at(0));
         }
@@ -3090,14 +3090,14 @@ void MainWindow::onCalcVelocity()
         QStringList m = translate(_MATERIAL_LIST).split("\n");
 
         if (m.count() > 0) {
-            if (cuttedMaterial < m.count()) {
-                labelMaterial->setText(m.at(cuttedMaterial));
+            if (Settings::cuttedMaterial < m.count()) {
+                labelMaterial->setText(m.at(Settings::cuttedMaterial));
             } else {
                 labelMaterial->setText(m.at(0));
             }
         }
 
-        numVeloSubmission->setValue(veloCutting);
+        numVeloSubmission->setValue(Settings::veloCutting);
     }
 }
 
@@ -3263,7 +3263,7 @@ void MainWindow::on3dSettings()
  */
 void MainWindow::onScanSurface()
 {
-    ShowSurface = true;
+    Settings::ShowSurface = true;
 
     ScanSurfaceDialog *dlg = new ScanSurfaceDialog(this);
     dlg->exec();

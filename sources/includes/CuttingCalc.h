@@ -36,6 +36,7 @@
 #include <QVector>
 #include <QString>
 
+#include "Settings.h"
 #include "MainWindow.h"
 #include "ui_CuttingCalc.h"
 

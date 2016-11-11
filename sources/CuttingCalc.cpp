@@ -59,6 +59,7 @@
 // z feed is the 1/3 from xy feed
 //
 
+class Settings;
 /**
  * TODO
  * @see https://www.onsrud.com/xdoc/FeedSpeeds
@@ -118,7 +119,7 @@ CuttingCalc::CuttingCalc(QWidget *p)
 
     initMaterialList();
 
-    current = parent->cuttedMaterial;
+    current = Settings::cuttedMaterial;
 
     doubleSpinFeedRate->setReadOnly(true);
 
@@ -138,9 +139,9 @@ CuttingCalc::CuttingCalc(QWidget *p)
 
     translateDialog();
 
-    emit changeUnit( (parent->unitMm == true) ? 0 : 1);
+    emit changeUnit( (Settings::unitMm == true) ? 0 : 1);
 
-    emit changeMaterial((int)parent->cuttedMaterial);
+    emit changeMaterial((int)Settings::cuttedMaterial);
 
     adjustSize();
 }
@@ -148,14 +149,14 @@ CuttingCalc::CuttingCalc(QWidget *p)
 
 void CuttingCalc::onSave()
 {
-    parent->unitMm = (scaling == 1.0);
-    parent->toolDiameter = doubleSpinDiameter->value();
-    parent->toolFlutes = doubleSpinFlutes->value();
-    parent->toolRPM = doubleSpinSpindleSpeed->value();
+    Settings::unitMm = (scaling == 1.0);
+    Settings::toolDiameter = doubleSpinDiameter->value();
+    Settings::toolFlutes = doubleSpinFlutes->value();
+    Settings::toolRPM = doubleSpinSpindleSpeed->value();
 
-    parent->veloCutting = v;
+    Settings::veloCutting = v;
 
-    parent->cuttedMaterial = current;
+    Settings::cuttedMaterial = current;
 
     emit accept();
 }
@@ -258,16 +259,16 @@ void CuttingCalc::changeUnit(int n)
 
     labelCuttingRange->setText(translate(_RANGES) + unit);
 
-    if (parent->toolDiameter == 0) {
-        parent->toolDiameter = 3.0;
+    if (Settings::toolDiameter == 0) {
+        Settings::toolDiameter = 3.0;
     }
 
     if (scaling != 0.0) {
-        doubleSpinDiameter->setValue(parent->toolDiameter / scaling);
+        doubleSpinDiameter->setValue(Settings::toolDiameter / scaling);
     }
 
-    doubleSpinFlutes->setValue(parent->toolFlutes);
-    doubleSpinSpindleSpeed->setValue(parent->toolRPM);
+    doubleSpinFlutes->setValue(Settings::toolFlutes);
+    doubleSpinSpindleSpeed->setValue(Settings::toolRPM);
 }
 
 

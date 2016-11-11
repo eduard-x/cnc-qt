@@ -71,8 +71,8 @@ GLWidget::GLWidget(QWidget *p)
 
     cnc = parent->mk1;
 
-    parent->PosX = -50;
-    parent->PosY = -50;
+    Settings::PosX = -50;
+    Settings::PosY = -50;
 
     //     m_lineWidth = 1.0;
     //     m_pointSize = 6.0;
@@ -154,7 +154,7 @@ void GLWidget::createButtons()
     QObject::connect(cmdTop, SIGNAL(clicked(bool)), this, SLOT(setTop()));
 
     QObject::connect(cmdZoom, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
-    cmdZoom->setValue(parent->PosZoom);
+    cmdZoom->setValue(Settings::PosZoom);
 }
 
 
@@ -265,9 +265,9 @@ QVector<QVector3D> GLWidget::traverseArray = { // width of traverse is 64 cm
  */
 void GLWidget::setIso()
 {
-    parent->PosAngleX = -45;
-    parent->PosAngleY = 0;
-    parent->PosAngleZ = -45;
+    Settings::PosAngleX = -45;
+    Settings::PosAngleY = 0;
+    Settings::PosAngleZ = -45;
     initPreviewSettings();
 }
 
@@ -278,9 +278,9 @@ void GLWidget::setIso()
  */
 void GLWidget::setLeft()
 {
-    parent->PosAngleX = 0;
-    parent->PosAngleY = 90;
-    parent->PosAngleZ = 0;
+    Settings::PosAngleX = 0;
+    Settings::PosAngleY = 90;
+    Settings::PosAngleZ = 0;
     initPreviewSettings();
 }
 
@@ -291,9 +291,9 @@ void GLWidget::setLeft()
  */
 void GLWidget::setTop()
 {
-    parent->PosAngleX = 0;
-    parent->PosAngleY = 0;
-    parent->PosAngleZ = 0;
+    Settings::PosAngleX = 0;
+    Settings::PosAngleY = 0;
+    Settings::PosAngleZ = 0;
     initPreviewSettings();
 }
 
@@ -303,9 +303,9 @@ void GLWidget::setTop()
  */
 void GLWidget::setFront()
 {
-    parent->PosAngleX = 90;
-    parent->PosAngleY = 90;
-    parent->PosAngleZ = 0;
+    Settings::PosAngleX = 90;
+    Settings::PosAngleY = 90;
+    Settings::PosAngleZ = 0;
     initPreviewSettings();
 }
 
@@ -317,7 +317,7 @@ void GLWidget::setZoom(int i)
 {
     //     int v = cmdZoom->value();
     //      qDebug() << "zoom" << v;
-    parent->PosZoom = i; //((v - 50) * 0.01);
+    Settings::PosZoom = i; //((v - 50) * 0.01);
 
     if (Settings::smoothMoving) {
         update();
@@ -360,19 +360,19 @@ void GLWidget::initStaticElements()
         float pointZ = vv.Z;
 
         // moving in G-code
-        if (parent->Correction) {
+        if (Settings::Correction) {
             // proportions
-            pointX *= parent->coeffSizeX;
-            pointY *= parent->coeffSizeY;
+            pointX *= Settings::coeffSizeX;
+            pointY *= Settings::coeffSizeY;
 
             // offset
-            pointX += parent->deltaX;
-            pointY += parent->deltaY;
-            pointZ += parent->deltaZ;
+            pointX += Settings::deltaX;
+            pointY += Settings::deltaY;
+            pointZ += Settings::deltaZ;
 
             // to use the scanned surface, z correcture
-            if (parent->deltaFeed) {
-                pointZ += parent->getDeltaZ(pointX, pointY);
+            if (Settings::deltaFeed) {
+                pointZ += Settings::getDeltaZ(pointX, pointY);
             }
         }
 
@@ -419,32 +419,32 @@ void GLWidget::initStaticElements()
 
     gridLines.clear();
 
-    for (int gX = parent->GridXstart; gX < parent->GridXend + 1; gX += parent->GrigStep) {
+    for (int gX = Settings::GridXstart; gX < Settings::GridXend + 1; gX += Settings::GrigStep) {
         gridLines << (VertexData) {
-            QVector3D{(GLfloat)gX, (GLfloat)parent->GridYstart, 0.0 },
+            QVector3D{(GLfloat)gX, (GLfloat)Settings::GridYstart, 0.0 },
                       QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
         };
         gridLines << (VertexData) {
-            QVector3D{(GLfloat)gX, (GLfloat)parent->GridYend, 0.0},
+            QVector3D{(GLfloat)gX, (GLfloat)Settings::GridYend, 0.0},
                       QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
         };
     }
 
-    for (int gY = parent->GridYstart; gY < parent->GridYend + 1; gY += parent->GrigStep) {
+    for (int gY = Settings::GridYstart; gY < Settings::GridYend + 1; gY += Settings::GrigStep) {
         gridLines << (VertexData) {
-            QVector3D{(GLfloat)parent->GridXstart, (GLfloat)gY, 0.0},
+            QVector3D{(GLfloat)Settings::GridXstart, (GLfloat)gY, 0.0},
                       QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
         };
         gridLines << (VertexData) {
-            QVector3D{(GLfloat)parent->GridXend, (GLfloat)gY, 0.0},
+            QVector3D{(GLfloat)Settings::GridXend, (GLfloat)gY, 0.0},
                       QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
         };
     }
 
     gridPoints.clear();
 
-    for (int y = parent->GridYstart; y <  parent->GridYend + 1; y += parent->GrigStep) {
-        for (int x = parent->GridXstart; x < parent->GridXend + 1; x += parent->GrigStep) {
+    for (int y = Settings::GridYstart; y <  Settings::GridYend + 1; y += Settings::GrigStep) {
+        for (int x = Settings::GridXstart; x < Settings::GridXend + 1; x += Settings::GrigStep) {
             //point
             gridPoints << (VertexData) {
                 QVector3D{(GLfloat)x, (GLfloat)y, 0.0},
@@ -640,8 +640,8 @@ QVector<VertexData> GLWidget::addPointVector(const QVector<QVector3D> &p, const 
 void GLWidget::initPreviewSettings()
 {
     emit rotationChanged();
-    //     emit yRotationChanged(parent->PosAngleY);
-    //     emit zRotationChanged(parent->PosAngleZ);
+    //     emit yRotationChanged(Settings::PosAngleY);
+    //     emit zRotationChanged(Settings::PosAngleZ);
 
     update();
 }
@@ -851,17 +851,17 @@ void GLWidget::Draw() // drawing, main function
 
     matrix.setToIdentity();
     matrix.perspective(60.0f, aspect, 10.f, 250.0f);
-    matrix.translate(parent->PosX, parent->PosY, -100.0);
+    matrix.translate(Settings::PosX, Settings::PosY, -100.0);
 
-    float scaleX = parent->PosZoom * GLSCALE;
-    float scaleY = parent->PosZoom * GLSCALE;
-    float scaleZ = parent->PosZoom * GLSCALE;
+    float scaleX = Settings::PosZoom * GLSCALE;
+    float scaleY = Settings::PosZoom * GLSCALE;
+    float scaleZ = Settings::PosZoom * GLSCALE;
 
     matrix.scale(scaleX, scaleY, scaleZ);
 
-    matrix.rotate(parent->PosAngleX, 1.0f, 0.0f, 0.0f);
-    matrix.rotate(parent->PosAngleY, 0.0f, 1.0f, 0.0f);
-    matrix.rotate(parent->PosAngleZ, 0.0f, 0.0f, 1.0f);
+    matrix.rotate(Settings::PosAngleX, 1.0f, 0.0f, 0.0f);
+    matrix.rotate(Settings::PosAngleY, 0.0f, 1.0f, 0.0f);
+    matrix.rotate(Settings::PosAngleZ, 0.0f, 0.0f, 1.0f);
 
     program->setUniformValue(m_matrixUniform, matrix);
 
@@ -956,7 +956,7 @@ void GLWidget::Draw() // drawing, main function
         }
     }
 
-    if (parent->ShowAxes) {
+    if (Settings::ShowAxes) {
         glLineWidth((GLfloat)Settings::lineWidth);
 
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &axis[0].coord);
@@ -974,7 +974,7 @@ void GLWidget::Draw() // drawing, main function
     }
 
 
-    if (parent->ShowBorder) {
+    if (Settings::ShowBorder) {
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &border[0].coord);
         glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &border[0].color);
 
@@ -988,8 +988,8 @@ void GLWidget::Draw() // drawing, main function
     }
 
     //  the scanned surface
-    if (parent->ShowSurface) {
-        if (parent->ShowLines) {
+    if (Settings::ShowSurface) {
+        if (Settings::ShowLines) {
             glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &surfaceLines[0].coord);
             glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &surfaceLines[0].color);
 
@@ -1002,7 +1002,7 @@ void GLWidget::Draw() // drawing, main function
             glDisableVertexAttribArray(m_posAttr);
         }
 
-        if (parent->ShowPoints) {
+        if (Settings::ShowPoints) {
             program->setUniformValue(m_pointSizeUniform, (GLfloat)Settings::pointSize);
 
             glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &surfacePoints[0].coord);
@@ -1019,8 +1019,8 @@ void GLWidget::Draw() // drawing, main function
     }
 
     // draw the border
-    if (parent->ShowGrid) {
-        if (parent->ShowLines) {
+    if (Settings::ShowGrid) {
+        if (Settings::ShowLines) {
             glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridLines[0].coord);
             glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridLines[0].color);
 
@@ -1033,7 +1033,7 @@ void GLWidget::Draw() // drawing, main function
             glDisableVertexAttribArray(m_posAttr);
         }
 
-        if (parent->ShowPoints) {
+        if (Settings::ShowPoints) {
             program->setUniformValue(m_pointSizeUniform, (GLfloat)Settings::pointSize);
 
             glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridPoints[0].coord);
@@ -1050,7 +1050,7 @@ void GLWidget::Draw() // drawing, main function
     }
 
 
-    if (parent->ShowInstrument) {
+    if (Settings::ShowInstrument) {
         matrix.translate(Settings::coord[X].posMm(), Settings::coord[Y].posMm(), Settings::coord[Z].posMm()); // moving to point x=10, y=10
 
         program->setUniformValue(m_matrixUniform, matrix);
@@ -1088,9 +1088,9 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 void GLWidget::wheelEvent(QWheelEvent *we)
 {
     if (we->orientation() == Qt::Vertical) {
-        we->delta() > 0 ? parent->PosZoom += 1.0 : parent->PosZoom -= 1.0;
+        we->delta() > 0 ? Settings::PosZoom += 1.0 : Settings::PosZoom -= 1.0;
 
-        cmdZoom->setValue(parent->PosZoom);
+        cmdZoom->setValue(Settings::PosZoom);
     }
 
     we->setAccepted(true);
@@ -1115,20 +1115,20 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     } else if (event->buttons() & Qt::RightButton) {
         switch (parent->fixedAxes) {
             case FixY: {
-                setXRotation(parent->PosAngleX + dy);
-                setZRotation(parent->PosAngleZ + dx);
+                setXRotation(Settings::PosAngleX + dy);
+                setZRotation(Settings::PosAngleZ + dx);
                 break;
             }
 
             case FixX: {
-                setYRotation(parent->PosAngleY + dx);
-                setZRotation(parent->PosAngleZ + dy);
+                setYRotation(Settings::PosAngleY + dx);
+                setZRotation(Settings::PosAngleZ + dy);
                 break;
             }
 
             case FixZ: {
-                setXRotation(parent->PosAngleX + dy);
-                setYRotation(parent->PosAngleY + dx);
+                setXRotation(Settings::PosAngleX + dy);
+                setYRotation(Settings::PosAngleY + dx);
                 break;
             }
         }
@@ -1169,7 +1169,7 @@ float GLWidget::normalizeAngle(float angle)
 void GLWidget::setXCoord(int dx)
 {
     if (dx != 0) {
-        parent->PosX += dx * 0.5;
+        Settings::PosX += dx * 0.5;
     }
 }
 
@@ -1181,7 +1181,7 @@ void GLWidget::setXCoord(int dx)
 void GLWidget::setYCoord(int dy)
 {
     if (dy != 0) {
-        parent->PosY += dy * 0.5;
+        Settings::PosY += dy * 0.5;
     }
 }
 
@@ -1194,8 +1194,8 @@ void GLWidget::setXRotation(int angle)
 {
     normalizeAngle(angle);
 
-    if (angle != parent->PosAngleX) {
-        parent->PosAngleX = angle;
+    if (angle != Settings::PosAngleX) {
+        Settings::PosAngleX = angle;
         emit rotationChanged();
     }
 }
@@ -1208,8 +1208,8 @@ void GLWidget::setYRotation(int angle)
 {
     normalizeAngle(angle);
 
-    if (angle != parent->PosAngleY) {
-        parent->PosAngleY = angle;
+    if (angle != Settings::PosAngleY) {
+        Settings::PosAngleY = angle;
         emit rotationChanged();
     }
 }
@@ -1223,8 +1223,8 @@ void GLWidget::setZRotation(int angle)
 {
     normalizeAngle(angle);
 
-    if (angle != parent->PosAngleZ) {
-        parent->PosAngleZ = angle;
+    if (angle != Settings::PosAngleZ) {
+        Settings::PosAngleZ = angle;
         emit rotationChanged();
     }
 }
@@ -1236,8 +1236,8 @@ void GLWidget::setZRotation(int angle)
  */
 void GLWidget::onPosAngleXm()
 {
-    --parent->PosAngleX;
-    normalizeAngle(parent->PosAngleX);
+    --Settings::PosAngleX;
+    normalizeAngle(Settings::PosAngleX);
     emit rotationChanged();
 }
 
@@ -1248,7 +1248,7 @@ void GLWidget::onPosAngleXm()
  */
 void GLWidget::onPosAngleX()
 {
-    parent->PosAngleX = 0;
+    Settings::PosAngleX = 0;
     emit rotationChanged();
 }
 
@@ -1259,8 +1259,8 @@ void GLWidget::onPosAngleX()
  */
 void GLWidget::onPosAngleXp()
 {
-    ++parent->PosAngleX;
-    normalizeAngle(parent->PosAngleX);
+    ++Settings::PosAngleX;
+    normalizeAngle(Settings::PosAngleX);
     emit rotationChanged();
 }
 
@@ -1271,8 +1271,8 @@ void GLWidget::onPosAngleXp()
  */
 void GLWidget::onPosAngleYp()
 {
-    ++parent->PosAngleY;
-    normalizeAngle(parent->PosAngleY);
+    ++Settings::PosAngleY;
+    normalizeAngle(Settings::PosAngleY);
     emit rotationChanged();
 }
 
@@ -1282,7 +1282,7 @@ void GLWidget::onPosAngleYp()
  */
 void GLWidget::onPosAngleY()
 {
-    parent->PosAngleY = 0;
+    Settings::PosAngleY = 0;
     emit rotationChanged();
 }
 
@@ -1292,8 +1292,8 @@ void GLWidget::onPosAngleY()
  */
 void GLWidget::onPosAngleYm()
 {
-    --parent->PosAngleY;
-    normalizeAngle(parent->PosAngleY);
+    --Settings::PosAngleY;
+    normalizeAngle(Settings::PosAngleY);
     emit rotationChanged();
 }
 
@@ -1303,8 +1303,8 @@ void GLWidget::onPosAngleYm()
  */
 void GLWidget::onPosAngleZp()
 {
-    ++parent->PosAngleZ;
-    normalizeAngle(parent->PosAngleZ);
+    ++Settings::PosAngleZ;
+    normalizeAngle(Settings::PosAngleZ);
     emit rotationChanged();
 }
 
@@ -1314,7 +1314,7 @@ void GLWidget::onPosAngleZp()
  */
 void GLWidget::onPosAngleZ()
 {
-    parent->PosAngleZ = 0;
+    Settings::PosAngleZ = 0;
     emit rotationChanged();
 }
 
@@ -1324,8 +1324,8 @@ void GLWidget::onPosAngleZ()
  */
 void GLWidget::onPosAngleZm()
 {
-    --parent->PosAngleZ;
-    normalizeAngle(parent->PosAngleZ);
+    --Settings::PosAngleZ;
+    normalizeAngle(Settings::PosAngleZ);
     emit rotationChanged();
 }
 

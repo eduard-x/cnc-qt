@@ -29,41 +29,87 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include <QApplication>
-#include <QTextCodec>
+#include <QtGui>
 
-#include "includes/MainWindow.h"
 
-int main(int argc, char **argv)
+#include "includes/sControl.h"
+
+
+/******************************************************************************
+** EditGCodeDialog
+*/
+
+
+SettingsControl::SettingsControl(QWidget *p)
+    : QWidget(p)
 {
-    //     Q_INIT_RESOURCE(undo);
+    setupUi(this);
 
-    QApplication app(argc, argv);
+    //     parent = static_cast<MainWindow*>(p);
+    //
+    //     setStyleSheet(parent->programStyleSheet);
+    //
 
-#if QT_VERSION < 0x050000
-    // ask QString in Qt 4 to interpret all char* as UTF-8,
-    // like Qt 5 does.
-    // 106 is "UTF-8", this is faster than lookup by name
-    // [http://www.iana.org/assignments/character-sets/character-sets.xml]
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForMib(106));
-    // and for reasons I can't understand, I need to do the same again for tr
-    // even though that clearly uses C strings as well...
-    QTextCodec::setCodecForTr(QTextCodec::codecForMib(106));
-#ifdef Q_OS_WIN
-    QFile::setDecodingFunction(decodeUtf8);
-    QFile::setEncodingFunction(encodeUtf8);
+    //     connect(checkCorrecture, SIGNAL(stateChanged ( int)), this, SLOT(checkedChanged( int )));
+    //
+    //     checkCorrecture->setChecked(true);
+    //     checkCorrecture->setChecked(false); // toggle
+    //
+    //     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSaveChange()));
+    //     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    //
+    //     doubleSpinOffsetX->setValue(parent->deltaX);
+    //     doubleSpinOffsetY->setValue(parent->deltaY);
+    //     doubleSpinOffsetZ->setValue(parent->deltaZ);
+    //
+    //     checkBoxZ->setChecked(parent->deltaFeed);
+    //
+    //     doubleSpinResizeX->setValue(parent->coeffSizeX);
+    //     doubleSpinResizeY->setValue(parent->coeffSizeY);
+
+    //     checkResizeZ->setChecked();
+
+    translateWidget();
+
+    adjustSize();
+}
+
+
+void SettingsControl::getSettings()
+{
+}
+
+void SettingsControl::translateWidget()
+{
+    //     setWindowTitle(translate(_EDITGCODE_TITLE));
+    //     checkCorrecture->setText(translate(_CORRECTURE));
+    //     groupResize->setTitle(translate(_PROPORTION));
+    //     groupOffset->setTitle(translate(_OFFSET_GCODE));
+    //     checkBoxZ->setText(translate(_CORRECT_Z));
+}
+
+#if 0
+void SettingsControl::checkedChanged( int state)
+{
+    bool check = checkCorrecture->isChecked();
+    groupOffset->setEnabled(check);
+    groupResize->setEnabled(check);
+}
+
+
+void SettingsControl::onSaveChange()
+{
+    if (checkCorrecture->isChecked()) {
+        parent->deltaX = doubleSpinOffsetX->value();
+        parent->deltaY = doubleSpinOffsetY->value();
+        parent->deltaZ = doubleSpinOffsetZ->value();
+
+        parent->deltaFeed = checkBoxZ->isChecked();
+
+        parent->coeffSizeX = doubleSpinResizeX->value();
+        parent->coeffSizeY = doubleSpinResizeY->value();
+    }
+
+    emit accept();
+}
 #endif
-#else
-    // for Win32 and Qt5 we try to set the locale codec to UTF-8.
-    // this makes QFile::encodeName() work.
-#ifdef Q_OS_WIN
-    QTextCodec::setCodecForLocale(QTextCodec::codecForMib(106));
-#endif
-#endif
-
-    MainWindow win;
-    //     win.resize(800, 600);
-    win.show();
-
-    return app.exec();
-};

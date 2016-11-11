@@ -87,9 +87,51 @@ bool Settings::smoothMoving = false;
 bool Settings::showTraverse = false;
 bool Settings::showWorkbench = false;
 bool Settings::filterRepeat = true;
+float Settings::PosZoom = 1.0;
+int Settings::PosAngleX = 1;
+int Settings::PosAngleY = 1;
+int Settings::PosAngleZ = 1;
+int Settings::PosX = 1;
+int Settings::PosY = 1;
+int Settings::PosZ = 1;
+int Settings::veloCutting = 200;
+bool Settings::unitMm = true;
 
 byte Settings::bb14 = 0x0;
 byte Settings::bb19 = 0x0;
+
+bool Settings::ShowBorder = true;
+
+MATERIAL Settings::cuttedMaterial = HARDWOOD;
+float Settings::toolDiameter = 0.1;
+int Settings::toolFlutes = 2;
+int Settings::toolRPM = 10000;
+
+int Settings::GridXstart = 0;
+int Settings::GridXend = 0;
+int Settings::GridYstart = 0;
+int Settings::GridYend = 0;
+int Settings::GrigStep = 0;
+//         int PosX, PosY, PosZ;
+//         int PosAngleX, PosAngleY, PosAngleZ;
+
+//         int PosZoom;
+
+bool Settings::ShowInstrument = true;
+bool Settings::ShowGrid = true;
+bool Settings::ShowLines = false;
+bool Settings::ShowPoints = true;
+bool Settings::ShowSurface = false;
+bool Settings::ShowAxes = true;
+
+//         bool disableIfSSH;
+
+//         int GridXstart;
+//         int GridXend;
+//         int GridYstart;
+//         int GridYend;
+//         int GrigStep;
+// end of 3d
 
 QColor Settings::colorSettings[COLOR_LINES];
 
@@ -111,237 +153,52 @@ SettingsDialog::SettingsDialog(QWidget *p)
 
     cnc = parent->mk1;
 
-    // pictures of
-    for (int i = 1 ; i < 13; i++) {
-        QString name;
-        name = QString().sprintf(":/images/frz%02d.png", i);
-        frz_png <<  QPixmap(name);
-    }
-
-    graphicsView->setStyleSheet("background: transparent");
-
     setStyleSheet(parent->programStyleSheet);
 
-    QStringList seqList = (QStringList() << "1" << "2" << "3" << "4");
-    comboSeqX->addItems(seqList);
-    comboSeqY->addItems(seqList);
-    comboSeqZ->addItems(seqList);
-    comboSeqA->addItems(seqList);
 
-    //     grpArr.clear();
-    grpArr << (QVector <QGroupBox*>() << groupRanges << groupHome << groupSoftwareLimits); // workbench
-    grpArr << (QVector <QGroupBox*>() << groupSpeed << groupDirections); // moving
-    grpArr << (QVector <QGroupBox*>() << groupHardwareLimits << groupConnectors << groupOutput << groupJog << groupExtPin); // I/O
-    grpArr << (QVector <QGroupBox*>() << groupBacklash << groupLookahead); // system
-    grpArr << (QVector <QGroupBox*>() << groupBoxArc); // parser
-    grpArr << (QVector <QGroupBox*>() << groupTool << groupMaterial << groupCalc); // tool
-    grpArr << (QVector <QGroupBox*>() << groupViewing << groupBoxColors << groupBoxGrid << groupBoxShowRang); // 3d
-    grpArr << (QVector <QGroupBox*>() << groupRemote << groupKeyboard << groupJoypad); // control
+    sParser = new SettingsParser(p);
+    scrollAreaParser->setWidget(sParser);
+
+    sControl = new SettingsControl(p);
+    scrollAreaControl->setWidget(sControl);
+
+    sVis = new SettingsVis(p);
+    scrollAreaVis->setWidget(sVis);
+
+    sSpeed = new SettingsSpeed(p);
+    scrollAreaDriver->setWidget(sSpeed);
+
+    sMaterial = new SettingsMaterial(p);
+    scrollAreaTool->setWidget(sMaterial);
+
+    sSystem = new SettingsSystem(p);
+    scrollAreaSystem->setWidget(sSystem);
+
+    sWorkbench = new SettingsWorkbench(p);
+    scrollAreaWorkbench->setWidget(sWorkbench);
+
+    sIO = new SettingsIO(p);
+    scrollAreaIO->setWidget(sIO);
+
+    grpArr.clear();
+    grpArr << (QVector <QGroupBox*>() << sControl->groupRemote << sControl->groupKeyboard); // control
+    grpArr << (QVector <QGroupBox*>() << sMaterial->groupTool << sMaterial->groupMaterial << sMaterial->groupCalc); // tool
+    grpArr << (QVector <QGroupBox*>() << sParser->groupBoxArc); // parser
+    grpArr << (QVector <QGroupBox*>() << sSpeed->groupSpeed << sSpeed->groupDirections); // moving
+    grpArr << (QVector <QGroupBox*>() << sSystem->groupBacklash << sSystem->groupLookahead); // system
+    grpArr << (QVector <QGroupBox*>() << sVis->groupViewing << sVis->groupBoxColors << sVis->groupBoxGrid << sVis->groupBoxShowRang); // 3d
+    grpArr << (QVector <QGroupBox*>() << sWorkbench->groupRanges << sWorkbench->groupHome << sWorkbench->groupSoftwareLimits); // workbench
+    grpArr << (QVector <QGroupBox*>() << sIO->groupHardwareLimits << sIO->groupConnectors << sIO->groupOutput << sIO->groupJog << sIO->groupExtPin); // I/O
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    connect(comboConnect1, SIGNAL(currentIndexChanged ( int )), this, SLOT(onChangeConnector(int)));
-    connect(comboConnect2, SIGNAL(currentIndexChanged ( int )), this, SLOT(onChangeConnector(int)));
-    connect(comboConnect3, SIGNAL(currentIndexChanged ( int )), this, SLOT(onChangeConnector(int)));
-    connect(comboConnect4, SIGNAL(currentIndexChanged ( int )), this, SLOT(onChangeConnector(int)));
-
-    connect(toolSelectColor, SIGNAL (clicked()), this, SLOT(changeColor()));
-
-    checkXmin->setChecked(Settings::coord[X].useLimitMin);
-    checkXplus->setChecked(Settings::coord[X].useLimitMax);
-    checkYmin->setChecked(Settings::coord[Y].useLimitMin);
-    checkYplus->setChecked(Settings::coord[Y].useLimitMax);
-    checkZmin->setChecked(Settings::coord[Z].useLimitMin);
-    checkZplus->setChecked(Settings::coord[Z].useLimitMax);
-    checkAmin->setChecked(Settings::coord[A].useLimitMin);
-    checkAplus->setChecked(Settings::coord[A].useLimitMax);
-
-    checkInvertSwitchXmin->setChecked(Settings::coord[X].invLimitMin);
-    checkInvertSwitchXplu->setChecked(Settings::coord[X].invLimitMax);
-    checkInvertSwitchYmin->setChecked(Settings::coord[Y].invLimitMin);
-    checkInvertSwitchYplu->setChecked(Settings::coord[Y].invLimitMax);
-    checkInvertSwitchZmin->setChecked(Settings::coord[Z].invLimitMin);
-    checkInvertSwitchZplu->setChecked(Settings::coord[Z].invLimitMax);
-    checkInvertSwitchAmin->setChecked(Settings::coord[A].invLimitMin);
-    checkInvertSwitchAplu->setChecked(Settings::coord[A].invLimitMax);
-
-    spinArcSplitPermm->setValue(Settings::splitsPerMm);
-    spinBoxLookLines->setValue(Settings::maxLookaheadAngle);
-
-    checkSoftX->setChecked(Settings::coord[X].checkSoftLimits);
-    checkSwapX->setChecked(Settings::coord[X].invertDirection);
-    checkUseX->setChecked(Settings::coord[X].enabled);
-    backlashX->setValue(Settings::coord[X].backlash);
-    doubleXmin->setValue(Settings::coord[X].softLimitMin);
-    doubleXmax->setValue(Settings::coord[X].softLimitMax);
-    doubleRangeMinX->setValue(Settings::coord[X].workAreaMin);
-    doubleRangeMaxX->setValue(Settings::coord[X].workAreaMax);
-    checkInvStepsX->setChecked(Settings::coord[X].invertPulses);
-
-    checkSoftY->setChecked(Settings::coord[Y].checkSoftLimits);
-    checkSwapY->setChecked(Settings::coord[Y].invertDirection);
-    checkUseY->setChecked(Settings::coord[Y].enabled);
-    backlashY->setValue(Settings::coord[Y].backlash);
-    doubleYmin->setValue(Settings::coord[Y].softLimitMin);
-    doubleYmax->setValue(Settings::coord[Y].softLimitMax);
-    doubleRangeMinY->setValue(Settings::coord[Y].workAreaMin);
-    doubleRangeMaxY->setValue(Settings::coord[Y].workAreaMax);
-    checkInvStepsY->setChecked(Settings::coord[Y].invertPulses);
-
-    checkSoftZ->setChecked(Settings::coord[Z].checkSoftLimits);
-    checkSwapZ->setChecked(Settings::coord[Z].invertDirection);
-    checkUseZ->setChecked(Settings::coord[Z].enabled);
-    backlashZ->setValue(Settings::coord[Z].backlash);
-    doubleZmin->setValue(Settings::coord[Z].softLimitMin);
-    doubleZmax->setValue(Settings::coord[Z].softLimitMax);
-    doubleRangeMinZ->setValue(Settings::coord[Z].workAreaMin);
-    doubleRangeMaxZ->setValue(Settings::coord[Z].workAreaMax);
-    checkInvStepsZ->setChecked(Settings::coord[Z].invertPulses);
-
-    checkSoftA->setChecked(Settings::coord[A].checkSoftLimits);
-    checkSwapA->setChecked(Settings::coord[A].invertDirection);
-    checkUseA->setChecked(Settings::coord[A].enabled);
-    backlashA->setValue(Settings::coord[A].backlash);
-    doubleAmin->setValue(Settings::coord[A].softLimitMin);
-    doubleAmax->setValue(Settings::coord[A].softLimitMax);
-    doubleRangeMinA->setValue(Settings::coord[A].workAreaMin);
-    doubleRangeMaxA->setValue(Settings::coord[A].workAreaMax);
-    checkInvStepsA->setChecked(Settings::coord[A].invertPulses);
-
-    numPulseX->setValue(Settings::coord[X].pulsePerMm);
-    numPulseY->setValue(Settings::coord[Y].pulsePerMm);
-    numPulseZ->setValue(Settings::coord[Z].pulsePerMm);
-    numPulseA->setValue(Settings::coord[A].pulsePerMm);
-
-    doubleSpinStartX->setValue(Settings::coord[X].minVeloLimit);
-    doubleSpinStartY->setValue(Settings::coord[Y].minVeloLimit);
-    doubleSpinStartZ->setValue(Settings::coord[Z].minVeloLimit);
-    doubleSpinStartA->setValue(Settings::coord[A].minVeloLimit);
-
-    doubleSpinEndX->setValue(Settings::coord[X].maxVeloLimit);
-    doubleSpinEndY->setValue(Settings::coord[Y].maxVeloLimit);
-    doubleSpinEndZ->setValue(Settings::coord[Z].maxVeloLimit);
-    doubleSpinEndA->setValue(Settings::coord[A].maxVeloLimit);
-
-    doubleSpinAccelX->setValue(Settings::coord[X].acceleration);
-    doubleSpinAccelY->setValue(Settings::coord[Y].acceleration);
-    doubleSpinAccelZ->setValue(Settings::coord[Z].acceleration);
-    doubleSpinAccelA->setValue(Settings::coord[A].acceleration);
-
-    checkBoxDemoController->setChecked(Settings::DEMO_DEVICE);
-
-    checkBoxRemove->setChecked(Settings::filterRepeat);
-    // visualisation settings
-    radioButtonLines->setChecked(parent->ShowLines);
-    radioButtonPoints->setChecked(parent->ShowPoints);
-
-    checkBoxTool->setChecked(parent->ShowInstrument);
-    groupBoxGrid->setChecked(parent->ShowGrid);
-    checkBoxSurface->setChecked(parent->ShowSurface);
-    checkBoxXYZ->setChecked(parent->ShowAxes);
-
-    //     checkDisableIfSSH->setChecked(parent->disableIfSSH);
-    spinBoxGrid->setValue(parent->GrigStep);
-
-    spinBoxBeginX->setValue(parent->GridXstart);
-    spinBoxEndX->setValue(parent->GridXend);
-    spinBoxBeginY->setValue(parent->GridYstart);
-    spinBoxEndY->setValue(parent->GridYend);
-
-    groupBoxShowRang->setChecked(parent->ShowBorder);
-    spinBoxMinX->setValue(Settings::coord[X].softLimitMin);
-    spinBoxMaxX->setValue(Settings::coord[X].softLimitMax);
-    spinBoxMinY->setValue(Settings::coord[Y].softLimitMin);
-    spinBoxMaxY->setValue(Settings::coord[Y].softLimitMax);
-
-    //     checkBoxCommand->setValue(Settings::
-    checkBoxWorkbench->setChecked(Settings::showWorkbench);
-    checkBoxTraverse->setChecked(Settings::showTraverse);
-    checkBoxSmooth->setChecked(Settings::smoothMoving);
-    spinBoxPointSize->setValue(Settings::pointSize);
-    spinBoxLineWidth->setValue(Settings::lineWidth);
-    //end of visualisation settings
-
-    grph = 0;
 
     translateDialog();
 
-    emit onChangeColor(0);
-
-    emit onChangeTool(0);
-
-    // set the connector names
-    comboConnect1->setCurrentIndex( Settings::coord[X].connector);
-    comboConnect2->setCurrentIndex( Settings::coord[Y].connector);
-    comboConnect3->setCurrentIndex( Settings::coord[Z].connector);
-    comboConnect4->setCurrentIndex( Settings::coord[A].connector);
-
-    emit onChangeConnector(0);
-
-    //     adjustSize();
+    adjustSize();
 }
 
-
-/**
- * @brief change connector of axis 0..3 for X..A
- */
-void SettingsDialog::onChangeConnector(int i)
-{
-    QComboBox* cmbArr[] = {comboConnect1, comboConnect2, comboConnect3, comboConnect4};
-    QComboBox* c = static_cast<QComboBox*>(sender());
-    
-}
-
-
-/**
- * @brief change the selection for color 
- */
-void SettingsDialog::onChangeTool(int i)
-{
-    if (i >= frz_png.count()) {
-        qDebug() << "picture vector is too small";
-        return;
-    }
-
-    if (grph != NULL) {
-        delete grph;
-    }
-
-    grph = new QGraphicsScene();
-    QGraphicsPixmapItem *item_p = grph->addPixmap(frz_png.at(i));
-
-    item_p->setVisible(true);
-
-    graphicsView->setScene(grph);
-
-    textBrowser->setText(toolArray[i][3]);
-
-    labelDiam->setText(toolArray[i][0]);
-    labelShaft->setText(toolArray[i][1]);
-}
-
-
-/**
- *
- */
-void SettingsDialog::changeColor()
-{
-    int num = comboColor->currentIndex();
-
-    if (num < COLOR_LINES) {
-        QColor glc = Settings::colorSettings[num];
-        QColor clr = glc;// (glc.r * 255.0, glc.g * 255.0, glc.b * 255.0, glc.a * 255.0);
-
-        clr = QColorDialog::getColor ( clr, this ) ;
-
-        if (clr.isValid()) {
-            Settings::colorSettings[num] = clr;
-
-            emit onChangeColor(num);
-        }
-    }
-}
 
 
 /**
@@ -350,48 +207,6 @@ void SettingsDialog::changeColor()
 void SettingsDialog::translateDialog()
 {
     setWindowTitle(translate(_SETTINGS_TITLE));
-    checkBoxDemoController->setText(translate(_DEV_SIMULATION));
-    //     labelInfo->setText(translate(_DEV_SIM_HELP));
-    labelUse->setText(translate(_USE));
-    labelMin->setText(translate(_MIN));
-    labelMax->setText(translate(_MAX));
-    labelSwap->setText(translate(_SWAP));
-    labelSeq->setText(translate(_SEQUENCE));
-    labelSpeed->setText(translate(_SPEED));
-    labelPosition->setText(translate(_POS));
-
-    labelFlutes->setText(translate(_FLUTES));
-    labelDiameter->setText(translate(_DIAMETER));
-    labelShaft->setText(translate(_SHAFT));
-    labelDiam->setText(translate(_DIAMETER));
-    labelTool->setText(translate(_SELECT_TOOL));
-
-    // tool settings
-
-    QString tblText = translate(_TOOL_TABLE);
-    QStringList tTable = tblText.split("\\");
-
-    toolArray.clear();
-    QStringList cmbList;
-
-    foreach (QString s, tTable) {
-        QStringList slst = s.split("\t");
-
-        if(slst.count() < 4) {
-            continue;
-        }
-
-        cmbList << slst.at(2);
-        slst[0] = translate(_DIAMETER) + ": " + slst.at(0);
-        slst[1] = translate(_SHAFT) + ": " + slst.at(1);
-        slst[3] = slst.at(3).simplified();
-        toolArray << slst.toVector();
-    }
-
-    comboBoxTool->addItems(cmbList);
-    connect(comboBoxTool, SIGNAL (activated(int)), this, SLOT(onChangeTool(int)));
-
-    // end of tool settings
 
     //    menu items
 
@@ -446,21 +261,9 @@ void SettingsDialog::translateDialog()
 
     // end of menu items
 
-    checkBoxRemove->setText(translate(_REMOVE_REPEAT));
-
-    QStringList colorList = translate(_COLOR_LIST).split("\n");
-    comboColor->addItems(colorList);
-
-    connect(comboColor, SIGNAL(activated(int)), this, SLOT(onChangeColor(int)));
 
     tabWidget->setStyleSheet("QTabBar::tab { height: 0px; width: 0px; border: 0px solid #333; }" );
 
-
-    labelStart->setText(translate(_STARTVELO));
-    labelEnd->setText(translate(_ENDVELO));
-    labelAcceleration->setText(translate(_ACCELERATION));
-
-    labelMaterial->setText(translate(_MATERIAL));
 
     QList<QAbstractButton*> l = buttonBox->buttons();
     QStringList strl = (QStringList() << translate(_SET) << translate(_CANCEL));
@@ -468,39 +271,11 @@ void SettingsDialog::translateDialog()
     for(int i = 0; i < l.count(); i++) {
         l[i]->setText(strl.at(i));
     }
-
-    // visualisation translations
-    //     checkDisableIfSSH->setText(translate(_DISABLE_VISUALISATION));
-    //     groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
-    radioButtonLines->setText(translate(_DISPLAY_LINES));
-    radioButtonPoints->setText(translate(_DISPLAY_POINTS));
-    labelBeg->setText(translate(_BEGIN));
-    labelEnd->setText(translate(_END));
-
-    checkBoxTool->setText(translate(_DISPLAY_SPINDLE));
-    checkBoxXYZ->setText(translate(_DISPLAY_AXES));
-    checkBoxSurface->setText(translate(_DISPLAY_SURFACE));
-
-    checkBoxCommand->setText(translate(_DISPLAY_COMMAND));
-    checkBoxWorkbench->setText(translate(_DISPLAY_WORKBENCH));
-    checkBoxTraverse->setText(translate(_DISPLAY_TRAVERSE));
-    checkBoxSmooth->setText(translate(_SMOOTH_MOVING));
-    labelPoint->setText(translate(_POINT_SIZE));
-    labelLine->setText(translate(_LINE_WIDTH));
-
-    //     groupBoxShowRang->setTitle(translate(_DISPLAY_RANG));
-
-    labelStep->setText(translate(_STEP));
-    labelMin->setText(translate(_MINIMUM));
-    labelMax->setText(translate(_MAXIMUM));
-    // end
-
-    //     tabWidget->sizeHint();
 }
 
 /**
  * @brief selection in menu tree
- * 
+ *
  */
 void SettingsDialog::onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip)
 {
@@ -563,141 +338,21 @@ void SettingsDialog::onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip)
     connect(treeWidget, SIGNAL(currentItemChanged ( QTreeWidgetItem *, QTreeWidgetItem * )), this, SLOT(onSelection(QTreeWidgetItem*, QTreeWidgetItem *)));
 }
 
-/**
- * @brief after changing of color the color of button to change
- * 
- */
-void SettingsDialog::onChangeColor(int i)
-{
-    toolSelectColor->setStyleSheet(QString("background-color: %1; ").arg(Settings::colorSettings[i].name()));
-}
-
 
 /**
  * @brief save serrings
- * 
+ *
  */
 void SettingsDialog::onSave()
 {
-    Settings::coord[X].connector = comboConnect1->currentIndex();
-    Settings::coord[X].useLimitMin = checkXmin->isChecked();
-    Settings::coord[X].useLimitMax = checkXplus->isChecked();
-    Settings::coord[Y].useLimitMin = checkYmin->isChecked();
-    Settings::coord[Y].useLimitMax = checkYplus->isChecked();
-    Settings::coord[Z].useLimitMin = checkZmin->isChecked();
-    Settings::coord[Z].useLimitMax = checkZplus->isChecked();
-    Settings::coord[A].useLimitMin = checkAmin->isChecked();
-    Settings::coord[A].useLimitMax = checkAplus->isChecked();
-
-    Settings::coord[X].invLimitMin = checkInvertSwitchXmin->isChecked();
-    Settings::coord[X].invLimitMax = checkInvertSwitchXplu->isChecked();
-    Settings::coord[Y].invLimitMin = checkInvertSwitchYmin->isChecked();
-    Settings::coord[Y].invLimitMax = checkInvertSwitchYplu->isChecked();
-    Settings::coord[Z].invLimitMin = checkInvertSwitchZmin->isChecked();
-    Settings::coord[Z].invLimitMax = checkInvertSwitchZplu->isChecked();
-    Settings::coord[A].invLimitMin = checkInvertSwitchAmin->isChecked();
-    Settings::coord[A].invLimitMax = checkInvertSwitchAplu->isChecked();
-
-    Settings::coord[X].checkSoftLimits = checkSoftX->isChecked();
-    Settings::coord[X].invertDirection = checkSwapX->isChecked();
-    Settings::coord[X].invertPulses = checkInvStepsX->isChecked();
-    Settings::coord[X].enabled = checkUseX->isChecked();
-    Settings::coord[X].backlash = backlashX->value();
-    Settings::coord[X].softLimitMin = doubleXmin->value();
-    Settings::coord[X].softLimitMax = doubleXmax->value();
-    Settings::coord[X].workAreaMin = doubleRangeMinX->value();
-    Settings::coord[X].workAreaMax = doubleRangeMaxX->value();
-
-    Settings::coord[Y].connector = comboConnect2->currentIndex();
-    Settings::coord[Y].checkSoftLimits = checkSoftY->isChecked();
-    Settings::coord[Y].invertDirection = checkSwapY->isChecked();
-    Settings::coord[Y].invertPulses = checkInvStepsY->isChecked();
-    Settings::coord[Y].enabled = checkUseY->isChecked();
-    Settings::coord[Y].backlash = backlashY->value();
-    Settings::coord[Y].softLimitMin = doubleYmin->value();
-    Settings::coord[Y].softLimitMax = doubleYmax->value();
-    Settings::coord[Y].workAreaMin = doubleRangeMinY->value();
-    Settings::coord[Y].workAreaMax = doubleRangeMaxY->value();
-
-    Settings::coord[Z].connector = comboConnect3->currentIndex();
-    Settings::coord[Z].checkSoftLimits = checkSoftZ->isChecked();
-    Settings::coord[Z].invertDirection = checkSwapZ->isChecked();
-    Settings::coord[Z].invertPulses = checkInvStepsZ->isChecked();
-    Settings::coord[Z].backlash = backlashZ->value();
-    Settings::coord[Z].enabled = checkUseZ->isChecked();
-    Settings::coord[Z].softLimitMin = doubleZmin->value();
-    Settings::coord[Z].softLimitMax = doubleZmax->value();
-    Settings::coord[Z].workAreaMin = doubleRangeMinZ->value();
-    Settings::coord[Z].workAreaMax = doubleRangeMaxZ->value();
-
-    Settings::coord[A].connector = comboConnect4->currentIndex();
-    Settings::coord[A].checkSoftLimits = checkSoftA->isChecked();
-    Settings::coord[A].invertDirection = checkSwapA->isChecked();
-    Settings::coord[A].invertPulses = checkInvStepsA->isChecked();
-    Settings::coord[A].backlash = backlashA->value();
-    Settings::coord[A].enabled = checkUseA->isChecked();
-    Settings::coord[A].softLimitMin = doubleAmin->value();
-    Settings::coord[A].softLimitMax = doubleAmax->value();
-    Settings::coord[A].workAreaMin = doubleRangeMinA->value();
-    Settings::coord[A].workAreaMax = doubleRangeMaxA->value();
-
-    Settings::coord[X].pulsePerMm = numPulseX->value();
-    Settings::coord[Y].pulsePerMm = numPulseY->value();
-    Settings::coord[Z].pulsePerMm = numPulseZ->value();
-    Settings::coord[A].pulsePerMm = numPulseA->value();
-
-    Settings::coord[X].minVeloLimit = doubleSpinStartX->value();
-    Settings::coord[Y].minVeloLimit = doubleSpinStartY->value();
-    Settings::coord[Z].minVeloLimit = doubleSpinStartZ->value();
-    Settings::coord[A].minVeloLimit = doubleSpinStartA->value();
-
-    Settings::coord[X].maxVeloLimit = doubleSpinEndX->value();
-    Settings::coord[Y].maxVeloLimit = doubleSpinEndY->value();
-    Settings::coord[Z].maxVeloLimit = doubleSpinEndZ->value();
-    Settings::coord[A].maxVeloLimit = doubleSpinEndA->value();
-
-    Settings::coord[X].acceleration = doubleSpinAccelX->value();
-    Settings::coord[Y].acceleration = doubleSpinAccelY->value();
-    Settings::coord[Z].acceleration = doubleSpinAccelZ->value();
-    Settings::coord[A].acceleration = doubleSpinAccelA->value();
-
-    Settings::splitsPerMm = spinArcSplitPermm->value();
-    Settings::maxLookaheadAngle = spinBoxLookLines->value();
-
-    Settings::DEMO_DEVICE  = checkBoxDemoController->isChecked();
-
-    // visualisation settings
-    parent->ShowInstrument = checkBoxTool->isChecked();
-    parent->ShowGrid = groupBoxGrid->isChecked();
-    parent->ShowSurface = checkBoxSurface->isChecked();
-    parent->ShowAxes = checkBoxXYZ->isChecked();
-
-    Settings::filterRepeat = checkBoxRemove->isChecked();
-
-    //     parent->disableIfSSH = checkDisableIfSSH->isChecked();
-    parent->GrigStep = spinBoxGrid->value();
-
-    parent->GridXstart = spinBoxBeginX->value();
-    parent->GridXend = spinBoxEndX->value();
-    parent->GridYstart = spinBoxBeginY->value();
-    parent->GridYend = spinBoxEndY->value();
-
-    parent->ShowBorder = groupBoxShowRang->isChecked();
-    parent->ShowLines = radioButtonLines->isChecked();
-    parent->ShowPoints = radioButtonPoints->isChecked();
-    Settings::coord[X].softLimitMin = spinBoxMinX->value();
-    Settings::coord[X].softLimitMax = spinBoxMaxX->value();
-    Settings::coord[Y].softLimitMin = spinBoxMinY->value();
-    Settings::coord[Y].softLimitMax = spinBoxMaxY->value();
-
-    //     checkBoxCommand->setValue(Settings::
-    Settings::showWorkbench = checkBoxWorkbench->isChecked();
-    Settings::showTraverse = checkBoxTraverse->isChecked();
-    Settings::smoothMoving = checkBoxSmooth->isChecked();
-    Settings::pointSize = spinBoxPointSize->value();
-    Settings::lineWidth = spinBoxLineWidth->value();
-
-    // end
+    sIO->getSettings();
+    sWorkbench->getSettings();
+    sParser->getSettings();
+    sSpeed->getSettings();
+    sControl->getSettings();
+    sMaterial->getSettings();
+    sSystem->getSettings();
+    sVis->getSettings();
 
     accept();
 }

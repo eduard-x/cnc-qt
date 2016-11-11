@@ -29,41 +29,40 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include <QApplication>
-#include <QTextCodec>
 
-#include "includes/MainWindow.h"
+#ifndef SVIS_H
+#define SVIS_H
 
-int main(int argc, char **argv)
+
+#include "Settings.h"
+#include "MainWindow.h"
+#include "ui_sVis.h"
+
+
+class MainWindow;
+
+
+class SettingsVis : public QWidget, public Ui::sVis,  public cTranslator
 {
-    //     Q_INIT_RESOURCE(undo);
+        Q_OBJECT
+    public:
+        SettingsVis(QWidget *parent = 0);
+        void getSettings();
 
-    QApplication app(argc, argv);
+    private slots:
+        void changeColor();
+        void onChangeColor(int i);
+        //         void onSaveChange();
+        //         void checkedChanged(int state);
 
-#if QT_VERSION < 0x050000
-    // ask QString in Qt 4 to interpret all char* as UTF-8,
-    // like Qt 5 does.
-    // 106 is "UTF-8", this is faster than lookup by name
-    // [http://www.iana.org/assignments/character-sets/character-sets.xml]
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForMib(106));
-    // and for reasons I can't understand, I need to do the same again for tr
-    // even though that clearly uses C strings as well...
-    QTextCodec::setCodecForTr(QTextCodec::codecForMib(106));
-#ifdef Q_OS_WIN
-    QFile::setDecodingFunction(decodeUtf8);
-    QFile::setEncodingFunction(encodeUtf8);
-#endif
-#else
-    // for Win32 and Qt5 we try to set the locale codec to UTF-8.
-    // this makes QFile::encodeName() work.
-#ifdef Q_OS_WIN
-    QTextCodec::setCodecForLocale(QTextCodec::codecForMib(106));
-#endif
-#endif
+    private:
+        void translateWidget();
 
-    MainWindow win;
-    //     win.resize(800, 600);
-    win.show();
-
-    return app.exec();
+        //           private:
+        //         QVector< QVector<QGroupBox*> > grpArr;
+        //     private:
+        //         MainWindow* parent;
 };
+
+
+#endif // SVIS_H
