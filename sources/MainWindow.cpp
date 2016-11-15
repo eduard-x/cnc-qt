@@ -2702,7 +2702,7 @@ void  MainWindow::refreshElementsForms()
  */
 void MainWindow::onManualControlDialog()
 {
-    SettingsDialog *sd = new SettingsDialog(this);
+    SettingsDialog *sd = new SettingsDialog(this, 3);
     sd->exec();
     delete sd;
     //     ManualControlDialog *mc = new ManualControlDialog(this);
@@ -3089,9 +3089,18 @@ void MainWindow::onOpenFile()
  */
 void MainWindow::onCalcVelocity()
 {
-    SettingsDialog *sd = new SettingsDialog(this);
+    SettingsDialog *sd = new SettingsDialog(this, 5);
     sd->exec();
     delete sd;
+    
+    QStringList m = translate(_MATERIAL_LIST).split("\n");
+    if (Settings::cuttedMaterial < m.count()) {
+        labelMaterial->setText(m.at(Settings::cuttedMaterial));
+    } else {
+        labelMaterial->setText(m.at(0));
+    }
+         
+    numVeloSubmission->setValue(Settings::veloCutting);
 #if 0
     CuttingCalc *setfrm = new CuttingCalc(this);
     int dlgResult = setfrm->exec();
