@@ -34,11 +34,28 @@
 #define SMATERIAL_H
 
 
+#include <QVector>
+#include <QString>
+
 #include "MainWindow.h"
 #include "ui_sMaterial.h"
+#include "Settings.h"
 
 
 class MainWindow;
+
+
+
+// material feed
+// MPM = SFM / 3.281
+struct materialFeed {
+    MATERIAL m;
+    float minFeedXY;
+    float maxFeedXY;
+    int maxRPM;
+    float kfz; // koeff fz for diameter
+};
+
 
 
 class SettingsMaterial : public QWidget, public Ui::sMaterial,  public cTranslator
@@ -50,19 +67,29 @@ class SettingsMaterial : public QWidget, public Ui::sMaterial,  public cTranslat
 
     private slots:
         void onChangeTool(int i);
-        //         void onSaveChange();
-        //         void checkedChanged(int state);
+        void changeUnit(int n);
+        void changeParameters(void);
+        //         void onSave();
+        void changeMaterial(int i);
+
 
     private:
         void translateWidget();
+        void initMaterialList();
 
     private:
-        //         QVector< QVector<QGroupBox*> > grpArr;
         QVector<QPixmap> frz_png;
         QVector< QVector<QString> > toolArray;
-
+        QVector<materialFeed> materialList;
         QGraphicsScene *grph;
-
+        float scaling;
+        float v;
+        float d;
+        int rpm;
+        float feed;
+        float fz;
+        int z;
+        MATERIAL current;
         //         MainWindow* parent;
 };
 

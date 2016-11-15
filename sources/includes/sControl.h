@@ -33,11 +33,21 @@
 #ifndef SCONTROL_H
 #define SCONTROL_H
 
+#include <QGroupBox>
+#include <QString>
+#include <QToolButton>
+#include <QLabel>
+#include <QVector>
+#include <QLabel>
+#include <QKeyEvent>
+#include <QMap>
 
 #include "MainWindow.h"
 #include "ui_sControl.h"
+#include "mk1Controller.h"
+#include "Settings.h"
 
-
+class mk1Controller;
 class MainWindow;
 
 
@@ -48,17 +58,43 @@ class SettingsControl : public QWidget, public Ui::sControl,  public cTranslator
         SettingsControl(QWidget *parent = 0);
         void getSettings();
 
+        enum Direction { X_minus = 0, X_plus, Y_minus, Y_plus, Z_minus, Z_plus, A_minus, A_plus, X_minus_Y_minus, X_minus_Y_plus, X_plus_Y_plus, X_plus_Y_minus };
+
     private slots:
-        //         void onSaveChange();
-        //         void checkedChanged(int state);
+        //         void mousePressed();
+        void numPressed();
+        void curPressed();
+        void userPressed();
+        //         void closePopUp();
+        void mouseReleased();
+        void spinChanged(int num);
+        void sliderChanged(int num);
 
     private:
         void translateWidget();
+        void pressedCommand(int n);
+        void decodeUserDefined(Qt::Key n);
+        void checkUserEnteredKey(Qt::Key n);
+        void decodeCursor(Qt::Key n);
+        void decodeNumPad(Qt::Key n);
+
+        //         void keyPressEvent( QKeyEvent *e );
+        //         void keyReleaseEvent( QKeyEvent *e );
+        bool eventFilter(QObject *target, QEvent *event);
+        //         bool eventFilter(QObject *target, QMouseEvent *event);
 
     private:
         QVector< QVector<QGroupBox*> > grpArr;
+        QVector<QToolButton*> buttonsNumPad;
+        QVector<QToolButton*> buttonsCursor;
+        QVector<QToolButton*> buttonsUser;
+        QVector<QLabel*> labelsUser;
+        QVector<QString> strsUser;
+        QMap<QString, Qt::Key> userManualKeys;
+
+        int recordKey; // num of element or -1
         //     private:
-        //         MainWindow* parent;
+        mk1Controller* cnc;
 };
 
 

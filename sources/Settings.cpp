@@ -124,6 +124,26 @@ bool Settings::ShowPoints = true;
 bool Settings::ShowSurface = false;
 bool Settings::ShowAxes = true;
 
+QMap<QString, Qt::Key> Settings::userKeys = {
+    { "UserAplus", Qt::Key_multiply },
+    { "UserAminus", Qt::Key_division },
+    { "UserZplus", Qt::Key_Home },
+    { "UserZminus", Qt::Key_End },
+    { "UserYplus", Qt::Key_Up },
+    { "UserYminus", Qt::Key_Down },
+    { "UserXplus", Qt::Key_Right },
+    { "UserXminus", Qt::Key_Left }
+};
+//
+int Settings::veloManual = 400;
+
+int Settings::currentKeyPad = -1;
+
+int Settings::accelerationCutting = 15;
+int Settings::minVelo = 20;
+int Settings::maxVelo = 400;
+int Settings::veloMoving = 500;
+
 //         bool disableIfSSH;
 
 //         int GridXstart;
@@ -144,7 +164,7 @@ axis Settings::coord[] = { axis(), axis(), axis(), axis() };
 */
 
 
-SettingsDialog::SettingsDialog(QWidget *p)
+SettingsDialog::SettingsDialog(QWidget *p, int tabNum)
     : QDialog(p)
 {
     setupUi(this);
@@ -181,20 +201,26 @@ SettingsDialog::SettingsDialog(QWidget *p)
     scrollAreaIO->setWidget(sIO);
 
     grpArr.clear();
-    grpArr << (QVector <QGroupBox*>() << sControl->groupRemote << sControl->groupKeyboard); // control
-    grpArr << (QVector <QGroupBox*>() << sMaterial->groupTool << sMaterial->groupMaterial << sMaterial->groupCalc); // tool
-    grpArr << (QVector <QGroupBox*>() << sParser->groupBoxArc); // parser
-    grpArr << (QVector <QGroupBox*>() << sSpeed->groupSpeed << sSpeed->groupDirections); // moving
-    grpArr << (QVector <QGroupBox*>() << sSystem->groupBacklash << sSystem->groupLookahead); // system
-    grpArr << (QVector <QGroupBox*>() << sVis->groupViewing << sVis->groupBoxColors << sVis->groupBoxGrid << sVis->groupBoxShowRang); // 3d
     grpArr << (QVector <QGroupBox*>() << sWorkbench->groupRanges << sWorkbench->groupHome << sWorkbench->groupSoftwareLimits); // workbench
+    grpArr << (QVector <QGroupBox*>() << sSpeed->groupSpeed << sSpeed->groupDirections); // moving
     grpArr << (QVector <QGroupBox*>() << sIO->groupHardwareLimits << sIO->groupConnectors << sIO->groupOutput << sIO->groupJog << sIO->groupExtPin); // I/O
+    grpArr << (QVector <QGroupBox*>() << sSystem->groupBacklash << sSystem->groupLookahead); // system
+    grpArr << (QVector <QGroupBox*>() << sParser->groupBoxArc); // parser
+    grpArr << (QVector <QGroupBox*>() << sMaterial->groupTool << sMaterial->groupMaterial << sMaterial->groupCalc); // tool
+    grpArr << (QVector <QGroupBox*>() << sVis->groupViewing << sVis->groupBoxColors << sVis->groupBoxGrid << sVis->groupBoxShowRang); // 3d
+    grpArr << (QVector <QGroupBox*>() << sControl->groupRemote << sControl->groupKeyboard); // control
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-
     translateDialog();
+
+    QTreeWidgetItem * item;
+    item = treeWidget->topLevelItem ( tabNum );
+
+    if (item != NULL) {
+        treeWidget->setCurrentItem( item );
+    }
 
     adjustSize();
 }
@@ -257,8 +283,6 @@ void SettingsDialog::translateDialog()
 
     connect(treeWidget, SIGNAL(currentItemChanged ( QTreeWidgetItem *, QTreeWidgetItem * )), this, SLOT(onSelection(QTreeWidgetItem*, QTreeWidgetItem *)));
 
-    treeWidget->setCurrentItem( items.at(0));
-
     // end of menu items
 
 
@@ -305,6 +329,8 @@ void SettingsDialog::onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip)
         it->setExpanded(true);
         it->setSelected(true);
     }
+
+//     qDebug() << mainText << childText;
 
     for (int idxRow = 0; idxRow < menuArr.count(); idxRow++) {
         if (menuArr.at(idxRow).at(0) == mainText) { // selected element was found

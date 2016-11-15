@@ -50,9 +50,9 @@
 #include "includes/Settings.h"
 #include "includes/About.h"
 #include "includes/Reader.h"
-#include "includes/CuttingCalc.h"
+// #include "includes/CuttingCalc.h"
 #include "includes/EditGCode.h"
-#include "includes/ManualControl.h"
+// #include "includes/ManualControl.h"
 #include "includes/ScanSurface.h"
 
 
@@ -223,17 +223,6 @@ MainWindow::MainWindow(QWidget *parent)
     fontSize = sysFont.pointSize();
 
     reader = new Reader(this);
-
-    userKeys = {
-        { "UserAplus", Qt::Key_multiply },
-        { "UserAminus", Qt::Key_division },
-        { "UserZplus", Qt::Key_Home },
-        { "UserZminus", Qt::Key_End },
-        { "UserYplus", Qt::Key_Up },
-        { "UserYminus", Qt::Key_Down },
-        { "UserXplus", Qt::Key_Right },
-        { "UserXminus", Qt::Key_Left }
-    };
 
     labelTask->setText("");
 
@@ -932,15 +921,22 @@ void MainWindow::writeSettings()
 
     s->setValue("CuttedMaterial", Settings::cuttedMaterial);
 
-    foreach (uKeys k, userKeys) {
-        s->setValue(k.name, (quint32)k.code);
+    QMapIterator<QString, Qt::Key> imap(Settings::userKeys);
+
+    while (imap.hasNext()) {
+        imap.next();
+        s->setValue( imap.key(),  (quint32)imap.value());
     }
+
+    //     foreach (int k, userKeys) {
+    //         s->setValue(k, (quint32)k.code);
+    //     }
 
     if (groupManualControl->isChecked() == false) {
-        currentKeyPad = -1;
+        Settings::currentKeyPad = -1;
     }
 
-    s->setValue("KeyControl", (int)currentKeyPad);
+    s->setValue("KeyControl", (int) Settings::currentKeyPad);
     //         s->setValue("LASTPROJ", currentProject);
     //     s->setValue("FontSize", fontSize);
     //     s->setValue("GUIFont", sysFont);
@@ -1072,14 +1068,14 @@ void MainWindow::readSettings()
     resize(size);
     move(pos);
 
-    accelerationCutting = s->value("AccelerationCutting", 15).toInt();
-    minVelo = s->value("MinVelocity", 20).toInt();
-    maxVelo = s->value("MaxVelocity", 400).toInt();
+    Settings::accelerationCutting = s->value("AccelerationCutting", 15).toInt();
+    Settings::minVelo = s->value("MinVelocity", 20).toInt();
+    Settings::maxVelo = s->value("MaxVelocity", 400).toInt();
 
     Settings::veloCutting = s->value("VelocityCutting", 200).toInt();
-    veloMoving = s->value("VelocityMoving", 500).toInt();
-    veloManual = s->value("VelocityManual", 400).toInt();
-    currentKeyPad = s->value("KeyControl", -1).toInt();
+    Settings::veloMoving = s->value("VelocityMoving", 500).toInt();
+    Settings::veloManual = s->value("VelocityManual", 400).toInt();
+    Settings::currentKeyPad = s->value("KeyControl", -1).toInt();
 
     Settings::unitMm = s->value("UnitMM", 1.0).toBool();
     Settings::splitsPerMm =   s->value("SplitArcPerMM", 10).toInt();
@@ -1092,15 +1088,23 @@ void MainWindow::readSettings()
 
     Settings::filterRepeat = s->value("FilterRepeatData", true).toBool();
 
-    foreach(uKeys k, userKeys) {
-        k.code = (Qt::Key)s->value(k.name, (quint32)k.code).toUInt();
+
+    QMapIterator<QString, Qt::Key> imap(Settings::userKeys);
+
+    while (imap.hasNext()) {
+        imap.next();
+        Settings::userKeys[imap.key()] = (Qt::Key)s->value(imap.key(), (quint32)imap.value()).toUInt();
     }
 
-    groupManualControl->setChecked(currentKeyPad != -1);
+    //     foreach(uKeys k, userKeys) {
+    //         k.code = (Qt::Key)s->value(k.name, (quint32)k.code).toUInt();
+    //     }
+
+    groupManualControl->setChecked( Settings::currentKeyPad != -1);
 
     numVeloSubmission->setValue(Settings::veloCutting);
-    numVeloMoving->setValue(veloMoving);
-    numVeloManual->setValue(veloManual);
+    numVeloMoving->setValue(Settings::veloMoving);
+    numVeloManual->setValue( Settings::veloManual);
 
     QString l;
     l = getLocaleString();
@@ -2698,9 +2702,12 @@ void  MainWindow::refreshElementsForms()
  */
 void MainWindow::onManualControlDialog()
 {
-    ManualControlDialog *mc = new ManualControlDialog(this);
-    mc->exec();
-    delete mc;
+    SettingsDialog *sd = new SettingsDialog(this);
+    sd->exec();
+    delete sd;
+    //     ManualControlDialog *mc = new ManualControlDialog(this);
+    //     mc->exec();
+    //     delete mc;
 }
 
 
@@ -3082,6 +3089,10 @@ void MainWindow::onOpenFile()
  */
 void MainWindow::onCalcVelocity()
 {
+    SettingsDialog *sd = new SettingsDialog(this);
+    sd->exec();
+    delete sd;
+#if 0
     CuttingCalc *setfrm = new CuttingCalc(this);
     int dlgResult = setfrm->exec();
 
@@ -3099,6 +3110,8 @@ void MainWindow::onCalcVelocity()
 
         numVeloSubmission->setValue(Settings::veloCutting);
     }
+
+#endif
 }
 
 

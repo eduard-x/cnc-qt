@@ -157,28 +157,3 @@ void SettingsIO::translateWidget()
     //     checkBoxZ->setText(translate(_CORRECT_Z));
 }
 
-#if 0
-void SettingsIO::checkedChanged( int state)
-{
-    bool check = checkCorrecture->isChecked();
-    groupOffset->setEnabled(check);
-    groupResize->setEnabled(check);
-}
-
-
-void SettingsIO::onSaveChange()
-{
-    if (checkCorrecture->isChecked()) {
-        parent->deltaX = doubleSpinOffsetX->value();
-        parent->deltaY = doubleSpinOffsetY->value();
-        parent->deltaZ = doubleSpinOffsetZ->value();
-
-        parent->deltaFeed = checkBoxZ->isChecked();
-
-        parent->coeffSizeX = doubleSpinResizeX->value();
-        parent->coeffSizeY = doubleSpinResizeY->value();
-    }
-
-    emit accept();
-}
-#endif

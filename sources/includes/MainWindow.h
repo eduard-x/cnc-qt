@@ -148,10 +148,10 @@ class Task
 };
 
 
-struct uKeys {
-    QString name;
-    Qt::Key code;
-};
+// struct uKeys {
+//     QString name;
+//     Qt::Key code;
+// };
 
 
 struct speedSettings {
@@ -204,16 +204,12 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
 
         //         bool scale;
 
-        // user defined control keys
-        QVector<uKeys> userKeys;
-        QVector<speedSettings> veloSettings[4];
+
+        //         QVector<speedSettings> veloSettings[4];
 
         QVector<GCodeData> gCodeData;
 
-        //
-        int veloManual;
 
-        int currentKeyPad;
 
         GLWidget *scene3d; // OpenGL widget
 
@@ -352,10 +348,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         QString helpDir;
         QString currentLang;
 
-        int accelerationCutting;
-        int minVelo;
-        int maxVelo;
-        int veloMoving;
+
 
         QTimer *hotplugTimer;
         QTimer *refreshGUITimer;

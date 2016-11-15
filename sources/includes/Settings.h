@@ -54,6 +54,8 @@
 class MainWindow;
 
 class SettingsParser;
+class SettingsControl;
+class SettingsMaterial;
 class SettingsSystem;
 class SettingsWorkbench;
 class SettingsSpeed;
@@ -185,6 +187,18 @@ class Settings
         static int GridYend;
         static int GrigStep;
         // end of 3d
+
+        // user defined control keys
+        static QMap<QString, Qt::Key> userKeys;
+        //
+        static int veloManual;
+
+        static int currentKeyPad;
+
+        static int accelerationCutting;
+        static int minVelo;
+        static int maxVelo;
+        static int veloMoving;
 };
 
 
@@ -193,7 +207,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
 {
         Q_OBJECT
     public:
-        SettingsDialog(QWidget *parent = 0);
+        SettingsDialog(QWidget *parent = 0, int tabNum = 0);
 
 
     private slots:
