@@ -322,7 +322,7 @@ void SettingsControl::checkUserEnteredKey(Qt::Key n)
     }
 
     //     bool found = false;
-    qDebug() << "checkUserEnteredKey" << recordKey;
+//     qDebug() << "checkUserEnteredKey" << recordKey;
 
     //     foreach (QMapIterator<QString, Qt::Key> imap, userManualKeys){
     QMapIterator<QString, Qt::Key> imap(userManualKeys);
@@ -646,6 +646,10 @@ void SettingsControl::translateWidget()
     labelNumpad->setText(translate(_NUMPAD_HELP));
     labelCursor->setText(translate(_CONTROLPAD_HELP));
     labelDistance->setText(translate(_STEP_DISTANCE));
+    
+    QStringList lcontrl;
+    lcontrl << translate(_NUMPAD) << translate(_CONTROLPAD) << translate(_USER_DEFINED) << translate(_JOYPAD);
+    comboBoxControl->addItems(lcontrl);
 
     QMapIterator<QString, Qt::Key> imap(userManualKeys);
     //     while (imap.hasNext()) {

@@ -287,6 +287,10 @@ QString cTranslator::engText[] = {
     "3..8 mm\t 6/8\t End mill\t Metal machining with low speeds, 2- to 4-blade, HSS or VHM; More suitable for larger milling machines",
     "Select tool:",
     "Moving;Speed;Directions", // 230
+    "Numpad",
+    "Control pad", 
+    "User defined",
+    "Joypad",
     ""
 };
 

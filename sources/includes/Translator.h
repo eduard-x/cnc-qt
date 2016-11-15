@@ -284,6 +284,10 @@ enum TR_CONSTS {
     _TOOL_TABLE, // 228
     _SELECT_TOOL, // 229
     _MOVING_SETTINGS, // 230
+    _NUMPAD, // 231
+    _CONTROLPAD, // 232
+    _USER_DEFINED, // 233
+    _JOYPAD, // 234
     _NULL
 };
 
