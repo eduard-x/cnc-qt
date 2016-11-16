@@ -68,7 +68,23 @@ SettingsControl::SettingsControl(QWidget *p)
                    Ui::sControl::toolZplus << Ui::sControl::toolZminus <<
                    Ui::sControl::toolYplus << Ui::sControl::toolYminus <<
                    Ui::sControl::toolXplus << Ui::sControl::toolXminus);
-
+    
+    buttonsJoyPad = (QVector<QToolButton*>() << Ui::sControl::toolButtonA << Ui::sControl::toolButtonB << Ui::sControl::toolButtonC << Ui::sControl::toolButtonD);
+    
+    for (QVector<QToolButton*>::iterator ib = buttonsJoyPad.begin(); ib != buttonsJoyPad.end(); ++ib){
+        (*ib)->setAttribute(Qt::WA_TranslucentBackground);
+//         (*ib)->setStyleSheet("border: 2px solid #8f8f91; border-radius: 20px");
+        (*ib)->setStyleSheet("background-color: white;"
+                            "border-style: solid;"
+                            "border-width:1px;"
+                            "border-radius:25px;"
+                            "border-color: red;"
+                            "max-width:50px;"
+                            "max-height:50px;"
+                            "min-width:50px;"
+                            "min-height:50px;");
+    }
+    
     labelsUser = (QVector<QLabel*>() << Ui::sControl::labelAp << Ui::sControl::labelAm <<
                   Ui::sControl::labelZp << Ui::sControl::labelZm <<
                   Ui::sControl::labelYp << Ui::sControl::labelYm <<
@@ -108,6 +124,7 @@ SettingsControl::SettingsControl(QWidget *p)
     connect(slider, SIGNAL(valueChanged ( int)), this, SLOT(sliderChanged(int)));
 
     spinBoxVelo->setValue(Settings::veloManual);
+    checkBoxOpenGL->setChecked(Settings::disableOpenGL);
 
     foreach (QToolButton* itB, buttonsNumPad) {
         (*itB).setFocusPolicy(Qt::NoFocus);
@@ -129,7 +146,16 @@ SettingsControl::SettingsControl(QWidget *p)
 
     this->installEventFilter(this);
     this->setFocus();
+    
+    connect(checkBoxUSBIP, SIGNAL(clicked()), this, SLOT(onEnableRemote()));
+    connect(lineEditIP, SIGNAL(textChanged(const QString &)), this, SLOT(onRemoteNameChanged(const QString &)));
+    connect(lineEditPort, SIGNAL(textChanged(const QString &)), this, SLOT(onRemotePortChanged(const QString &)));
+    connect(pushConnect, SIGNAL(clicked()), this, SLOT(onConnect()));
 
+    checkBoxOpenGL->setChecked(Settings::disableOpenGL);
+    checkBoxUSBIP->setChecked(Settings::enableRemote );
+    lineEditIP->setText(Settings::remoteName);
+    lineEditPort->setText(QString::number(Settings::remotePort));
 
     tabWidgetManual->setStyleSheet("QTabBar::tab { height: 0px; width: 0px; border: 0px solid #333; }" );
 
@@ -145,6 +171,12 @@ void SettingsControl::getSettings()
     Settings::currentKeyPad = idx;
     //     parent->numVeloManual->setValue(spinBoxVelo->value());
 
+    Settings::disableOpenGL = checkBoxOpenGL->isChecked();
+    Settings::remoteName = lineEditIP->text();
+    Settings::remotePort = lineEditPort->text().toInt();
+    Settings::enableRemote = checkBoxUSBIP->isChecked();
+    
+    
     if (idx == 2) {
         // copy of local user key
         Settings::userKeys = userManualKeys;
@@ -152,6 +184,25 @@ void SettingsControl::getSettings()
         //             Settings::userKeys[i] = userManualKeys.at(i);
         //         }
     }
+}
+
+
+void SettingsControl::onConnect()
+{
+}
+
+void SettingsControl::onEnableRemote()
+{
+}
+
+
+void SettingsControl::onRemoteNameChanged(const QString &s)
+{
+}
+
+
+void SettingsControl::onRemotePortChanged(const QString &s)
+{
 }
 
 
@@ -639,6 +690,11 @@ void SettingsControl::mouseReleased()
     //     cnc->stopManualMove();
 }
 
+void SettingsControl::tabChanged(int n)
+{
+    tabWidgetManual->setCurrentIndex(n);
+}
+
 
 void SettingsControl::translateWidget()
 {
@@ -647,9 +703,22 @@ void SettingsControl::translateWidget()
     labelCursor->setText(translate(_CONTROLPAD_HELP));
     labelDistance->setText(translate(_STEP_DISTANCE));
     
+    pushConnect->setText(translate(_CONNECT));
+    labelPort->setText(translate(_PORT));
+    checkBoxUSBIP->setText(translate(_REMOTE_NAME));
+    groupRemote->setTitle(translate(_REMOTE_CONNECTION));
+    
+    checkBoxOpenGL->setText(translate(_DISABLE_VISUALISATION));
+    
     QStringList lcontrl;
     lcontrl << translate(_NUMPAD) << translate(_CONTROLPAD) << translate(_USER_DEFINED) << translate(_JOYPAD);
     comboBoxControl->addItems(lcontrl);
+    
+    connect(comboBoxControl, SIGNAL(activated ( int )), this, SLOT(tabChanged(int)));
+    
+    emit tabChanged(0);
+    
+    labelSelectKeyboard->setText(translate(_SELECT_CONTROL));
 
     QMapIterator<QString, Qt::Key> imap(userManualKeys);
     //     while (imap.hasNext()) {

@@ -97,6 +97,11 @@ int Settings::PosZ = 1;
 int Settings::veloCutting = 200;
 bool Settings::unitMm = true;
 
+bool Settings::disableOpenGL = false;
+QString Settings::remoteName = "";
+int Settings::remotePort = 0;
+bool Settings::enableRemote = false;
+        
 byte Settings::bb14 = 0x0;
 byte Settings::bb19 = 0x0;
 
@@ -157,6 +162,7 @@ QColor Settings::colorSettings[COLOR_LINES];
 
 
 axis Settings::coord[] = { axis(), axis(), axis(), axis() };
+
 
 
 /******************************************************************************

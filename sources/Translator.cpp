@@ -291,6 +291,10 @@ QString cTranslator::engText[] = {
     "Control pad", 
     "User defined",
     "Joypad",
+    "Select control type:", 
+    "Port:",
+    "Remote name:",
+    "Remote connection",
     ""
 };
 

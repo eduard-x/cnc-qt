@@ -34,6 +34,7 @@
 #define SETTINGS_H
 
 #include <QColor>
+#include <QSettings>
 #include <QGraphicsScene>
 #include <QVector>
 #include <QPixmap>
@@ -124,7 +125,8 @@ enum {
 };
 
 
-class Settings
+
+class Settings : public QSettings
 {
     public:
         static axis coord[9]; // array of 4 axes for mk1, 9 axes for mk2
@@ -167,6 +169,11 @@ class Settings
         static int toolRPM;
 
 
+        static bool disableOpenGL;
+        static QString remoteName;
+        static int remotePort;
+        static bool enableRemote;
+    
         static int PosX, PosY, PosZ;
         static int PosAngleX, PosAngleY, PosAngleZ;
 

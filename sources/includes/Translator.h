@@ -46,6 +46,7 @@ class cTranslator
         static QString engText[];
     private:
         QString convertString(const QString &s);
+//         Q_DISABLE_COPY(cTranslator);
 
     private:
         static QVector<QString> translateTable;
@@ -288,6 +289,10 @@ enum TR_CONSTS {
     _CONTROLPAD, // 232
     _USER_DEFINED, // 233
     _JOYPAD, // 234
+    _SELECT_CONTROL, // 235
+    _PORT, // 236
+    _REMOTE_NAME, // 237
+    _REMOTE_CONNECTION, // 238
     _NULL
 };
 

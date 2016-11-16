@@ -65,10 +65,14 @@ class SettingsControl : public QWidget, public Ui::sControl,  public cTranslator
         void numPressed();
         void curPressed();
         void userPressed();
-        //         void closePopUp();
+        void tabChanged(int n);
         void mouseReleased();
         void spinChanged(int num);
         void sliderChanged(int num);
+        void onEnableRemote();
+        void onRemoteNameChanged(const QString &s);
+        void onRemotePortChanged(const QString &s);
+        void onConnect();
 
     private:
         void translateWidget();
@@ -88,6 +92,7 @@ class SettingsControl : public QWidget, public Ui::sControl,  public cTranslator
         QVector<QToolButton*> buttonsNumPad;
         QVector<QToolButton*> buttonsCursor;
         QVector<QToolButton*> buttonsUser;
+        QVector<QToolButton*> buttonsJoyPad;
         QVector<QLabel*> labelsUser;
         QVector<QString> strsUser;
         QMap<QString, Qt::Key> userManualKeys;
