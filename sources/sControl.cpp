@@ -31,7 +31,6 @@
 
 #include <QtGui>
 
-
 #include "includes/sControl.h"
 
 class Settings;
@@ -51,6 +50,30 @@ SettingsControl::SettingsControl(QWidget *p)
     cnc = NULL;
 
     //     setStyleSheet(parent->programStyleSheet);
+    // only in the 'frame' widget 
+    frame->setStyleSheet("#frame QToolButton {"
+                    "border: 2px solid #555;"
+                    "border-radius: 25px;"
+                    "padding: 5px;"
+                    "background: qradialgradient(cx: 0.3, cy: -0.4,"
+                    "fx: 0.3, fy: -0.4,"
+                    "radius: 1.35, stop: 0 #fff, stop: 1 #888);"
+                    "min-width: 30px;"
+                    "}"
+
+                    "#frame QToolButton:hover {"
+                    "background: qradialgradient(cx: 0.3, cy: -0.4,"
+                    "fx: 0.3, fy: -0.4,"
+                    "radius: 1.35, stop: 0 #fff, stop: 1 #bbb);"
+                    "}"
+
+                    "#frame QToolButton:pressed {"
+                    "background: qradialgradient(cx: 0.4, cy: -0.1,"
+                    "fx: 0.4, fy: -0.1,"
+                    "radius: 1.35, stop: 0 #fff, stop: 1 #ddd);"
+                    "}");
+
+
 
     buttonsNumPad = (QVector<QToolButton*>() << Ui::sControl::toolNum0 << Ui::sControl::toolNum1 <<
                      Ui::sControl::toolNum2 << Ui::sControl::toolNum3 << Ui::sControl::toolNum4 <<
@@ -70,19 +93,29 @@ SettingsControl::SettingsControl(QWidget *p)
                    Ui::sControl::toolXplus << Ui::sControl::toolXminus);
     
     buttonsJoyPad = (QVector<QToolButton*>() << Ui::sControl::toolButtonA << Ui::sControl::toolButtonB << Ui::sControl::toolButtonC << Ui::sControl::toolButtonD);
-    
+//     QRect *rect = new QRect(10,10,50,50);
+//     QRegion* region = new QRegion(*rect, QRegion::Ellipse);
+    QStringList tool = {"Y" , "X", "B", "A"};
+
+    int n = 0;
     for (QVector<QToolButton*>::iterator ib = buttonsJoyPad.begin(); ib != buttonsJoyPad.end(); ++ib){
         (*ib)->setAttribute(Qt::WA_TranslucentBackground);
-//         (*ib)->setStyleSheet("border: 2px solid #8f8f91; border-radius: 20px");
-        (*ib)->setStyleSheet("background-color: white;"
-                            "border-style: solid;"
-                            "border-width:1px;"
-                            "border-radius:25px;"
-                            "border-color: red;"
-                            "max-width:50px;"
-                            "max-height:50px;"
-                            "min-width:50px;"
-                            "min-height:50px;");
+        (*ib)->setFixedHeight(50);
+        (*ib)->setFixedWidth(50);
+        (*ib)->setText(tool.at(n));
+        ++n;
+//         QRegion* region = new QRegion(*(new QRect((*ib)->x()+5,(*ib)->y()+5,45,45)),QRegion::Ellipse);
+//         (*ib)->setMask(*region);
+// //         (*ib)->setStyleSheet("border: 2px solid #8f8f91; border-radius: 20px");
+//         (*ib)->setStyleSheet("background-color: white;"
+//                             "border-style: solid;"
+//                             "border-width:1px;"
+//                             "border-radius:25px;"
+//                             "border-color: red;"
+//                             "max-width:50px;"
+//                             "max-height:50px;"
+//                             "min-width:50px;"
+//                             "min-height:50px;");
     }
     
     labelsUser = (QVector<QLabel*>() << Ui::sControl::labelAp << Ui::sControl::labelAm <<
@@ -148,13 +181,13 @@ SettingsControl::SettingsControl(QWidget *p)
     this->setFocus();
     
     connect(checkBoxUSBIP, SIGNAL(clicked()), this, SLOT(onEnableRemote()));
-    connect(lineEditIP, SIGNAL(textChanged(const QString &)), this, SLOT(onRemoteNameChanged(const QString &)));
+//     connect(lineEditIP, SIGNAL(textChanged(const QString &)), this, SLOT(onRemoteNameChanged(const QString &)));
     connect(lineEditPort, SIGNAL(textChanged(const QString &)), this, SLOT(onRemotePortChanged(const QString &)));
     connect(pushConnect, SIGNAL(clicked()), this, SLOT(onConnect()));
 
     checkBoxOpenGL->setChecked(Settings::disableOpenGL);
     checkBoxUSBIP->setChecked(Settings::enableRemote );
-    lineEditIP->setText(Settings::remoteName);
+//     lineEditIP->setText(Settings::remoteName);
     lineEditPort->setText(QString::number(Settings::remotePort));
 
     tabWidgetManual->setStyleSheet("QTabBar::tab { height: 0px; width: 0px; border: 0px solid #333; }" );
@@ -172,7 +205,7 @@ void SettingsControl::getSettings()
     //     parent->numVeloManual->setValue(spinBoxVelo->value());
 
     Settings::disableOpenGL = checkBoxOpenGL->isChecked();
-    Settings::remoteName = lineEditIP->text();
+    Settings::remoteName = comboBoxIP->currentText();
     Settings::remotePort = lineEditPort->text().toInt();
     Settings::enableRemote = checkBoxUSBIP->isChecked();
     
