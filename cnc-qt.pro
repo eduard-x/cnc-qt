@@ -57,7 +57,6 @@ unix:INCLUDEPATH +=/usr/include/libusb-1.0/
 
 
 SOURCES  += sources/About.cpp \
-	    sources/CuttingCalc.cpp \
 	    sources/GCode.cpp \
 	    sources/GLWidget.cpp \
 	    sources/MainWindow.cpp \
@@ -67,15 +66,30 @@ SOURCES  += sources/About.cpp \
 	    sources/EditGCode.cpp \
 	    sources/Geometry.cpp \
 	    sources/main.cpp \
-	    sources/ManualControl.cpp \
+	    sources/sControl.cpp \
+	    sources/sIO.cpp \
+	    sources/sMaterial.cpp \
+	    sources/sParser.cpp \
+	    sources/sSpeed.cpp \
+	    sources/sSystem.cpp \
+	    sources/sVis.cpp \
+	    sources/sWorkbench.cpp \
+	    sources/SettingsDialog.cpp \
 	    sources/Reader.cpp \
 	    sources/Settings.cpp
 
 HEADERS  += sources/includes/About.h \
-	    sources/includes/CuttingCalc.h \
 	    sources/includes/GCode.h \
 	    sources/includes/GLWidget.h \
-	    sources/includes/ManualControl.h \
+	    sources/includes/sControl.h \
+	    sources/includes/sIO.h \
+	    sources/includes/sMaterial.h \
+	    sources/includes/sParser.h \
+	    sources/includes/sSpeed.h \
+	    sources/includes/sSystem.h \
+	    sources/includes/sVis.h \
+	    sources/includes/sWorkbench.h \
+	    sources/includes/SettingsDialog.h \
 	    sources/includes/Reader.h \
 	    sources/includes/Settings.h \
 	    sources/includes/version.h \
@@ -88,11 +102,17 @@ HEADERS  += sources/includes/About.h \
 
 FORMS    += sources/forms/About.ui \
 	    sources/forms/CodeGenerator.ui \
-	    sources/forms/CuttingCalc.ui \
 	    sources/forms/EditGCode.ui \
 	    sources/forms/MainWindow.ui \
-	    sources/forms/ManualControl.ui \
 	    sources/forms/ScanSurface.ui \
+	    sources/forms/sControl.ui \
+	    sources/forms/sIO.ui \
+	    sources/forms/sParser.ui \
+	    sources/forms/sMaterial.ui \
+	    sources/forms/sSpeed.ui \
+	    sources/forms/sSystem.ui \
+	    sources/forms/sWorkbench.ui \
+	    sources/forms/sVis.ui \
 	    sources/forms/Settings.ui
 
 	    
