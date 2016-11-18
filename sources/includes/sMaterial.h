@@ -39,7 +39,7 @@
 
 #include "MainWindow.h"
 #include "ui_sMaterial.h"
-#include "Settings.h"
+#include "SettingsDialog.h"
 
 
 class MainWindow;

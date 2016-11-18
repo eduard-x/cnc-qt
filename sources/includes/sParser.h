@@ -33,7 +33,7 @@
 #ifndef SPARSER_H
 #define SPARSER_H
 
-#include "Settings.h"
+#include "SettingsDialog.h"
 #include "MainWindow.h"
 #include "ui_sParser.h"
 

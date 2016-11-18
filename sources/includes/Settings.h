@@ -33,35 +33,14 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <QColor>
+#include <QStringList>
+#include <QString>
+
 #include <QSettings>
-#include <QGraphicsScene>
-#include <QVector>
-#include <QPixmap>
+#include <QtGui>
 
 #include "MainWindow.h"
-#include "ui_Settings.h"
 
-#include "sControl.h"
-#include "sMaterial.h"
-#include "sWorkbench.h"
-#include "sSpeed.h"
-#include "sSystem.h"
-#include "sParser.h"
-#include "sVis.h"
-#include "sIO.h"
-
-// class cTranslator;
-class MainWindow;
-
-class SettingsParser;
-class SettingsControl;
-class SettingsMaterial;
-class SettingsSystem;
-class SettingsWorkbench;
-class SettingsSpeed;
-class SettingsVis;
-class SettingsIO;
 
 #define COLOR_LINES 16
 
@@ -129,6 +108,10 @@ enum {
 class Settings : public QSettings
 {
     public:
+        static bool saveSettings();
+        static bool readSettings();
+
+    public:
         static axis coord[9]; // array of 4 axes for mk1, 9 axes for mk2
         static int splitsPerMm;
         static float maxLookaheadAngle;
@@ -138,8 +121,11 @@ class Settings : public QSettings
         static bool showTraverse;
         static bool showWorkbench;
 
+        static QString currentLang;
+        static QPoint progPos;
+        static QSize progSize;
+
         static byte bb14;
-        // static byte bb15; limits
         static byte bb19;
 
         static QChar fromDecimalPoint;
@@ -173,7 +159,7 @@ class Settings : public QSettings
         static QString remoteName;
         static int remotePort;
         static bool enableRemote;
-    
+
         static int PosX, PosY, PosZ;
         static int PosAngleX, PosAngleY, PosAngleZ;
 
@@ -206,43 +192,17 @@ class Settings : public QSettings
         static int minVelo;
         static int maxVelo;
         static int veloMoving;
-};
-
-
-
-class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTranslator
-{
-        Q_OBJECT
-    public:
-        SettingsDialog(QWidget *parent = 0, int tabNum = 0);
-
-
-    private slots:
-        void onSave();
-        void onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip);
-        //         void onChangeColor(int i);
-        //         void onChangeTool(int i);
-        //         void changeColor();
-        //         void onChangeConnector(int i);
+        static QString langDir;
+        static QString lastDir;
+        static QStringList lastFiles;
+        static QString helpDir;
+        static QString currentAppDir;
+        static QFont sysFont;
+        static short fontSize;
+        static QString axisNames;
 
     private:
-        void translateDialog();
-
-    private:
-        MainWindow* parent;
-        mk1Controller *cnc;
-        QVector< QVector<QGroupBox*> > grpArr;
-
-        QVector< QVector<QString> > menuArr;
-
-        SettingsIO *sIO;
-        SettingsVis *sVis;
-        SettingsControl *sControl;
-        SettingsSystem *sSystem;
-        SettingsMaterial *sMaterial;
-        SettingsSpeed *sSpeed;
-        SettingsParser *sParser;
-        SettingsWorkbench *sWorkbench;
+        static QString getLocaleString();
 };
 
 

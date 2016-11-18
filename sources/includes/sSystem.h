@@ -33,7 +33,7 @@
 #ifndef SSYSTEM_H
 #define SSYSTEM_H
 
-#include "Settings.h"
+#include "SettingsDialog.h"
 #include "MainWindow.h"
 #include "ui_sSystem.h"
 

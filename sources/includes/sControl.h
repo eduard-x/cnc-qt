@@ -46,7 +46,7 @@
 #include "MainWindow.h"
 #include "ui_sControl.h"
 #include "mk1Controller.h"
-#include "Settings.h"
+#include "SettingsDialog.h"
 
 class mk1Controller;
 class MainWindow;

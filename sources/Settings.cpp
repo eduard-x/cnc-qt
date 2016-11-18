@@ -29,12 +29,9 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include <QtGui>
+#include <QLocale>
+#include <QVector>
 
-#include <QColorDialog>
-
-
-#include "includes/mk1Controller.h"
 #include "includes/Settings.h"
 
 
@@ -75,6 +72,16 @@ int axis::posPulse(float posMm)
 }
 
 
+QString Settings::axisNames = "XYZA";
+QString Settings::currentLang = "English";
+QString Settings::helpDir = "";
+QString Settings::langDir = "";
+QPoint Settings::progPos = QPoint();
+QSize Settings::progSize = QSize();
+QFont Settings::sysFont = QFont();
+short Settings::fontSize = 10;
+
+QStringList Settings::lastFiles = QStringList("");
 QChar Settings::toDecimalPoint = '.';
 QChar Settings::fromDecimalPoint = ';';
 bool Settings::DEMO_DEVICE = false;
@@ -99,15 +106,17 @@ bool Settings::unitMm = true;
 
 bool Settings::disableOpenGL = false;
 QString Settings::remoteName = "";
+QString Settings::lastDir = "";
 int Settings::remotePort = 0;
 bool Settings::enableRemote = false;
-        
+
 byte Settings::bb14 = 0x0;
 byte Settings::bb19 = 0x0;
 
 bool Settings::ShowBorder = true;
-
+QString Settings::currentAppDir = "";
 MATERIAL Settings::cuttedMaterial = HARDWOOD;
+
 float Settings::toolDiameter = 0.1;
 int Settings::toolFlutes = 2;
 int Settings::toolRPM = 10000;
@@ -117,10 +126,6 @@ int Settings::GridXend = 0;
 int Settings::GridYstart = 0;
 int Settings::GridYend = 0;
 int Settings::GrigStep = 0;
-//         int PosX, PosY, PosZ;
-//         int PosAngleX, PosAngleY, PosAngleZ;
-
-//         int PosZoom;
 
 bool Settings::ShowInstrument = true;
 bool Settings::ShowGrid = true;
@@ -128,6 +133,9 @@ bool Settings::ShowLines = false;
 bool Settings::ShowPoints = true;
 bool Settings::ShowSurface = false;
 bool Settings::ShowAxes = true;
+
+
+// end of 3d
 
 QMap<QString, Qt::Key> Settings::userKeys = {
     { "UserAplus", Qt::Key_multiply },
@@ -140,6 +148,7 @@ QMap<QString, Qt::Key> Settings::userKeys = {
     { "UserXminus", Qt::Key_Left }
 };
 //
+
 int Settings::veloManual = 400;
 
 int Settings::currentKeyPad = -1;
@@ -149,14 +158,7 @@ int Settings::minVelo = 20;
 int Settings::maxVelo = 400;
 int Settings::veloMoving = 500;
 
-//         bool disableIfSSH;
 
-//         int GridXstart;
-//         int GridXend;
-//         int GridYstart;
-//         int GridYend;
-//         int GrigStep;
-// end of 3d
 
 QColor Settings::colorSettings[COLOR_LINES];
 
@@ -164,228 +166,449 @@ QColor Settings::colorSettings[COLOR_LINES];
 axis Settings::coord[] = { axis(), axis(), axis(), axis() };
 
 
-
-/******************************************************************************
-** SettingsDialog
-*/
-
-
-SettingsDialog::SettingsDialog(QWidget *p, int tabNum)
-    : QDialog(p)
+bool Settings::saveSettings()
 {
-    setupUi(this);
+    QSettings* s;
+    s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
 
-    parent = static_cast<MainWindow*>(p);
+    //     s->beginGroup("General");
 
-    cnc = parent->mk1;
+    s->setValue("pos", progPos);
+    s->setValue("size", progSize);
+    s->setValue("LANGUAGE", currentLang);
+    s->setValue("LASTDIR", lastDir);
 
-    setStyleSheet(parent->programStyleSheet);
+    s->setValue("VelocityCutting", veloCutting);
+    s->setValue("VelocityMoving", veloMoving);
+    s->setValue("VelocityManual", veloManual);
 
+    s->setValue("SplitArcPerMM", splitsPerMm);
+    s->setValue("LookaheadAngle", maxLookaheadAngle);
 
-    sParser = new SettingsParser(p);
-    scrollAreaParser->setWidget(sParser);
+    s->setValue("UnitMM", unitMm);
+    s->setValue("ToolDiameter", toolDiameter);
+    s->setValue("ToolFlutes", toolFlutes);
+    s->setValue("ToolRPM", toolRPM);
 
-    sControl = new SettingsControl(p);
-    scrollAreaControl->setWidget(sControl);
+    s->setValue("FilterRepeatData", filterRepeat);
 
-    sVis = new SettingsVis(p);
-    scrollAreaVis->setWidget(sVis);
+    s->setValue("CuttedMaterial", cuttedMaterial);
 
-    sSpeed = new SettingsSpeed(p);
-    scrollAreaDriver->setWidget(sSpeed);
+    QMapIterator<QString, Qt::Key> imap(userKeys);
 
-    sMaterial = new SettingsMaterial(p);
-    scrollAreaTool->setWidget(sMaterial);
-
-    sSystem = new SettingsSystem(p);
-    scrollAreaSystem->setWidget(sSystem);
-
-    sWorkbench = new SettingsWorkbench(p);
-    scrollAreaWorkbench->setWidget(sWorkbench);
-
-    sIO = new SettingsIO(p);
-    scrollAreaIO->setWidget(sIO);
-
-    grpArr.clear();
-    grpArr << (QVector <QGroupBox*>() << sWorkbench->groupRanges << sWorkbench->groupHome << sWorkbench->groupSoftwareLimits); // workbench
-    grpArr << (QVector <QGroupBox*>() << sSpeed->groupSpeed << sSpeed->groupDirections); // moving
-    grpArr << (QVector <QGroupBox*>() << sIO->groupHardwareLimits << sIO->groupConnectors << sIO->groupOutput << sIO->groupJog << sIO->groupExtPin); // I/O
-    grpArr << (QVector <QGroupBox*>() << sSystem->groupBacklash << sSystem->groupLookahead); // system
-    grpArr << (QVector <QGroupBox*>() << sParser->groupBoxArc); // parser
-    grpArr << (QVector <QGroupBox*>() << sMaterial->groupTool << sMaterial->groupMaterial << sMaterial->groupCalc); // tool
-    grpArr << (QVector <QGroupBox*>() << sVis->groupViewing << sVis->groupBoxColors << sVis->groupBoxGrid << sVis->groupBoxShowRang); // 3d
-    grpArr << (QVector <QGroupBox*>() << sControl->groupRemote << sControl->groupKeyboard); // control
-
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-    translateDialog();
-
-    QTreeWidgetItem * item;
-    item = treeWidget->topLevelItem ( tabNum );
-
-    if (item != NULL) {
-        treeWidget->setCurrentItem( item );
+    while (imap.hasNext()) {
+        imap.next();
+        s->setValue( imap.key(),  (quint32)imap.value());
     }
 
-    adjustSize();
-}
+    //     foreach (int k, userKeys) {
+    //         s->setValue(k, (quint32)k.code);
+    //     }
 
+    //     if (groupManualControl->isChecked() == false) {
+    //         currentKeyPad = -1;
+    //     }
 
+    s->setValue("KeyControl", (int) currentKeyPad);
+    //         s->setValue("LASTPROJ", currentProject);
+    //     s->setValue("FontSize", fontSize);
+    //     s->setValue("GUIFont", sysFont);
+    // qDebug() << "writeGUISettings";
 
-/**
- * @brief translate the window elements
- */
-void SettingsDialog::translateDialog()
-{
-    setWindowTitle(translate(_SETTINGS_TITLE));
+    lastFiles.removeDuplicates();
 
-    //    menu items
+    int i = 0;
 
-    QStringList menuList;
-    menuList << translate(_WORKBENCH);
-    menuList << translate(_MOVING_SETTINGS);
-    menuList << translate(_IO);
-    menuList << translate(_SYSTEM);
-    menuList << translate(_PARSER);
-    menuList << translate(_WORK_TOOL);
-    menuList << translate(_VISUALISATION);
-    menuList << translate(_CONTROL);
-
-
-    treeWidget->setColumnCount(1);
-    QList<QTreeWidgetItem *> items;
-
-    foreach (QString s, menuList) {
-        QStringList sub = s.split(";");
-        QVector <QString> v = sub.toVector();
-        menuArr << v;
-        QTreeWidgetItem *m = new QTreeWidgetItem(treeWidget, QStringList(sub.at(0)));
-        items.append(m);
-
-        if (sub.count() > 1) {
-            sub.removeAt(0);
-
-            foreach (QString ssub, sub) {
-                items.append(new QTreeWidgetItem(m, QStringList(ssub)));
-            }
-
-            //             m->setExpanded(true);
-        }
-    }
-
-    treeWidget->header()->close();
-
-    for (int i = 0; i < menuArr.count(); i++) {
-        if ((grpArr.at(i).count() == menuArr.at(i).count() - 1)) {
-            for (int j = 0; j < menuArr.at(i).count() - 1; j++) {
-                ((QGroupBox*)(grpArr.at(i).at(j)))->setTitle(menuArr.at(i).at(j + 1));
-            }
-        }
-    }
-
-    int width = treeWidget->sizeHint().width();
-    treeWidget->setFixedWidth(width);
-
-    connect(treeWidget, SIGNAL(currentItemChanged ( QTreeWidgetItem *, QTreeWidgetItem * )), this, SLOT(onSelection(QTreeWidgetItem*, QTreeWidgetItem *)));
-
-    // end of menu items
-
-
-    tabWidget->setStyleSheet("QTabBar::tab { height: 0px; width: 0px; border: 0px solid #333; }" );
-
-
-    QList<QAbstractButton*> l = buttonBox->buttons();
-    QStringList strl = (QStringList() << translate(_SET) << translate(_CANCEL));
-
-    for(int i = 0; i < l.count(); i++) {
-        l[i]->setText(strl.at(i));
-    }
-}
-
-/**
- * @brief selection in menu tree
- *
- */
-void SettingsDialog::onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip)
-{
-    QString mainText;
-    QString childText;
-
-    disconnect(treeWidget, SIGNAL(currentItemChanged ( QTreeWidgetItem *, QTreeWidgetItem * )), this, SLOT(onSelection(QTreeWidgetItem*, QTreeWidgetItem *)));
-
-    if (it->parent() != NULL) {
-        mainText =  it->parent()->text(0);
-        childText = it->text(0);
-
-        if (ip != NULL) {
-            ip->setSelected(false);
-        }
-
-        it->setSelected(true);
-    } else {
-        mainText = it->text(0);
-
-        treeWidget->collapseAll();
-
-        if (ip != NULL) {
-            ip->setSelected(false);
-        }
-
-        it->setExpanded(true);
-        it->setSelected(true);
-    }
-
-//     qDebug() << mainText << childText;
-
-    for (int idxRow = 0; idxRow < menuArr.count(); idxRow++) {
-        if (menuArr.at(idxRow).at(0) == mainText) { // selected element was found
-            tabWidget->setCurrentIndex(idxRow);
-
-            // display selected widget
-            if (childText.length() > 0) {
-                for (int idxCol = 1; idxCol < menuArr.at(idxRow).count(); ++idxCol) {
-                    // check the sizing of arrays
-                    if ((grpArr.count() == menuArr.count()) && (grpArr.at(idxRow).count() == menuArr.at(idxRow).count() - 1)) {
-                        if (childText == menuArr.at(idxRow).at(idxCol)) {
-                            grpArr.at(idxRow).at(idxCol - 1)->setHidden(false);
-                        } else {
-                            grpArr.at(idxRow).at(idxCol - 1)->setHidden(true);
-                        }
-                    }
-                }
-            } else { // display all widgets
-                for (int idxCol = 1; idxCol < menuArr.at(idxRow).count(); ++idxCol) {
-                    // check the sizing of arrays
-                    if ((grpArr.count() == menuArr.count()) && (grpArr.at(idxRow).count() == menuArr.at(idxRow).count() - 1)) {
-                        grpArr.at(idxRow).at(idxCol - 1)->setHidden(false);
-                    }
-                }
-            }
-
+    foreach (QString l, lastFiles) {
+        if (i > 9) { // max last dirs
             break;
         }
+
+        s->setValue("LASTFILE" + QString::number(i), l);
+        i++;
     }
 
-    connect(treeWidget, SIGNAL(currentItemChanged ( QTreeWidgetItem *, QTreeWidgetItem * )), this, SLOT(onSelection(QTreeWidgetItem*, QTreeWidgetItem *)));
+    // opengl settings
+    //     if (enableOpenGL == true) {
+    s->beginGroup("OpenGL");
+
+    s->setValue("ShowLines", ShowLines);
+    s->setValue("ShowPoints", ShowPoints);
+
+    s->setValue("ShowInstrument", ShowInstrument);
+    s->setValue("ShowGrid", ShowGrid);
+    s->setValue("ShowSurface", ShowSurface);
+    s->setValue("ShowAxes", ShowAxes);
+
+    //         s->setValue("DisableOpenGL", disableIfSSH);
+
+    s->setValue("GrigStep", (int)GrigStep);
+
+    s->setValue("GridXstart", (int)GridXstart);
+    s->setValue("GridXend", (int)GridXend);
+    s->setValue("GridYstart", (int)GridYstart);
+    s->setValue("GridYend", (int)GridYend);
+
+    s->setValue("ShowGrate", (bool)ShowBorder); // grenzen
+
+    s->setValue("PosX", (int)PosX); //
+    s->setValue("PosY", (int)PosY); //
+    s->setValue("PosZ", (int)PosZ); //
+
+    s->setValue("AngleX", (int)PosAngleX); //
+    s->setValue("AngleY", (int)PosAngleY); //
+    s->setValue("AngleZ", (int)PosAngleZ); //
+
+    s->setValue("Zoom", (int)PosZoom); //
+
+
+    s->setValue("Color_X", (QColor)colorSettings[COLOR_X]);
+    s->setValue("Color_Y", (QColor)colorSettings[COLOR_Y]);
+    s->setValue("Color_Z", (QColor)colorSettings[COLOR_Z]);
+    s->setValue("Color_BG", (QColor)colorSettings[COLOR_BACKGROUND]);
+    s->setValue("Color_Tool", (QColor)colorSettings[COLOR_TOOL]);
+    s->setValue("Color_WB", (QColor)colorSettings[COLOR_WORKBENCH]);
+    s->setValue("Color_Traverse", (QColor)colorSettings[COLOR_TRAVERSE]);
+    s->setValue("Color_Rapid", (QColor)colorSettings[COLOR_RAPID]);
+    s->setValue("Color_Work", (QColor)colorSettings[COLOR_WORK]);
+    s->setValue("Color_Grid", (QColor)colorSettings[COLOR_GRID]);
+    s->setValue("Color_Border", (QColor)colorSettings[COLOR_BORDER]);
+    s->setValue("Color_Surface", (QColor)colorSettings[COLOR_SURFACE]);
+    s->setValue("Color_Connect", (QColor)colorSettings[COLOR_CONNECTION]);
+
+    s->setValue("LineWidth", (int)lineWidth);
+    s->setValue("PointSize", (int)pointSize);
+    s->setValue("SmoothMoving", (bool)smoothMoving);
+    s->setValue("ShowTraverse", (bool)showTraverse);
+    s->setValue("ShowWorkbench", (bool)showWorkbench);
+
+    s->endGroup();
+    //     }
+
+    s->beginGroup("mk1");
+
+    for (int c = 0; c < axisNames.length(); c++) {
+        s->setValue("Connector" + QString( axisNames.at(c)), coord[c].connector);
+        s->setValue("Pulse" + QString( axisNames.at(c)), coord[c].pulsePerMm);
+        s->setValue("Accel" + QString( axisNames.at(c)), (double)coord[c].acceleration);
+        s->setValue("StartVelo" + QString( axisNames.at(c)), (double)coord[c].minVeloLimit);
+        s->setValue("EndVelo" + QString( axisNames.at(c)), (double)coord[c].maxVeloLimit);
+
+        //
+        s->setValue("Backlash" + QString( axisNames.at(c)), (double)coord[c].backlash);
+        s->setValue("InvDirection" + QString( axisNames.at(c)), (bool)coord[c].invertDirection);
+        s->setValue("InvPulses" + QString( axisNames.at(c)), (bool)coord[c].invertPulses);
+        s->setValue("InvLimitMax" + QString( axisNames.at(c)), (bool)coord[c].invLimitMax);
+        s->setValue("InvLimitMin" + QString( axisNames.at(c)), (bool)coord[c].invLimitMin);
+        s->setValue("WorkAreaMin" + QString( axisNames.at(c)), (double)coord[c].workAreaMin);
+        s->setValue("WorkAreaMax" + QString( axisNames.at(c)), (double)coord[c].workAreaMax);
+        s->setValue("Enabled" + QString( axisNames.at(c)), (bool)coord[c].enabled);
+        //
+
+        s->setValue("HardLimitMin" + QString( axisNames.at(c)), (bool)coord[c].useLimitMin);
+        s->setValue("HardLimitMax" + QString( axisNames.at(c)), (bool)coord[c].useLimitMax);
+
+        s->setValue("SoftLimit" + QString( axisNames.at(c)), (bool)coord[c].checkSoftLimits);
+        s->setValue("SoftMin" + QString( axisNames.at(c)), (double)coord[c].softLimitMin);
+        s->setValue("SoftMax" + QString( axisNames.at(c)), (double)coord[c].softLimitMax);
+
+        s->setValue("Home" + QString( axisNames.at(c)), (double)coord[c].home);
+    }
+
+    s->endGroup();
+
+    s->sync();
+
+    //     updateSettingsOnGUI();
+
+    delete s;
 }
 
 
+
 /**
- * @brief save serrings
+ * @brief get the system locale for selection of language, if exists
  *
  */
-void SettingsDialog::onSave()
+QString Settings::getLocaleString()
 {
-    sIO->getSettings();
-    sWorkbench->getSettings();
-    sParser->getSettings();
-    sSpeed->getSettings();
-    sControl->getSettings();
-    sMaterial->getSettings();
-    sSystem->getSettings();
-    sVis->getSettings();
+    QString res;
+    QLocale lSys = QLocale::system();
 
-    accept();
+    switch (lSys.language()) {
+        case QLocale::C:
+            res = "English";
+            break;
+
+        case QLocale::German:
+            res = "Deutsch";
+            break;
+
+        case QLocale::Russian:
+            res = "Russian";
+            break;
+
+        default:
+            res = "English";
+            break;
+    }
+
+    return res;
+}
+
+
+
+bool Settings::readSettings()
+{
+    QSettings* s;
+    s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
+
+    //     s->beginGroup("General");
+
+    progPos = s->value("pos", QPoint(200, 200)).toPoint();
+    progSize = s->value("size", QSize(840, 640)).toSize();
+
+    accelerationCutting = s->value("AccelerationCutting", 15).toInt();
+    minVelo = s->value("MinVelocity", 20).toInt();
+    maxVelo = s->value("MaxVelocity", 400).toInt();
+
+    veloCutting = s->value("VelocityCutting", 200).toInt();
+    veloMoving = s->value("VelocityMoving", 500).toInt();
+    veloManual = s->value("VelocityManual", 400).toInt();
+    currentKeyPad = s->value("KeyControl", -1).toInt();
+
+    unitMm = s->value("UnitMM", 1.0).toBool();
+    splitsPerMm =   s->value("SplitArcPerMM", 10).toInt();
+    maxLookaheadAngle = s->value("LookaheadAngle", 170.0).toFloat();
+    cuttedMaterial = (MATERIAL)s->value("CuttedMaterial", 0).toInt();
+
+    toolDiameter = s->value("ToolDiameter", 3.0).toFloat();
+    toolFlutes = s->value("ToolFlutes", 2).toInt();
+    toolRPM = s->value("ToolRPM", 10000).toInt();
+
+    filterRepeat = s->value("FilterRepeatData", true).toBool();
+
+
+    QMapIterator<QString, Qt::Key> imap(userKeys);
+
+    while (imap.hasNext()) {
+        imap.next();
+        userKeys[imap.key()] = (Qt::Key)s->value(imap.key(), (quint32)imap.value()).toUInt();
+    }
+
+    //     foreach(uKeys k, userKeys) {
+    //         k.code = (Qt::Key)s->value(k.name, (quint32)k.code).toUInt();
+    //     }
+
+    //     groupManualControl->setChecked( currentKeyPad != -1);
+    //
+    //     numVeloSubmission->setValue(veloCutting);
+    //     numVeloMoving->setValue(veloMoving);
+    //     numVeloManual->setValue( veloManual);
+
+    QString l;
+    l = getLocaleString();
+
+    currentLang = s->value("LANGUAGE", l).toString();
+
+    lastDir = s->value("LASTDIR", "").toString();
+
+    sysFont = sysFont.toString();
+
+    int sz = sysFont.pointSize();
+
+    if ( sz == -1) {
+        sz = sysFont.pixelSize();
+    }
+
+    fontSize = sz;
+    lastFiles.clear();
+
+    for (int i = 0; i < 10; i++) {
+        QString d = s->value("LASTFILE" + QString::number(i)).toString();
+        QFile fl;
+
+        if (d.length() == 0) {
+            break;
+        }
+
+        if (fl.exists(d) == true) {
+            lastFiles << d;
+        }
+    }
+
+    lastFiles.removeDuplicates();
+
+
+
+    QDir dir;
+    QStringList dirsLang;
+    dirsLang << "/usr/share/cnc-qt/" << "/usr/local/share/cnc-qt/" << currentAppDir;
+
+    foreach(QString entry, dirsLang) {
+        helpDir = entry + "/help/";
+
+        dir = QDir(helpDir);
+
+        if (dir.exists() == true) {
+            break;
+        } else {
+            helpDir = "";
+        }
+    }
+
+    foreach(QString entry, dirsLang) {
+        langDir = entry + "/lang/";
+
+        dir = QDir(langDir);
+
+        if (dir.exists() == true) {
+            break;
+        } else {
+            langDir = "";
+        }
+    }
+
+    //       s->endGroup();
+
+    //     if (enableOpenGL == true) {
+    // opengl settings
+    s->beginGroup("OpenGL");
+
+    ShowLines = s->value("ShowLines", false).toBool();
+    ShowPoints = s->value("ShowPoints", true).toBool();
+
+    ShowInstrument = s->value("ShowInstrument", true).toBool();
+    ShowGrid = s->value("ShowGrid", true).toBool();
+    ShowSurface = s->value("ShowSurface", false).toBool();
+    ShowAxes = s->value("ShowAxes", true).toBool();
+
+    //         disableIfSSH =  s->value("DisableOpenGL", false).toBool();
+
+    GrigStep = s->value("GrigStep", 10).toInt();
+
+    GridXstart = s->value("GridXstart", -100).toInt();
+    GridXend = s->value("GridXend", 100).toInt();
+    GridYstart = s->value("GridYstart", -100).toInt();
+    GridYend = s->value("GridYend", 100).toInt();
+
+    ShowBorder = s->value("ShowGrate", true).toBool(); // grenzen
+
+    PosX = s->value("PosX", -96 ).toInt(); //
+    PosY = s->value("PosY", -64 ).toInt(); //
+    PosZ = s->value("PosZ", -300 ).toInt(); //
+
+    PosAngleX = s->value("AngleX", 180 ).toInt(); //
+    PosAngleY = s->value("AngleY", 180 ).toInt(); //
+    PosAngleZ = s->value("AngleZ", 180 ).toInt(); //
+
+    PosZoom = s->value("Zoom", 20 ).toInt(); //
+
+    colorSettings[COLOR_X] = s->value("Color_X", QColor {
+        0, 255, 0, 255
+    }).value<QColor>();
+    colorSettings[COLOR_Y] = s->value("Color_Y", QColor {
+        255, 0, 0, 255
+    }).value<QColor>();
+    colorSettings[COLOR_Z] = s->value("Color_Z", QColor {
+        0, 255, 255, 255
+    }).value<QColor>();
+    colorSettings[COLOR_BACKGROUND] = s->value("Color_BG", QColor {
+        100, 100, 100, 255
+    }).value<QColor>();
+    colorSettings[COLOR_TOOL] = s->value("Color_Tool", QColor {
+        255, 255, 0, 255
+    }).value<QColor>();
+    colorSettings[COLOR_WORKBENCH] = s->value("Color_WB", QColor {
+        0, 0, 255, 255
+    }).value<QColor>();
+    colorSettings[COLOR_TRAVERSE] = s->value("Color_Traverse", QColor {
+        255, 255, 255, 255
+    }).value<QColor>();
+    colorSettings[COLOR_RAPID] = s->value("Color_Rapid", QColor {
+        255, 0, 0, 255
+    }).value<QColor>();
+    colorSettings[COLOR_WORK] = s->value("Color_Work", QColor {
+        0, 255, 0, 255
+    }).value<QColor>();
+    colorSettings[COLOR_GRID] = s->value("Color_Grid", QColor {
+        200, 200, 200, 255
+    }).value<QColor>();
+    colorSettings[COLOR_BORDER] = s->value("Color_Border", QColor {
+        200, 200, 200, 255
+    }).value<QColor>();
+    colorSettings[COLOR_SURFACE] = s->value("Color_Surface", QColor {
+        255, 255, 255, 255
+    }).value<QColor>();
+    colorSettings[COLOR_CONNECTION] = s->value("Color_Connect", QColor {
+        150, 255, 100, 255
+    }).value<QColor>();
+
+    pointSize = s->value("PointSize", 1).toInt();
+    lineWidth = s->value("LineWidth", 3).toInt();
+    smoothMoving = s->value("SmoothMoving", false).toBool();
+    showTraverse = s->value("ShowTraverse", false).toBool();
+    showWorkbench = s->value("ShowWorkbench", false).toBool();
+
+    s->endGroup();
+    //     }
+
+    bool res;
+
+    s->beginGroup("mk1");
+
+    for (int c = 0; c < axisNames.length(); c++) {
+        int i = s->value("Connector" + QString( axisNames.at(c)), c).toInt( &res);
+        coord[c].connector = (res == true) ? i : c;
+
+        i = s->value("Pulse" + QString( axisNames.at(c)), 200).toInt( &res);
+        coord[c].pulsePerMm = (res == true) ? i : 200;
+
+        float f = s->value("Accel" + QString( axisNames.at(c)), 15).toFloat( &res);
+        coord[c].acceleration = (res == true) ? f : 15;
+
+        f = s->value("StartVelo" + QString( axisNames.at(c)), 0).toFloat( &res);
+        coord[c].minVeloLimit = (res == true) ? f : 0;
+
+        f = s->value("EndVelo" + QString( axisNames.at(c)), 400).toFloat( &res);
+        coord[c].maxVeloLimit = (res == true) ? f : 400;
+
+        coord[c].checkSoftLimits = s->value("SoftLimit" + QString( axisNames.at(c)), false).toBool( );
+
+        f = s->value("SoftMin" + QString( axisNames.at(c)), 0).toFloat( &res);
+        coord[c].softLimitMin = (res == true) ? f : 0;
+
+        f = s->value("SoftMax" + QString( axisNames.at(c)), 0).toFloat( &res);
+        coord[c].softLimitMax = (res == true) ? f : 0;
+
+        f = s->value("Home" + QString( axisNames.at(c)), 0).toFloat( &res);
+        coord[c].home = (res == true) ? f : 0;
+
+        coord[c].useLimitMin = s->value("HardLimitMin" + QString( axisNames.at(c)), true).toBool();
+        coord[c].useLimitMax = s->value("HardLimitMax" + QString( axisNames.at(c)), true).toBool();
+
+        //
+        coord[c].invertDirection = s->value("InvDirection" + QString( axisNames.at(c)), false).toBool();
+        coord[c].invertPulses = s->value("InvPulses" + QString( axisNames.at(c)), false).toBool();
+        coord[c].invLimitMax = s->value("InvLimitMax" + QString( axisNames.at(c)), false).toBool();
+        coord[c].invLimitMin = s->value("InvLimitMin" + QString( axisNames.at(c)), false).toBool();
+        coord[c].enabled = s->value("Enabled" + QString( axisNames.at(c)), true).toBool();
+
+        f = s->value("Backlash" + QString( axisNames.at(c)), 0).toFloat( &res);
+        coord[c].backlash = (res == true) ? f : 0;
+
+        f = s->value("WorkAreaMin" + QString( axisNames.at(c)), 0).toFloat( &res);
+        coord[c].workAreaMin = (res == true) ? f : 0;
+
+        f = s->value("WorkAreaMax" + QString( axisNames.at(c)), 0).toFloat( &res);
+        coord[c].workAreaMax = (res == true) ? f : 0;
+        //
+    }
+
+    s->endGroup();
+
+    //     updateSettingsOnGUI();
+
+    delete s;
 }
 

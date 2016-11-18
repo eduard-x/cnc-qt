@@ -2,7 +2,7 @@
 #define CNCQTVERSION_H
 
 #define CNCMK1QTVERSION  "0.2.5"
-#define PROGRAM_DATE  "14 Nov 2016"
+#define PROGRAM_DATE  "18 Nov 2016"
 
 #define USE_QT_VERSION  5
 

@@ -46,7 +46,7 @@ class cTranslator
         static QString engText[];
     private:
         QString convertString(const QString &s);
-//         Q_DISABLE_COPY(cTranslator);
+        //         Q_DISABLE_COPY(cTranslator);
 
     private:
         static QVector<QString> translateTable;

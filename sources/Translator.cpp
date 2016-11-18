@@ -288,10 +288,10 @@ QString cTranslator::engText[] = {
     "Select tool:",
     "Moving;Speed;Directions", // 230
     "Numpad",
-    "Control pad", 
+    "Control pad",
     "User defined",
     "Joypad",
-    "Select control type:", 
+    "Select control type:",
     "Port:",
     "Remote name:",
     "Remote connection",

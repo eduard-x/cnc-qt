@@ -33,7 +33,7 @@
 #ifndef SSPEED_H
 #define SSPEED_H
 
-#include "Settings.h"
+#include "SettingsDialog.h"
 #include "MainWindow.h"
 #include "ui_sSpeed.h"
 

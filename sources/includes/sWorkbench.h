@@ -37,7 +37,7 @@
 #include <QPixmap>
 
 
-#include "Settings.h"
+#include "SettingsDialog.h"
 #include "MainWindow.h"
 #include "ui_sWorkbench.h"
 

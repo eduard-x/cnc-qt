@@ -298,7 +298,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
 
         void runNextCommand();
         void fillListWidget(QVector<QString> listCode);
-        QString getLocaleString();
+
         bool getLangTable();
         void setLangGUI();
         void displayRotation();
@@ -325,9 +325,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         Task::StatusTask currentStatus;
         QGraphicsScene *sceneCoordinates;
         //
-        QString axisNames;
+
         //
-        QStringList lastFiles;
+
         QLabel *statusLabel1;
         QProgressBar *statusProgress;
         QLabel *statusLabel2;
@@ -339,14 +339,12 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         QMenu *filesMenu;
         QActionGroup* langGroup;
         QActionGroup* filesGroup;
-        QFont sysFont;
-        short fontSize;
+
         float maxLookaheadAngleRad;
         //         QString programStyleSheet;
         QStringList langFiles;
-        QString langDir;
-        QString helpDir;
-        QString currentLang;
+
+
 
 
 
@@ -355,7 +353,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
 
         //         int xAngle, yAngle, zAngle;
         int scale;
-        QString currentAppDir;
+
 };
 
 #endif // MAINWINDOW_H

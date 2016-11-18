@@ -30,39 +30,76 @@
  ****************************************************************************/
 
 
-#ifndef SVIS_H
-#define SVIS_H
+#ifndef SETTINGSDIALOG_H
+#define SETTINGSDIALOG_H
 
+#include <QColor>
+// #include <QSettings>
+#include <QGraphicsScene>
+#include <QVector>
+#include <QPixmap>
 
-#include "SettingsDialog.h"
 #include "MainWindow.h"
-#include "ui_sVis.h"
+#include "ui_Settings.h"
 
+#include "Settings.h"
 
+#include "sControl.h"
+#include "sMaterial.h"
+#include "sWorkbench.h"
+#include "sSpeed.h"
+#include "sSystem.h"
+#include "sParser.h"
+#include "sVis.h"
+#include "sIO.h"
+
+// class cTranslator;
 class MainWindow;
 
+class SettingsParser;
+class SettingsControl;
+class SettingsMaterial;
+class SettingsSystem;
+class SettingsWorkbench;
+class SettingsSpeed;
+class SettingsVis;
+class SettingsIO;
 
-class SettingsVis : public QWidget, public Ui::sVis,  public cTranslator
+
+class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTranslator
 {
         Q_OBJECT
     public:
-        SettingsVis(QWidget *parent = 0);
-        void getSettings();
+        SettingsDialog(QWidget *parent = 0, int tabNum = 0);
+
 
     private slots:
-        void changeColor();
-        void onChangeColor(int i);
-        //         void onSaveChange();
-        //         void checkedChanged(int state);
+        void onSave();
+        void onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip);
+        //         void onChangeColor(int i);
+        //         void onChangeTool(int i);
+        //         void changeColor();
+        //         void onChangeConnector(int i);
 
     private:
-        void translateWidget();
+        void translateDialog();
 
-        //           private:
-        //         QVector< QVector<QGroupBox*> > grpArr;
-        //     private:
-        //         MainWindow* parent;
+    private:
+        MainWindow* parent;
+        mk1Controller *cnc;
+        QVector< QVector<QGroupBox*> > grpArr;
+
+        QVector< QVector<QString> > menuArr;
+
+        SettingsIO *sIO;
+        SettingsVis *sVis;
+        SettingsControl *sControl;
+        SettingsSystem *sSystem;
+        SettingsMaterial *sMaterial;
+        SettingsSpeed *sSpeed;
+        SettingsParser *sParser;
+        SettingsWorkbench *sWorkbench;
 };
 
 
-#endif // SVIS_H
+#endif // SETTINGSDIALOG_H

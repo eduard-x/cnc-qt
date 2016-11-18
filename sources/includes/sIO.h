@@ -35,7 +35,7 @@
 
 #include <QWidget>
 
-#include "Settings.h"
+#include "SettingsDialog.h"
 #include "Translator.h"
 #include "MainWindow.h"
 #include "ui_sIO.h"

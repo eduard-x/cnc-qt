@@ -47,7 +47,7 @@
 
 #include <QtCore/qmath.h>
 
-#include "includes/Settings.h"
+#include "includes/SettingsDialog.h"
 #include "includes/About.h"
 #include "includes/Reader.h"
 // #include "includes/CuttingCalc.h"
@@ -191,12 +191,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     currentStatus = Task::Stop;
 
-    axisNames = "XYZA";
+    Settings::currentAppDir = qApp->applicationDirPath();
 
-    currentAppDir = qApp->applicationDirPath();
-
-    if (currentAppDir.lastIndexOf("/build") > 0) { // build dir detection
-        currentAppDir.remove("/build" );
+    if (Settings::currentAppDir.lastIndexOf("/build") > 0) { // build dir detection
+        Settings::currentAppDir.remove("/build" );
     }
 
     QString n = QString::number(1.01);
@@ -212,7 +210,7 @@ MainWindow::MainWindow(QWidget *parent)
     // to disable the OpenGL features, if over ssh
     enableOpenGL = (d.indexOf(QRegExp(":[0-9]")) == 0);
 
-    currentLang = "English";
+    Settings::currentLang = "English";
 
     filesMenu = 0;
     filesGroup = 0;
@@ -220,7 +218,7 @@ MainWindow::MainWindow(QWidget *parent)
     QFont sysFont = qApp->font();
     sysFont = sysFont;
 
-    fontSize = sysFont.pointSize();
+    Settings::fontSize = sysFont.pointSize();
 
     reader = new Reader(this);
 
@@ -239,11 +237,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowIcon(QIcon(QPixmap(":/images/icon.png")));
 
-    programStyleSheet = QString().sprintf("font-size: %dpt", fontSize);
+    programStyleSheet = QString().sprintf("font-size: %dpt", Settings::fontSize);
 
-    if ( fontSize == -1) {
-        fontSize = sysFont.pixelSize();
-        programStyleSheet = QString().sprintf("font-size: %dpx", fontSize);
+    if ( Settings::fontSize == -1) {
+        Settings::fontSize = sysFont.pixelSize();
+        programStyleSheet = QString().sprintf("font-size: %dpx", Settings::fontSize);
     }
 
     if (programStyleSheet.length() > 0) {
@@ -320,11 +318,11 @@ MainWindow::MainWindow(QWidget *parent)
         MessageBox::exec(this, translate(_ERR),
                          "Can't open language file!\nDefault GUI language is english", QMessageBox::Critical);
 
-        currentLang = "English";
+        Settings::currentLang = "English";
     }
 
     foreach (QAction* itL, actLangSelect) {
-        if ((*itL).text() == currentLang) {
+        if ((*itL).text() == Settings::currentLang) {
             (*itL).setChecked(true);
             break;
         }
@@ -338,8 +336,8 @@ MainWindow::MainWindow(QWidget *parent)
 
             if (reader->OpenFile(nm) == true) {
 
-                lastFiles.insert(0, nm);
-                lastFiles.removeDuplicates();
+                Settings::lastFiles.insert(0, nm);
+                Settings::lastFiles.removeDuplicates();
 
                 reloadRecentList();
 
@@ -441,7 +439,7 @@ void MainWindow::drawWorkbench()
  */
 bool MainWindow::getLangTable()
 {
-    QString lang = currentLang;
+    QString lang = Settings::currentLang;
     QString fileLang = "";
 
     foreach (const QString iLang, langFiles) {
@@ -457,14 +455,14 @@ bool MainWindow::getLangTable()
         return (false);
     }
 
-    if (QFile::exists(langDir + "/" + fileLang) == false) {
+    if (QFile::exists(Settings::langDir + "/" + fileLang) == false) {
         MessageBox::exec(this, translate(_ERR), "Language file not exists!\n\n"
-                         + langDir + "\n\n" + fileLang, QMessageBox::Warning);
+                         + Settings::langDir + "\n\n" + fileLang, QMessageBox::Warning);
         // not found
         return (false);
     }
 
-    return loadTranslation(langDir + fileLang);
+    return loadTranslation(Settings::langDir + fileLang);
 }
 
 
@@ -719,7 +717,7 @@ bool MainWindow::readLangDir()
     QString lngDirName;
     QStringList dirsLang;
     QDir dir;
-    dirsLang << "/usr/share/cnc-qt/" << "/usr/local/share/cnc-qt/" << currentAppDir;
+    dirsLang << "/usr/share/cnc-qt/" << "/usr/local/share/cnc-qt/" << Settings::currentAppDir;
 
     foreach(const QString entry, dirsLang) {
         lngDirName = entry + "/lang/";
@@ -806,7 +804,7 @@ bool MainWindow::readLangDir()
                     langGroup->addAction(tmpAction);
                     langMenu->addAction(tmpAction);
 
-                    if (currentLang == nm) {
+                    if (Settings::currentLang == nm) {
                         tmpAction->setChecked(true);
                     }
 
@@ -831,36 +829,6 @@ bool MainWindow::readLangDir()
     return (found);
 }
 
-
-/**
- * @brief get the system locale for selection of language, if exists
- *
- */
-QString MainWindow::getLocaleString()
-{
-    QString res;
-    QLocale lSys = QLocale::system();
-
-    switch (lSys.language()) {
-        case QLocale::C:
-            res = "English";
-            break;
-
-        case QLocale::German:
-            res = "Deutsch";
-            break;
-
-        case QLocale::Russian:
-            res = "Russian";
-            break;
-
-        default:
-            res = "English";
-            break;
-    }
-
-    return res;
-}
 
 
 /**
@@ -895,160 +863,15 @@ void MainWindow::updateSettingsOnGUI()
  */
 void MainWindow::writeSettings()
 {
-    QSettings* s;
-    s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
-
-    //     s->beginGroup("General");
-
-    s->setValue("pos", pos());
-    s->setValue("size", size());
-    s->setValue("LANGUAGE", currentLang);
-    s->setValue("LASTDIR", reader->lastDir);
-
-    s->setValue("VelocityCutting", numVeloSubmission->value());
-    s->setValue("VelocityMoving", numVeloMoving->value());
-    s->setValue("VelocityManual", numVeloManual->value());
-
-    s->setValue("SplitArcPerMM", Settings::splitsPerMm);
-    s->setValue("LookaheadAngle", Settings::maxLookaheadAngle);
-
-    s->setValue("UnitMM", Settings::unitMm);
-    s->setValue("ToolDiameter", Settings::toolDiameter);
-    s->setValue("ToolFlutes", Settings::toolFlutes);
-    s->setValue("ToolRPM", Settings::toolRPM);
-
-    s->setValue("FilterRepeatData", Settings::filterRepeat);
-
-    s->setValue("CuttedMaterial", Settings::cuttedMaterial);
-
-    QMapIterator<QString, Qt::Key> imap(Settings::userKeys);
-
-    while (imap.hasNext()) {
-        imap.next();
-        s->setValue( imap.key(),  (quint32)imap.value());
-    }
-
-    //     foreach (int k, userKeys) {
-    //         s->setValue(k, (quint32)k.code);
-    //     }
+    Settings::veloCutting = numVeloSubmission->value();
+    Settings::veloMoving = numVeloMoving->value();
+    Settings::veloManual = numVeloManual->value();
 
     if (groupManualControl->isChecked() == false) {
         Settings::currentKeyPad = -1;
     }
 
-    s->setValue("KeyControl", (int) Settings::currentKeyPad);
-    //         s->setValue("LASTPROJ", currentProject);
-    //     s->setValue("FontSize", fontSize);
-    //     s->setValue("GUIFont", sysFont);
-    // qDebug() << "writeGUISettings";
-
-    lastFiles.removeDuplicates();
-
-    int i = 0;
-
-    foreach (QString l, lastFiles) {
-        if (i > 9) { // max last dirs
-            break;
-        }
-
-        s->setValue("LASTFILE" + QString::number(i), l);
-        i++;
-    }
-
-    // opengl settings
-    if (enableOpenGL == true) {
-        s->beginGroup("OpenGL");
-
-        s->setValue("ShowLines", Settings::ShowLines);
-        s->setValue("ShowPoints", Settings::ShowPoints);
-
-        s->setValue("ShowInstrument", Settings::ShowInstrument);
-        s->setValue("ShowGrid", Settings::ShowGrid);
-        s->setValue("ShowSurface", Settings::ShowSurface);
-        s->setValue("ShowAxes", Settings::ShowAxes);
-
-        //         s->setValue("DisableOpenGL", disableIfSSH);
-
-        s->setValue("GrigStep", (int)Settings::GrigStep);
-
-        s->setValue("GridXstart", (int)Settings::GridXstart);
-        s->setValue("GridXend", (int)Settings::GridXend);
-        s->setValue("GridYstart", (int)Settings::GridYstart);
-        s->setValue("GridYend", (int)Settings::GridYend);
-
-        s->setValue("ShowGrate", (bool)Settings::ShowBorder); // grenzen
-
-        s->setValue("PosX", (int)Settings::PosX); //
-        s->setValue("PosY", (int)Settings::PosY); //
-        s->setValue("PosZ", (int)Settings::PosZ); //
-
-        s->setValue("AngleX", (int)Settings::PosAngleX); //
-        s->setValue("AngleY", (int)Settings::PosAngleY); //
-        s->setValue("AngleZ", (int)Settings::PosAngleZ); //
-
-        s->setValue("Zoom", (int)Settings::PosZoom); //
-
-
-        s->setValue("Color_X", (QColor)Settings::colorSettings[COLOR_X]);
-        s->setValue("Color_Y", (QColor)Settings::colorSettings[COLOR_Y]);
-        s->setValue("Color_Z", (QColor)Settings::colorSettings[COLOR_Z]);
-        s->setValue("Color_BG", (QColor)Settings::colorSettings[COLOR_BACKGROUND]);
-        s->setValue("Color_Tool", (QColor)Settings::colorSettings[COLOR_TOOL]);
-        s->setValue("Color_WB", (QColor)Settings::colorSettings[COLOR_WORKBENCH]);
-        s->setValue("Color_Traverse", (QColor)Settings::colorSettings[COLOR_TRAVERSE]);
-        s->setValue("Color_Rapid", (QColor)Settings::colorSettings[COLOR_RAPID]);
-        s->setValue("Color_Work", (QColor)Settings::colorSettings[COLOR_WORK]);
-        s->setValue("Color_Grid", (QColor)Settings::colorSettings[COLOR_GRID]);
-        s->setValue("Color_Border", (QColor)Settings::colorSettings[COLOR_BORDER]);
-        s->setValue("Color_Surface", (QColor)Settings::colorSettings[COLOR_SURFACE]);
-        s->setValue("Color_Connect", (QColor)Settings::colorSettings[COLOR_CONNECTION]);
-
-        s->setValue("LineWidth", (int)Settings::lineWidth);
-        s->setValue("PointSize", (int)Settings::pointSize);
-        s->setValue("SmoothMoving", (bool)Settings::smoothMoving);
-        s->setValue("ShowTraverse", (bool)Settings::showTraverse);
-        s->setValue("ShowWorkbench", (bool)Settings::showWorkbench);
-
-        s->endGroup();
-    }
-
-    s->beginGroup("mk1");
-
-    for (int c = 0; c < axisNames.length(); c++) {
-        s->setValue("Connector" + QString( axisNames.at(c)), Settings::coord[c].connector);
-        s->setValue("Pulse" + QString( axisNames.at(c)), Settings::coord[c].pulsePerMm);
-        s->setValue("Accel" + QString( axisNames.at(c)), (double)Settings::coord[c].acceleration);
-        s->setValue("StartVelo" + QString( axisNames.at(c)), (double)Settings::coord[c].minVeloLimit);
-        s->setValue("EndVelo" + QString( axisNames.at(c)), (double)Settings::coord[c].maxVeloLimit);
-
-        //
-        s->setValue("Backlash" + QString( axisNames.at(c)), (double)Settings::coord[c].backlash);
-        s->setValue("InvDirection" + QString( axisNames.at(c)), (bool)Settings::coord[c].invertDirection);
-        s->setValue("InvPulses" + QString( axisNames.at(c)), (bool)Settings::coord[c].invertPulses);
-        s->setValue("InvLimitMax" + QString( axisNames.at(c)), (bool)Settings::coord[c].invLimitMax);
-        s->setValue("InvLimitMin" + QString( axisNames.at(c)), (bool)Settings::coord[c].invLimitMin);
-        s->setValue("WorkAreaMin" + QString( axisNames.at(c)), (double)Settings::coord[c].workAreaMin);
-        s->setValue("WorkAreaMax" + QString( axisNames.at(c)), (double)Settings::coord[c].workAreaMax);
-        s->setValue("Enabled" + QString( axisNames.at(c)), (bool)Settings::coord[c].enabled);
-        //
-
-        s->setValue("HardLimitMin" + QString( axisNames.at(c)), (bool)Settings::coord[c].useLimitMin);
-        s->setValue("HardLimitMax" + QString( axisNames.at(c)), (bool)Settings::coord[c].useLimitMax);
-
-        s->setValue("SoftLimit" + QString( axisNames.at(c)), (bool)Settings::coord[c].checkSoftLimits);
-        s->setValue("SoftMin" + QString( axisNames.at(c)), (double)Settings::coord[c].softLimitMin);
-        s->setValue("SoftMax" + QString( axisNames.at(c)), (double)Settings::coord[c].softLimitMax);
-
-        s->setValue("Home" + QString( axisNames.at(c)), (double)Settings::coord[c].home);
-    }
-
-    s->endGroup();
-
-    s->sync();
-
-    //     updateSettingsOnGUI();
-
-    delete s;
+    Settings::saveSettings();
 }
 
 
@@ -1058,47 +881,10 @@ void MainWindow::writeSettings()
  */
 void MainWindow::readSettings()
 {
-    QSettings* s;
-    s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
+    Settings::readSettings();
 
-    //     s->beginGroup("General");
-
-    QPoint pos = s->value("pos", QPoint(200, 200)).toPoint();
-    QSize size = s->value("size", QSize(840, 640)).toSize();
-    resize(size);
-    move(pos);
-
-    Settings::accelerationCutting = s->value("AccelerationCutting", 15).toInt();
-    Settings::minVelo = s->value("MinVelocity", 20).toInt();
-    Settings::maxVelo = s->value("MaxVelocity", 400).toInt();
-
-    Settings::veloCutting = s->value("VelocityCutting", 200).toInt();
-    Settings::veloMoving = s->value("VelocityMoving", 500).toInt();
-    Settings::veloManual = s->value("VelocityManual", 400).toInt();
-    Settings::currentKeyPad = s->value("KeyControl", -1).toInt();
-
-    Settings::unitMm = s->value("UnitMM", 1.0).toBool();
-    Settings::splitsPerMm =   s->value("SplitArcPerMM", 10).toInt();
-    Settings::maxLookaheadAngle = s->value("LookaheadAngle", 170.0).toFloat();
-    Settings::cuttedMaterial = (MATERIAL)s->value("CuttedMaterial", 0).toInt();
-
-    Settings::toolDiameter = s->value("ToolDiameter", 3.0).toFloat();
-    Settings::toolFlutes = s->value("ToolFlutes", 2).toInt();
-    Settings::toolRPM = s->value("ToolRPM", 10000).toInt();
-
-    Settings::filterRepeat = s->value("FilterRepeatData", true).toBool();
-
-
-    QMapIterator<QString, Qt::Key> imap(Settings::userKeys);
-
-    while (imap.hasNext()) {
-        imap.next();
-        Settings::userKeys[imap.key()] = (Qt::Key)s->value(imap.key(), (quint32)imap.value()).toUInt();
-    }
-
-    //     foreach(uKeys k, userKeys) {
-    //         k.code = (Qt::Key)s->value(k.name, (quint32)k.code).toUInt();
-    //     }
+    resize(Settings::progSize);
+    move(Settings::progPos);
 
     groupManualControl->setChecked( Settings::currentKeyPad != -1);
 
@@ -1106,210 +892,7 @@ void MainWindow::readSettings()
     numVeloMoving->setValue(Settings::veloMoving);
     numVeloManual->setValue( Settings::veloManual);
 
-    QString l;
-    l = getLocaleString();
-
-    currentLang = s->value("LANGUAGE", l).toString();
-
-    reader->lastDir = s->value("LASTDIR", "").toString();
-
-    sysFont = sysFont.toString();
-
-    int sz = sysFont.pointSize();
-
-    if ( sz == -1) {
-        sz = sysFont.pixelSize();
-    }
-
-    fontSize = sz;
-    lastFiles.clear();
-
-    for (int i = 0; i < 10; i++) {
-        QString d = s->value("LASTFILE" + QString::number(i)).toString();
-        QFile fl;
-
-        if (d.length() == 0) {
-            break;
-        }
-
-        if (fl.exists(d) == true) {
-            lastFiles << d;
-        }
-    }
-
-    lastFiles.removeDuplicates();
-
     reloadRecentList();
-
-    QDir dir;
-    QStringList dirsLang;
-    dirsLang << "/usr/share/cnc-qt/" << "/usr/local/share/cnc-qt/" << currentAppDir;
-
-    foreach(QString entry, dirsLang) {
-        helpDir = entry + "/help/";
-
-        dir = QDir(helpDir);
-
-        if (dir.exists() == true) {
-            break;
-        } else {
-            helpDir = "";
-        }
-    }
-
-    foreach(QString entry, dirsLang) {
-        langDir = entry + "/lang/";
-
-        dir = QDir(langDir);
-
-        if (dir.exists() == true) {
-            break;
-        } else {
-            langDir = "";
-        }
-    }
-
-    //       s->endGroup();
-
-    if (enableOpenGL == true) {
-        // opengl settings
-        s->beginGroup("OpenGL");
-
-        Settings::ShowLines = s->value("ShowLines", false).toBool();
-        Settings::ShowPoints = s->value("ShowPoints", true).toBool();
-
-        Settings::ShowInstrument = s->value("ShowInstrument", true).toBool();
-        Settings::ShowGrid = s->value("ShowGrid", true).toBool();
-        Settings::ShowSurface = s->value("ShowSurface", false).toBool();
-        Settings::ShowAxes = s->value("ShowAxes", true).toBool();
-
-        //         disableIfSSH =  s->value("DisableOpenGL", false).toBool();
-
-        Settings::GrigStep = s->value("GrigStep", 10).toInt();
-
-        Settings::GridXstart = s->value("GridXstart", -100).toInt();
-        Settings::GridXend = s->value("GridXend", 100).toInt();
-        Settings::GridYstart = s->value("GridYstart", -100).toInt();
-        Settings::GridYend = s->value("GridYend", 100).toInt();
-
-        Settings::ShowBorder = s->value("ShowGrate", true).toBool(); // grenzen
-
-        Settings::PosX = s->value("PosX", -96 ).toInt(); //
-        Settings::PosY = s->value("PosY", -64 ).toInt(); //
-        Settings::PosZ = s->value("PosZ", -300 ).toInt(); //
-
-        Settings::PosAngleX = s->value("AngleX", 180 ).toInt(); //
-        Settings::PosAngleY = s->value("AngleY", 180 ).toInt(); //
-        Settings::PosAngleZ = s->value("AngleZ", 180 ).toInt(); //
-
-        Settings::PosZoom = s->value("Zoom", 20 ).toInt(); //
-
-        Settings::colorSettings[COLOR_X] = s->value("Color_X", QColor {
-            0, 255, 0, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_Y] = s->value("Color_Y", QColor {
-            255, 0, 0, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_Z] = s->value("Color_Z", QColor {
-            0, 255, 255, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_BACKGROUND] = s->value("Color_BG", QColor {
-            100, 100, 100, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_TOOL] = s->value("Color_Tool", QColor {
-            255, 255, 0, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_WORKBENCH] = s->value("Color_WB", QColor {
-            0, 0, 255, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_TRAVERSE] = s->value("Color_Traverse", QColor {
-            255, 255, 255, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_RAPID] = s->value("Color_Rapid", QColor {
-            255, 0, 0, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_WORK] = s->value("Color_Work", QColor {
-            0, 255, 0, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_GRID] = s->value("Color_Grid", QColor {
-            200, 200, 200, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_BORDER] = s->value("Color_Border", QColor {
-            200, 200, 200, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_SURFACE] = s->value("Color_Surface", QColor {
-            255, 255, 255, 255
-        }).value<QColor>();
-        Settings::colorSettings[COLOR_CONNECTION] = s->value("Color_Connect", QColor {
-            150, 255, 100, 255
-        }).value<QColor>();
-
-        Settings::pointSize = s->value("PointSize", 1).toInt();
-        Settings::lineWidth = s->value("LineWidth", 3).toInt();
-        Settings::smoothMoving = s->value("SmoothMoving", false).toBool();
-        Settings::showTraverse = s->value("ShowTraverse", false).toBool();
-        Settings::showWorkbench = s->value("ShowWorkbench", false).toBool();
-
-        s->endGroup();
-    }
-
-    bool res;
-
-    s->beginGroup("mk1");
-
-    for (int c = 0; c < axisNames.length(); c++) {
-        int i = s->value("Connector" + QString( axisNames.at(c)), c).toInt( &res);
-        Settings::coord[c].connector = (res == true) ? i : c;
-
-        i = s->value("Pulse" + QString( axisNames.at(c)), 200).toInt( &res);
-        Settings::coord[c].pulsePerMm = (res == true) ? i : 200;
-
-        float f = s->value("Accel" + QString( axisNames.at(c)), 15).toFloat( &res);
-        Settings::coord[c].acceleration = (res == true) ? f : 15;
-
-        f = s->value("StartVelo" + QString( axisNames.at(c)), 0).toFloat( &res);
-        Settings::coord[c].minVeloLimit = (res == true) ? f : 0;
-
-        f = s->value("EndVelo" + QString( axisNames.at(c)), 400).toFloat( &res);
-        Settings::coord[c].maxVeloLimit = (res == true) ? f : 400;
-
-        Settings::coord[c].checkSoftLimits = s->value("SoftLimit" + QString( axisNames.at(c)), false).toBool( );
-
-        f = s->value("SoftMin" + QString( axisNames.at(c)), 0).toFloat( &res);
-        Settings::coord[c].softLimitMin = (res == true) ? f : 0;
-
-        f = s->value("SoftMax" + QString( axisNames.at(c)), 0).toFloat( &res);
-        Settings::coord[c].softLimitMax = (res == true) ? f : 0;
-
-        f = s->value("Home" + QString( axisNames.at(c)), 0).toFloat( &res);
-        Settings::coord[c].home = (res == true) ? f : 0;
-
-        Settings::coord[c].useLimitMin = s->value("HardLimitMin" + QString( axisNames.at(c)), true).toBool();
-        Settings::coord[c].useLimitMax = s->value("HardLimitMax" + QString( axisNames.at(c)), true).toBool();
-
-        //
-        Settings::coord[c].invertDirection = s->value("InvDirection" + QString( axisNames.at(c)), false).toBool();
-        Settings::coord[c].invertPulses = s->value("InvPulses" + QString( axisNames.at(c)), false).toBool();
-        Settings::coord[c].invLimitMax = s->value("InvLimitMax" + QString( axisNames.at(c)), false).toBool();
-        Settings::coord[c].invLimitMin = s->value("InvLimitMin" + QString( axisNames.at(c)), false).toBool();
-        Settings::coord[c].enabled = s->value("Enabled" + QString( axisNames.at(c)), true).toBool();
-
-        f = s->value("Backlash" + QString( axisNames.at(c)), 0).toFloat( &res);
-        Settings::coord[c].backlash = (res == true) ? f : 0;
-
-        f = s->value("WorkAreaMin" + QString( axisNames.at(c)), 0).toFloat( &res);
-        Settings::coord[c].workAreaMin = (res == true) ? f : 0;
-
-        f = s->value("WorkAreaMax" + QString( axisNames.at(c)), 0).toFloat( &res);
-        Settings::coord[c].workAreaMax = (res == true) ? f : 0;
-        //
-    }
-
-    s->endGroup();
-
-    //     updateSettingsOnGUI();
-
-    delete s;
 }
 
 
@@ -1329,20 +912,20 @@ void MainWindow::reloadRecentList()
 
     actFileSelect.clear();
 
-    if (lastFiles.count() > 0) {
+    if (Settings::lastFiles.count() > 0) {
         filesMenu = new QMenu( translate(_RECENTFILES)); //insertAction
         QAction *actionRecent = menuFile->insertMenu(actionSave, filesMenu);
         filesGroup = new QActionGroup(this);
 
-        foreach (QString iL, lastFiles) {
+        foreach (QString iL, Settings::lastFiles) {
             QFileInfo fRecent(iL);
 
             iL = fRecent.absoluteFilePath();
         }
 
-        lastFiles.removeDuplicates();
+        Settings::lastFiles.removeDuplicates();
 
-        foreach (QString iL, lastFiles) {
+        foreach (QString iL, Settings::lastFiles) {
             QFileInfo fRecent(iL);
 
             if (fRecent.exists() == false) {
@@ -1415,7 +998,7 @@ void MainWindow::setLang(QAction* mnu)
     lngStr = mnu->text();
     lngStr = lngStr.remove("&");
 
-    currentLang = lngStr;
+    Settings::currentLang = lngStr;
 
     if (getLangTable() == false) {
         qDebug() << "setLang" << false;
@@ -3055,8 +2638,8 @@ void MainWindow::onOpenFile()
         return;
     }
 
-    lastFiles.insert(0, nm);
-    lastFiles.removeDuplicates();
+    Settings::lastFiles.insert(0, nm);
+    Settings::lastFiles.removeDuplicates();
 
     reloadRecentList();
 
@@ -3092,14 +2675,15 @@ void MainWindow::onCalcVelocity()
     SettingsDialog *sd = new SettingsDialog(this, 5);
     sd->exec();
     delete sd;
-    
+
     QStringList m = translate(_MATERIAL_LIST).split("\n");
+
     if (Settings::cuttedMaterial < m.count()) {
         labelMaterial->setText(m.at(Settings::cuttedMaterial));
     } else {
         labelMaterial->setText(m.at(0));
     }
-         
+
     numVeloSubmission->setValue(Settings::veloCutting);
 #if 0
     CuttingCalc *setfrm = new CuttingCalc(this);

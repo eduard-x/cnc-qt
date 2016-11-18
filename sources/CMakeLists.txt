@@ -13,6 +13,7 @@ SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/sVis.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/sWorkbench.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Settings.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/SettingsDialog.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/GCode.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Reader.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/About.cpp
@@ -34,6 +35,7 @@ SET(MAIN_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/sVis.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/sWorkbench.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Settings.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/SettingsDialog.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Reader.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/GCode.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/About.h
