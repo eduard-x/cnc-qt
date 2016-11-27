@@ -42,8 +42,6 @@
 #include "MainWindow.h"
 
 
-// #define COLOR_LINES 16
-
 enum AxisNames { X = 0, Y, Z, A, B, C, U, V, W };
 
 enum ParamNames { PARAM_CMD = 0, PARAM_X, PARAM_Y, PARAM_Z, PARAM_A, PARAM_B, PARAM_C, PARAM_I, PARAM_J, PARAM_K, PARAM_F };
@@ -101,7 +99,7 @@ enum {
     COLOR_SURFACE, // 10
     COLOR_CONNECTION,
     COLOR_BORDER,
-    COLOR_ENTIRES
+    COLOR_ENTRIES
 };
 
 
@@ -132,7 +130,7 @@ class Settings : public QSettings
         static QChar fromDecimalPoint;
         static QChar toDecimalPoint;
 
-        static QColor colorSettings[COLOR_ENTIRES];
+        static QColor colorSettings[COLOR_ENTRIES];
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2
 
         //         static bool setSettings;

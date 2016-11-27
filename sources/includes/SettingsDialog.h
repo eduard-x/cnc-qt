@@ -34,7 +34,6 @@
 #define SETTINGSDIALOG_H
 
 #include <QColor>
-// #include <QSettings>
 #include <QGraphicsScene>
 #include <QVector>
 #include <QPixmap>
@@ -53,7 +52,6 @@
 #include "sVis.h"
 #include "sIO.h"
 
-// class cTranslator;
 class MainWindow;
 
 class SettingsParser;
@@ -76,10 +74,6 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
     private slots:
         void onSave();
         void onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip);
-        //         void onChangeColor(int i);
-        //         void onChangeTool(int i);
-        //         void changeColor();
-        //         void onChangeConnector(int i);
 
     private:
         void translateDialog();

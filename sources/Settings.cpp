@@ -160,7 +160,7 @@ int Settings::veloMoving = 500;
 
 
 
-QColor Settings::colorSettings[COLOR_ENTIRES];
+QColor Settings::colorSettings[COLOR_ENTRIES];
 
 
 axis Settings::coord[] = { axis(), axis(), axis(), axis() };

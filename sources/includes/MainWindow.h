@@ -36,7 +36,6 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QTimer>
-#include <QSettings>
 #include <QCloseEvent>
 #include <QKeyEvent>
 #include <QThread>

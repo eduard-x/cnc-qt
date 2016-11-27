@@ -84,26 +84,6 @@ SettingsVis::SettingsVis(QWidget *p)
     radioButtonLines->setChecked(Settings::ShowLines);
     radioButtonPoints->setChecked(Settings::ShowPoints);
 
-
-    //     connect(checkCorrecture, SIGNAL(stateChanged ( int)), this, SLOT(checkedChanged( int )));
-    //
-    //     checkCorrecture->setChecked(true);
-    //     checkCorrecture->setChecked(false); // toggle
-    //
-    //     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSaveChange()));
-    //     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    //
-    //     doubleSpinOffsetX->setValue(Settings::deltaX);
-    //     doubleSpinOffsetY->setValue(Settings::deltaY);
-    //     doubleSpinOffsetZ->setValue(Settings::deltaZ);
-    //
-    //     checkBoxZ->setChecked(Settings::deltaFeed);
-    //
-    //     doubleSpinResizeX->setValue(Settings::coeffSizeX);
-    //     doubleSpinResizeY->setValue(Settings::coeffSizeY);
-
-    //     checkResizeZ->setChecked();
-
     translateWidget();
 
     emit onChangeColor(0);
@@ -167,7 +147,7 @@ void SettingsVis::changeColor()
 {
     int num = comboColor->currentIndex();
 
-    if (num < COLOR_ENTIRES) {
+    if (num < COLOR_ENTRIES) {
         QColor glc = Settings::colorSettings[num];
         QColor clr = glc;// (glc.r * 255.0, glc.g * 255.0, glc.b * 255.0, glc.a * 255.0);
 
@@ -194,8 +174,10 @@ void SettingsVis::translateWidget()
     //     groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
     radioButtonLines->setText(translate(_DISPLAY_LINES));
     radioButtonPoints->setText(translate(_DISPLAY_POINTS));
-    labelBeg->setText(translate(_BEGIN));
-    labelEnd->setText(translate(_END));
+    labelBeginX->setText(translate(_BEGIN));
+    labelEndX->setText(translate(_END));
+    labelBeginY->setText(translate(_BEGIN));
+    labelEndY->setText(translate(_END));
 
     checkBoxTool->setText(translate(_DISPLAY_SPINDLE));
     checkBoxXYZ->setText(translate(_DISPLAY_AXES));
@@ -211,33 +193,10 @@ void SettingsVis::translateWidget()
     //     groupBoxShowRang->setTitle(translate(_DISPLAY_RANG));
 
     labelStep->setText(translate(_STEP));
-    labelMin->setText(translate(_MINIMUM));
-    labelMax->setText(translate(_MAXIMUM));
+    labelMinX->setText(translate(_MINIMUM));
+    labelMaxX->setText(translate(_MAXIMUM));
+    labelMinY->setText(translate(_MINIMUM));
+    labelMaxY->setText(translate(_MAXIMUM));
     // end
 }
 
-#if 0
-void SettingsVis::checkedChanged( int state)
-{
-    bool check = checkCorrecture->isChecked();
-    groupOffset->setEnabled(check);
-    groupResize->setEnabled(check);
-}
-
-
-void SettingsVis::onSaveChange()
-{
-    if (checkCorrecture->isChecked()) {
-        Settings::deltaX = doubleSpinOffsetX->value();
-        Settings::deltaY = doubleSpinOffsetY->value();
-        Settings::deltaZ = doubleSpinOffsetZ->value();
-
-        Settings::deltaFeed = checkBoxZ->isChecked();
-
-        Settings::coeffSizeX = doubleSpinResizeX->value();
-        Settings::coeffSizeY = doubleSpinResizeY->value();
-    }
-
-    emit accept();
-}
-#endif

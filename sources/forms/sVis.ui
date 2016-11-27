@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>499</width>
-    <height>791</height>
+    <height>809</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -238,22 +238,59 @@
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_16">
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="radioButtonLines">
+      <item row="4" column="4">
+       <widget class="QSpinBox" name="spinBoxBeginY">
+        <property name="minimumSize">
+         <size>
+          <width>75</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QLabel" name="label_24">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>45</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
-         <string>Lines</string>
+         <string>Y</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLabel" name="labelBeg">
+       <widget class="QLabel" name="labelBeginX">
         <property name="text">
          <string>Begin</string>
         </property>
        </widget>
       </item>
       <item row="3" column="2">
-       <widget class="QLabel" name="labelEnd">
+       <widget class="QLabel" name="labelEndX">
         <property name="text">
          <string>End</string>
         </property>
@@ -325,51 +362,7 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_24">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>45</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Y</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QSpinBox" name="spinBoxBeginY">
-        <property name="minimumSize">
-         <size>
-          <width>75</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="minimum">
-         <number>-100</number>
-        </property>
-        <property name="maximum">
-         <number>100</number>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2">
+      <item row="4" column="5">
        <widget class="QSpinBox" name="spinBoxEndY">
         <property name="minimumSize">
          <size>
@@ -391,14 +384,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QRadioButton" name="radioButtonPoints">
-        <property name="text">
-         <string>Points</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="3">
+      <item row="2" column="0" colspan="6">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QLabel" name="labelStep">
@@ -434,6 +420,34 @@
         </item>
        </layout>
       </item>
+      <item row="0" column="0" colspan="3">
+       <widget class="QRadioButton" name="radioButtonLines">
+        <property name="text">
+         <string>Lines</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" colspan="3">
+       <widget class="QRadioButton" name="radioButtonPoints">
+        <property name="text">
+         <string>Points</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="4">
+       <widget class="QLabel" name="labelBeginY">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="5">
+       <widget class="QLabel" name="labelEndY">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -455,37 +469,37 @@
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_18">
-      <item row="2" column="1">
-       <widget class="QSpinBox" name="spinBoxMinY">
+      <item row="1" column="3">
+       <widget class="QLabel" name="label_26">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>75</width>
+          <width>45</width>
           <height>0</height>
          </size>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>35</height>
-         </size>
+        <property name="text">
+         <string>Y</string>
         </property>
-        <property name="minimum">
-         <number>-100</number>
-        </property>
-        <property name="maximum">
-         <number>100</number>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLabel" name="labelMin">
+       <widget class="QLabel" name="labelMinX">
         <property name="text">
          <string>min</string>
         </property>
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QLabel" name="labelMax">
+       <widget class="QLabel" name="labelMaxX">
         <property name="text">
          <string>max</string>
         </property>
@@ -557,29 +571,29 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_26">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
+      <item row="1" column="4">
+       <widget class="QSpinBox" name="spinBoxMinY">
         <property name="minimumSize">
          <size>
-          <width>45</width>
+          <width>75</width>
           <height>0</height>
          </size>
         </property>
-        <property name="text">
-         <string>Y</string>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>35</height>
+         </size>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
+      <item row="1" column="5">
        <widget class="QSpinBox" name="spinBoxMaxY">
         <property name="minimumSize">
          <size>
@@ -598,6 +612,20 @@
         </property>
         <property name="maximum">
          <number>100</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLabel" name="labelMinY">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
+       <widget class="QLabel" name="labelMaxY">
+        <property name="text">
+         <string>TextLabel</string>
         </property>
        </widget>
       </item>
