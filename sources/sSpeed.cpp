@@ -110,6 +110,10 @@ SettingsSpeed::SettingsSpeed(QWidget *p)
     adjustSize();
 }
 
+SettingsSpeed::~SettingsSpeed()
+{
+}
+
 
 void SettingsSpeed::getSettings()
 {

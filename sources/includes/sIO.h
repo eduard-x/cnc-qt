@@ -50,6 +50,7 @@ class SettingsIO : public QWidget, public Ui::sIO,  public cTranslator
         Q_OBJECT
     public:
         SettingsIO(QWidget *parent = 0);
+        ~SettingsIO();
         void getSettings();
 
     private slots:

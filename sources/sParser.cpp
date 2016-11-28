@@ -47,9 +47,11 @@ SettingsParser::SettingsParser(QWidget *p)
     setupUi(this);
 
     QStringList ls;
-    for (int i = 0; i < 10; i++){
+
+    for (int i = 0; i < 10; i++) {
         ls << QString::number(i);
     }
+
     comboBoxTimes->addItems(ls);
 
     spinArcSplitPermm->setValue(Settings::splitsPerMm);
@@ -57,23 +59,23 @@ SettingsParser::SettingsParser(QWidget *p)
     checkBoxRemove->setChecked(Settings::filterRepeat);
     checkBoxOptimize->setChecked(Settings::optimizeRapidWays);
     groupBoxRepeat->setChecked(Settings::repeatProcessing);
-    
-    int n; 
+
+    int n;
     n = comboBoxTimes->findText(QString::number(Settings::repeatTimes));
-    if (n>= 0){
+
+    if (n >= 0) {
         comboBoxTimes->setCurrentIndex(n);
-    }
-    else{
+    } else {
         comboBoxTimes->setCurrentIndex(0);
     }
-    
+
     ls.removeAt(0);
     comboBoxDepth->addItems(ls);
     n = comboBoxDepth->findText(QString::number(Settings::depthSum));
-    if (n>= 0){
+
+    if (n >= 0) {
         comboBoxDepth->setCurrentIndex(n);
-    }
-    else{
+    } else {
         comboBoxDepth->setCurrentIndex(0);
     }
 
@@ -82,9 +84,12 @@ SettingsParser::SettingsParser(QWidget *p)
     adjustSize();
 }
 
+SettingsParser::~SettingsParser()
+{
+}
 /**
- * 
- * 
+ *
+ *
  */
 void SettingsParser::getSettings()
 {
@@ -97,13 +102,13 @@ void SettingsParser::getSettings()
 }
 
 /**
- * 
- * 
+ *
+ *
  */
 void SettingsParser::translateWidget()
 {
     checkBoxRemove->setText(translate(_REMOVE_REPEAT));
-    
+
     groupBoxRepeat->setTitle(translate(_REPEAT_CODE));
     labelRepeat->setText(translate(_NUM_REPEAT));
     labelDepth->setText(translate(_DEPTH_SUM));

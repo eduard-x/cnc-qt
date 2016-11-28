@@ -91,6 +91,9 @@ SettingsVis::SettingsVis(QWidget *p)
     adjustSize();
 }
 
+SettingsVis::~SettingsVis()
+{
+}
 
 void SettingsVis::getSettings()
 {

@@ -199,6 +199,11 @@ SettingsControl::SettingsControl(QWidget *p)
 }
 
 
+SettingsControl::~SettingsControl()
+{
+}
+
+
 void SettingsControl::getSettings()
 {
     int idx =  tabWidgetManual->currentIndex();

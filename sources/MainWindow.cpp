@@ -2068,7 +2068,7 @@ void  MainWindow::refreshElementsForms()
         labelB19B5->setPixmap( grayPix );
         labelB19B6->setPixmap( grayPix );
         labelB19B7->setPixmap( grayPix );
-    
+
         return;
     }
 

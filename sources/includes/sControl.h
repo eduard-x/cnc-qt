@@ -57,6 +57,7 @@ class SettingsControl : public QWidget, public Ui::sControl,  public cTranslator
         Q_OBJECT
     public:
         SettingsControl(QWidget *parent = 0);
+        ~SettingsControl();
         void getSettings();
 
         enum Direction { X_minus = 0, X_plus, Y_minus, Y_plus, Z_minus, Z_plus, A_minus, A_plus, X_minus_Y_minus, X_minus_Y_plus, X_plus_Y_plus, X_plus_Y_minus };

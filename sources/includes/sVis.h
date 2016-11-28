@@ -47,6 +47,7 @@ class SettingsVis : public QWidget, public Ui::sVis,  public cTranslator
         Q_OBJECT
     public:
         SettingsVis(QWidget *parent = 0);
+        ~SettingsVis();
         void getSettings();
 
     private slots:

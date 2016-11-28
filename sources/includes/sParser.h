@@ -46,6 +46,7 @@ class SettingsParser : public QWidget, public Ui::sParser,  public cTranslator
         Q_OBJECT
     public:
         SettingsParser(QWidget *parent = 0);
+        ~SettingsParser();
         void getSettings();
 
     private slots:

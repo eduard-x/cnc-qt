@@ -79,6 +79,9 @@ SettingsSystem::SettingsSystem(QWidget *p)
     adjustSize();
 }
 
+SettingsSystem::~SettingsSystem()
+{
+}
 
 void SettingsSystem::getSettings()
 {

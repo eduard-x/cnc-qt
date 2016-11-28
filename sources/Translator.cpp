@@ -295,10 +295,10 @@ QString cTranslator::engText[] = {
     "Port:",
     "Remote name:",
     "Remote connection",
-    "Repeat the G-Code work", 
-    "Number of repeatings", // 240 
-    "Total depth", 
-    "Optimize rapid ways", 
+    "Repeat the G-Code work",
+    "Number of repeatings", // 240
+    "Total depth",
+    "Optimize rapid ways",
     ""
 };
 

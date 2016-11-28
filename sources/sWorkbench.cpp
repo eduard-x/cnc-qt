@@ -122,6 +122,9 @@ SettingsWorkbench::SettingsWorkbench(QWidget *p)
     adjustSize();
 }
 
+SettingsWorkbench::~SettingsWorkbench()
+{
+}
 
 void SettingsWorkbench::getSettings()
 {

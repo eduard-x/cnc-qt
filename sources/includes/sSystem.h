@@ -46,6 +46,7 @@ class SettingsSystem : public QWidget, public Ui::sSystem,  public cTranslator
         Q_OBJECT
     public:
         SettingsSystem(QWidget *parent = 0);
+        ~SettingsSystem();
         void getSettings();
 
     private slots:

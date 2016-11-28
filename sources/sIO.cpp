@@ -107,7 +107,9 @@ SettingsIO::SettingsIO(QWidget *p)
     adjustSize();
 }
 
-
+SettingsIO::~SettingsIO()
+{
+}
 
 void SettingsIO::getSettings()
 {

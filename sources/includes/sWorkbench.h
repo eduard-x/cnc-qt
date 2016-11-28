@@ -50,6 +50,7 @@ class SettingsWorkbench : public QWidget, public Ui::sWorkbench,  public cTransl
         Q_OBJECT
     public:
         SettingsWorkbench(QWidget *parent = 0);
+        ~SettingsWorkbench();
         void getSettings();
 
     private slots:

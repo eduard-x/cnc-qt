@@ -63,6 +63,7 @@ class SettingsMaterial : public QWidget, public Ui::sMaterial,  public cTranslat
         Q_OBJECT
     public:
         SettingsMaterial(QWidget *parent = 0);
+        ~SettingsMaterial();
         void getSettings();
 
     private slots:

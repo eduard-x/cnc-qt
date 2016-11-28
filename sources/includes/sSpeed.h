@@ -46,6 +46,7 @@ class SettingsSpeed : public QWidget, public Ui::sSpeed,  public cTranslator
         Q_OBJECT
     public:
         SettingsSpeed(QWidget *parent = 0);
+        ~SettingsSpeed();
         void getSettings();
 
     private slots:

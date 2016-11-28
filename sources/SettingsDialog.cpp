@@ -106,7 +106,7 @@ SettingsDialog::SettingsDialog(QWidget *p, int tabNum)
 
 SettingsDialog::~SettingsDialog()
 {
-   delete sIO;
+    delete sIO;
     delete sWorkbench;
     delete sParser;
     delete sSpeed;
