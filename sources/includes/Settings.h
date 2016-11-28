@@ -133,11 +133,10 @@ class Settings : public QSettings
         static QColor colorSettings[COLOR_ENTRIES];
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2
 
-        //         static bool setSettings;
-        //         static int  spindleMoveSpeed;
-        //         static bool spindleEnabled;
-        //         static bool mistEnabled;
-        //         static bool fluidEnabled;
+        static int depthSum;
+        static int repeatTimes;
+        static bool optimizeRapidWays;
+        static bool repeatProcessing;
         //
         //         static bool Estop;
         static bool filterRepeat;

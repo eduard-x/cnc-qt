@@ -293,6 +293,10 @@ enum TR_CONSTS {
     _PORT, // 236
     _REMOTE_NAME, // 237
     _REMOTE_CONNECTION, // 238
+    _REPEAT_CODE, // 239
+    _NUM_REPEAT, // 240 
+    _DEPTH_SUM, // 241
+    _OPTIMIZE_RAPID_WAYS, // 242
     _NULL
 };
 

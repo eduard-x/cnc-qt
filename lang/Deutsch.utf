@@ -230,7 +230,7 @@ t216=Forderseite
 t217=Links
 t218=Anpassend
 t219=G-Code speichern
-t220=Parser;Bögen teilen
+t220=Parser;Wiederholen G-Code-Aufgabe;Bögen teilen
 t221=Wiederholende Daten aus der Liste entfernen
 t222=Werkzeug/material;Werkzeug;Material;Berechnen
 t223=Steuerung;Entfernt;Tastatur
@@ -250,6 +250,17 @@ t228=0,3..3 mm\t 3/3,175\t VHM-Spiralbohrer\t Platinenbearbeitung für Pertinax 
 6..20 mm\t 6/8\t Fräser mit Hartmetallschneiden\t Holzbearbeitung, verschiedene Spitzenformen erhältlich, vor allem für Oberfräsen\
 6..20 mm\t 6/8\t Schlitzfräser\t Holzbearbeitung, oft auch für Hartmetall-Schneiden, vor allem für Oberfräsen\
 3..8 mm\t 6/8\t Schaftfräser\t Metallbearbeitung mit geringeren Drehzahlen, 2- bis 4-schneidig, HSS oder VHM; eher für größere Fräsemaschinen geeignet
-t229=Select tool:
-t230=Moving;Speed;Directions
-
+t229=Werkzeug auswählen:
+t230=Bewegung;Geschwindigkeit;Richtungen
+t231=Ziffertasten
+t232=Steuerungstasten
+t233=Benutzerdefiniert
+t234=Gamepad
+t235=Controllertyp auswählen:
+t236=Port:
+t237=Remote name:
+t238=Remote connection
+t239=Wiederholung der G-Code-Aufgabe
+t240=Anzahl der Wiederholungen
+t241=Gesamttiefe
+t242=Optimize rapid ways

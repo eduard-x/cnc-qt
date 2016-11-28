@@ -265,7 +265,7 @@ QString cTranslator::engText[] = {
     "Left",
     "Fit",
     "Save G-Code",
-    "Parser;Arc splitting", // 220
+    "Parser;Repeating of G-Code;Arc splitting", // 220
     "Remove repeatable data from list",
     "Work tool/material;Tool;Material;Calc",
     "Control;Remote;Keyboard",
@@ -295,6 +295,10 @@ QString cTranslator::engText[] = {
     "Port:",
     "Remote name:",
     "Remote connection",
+    "Repeat the G-Code work", 
+    "Number of repeatings", // 240 
+    "Total depth", 
+    "Optimize rapid ways", 
     ""
 };
 

@@ -33,8 +33,9 @@
 
 
 #include "includes/sSystem.h"
+#include "includes/Settings.h"
 
-class Settings;
+// class Settings;
 /******************************************************************************
 ** SettingsSystem
 */
@@ -44,11 +45,6 @@ SettingsSystem::SettingsSystem(QWidget *p)
     : QWidget(p)
 {
     setupUi(this);
-
-    //     parent = static_cast<MainWindow*>(p);
-
-    //     setStyleSheet(parent->programStyleSheet);
-
 
     backlashX->setValue(Settings::coord[X].backlash);
     backlashY->setValue(Settings::coord[Y].backlash);
@@ -83,6 +79,7 @@ SettingsSystem::SettingsSystem(QWidget *p)
     adjustSize();
 }
 
+
 void SettingsSystem::getSettings()
 {
     Settings::coord[X].backlash = backlashX->value();
@@ -93,6 +90,7 @@ void SettingsSystem::getSettings()
     Settings::maxLookaheadAngle = spinBoxLookLines->value();
 }
 
+
 void SettingsSystem::translateWidget()
 {
     //     setWindowTitle(translate(_EDITGCODE_TITLE));
@@ -102,28 +100,3 @@ void SettingsSystem::translateWidget()
     //     checkBoxZ->setText(translate(_CORRECT_Z));
 }
 
-#if 0
-void SettingsSystem::checkedChanged( int state)
-{
-    bool check = checkCorrecture->isChecked();
-    groupOffset->setEnabled(check);
-    groupResize->setEnabled(check);
-}
-
-
-void SettingsSystem::onSaveChange()
-{
-    if (checkCorrecture->isChecked()) {
-        parent->deltaX = doubleSpinOffsetX->value();
-        parent->deltaY = doubleSpinOffsetY->value();
-        parent->deltaZ = doubleSpinOffsetZ->value();
-
-        parent->deltaFeed = checkBoxZ->isChecked();
-
-        parent->coeffSizeX = doubleSpinResizeX->value();
-        parent->coeffSizeY = doubleSpinResizeY->value();
-    }
-
-    emit accept();
-}
-#endif

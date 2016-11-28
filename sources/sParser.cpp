@@ -33,6 +33,7 @@
 
 
 #include "includes/sParser.h"
+#include "includes/Settings.h"
 
 class Settings;
 /******************************************************************************
@@ -45,31 +46,67 @@ SettingsParser::SettingsParser(QWidget *p)
 {
     setupUi(this);
 
-    //     parent = static_cast<MainWindow*>(p);
-
-    //     setStyleSheet(parent->programStyleSheet);
-
-
+    QStringList ls;
+    for (int i = 0; i < 10; i++){
+        ls << QString::number(i);
+    }
+    comboBoxTimes->addItems(ls);
 
     spinArcSplitPermm->setValue(Settings::splitsPerMm);
 
     checkBoxRemove->setChecked(Settings::filterRepeat);
+    checkBoxOptimize->setChecked(Settings::optimizeRapidWays);
+    groupBoxRepeat->setChecked(Settings::repeatProcessing);
+    
+    int n; 
+    n = comboBoxTimes->findText(QString::number(Settings::repeatTimes));
+    if (n>= 0){
+        comboBoxTimes->setCurrentIndex(n);
+    }
+    else{
+        comboBoxTimes->setCurrentIndex(0);
+    }
+    
+    ls.removeAt(0);
+    comboBoxDepth->addItems(ls);
+    n = comboBoxDepth->findText(QString::number(Settings::depthSum));
+    if (n>= 0){
+        comboBoxDepth->setCurrentIndex(n);
+    }
+    else{
+        comboBoxDepth->setCurrentIndex(0);
+    }
 
     translateWidget();
 
     adjustSize();
 }
 
-
+/**
+ * 
+ * 
+ */
 void SettingsParser::getSettings()
 {
     Settings::splitsPerMm = spinArcSplitPermm->value();
     Settings::filterRepeat = checkBoxRemove->isChecked();
+    Settings::depthSum = comboBoxDepth->currentText().toInt();
+    Settings::repeatTimes = comboBoxTimes->currentText().toInt();
+    Settings::optimizeRapidWays = checkBoxOptimize->isChecked();
+    Settings::repeatProcessing = groupBoxRepeat->isChecked();
 }
 
-
+/**
+ * 
+ * 
+ */
 void SettingsParser::translateWidget()
 {
     checkBoxRemove->setText(translate(_REMOVE_REPEAT));
+    
+    groupBoxRepeat->setTitle(translate(_REPEAT_CODE));
+    labelRepeat->setText(translate(_NUM_REPEAT));
+    labelDepth->setText(translate(_DEPTH_SUM));
+    checkBoxOptimize->setText(translate(_OPTIMIZE_RAPID_WAYS));
 }
 

@@ -70,7 +70,6 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
     public:
         SettingsDialog(QWidget *parent = 0, int tabNum = 0);
 
-
     private slots:
         void onSave();
         void onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip);
