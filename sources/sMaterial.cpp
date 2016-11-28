@@ -152,6 +152,8 @@ SettingsMaterial::SettingsMaterial(QWidget *p)
 
     connect(comboUnit, SIGNAL(activated(int)), this, SLOT(changeUnit(int)));
 
+    graphicsView->setStyleSheet("background: transparent");
+    
     //     translateWidget();
 
     emit changeUnit( (Settings::unitMm == true) ? 0 : 1);

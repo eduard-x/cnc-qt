@@ -104,6 +104,17 @@ SettingsDialog::SettingsDialog(QWidget *p, int tabNum)
     adjustSize();
 }
 
+SettingsDialog::~SettingsDialog()
+{
+   delete sIO;
+    delete sWorkbench;
+    delete sParser;
+    delete sSpeed;
+    delete sControl;
+    delete sMaterial;
+    delete sSystem;
+    delete sVis;
+}
 
 
 /**

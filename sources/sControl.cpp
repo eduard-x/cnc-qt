@@ -182,7 +182,7 @@ SettingsControl::SettingsControl(QWidget *p)
     this->setFocus();
 
     connect(checkBoxUSBIP, SIGNAL(clicked()), this, SLOT(onEnableRemote()));
-    connect(comboBoxIP, SIGNAL(textChanged(const QString &)), this, SLOT(onRemoteNameChanged(const QString &)));
+    connect(comboBoxIP, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(onRemoteNameChanged(const QString &)));
     connect(lineEditPort, SIGNAL(textChanged(const QString &)), this, SLOT(onRemotePortChanged(const QString &)));
     connect(pushConnect, SIGNAL(clicked()), this, SLOT(onConnect()));
 

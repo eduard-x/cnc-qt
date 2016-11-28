@@ -2039,6 +2039,36 @@ void  MainWindow::refreshElementsForms()
         toolPause->setEnabled( cncConnected );
         toolStop->setEnabled( cncConnected );
 
+        // DEBUG
+        labelB14B0->setPixmap( grayPix );
+        labelB14B1->setPixmap( grayPix );
+        labelB14B2->setPixmap( grayPix );
+        labelB14B3->setPixmap( grayPix );
+        labelB14B4->setPixmap( grayPix );
+        labelB14B5->setPixmap( grayPix );
+        labelB14B6->setPixmap( grayPix );
+        labelB14B7->setPixmap( grayPix );
+
+
+        labelB15B0->setPixmap( grayPix );
+        labelB15B1->setPixmap( grayPix );
+        labelB15B2->setPixmap( grayPix );
+        labelB15B3->setPixmap( grayPix );
+        labelB15B4->setPixmap( grayPix );
+        labelB15B5->setPixmap( grayPix );
+        labelB15B6->setPixmap( grayPix );
+        labelB15B7->setPixmap( grayPix );
+
+
+        labelB19B0->setPixmap( grayPix );
+        labelB19B1->setPixmap( grayPix );
+        labelB19B2->setPixmap( grayPix );
+        labelB19B3->setPixmap( grayPix );
+        labelB19B4->setPixmap( grayPix );
+        labelB19B5->setPixmap( grayPix );
+        labelB19B6->setPixmap( grayPix );
+        labelB19B7->setPixmap( grayPix );
+    
         return;
     }
 

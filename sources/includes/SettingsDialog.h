@@ -69,6 +69,7 @@ class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTrans
         Q_OBJECT
     public:
         SettingsDialog(QWidget *parent = 0, int tabNum = 0);
+        ~SettingsDialog();
 
     private slots:
         void onSave();
