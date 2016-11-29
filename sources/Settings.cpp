@@ -175,8 +175,6 @@ bool Settings::saveSettings()
     QSettings* s;
     s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
 
-    //     s->beginGroup("General");
-
     s->setValue("pos", progPos);
     s->setValue("size", progSize);
     s->setValue("LANGUAGE", currentLang);
@@ -205,20 +203,8 @@ bool Settings::saveSettings()
         s->setValue( imap.key(),  (quint32)imap.value());
     }
 
-    //     foreach (int k, userKeys) {
-    //         s->setValue(k, (quint32)k.code);
-    //     }
-
-    //     if (groupManualControl->isChecked() == false) {
-    //         currentKeyPad = -1;
-    //     }
-
     s->setValue("KeyControl", (int) currentKeyPad);
-    //         s->setValue("LASTPROJ", currentProject);
-    //     s->setValue("FontSize", fontSize);
-    //     s->setValue("GUIFont", sysFont);
-    // qDebug() << "writeGUISettings";
-
+  
     lastFiles.removeDuplicates();
 
     int i = 0;
@@ -233,7 +219,6 @@ bool Settings::saveSettings()
     }
 
     // opengl settings
-    //     if (enableOpenGL == true) {
     s->beginGroup("OpenGL");
 
     s->setValue("ShowLines", ShowLines);
@@ -244,7 +229,15 @@ bool Settings::saveSettings()
     s->setValue("ShowSurface", ShowSurface);
     s->setValue("ShowAxes", ShowAxes);
 
-    //         s->setValue("DisableOpenGL", disableIfSSH);
+    s->setValue("DisableOpenGL", disableOpenGL);
+    s->setValue("RemoteName", remoteName);
+    s->setValue("RemotePort", remotePort);
+    s->setValue("RemoteEnable", enableRemote);
+    s->setValue("DepthSum", depthSum);
+    s->setValue("RepeatTimes", repeatTimes);
+    s->setValue("OptimizeRapid", optimizeRapidWays);
+    s->setValue("RepeatProcessing", repeatProcessing);
+
 
     s->setValue("GrigStep", (int)GrigStep);
 
@@ -287,7 +280,6 @@ bool Settings::saveSettings()
     s->setValue("ShowWorkbench", (bool)showWorkbench);
 
     s->endGroup();
-    //     }
 
     s->beginGroup("mk1");
 
@@ -322,8 +314,6 @@ bool Settings::saveSettings()
     s->endGroup();
 
     s->sync();
-
-    //     updateSettingsOnGUI();
 
     delete s;
 }
@@ -381,7 +371,7 @@ bool Settings::readSettings()
     veloManual = s->value("VelocityManual", 400).toInt();
     currentKeyPad = s->value("KeyControl", -1).toInt();
 
-    unitMm = s->value("UnitMM", 1.0).toBool();
+    unitMm = s->value("UnitMM", 1).toBool();
     splitsPerMm =   s->value("SplitArcPerMM", 10).toInt();
     maxLookaheadAngle = s->value("LookaheadAngle", 170.0).toFloat();
     cuttedMaterial = (MATERIAL)s->value("CuttedMaterial", 0).toInt();
@@ -399,16 +389,6 @@ bool Settings::readSettings()
         imap.next();
         userKeys[imap.key()] = (Qt::Key)s->value(imap.key(), (quint32)imap.value()).toUInt();
     }
-
-    //     foreach(uKeys k, userKeys) {
-    //         k.code = (Qt::Key)s->value(k.name, (quint32)k.code).toUInt();
-    //     }
-
-    //     groupManualControl->setChecked( currentKeyPad != -1);
-    //
-    //     numVeloSubmission->setValue(veloCutting);
-    //     numVeloMoving->setValue(veloMoving);
-    //     numVeloManual->setValue( veloManual);
 
     QString l;
     l = getLocaleString();
@@ -487,7 +467,14 @@ bool Settings::readSettings()
     ShowSurface = s->value("ShowSurface", false).toBool();
     ShowAxes = s->value("ShowAxes", true).toBool();
 
-    //         disableIfSSH =  s->value("DisableOpenGL", false).toBool();
+    disableOpenGL = s->value("DisableOpenGL", false).toBool();
+    remoteName = s->value("RemoteName", "").toString();
+    remotePort = s->value("RemotePort", 0).toInt();
+    enableRemote = s->value("RemoteEnable", false).toBool();
+    depthSum = s->value("DepthSum", 6).toInt();
+    repeatTimes = s->value("RepeatTimes", 0).toInt();
+    optimizeRapidWays = s->value("OptimizeRapid", false).toBool();
+    repeatProcessing = s->value("RepeatProcessing", false).toBool();
 
     GrigStep = s->value("GrigStep", 10).toInt();
 
