@@ -32,6 +32,7 @@
 #include <QLocale>
 #include <QVector>
 
+
 #include "includes/Settings.h"
 
 

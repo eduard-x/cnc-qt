@@ -230,6 +230,63 @@ float Geometry::bicubicInterpolate(QRectF borderRect, QAbstractTableModel *baseP
 }
 
 
+const QVector<int> Geometry::calculateAntPath(const QVector3D &v)
+{
+    points = v.length();
+
+    path.clear();
+    path.resize(points);
+  
+    for (int i = 0; i < distance.size(); ++i) {
+        distance[i].clear();
+    }
+    distance.clear();
+    
+    distance.resize(points);
+    for (int i = 0; i < distance.size(); ++i) {
+        distance[i].resize(points);
+    }
+    
+    AntColonyOptimization();
+    
+    return path;
+}
+/**
+ * @brief 
+ * 
+ * @see Ant Colony Optimization algorihms
+ * @link https://hackaday.io/project/4955-g-code-optimization
+ */
+void Geometry::AntColonyOptimization(/*int[] path, double[][] dis*/)
+{
+//     int cities = dis.GetLength(0), i, j;
+//     START:
+    if (points == 0){
+        return;
+    }
+    
+    for (int i = 0; i < points - 2; i++){
+        for (int j = i + 2; j < points; j++){
+            float swap_length = distance[path[i]][path[j]] + distance[path[i + 1]][path[j + 1]];
+            float old_length = distance[path[i]][path[i + 1]] + distance[path[j]][path[j + 1]];
+            if (swap_length < old_length) {
+                // Make the new and shorter path.
+                for (int x = 0; x < (j - i) / 2; x++) {
+                    // swap 
+                    int temp = path[i + 1 + x];
+                    path[i + 1 + x] = path[j - x];
+                    path[j - x] = temp;
+                }
+                // recursive
+                AntColonyOptimization();
+//                 goto START;
+            }
+        }
+    }
+//     return path;
+}
+
+
 bool Geometry::gernerateBicubicHermiteField()
 {
     // how many values to display on each axis. Limited by console resolution!

@@ -62,6 +62,11 @@ class Geometry
         float bicubicHermitePatch(const float vv[4][4], float u, float v);
         float bicubicInterpolate(QRectF borderRect, QAbstractTableModel *basePoints, float x, float y);
         bool gernerateBicubicHermiteField();
+        void AntColonyOptimization();
+        const QVector<int> calculateAntPath(const QVector3D &v);
+        int points;
+        QVector<int> path;
+        QVector <QVector <float> > distance;
 };
 
 
