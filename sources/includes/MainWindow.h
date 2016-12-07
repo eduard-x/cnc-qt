@@ -182,6 +182,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         mk1Controller *mk1;
 
         QVector<QVector<coord> > surfaceMatrix; // scanned points of surface
+        QVector<QVector3D> g0points;
         int scanPosX;
         int scanPosY;
 
@@ -288,6 +289,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
 
 
     private:
+          void AntColonyOptimization();
+        const QVector<int> calculateAntPath(const QVector<QVector3D> &v);
+      
         void drawWorkbench();
         //
         void reloadRecentList();
@@ -324,7 +328,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         Task::StatusTask currentStatus;
         QGraphicsScene *sceneCoordinates;
         //
-
+  int points;
+        QVector<int> path;
+        QVector <QVector <float> > distance;
         //
 
         QLabel *statusLabel1;

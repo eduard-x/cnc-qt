@@ -196,7 +196,7 @@ bool GCodeParser::addArc(GCodeData *c)
 bool GCodeParser::readGCode(const QByteArray &gcode)
 {
     //  QMutexLocker mLock(&mutex);
-    gCodeList.clear();
+  
 
     //  lock();
 
@@ -404,6 +404,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     int index = 0;
     PlaneEnum currentPlane;
     currentPlane = XY;
+      
+    gCodeList.clear();
+    gPoints.clear();
 
     Settings::coord[X].softLimitMax = 0;
     Settings::coord[X].softLimitMin = 0;
@@ -448,11 +451,17 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->movingCode = RAPID_LINE_CODE;
                     tmpCommand->plane = currentPlane;
 
+                    // for the way optimizing
+                    gPoints << current_pos;
+                    
                     if (b_absolute) {
                         current_pos = next_pos + origin;
                     } else {
                         current_pos += next_pos;
                     }
+                    
+                    // for the way optimizing
+                    gPoints << current_pos;
 
                     gCodeList << *tmpCommand;
                     // init of next instuction
@@ -1537,6 +1546,10 @@ QVector<QString> GCodeParser::getGoodList()
     return goodList;
 }
 
+QVector <QVector3D> GCodeParser::getRapidPoints()
+{
+    return gPoints;
+}
 
 /**
  * @brief
