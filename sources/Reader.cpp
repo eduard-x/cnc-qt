@@ -34,7 +34,7 @@
 #include <QRegExp>
 #include <QDebug>
 #include <QTime>
-#include <QFileDialog>
+// #include <QFileDialog>
 #include <QString>
 #include <QDir>
 
@@ -43,7 +43,7 @@
 #include "includes/Settings.h"
 #include "includes/GCode.h"
 #include "includes/Reader.h"
-#include "includes/MainWindow.h"
+// #include "includes/MainWindow.h"
 
 
 /******************************************************************************
@@ -117,12 +117,12 @@ void GerberData::CalculateGatePoints(int _accuracy)
 
 
 
-Reader::Reader(MainWindow *parent)
+Reader::Reader()
 //  : mutex(QMutex::Recursive)
 {
     TypeFile = None;
 
-    this->parent = parent;
+//     this->parent = parent;
 }
 
 
@@ -138,7 +138,7 @@ Reader::Reader(MainWindow *parent)
 // }
 
 
-void Reader::SaveFile()
+void Reader::writeFile(const QString &fileName)
 {
 }
 
@@ -213,41 +213,6 @@ bool Reader::readFile(const QString &fileName)
 }
 
 
-//
-// dialog for opening of file
-//
-bool Reader::OpenFile(QString &fileName)
-{
-    QString name;
-    QString dir;
-
-    dir = ( lastDir.length() > 0) ? lastDir : QDir::homePath();
-
-    if (fileName == "") {
-        name = QFileDialog::getOpenFileName ( 0, parent->translate(_LOAD_FROM_FILE), dir );
-
-        if (name.length() == 0) {
-            return false;
-        }
-    } else {
-        name = fileName;
-    }
-
-    if (name.length() > 0) {
-        bool f = readFile(name);
-
-        if (f == true) {
-            QFileInfo fi(name);
-            fileName = fi.absoluteFilePath();
-
-            lastDir = QFileInfo(fileName).absoluteDir().absolutePath();
-        }
-
-        return f;
-    }
-
-    return false;
-}
 
 
 bool Reader::readPLT( const QByteArray &arr )

@@ -46,13 +46,13 @@
 // #include <utility>
 
 #include "GCode.h"
-#include "MainWindow.h"
+// #include "MainWindow.h"
 // #include "Translator.h"
 
 
 #define byte unsigned char
 
-class MainWindow;
+// class MainWindow;
 // class cTranslator;
 class GCodeParser;
 
@@ -245,7 +245,7 @@ class GerberData
 class Reader : public GCodeParser// , public cTranslator
 {
     public:
-        Reader(MainWindow *parent = 0);
+        Reader();
 
         void BresenhamLine(QVector<QVector<byte> > &p, int x0, int y0, int x1, int y1, typeSpline _Splane);
         void BresenhamCircle(QVector<QVector<byte> > &p,  int x0, int y0, int radius, byte setvalue = 4, bool needFill = false);
@@ -257,8 +257,8 @@ class Reader : public GCodeParser// , public cTranslator
 
         //         void loadGCodeFromText(QStringList lines);
         //         bool parserGCodeLine(const QString &value);
-        bool OpenFile(QString &name);
-        void SaveFile();
+       
+        void writeFile(const QString &fileName);
 
 
 
@@ -270,7 +270,7 @@ class Reader : public GCodeParser// , public cTranslator
         //         std::vector<Vec3f> cached_points;
         //         std::vector<Vec3f> cached_color;
 
-        QString lastDir;
+//         QString lastDir;
 
 
         //             signals:
@@ -306,7 +306,7 @@ class Reader : public GCodeParser// , public cTranslator
     private:
         typeFileLoad TypeFile;// = typeFileLoad.None;
 
-        MainWindow* parent;
+//         MainWindow* parent;
 
         //         mutable QMutex mutex;
 };

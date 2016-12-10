@@ -220,7 +220,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     Settings::fontSize = sysFont.pointSize();
 
-    reader = new Reader(this);
+    reader = new Reader();
 
     labelTask->setText("");
 
@@ -334,8 +334,11 @@ MainWindow::MainWindow(QWidget *parent)
         if (arguments.at(1).length() > 0) { // as parameter is file name to load
             QString nm = arguments.at(1);
 
-            if (reader->OpenFile(nm) == true) {
-
+            if (OpenFile(nm) == false) {
+                AddLog("File loading error: " + nm );
+                return;
+            }
+#if 0
                 Settings::lastFiles.insert(0, nm);
                 Settings::lastFiles.removeDuplicates();
 
@@ -345,6 +348,14 @@ MainWindow::MainWindow(QWidget *parent)
                 fillListWidget(l);
 
                 gCodeData = reader->getGCodeData();
+                
+                g0points = reader->getRapidPoints();
+                QVector<int> ant = calculateAntPath(g0points);
+    
+                qDebug() << ant;
+                for  (int n = 0; n < ant.size(); n++){
+                    qDebug() << g0points.at(ant.at(n));
+                }
 
                 if (enableOpenGL == true) {
                     scene3d->loadFigure();
@@ -363,6 +374,7 @@ MainWindow::MainWindow(QWidget *parent)
                     AddLog("File loaded: " + nm);
                 }
             }
+#endif
         }
     }
 
@@ -945,6 +957,78 @@ void MainWindow::reloadRecentList()
 }
 
 
+//
+// dialog for opening of file
+//
+bool MainWindow::OpenFile(QString &fileName)
+{
+    QString name;
+    QString dir;
+
+    dir = ( Settings::lastDir.length() > 0) ? Settings::lastDir : QDir::homePath();
+
+    if (fileName == "") {
+        name = QFileDialog::getOpenFileName ( 0, translate(_LOAD_FROM_FILE), dir );
+
+        if (name.length() == 0) {
+            return false;
+        }
+    } else {
+        name = fileName;
+    }
+
+    if (name.length() > 0) {
+        bool f = reader->readFile(name);
+
+        if (f == true) {
+            QFileInfo fi(name);
+            fileName = fi.absoluteFilePath();
+
+            Settings::lastFiles.insert(0, name);
+            Settings::lastFiles.removeDuplicates();
+
+            reloadRecentList();
+
+            QVector<QString> l = reader->getGoodList();
+            fillListWidget(l);
+
+            gCodeData = reader->getGCodeData();
+            
+            g0points = reader->getRapidPoints();
+            QVector<int> ant = calculateAntPath(g0points);
+            
+            qDebug() << ant;
+            
+            for  (int n = 0; n < ant.size(); n++){
+                qDebug() << "line:" << g0points.at(ant.at(n)).line << g0points.at(ant.at(n)).coord;
+            }
+
+            if (enableOpenGL == true) {
+                scene3d->loadFigure();
+            }
+
+            //     l = reader->getBadList();
+            //
+            //     if (l.count() != 0) {
+            //         foreach (QString s, l) {
+            //             AddLog(s);
+            //         }
+            //     }
+
+            if (gCodeData.count() > 0) {
+                name.replace(QDir::homePath(), QString("~"));
+                AddLog("File loaded: " + name );
+            }
+        
+            Settings::lastDir = QFileInfo(fileName).absoluteDir().absolutePath();
+        }
+        
+        return f;
+    }
+
+    return false;
+}
+
 /**
  * @brief select file from recent files list
  *
@@ -957,16 +1041,25 @@ void MainWindow::setFile(QAction* a)
 
     fileStr = fileStr.remove("&");
 
-    if (reader->OpenFile(fileStr) == false) {
+    if (OpenFile(fileStr) == false) {
         AddLog("File loading error: " + fileStr );
         return;
     }
-
+#if 0
     QVector<QString> l = reader->getGoodList();
     fillListWidget(l);
 
     gCodeData = reader->getGCodeData();
 
+    g0points = reader->getRapidPoints();
+    QVector<int> ant = calculateAntPath(g0points);
+    
+    qDebug() << ant;
+//     QString dbg;
+    for  (int n = 0; n < ant.size(); n++){
+        qDebug() << g0points.at(ant.at(n));
+    }
+    
     if (enableOpenGL == true) {
         scene3d->loadFigure();
     }
@@ -983,6 +1076,7 @@ void MainWindow::setFile(QAction* a)
         fileStr.replace(QDir::homePath(), QString("~"));
         AddLog("File loaded: " + fileStr );
     }
+#endif
 }
 
 
@@ -2049,7 +2143,6 @@ void  MainWindow::refreshElementsForms()
         labelB14B6->setPixmap( grayPix );
         labelB14B7->setPixmap( grayPix );
 
-
         labelB15B0->setPixmap( grayPix );
         labelB15B1->setPixmap( grayPix );
         labelB15B2->setPixmap( grayPix );
@@ -2059,7 +2152,15 @@ void  MainWindow::refreshElementsForms()
         labelB15B6->setPixmap( grayPix );
         labelB15B7->setPixmap( grayPix );
 
-
+        labelB16B0->setPixmap( grayPix );
+        labelB16B1->setPixmap( grayPix );
+        labelB16B2->setPixmap( grayPix );
+        labelB16B3->setPixmap( grayPix );
+        labelB16B4->setPixmap( grayPix );
+        labelB16B5->setPixmap( grayPix );
+        labelB16B6->setPixmap( grayPix );
+        labelB16B7->setPixmap( grayPix );
+        
         labelB19B0->setPixmap( grayPix );
         labelB19B1->setPixmap( grayPix );
         labelB19B2->setPixmap( grayPix );
@@ -2649,7 +2750,7 @@ int MainWindow::calculateMinAngleSteps(int startPos)
  */
 void MainWindow::onSaveFile()
 {
-    reader->SaveFile();
+//     reader->writeFile();
 }
 
 
@@ -2663,11 +2764,11 @@ void MainWindow::onOpenFile()
 
     statusProgress->setValue(0);
 
-    if (reader->OpenFile(nm) == false) {
+    if (OpenFile(nm) == false) {
         AddLog("File loading error: " + nm );
         return;
     }
-
+#if 0
     Settings::lastFiles.insert(0, nm);
     Settings::lastFiles.removeDuplicates();
 
@@ -2682,6 +2783,10 @@ void MainWindow::onOpenFile()
     QVector<int> ant = calculateAntPath(g0points);
     
     qDebug() << ant;
+    
+    for  (int n = 0; n < ant.size(); n++){
+        qDebug() << g0points.at(ant.at(n));
+    }
 
     if (enableOpenGL == true) {
         scene3d->loadFigure();
@@ -2699,10 +2804,11 @@ void MainWindow::onOpenFile()
         nm.replace(QDir::homePath(), QString("~"));
         AddLog("File loaded: " + nm );
     }
+#endif
 }
 
 
-const QVector<int> MainWindow::calculateAntPath(const QVector<QVector3D> &v)
+const QVector<int> MainWindow::calculateAntPath(const QVector<GCodeOptim> &v)
 {
     points = v.length();
 
@@ -2722,7 +2828,7 @@ const QVector<int> MainWindow::calculateAntPath(const QVector<QVector3D> &v)
     for (int i=0; i < points; i++){
         path[i] = i;
         for (int j =0; j<points; j++){
-            distance[i][j] = sqrt((v.at(j).x()- v.at(i).x())*(v.at(j).x()- v.at(i).x()) + (v.at(j).y()- v.at(i).y())*(v.at(j).y()- v.at(i).y()));
+            distance[i][j] = sqrt((v.at(j).coord.x()- v.at(i).coord.x())*(v.at(j).coord.x()- v.at(i).coord.x()) + (v.at(j).coord.y()- v.at(i).coord.y())*(v.at(j).coord.y()- v.at(i).coord.y()));
         }
     }
     

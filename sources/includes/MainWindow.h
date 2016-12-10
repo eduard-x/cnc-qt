@@ -182,7 +182,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         mk1Controller *mk1;
 
         QVector<QVector<coord> > surfaceMatrix; // scanned points of surface
-        QVector<QVector3D> g0points;
+        QVector<GCodeOptim> g0points;
         int scanPosX;
         int scanPosY;
 
@@ -289,9 +289,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
 
 
     private:
-          void AntColonyOptimization();
-        const QVector<int> calculateAntPath(const QVector<QVector3D> &v);
-      
+        void AntColonyOptimization();
+        const QVector<int> calculateAntPath(const QVector<GCodeOptim> &v);
+        bool OpenFile(QString &name);
+       
         void drawWorkbench();
         //
         void reloadRecentList();

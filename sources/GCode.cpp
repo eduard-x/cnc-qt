@@ -451,8 +451,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->movingCode = RAPID_LINE_CODE;
                     tmpCommand->plane = currentPlane;
 
-                    // for the way optimizing
-                    gPoints << current_pos;
+//                     // for the way optimizing
+//                     gPoints << current_pos;
                     
                     if (b_absolute) {
                         current_pos = next_pos + origin;
@@ -461,7 +461,10 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     }
                     
                     // for the way optimizing
-                    gPoints << current_pos;
+                    if (gCodeList.last().movingCode != RAPID_LINE_CODE){
+                         gPoints << GCodeOptim {current_pos, index};
+                    }
+                   
 
                     gCodeList << *tmpCommand;
                     // init of next instuction
@@ -1546,7 +1549,7 @@ QVector<QString> GCodeParser::getGoodList()
     return goodList;
 }
 
-QVector <QVector3D> GCodeParser::getRapidPoints()
+QVector <GCodeOptim> GCodeParser::getRapidPoints()
 {
     return gPoints;
 }

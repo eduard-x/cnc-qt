@@ -133,8 +133,10 @@ class GCodeData
 
 
 
-// struct GCodeData {
-// };
+struct GCodeOptim {
+    QVector3D coord;
+    int line;
+};
 
 
 class GCodeParser : public QObject
@@ -145,7 +147,7 @@ class GCodeParser : public QObject
         bool readGCode(const QByteArray &gcode);
         QVector<QString> getGoodList();
         QVector<GCodeData> getGCodeData();
-        QVector <QVector3D> getRapidPoints();
+        QVector <GCodeOptim> getRapidPoints();
 
     private:
         float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);
@@ -163,7 +165,7 @@ class GCodeParser : public QObject
 
     private:
         QVector<GCodeData> gCodeList;
-        QVector<QVector3D> gPoints;
+        QVector<GCodeOptim> gPoints;
         QVector<QString> goodList; // only decoded G-code
         //         QVector<QString> badList;
 };
