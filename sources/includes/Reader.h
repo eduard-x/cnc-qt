@@ -257,7 +257,7 @@ class Reader : public GCodeParser// , public cTranslator
 
         //         void loadGCodeFromText(QStringList lines);
         //         bool parserGCodeLine(const QString &value);
-       
+
         void writeFile(const QString &fileName);
 
 
@@ -270,7 +270,7 @@ class Reader : public GCodeParser// , public cTranslator
         //         std::vector<Vec3f> cached_points;
         //         std::vector<Vec3f> cached_color;
 
-//         QString lastDir;
+        //         QString lastDir;
 
 
         //             signals:
@@ -306,7 +306,7 @@ class Reader : public GCodeParser// , public cTranslator
     private:
         typeFileLoad TypeFile;// = typeFileLoad.None;
 
-//         MainWindow* parent;
+        //         MainWindow* parent;
 
         //         mutable QMutex mutex;
 };

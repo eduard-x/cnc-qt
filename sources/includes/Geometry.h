@@ -62,7 +62,7 @@ class Geometry
         float bicubicHermitePatch(const float vv[4][4], float u, float v);
         float bicubicInterpolate(QRectF borderRect, QAbstractTableModel *basePoints, float x, float y);
         bool gernerateBicubicHermiteField();
-      
+
 };
 
 

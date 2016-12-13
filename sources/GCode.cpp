@@ -196,7 +196,7 @@ bool GCodeParser::addArc(GCodeData *c)
 bool GCodeParser::readGCode(const QByteArray &gcode)
 {
     //  QMutexLocker mLock(&mutex);
-  
+
 
     //  lock();
 
@@ -401,10 +401,10 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
     t.restart();
 
-    int index = 0;
+    //     int index = 0;
     PlaneEnum currentPlane;
     currentPlane = XY;
-      
+
     gCodeList.clear();
     gPoints.clear();
 
@@ -417,6 +417,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
     GCodeData *tmpCommand = new GCodeData();
 
+    //     int counter = -1;
     foreach(QString line, gCodeLines) {
         decoded = true;
         QStringList vct_ref = line.simplified().split(" ", QString::SkipEmptyParts);
@@ -451,26 +452,26 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->movingCode = RAPID_LINE_CODE;
                     tmpCommand->plane = currentPlane;
 
-//                     // for the way optimizing
-//                     gPoints << current_pos;
-                    
+                    //                     // for the way optimizing
+                    //                     gPoints << current_pos;
+
                     if (b_absolute) {
                         current_pos = next_pos + origin;
                     } else {
                         current_pos += next_pos;
                     }
-                    
+
                     // for the way optimizing
-                    if (gCodeList.last().movingCode != RAPID_LINE_CODE){
-                         gPoints << GCodeOptim {current_pos, index};
+                    if (gCodeList.last().movingCode != RAPID_LINE_CODE) {
+                        gPoints << GCodeOptim {current_pos, goodList.count()};
                     }
-                   
+
 
                     gCodeList << *tmpCommand;
                     // init of next instuction
                     tmpCommand = new GCodeData(tmpCommand);
 
-                    tmpCommand->numberLine = index;
+                    tmpCommand->numberLine = goodList.count();
 
 
                     tmpCommand->changeInstrument = false;
@@ -514,7 +515,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     // init of next instuction
                     tmpCommand = new GCodeData(tmpCommand);
 
-                    tmpCommand->numberLine = index;
+                    tmpCommand->numberLine = goodList.count();
 
                     tmpCommand->changeInstrument = false;
                     tmpCommand->pauseMSeconds = -1; // no pause
@@ -575,7 +576,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     // qDebug() << "line " << tmpCommand->numberLine << "before convertArcToLines()" << gCodeList.count() << "splits" << tmpCommand->splits;
                     convertArcToLines(tmpCommand); // tmpCommand has data of last point
 
-                    tmpCommand->numberLine = index;
+                    tmpCommand->numberLine = goodList.count();
 
                     tmpCommand->changeInstrument = false;
                     tmpCommand->pauseMSeconds = -1; // no pause
@@ -839,7 +840,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             goodList << line;
         }
 
-        index++;
+        //         index++;
     }
 
     //     QString log = "Read gcode, parsed. Time elapsed: " + QString::number(t.elapsed()) + " ms";

@@ -205,7 +205,7 @@ bool Settings::saveSettings()
     }
 
     s->setValue("KeyControl", (int) currentKeyPad);
-  
+
     lastFiles.removeDuplicates();
 
     int i = 0;

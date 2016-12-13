@@ -292,7 +292,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         void AntColonyOptimization();
         const QVector<int> calculateAntPath(const QVector<GCodeOptim> &v);
         bool OpenFile(QString &name);
-       
+
         void drawWorkbench();
         //
         void reloadRecentList();
@@ -329,7 +329,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         Task::StatusTask currentStatus;
         QGraphicsScene *sceneCoordinates;
         //
-  int points;
+        int points;
         QVector<int> path;
         QVector <QVector <float> > distance;
         //

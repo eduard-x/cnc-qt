@@ -338,43 +338,6 @@ MainWindow::MainWindow(QWidget *parent)
                 AddLog("File loading error: " + nm );
                 return;
             }
-#if 0
-                Settings::lastFiles.insert(0, nm);
-                Settings::lastFiles.removeDuplicates();
-
-                reloadRecentList();
-
-                QVector<QString> l = reader->getGoodList();
-                fillListWidget(l);
-
-                gCodeData = reader->getGCodeData();
-                
-                g0points = reader->getRapidPoints();
-                QVector<int> ant = calculateAntPath(g0points);
-    
-                qDebug() << ant;
-                for  (int n = 0; n < ant.size(); n++){
-                    qDebug() << g0points.at(ant.at(n));
-                }
-
-                if (enableOpenGL == true) {
-                    scene3d->loadFigure();
-                }
-
-                //                 l = reader->getBadList();
-                //
-                //                 if (l.count() != 0) {
-                //                     foreach (QString s, l) {
-                //                         AddLog(s);
-                //                     }
-                //                 }
-
-                if (gCodeData.count() > 0) {
-                    nm.replace(QDir::homePath(), QString("~"));
-                    AddLog("File loaded: " + nm);
-                }
-            }
-#endif
         }
     }
 
@@ -924,36 +887,45 @@ void MainWindow::reloadRecentList()
 
     actFileSelect.clear();
 
-    if (Settings::lastFiles.count() > 0) {
-        filesMenu = new QMenu( translate(_RECENTFILES)); //insertAction
-        QAction *actionRecent = menuFile->insertMenu(actionSave, filesMenu);
-        filesGroup = new QActionGroup(this);
-
-        foreach (QString iL, Settings::lastFiles) {
-            QFileInfo fRecent(iL);
-
-            iL = fRecent.absoluteFilePath();
-        }
-
-        Settings::lastFiles.removeDuplicates();
-
-        foreach (QString iL, Settings::lastFiles) {
-            QFileInfo fRecent(iL);
-
-            if (fRecent.exists() == false) {
-                continue;
-            }
-
-            QAction *tmpAction = new QAction(iL, actionRecent);
-
-            filesGroup->addAction(tmpAction);
-            filesMenu->addAction(tmpAction);
-
-            actFileSelect.push_back(tmpAction);
-        }
-
-        connect(filesGroup, SIGNAL(triggered(QAction*)), this, SLOT(setFile(QAction*)));
+    if (Settings::lastFiles.count() <= 0) {
+        return;
     }
+
+    filesMenu = new QMenu( translate(_RECENTFILES)); //insertAction
+    QAction *actionRecent = menuFile->insertMenu(actionSave, filesMenu);
+    filesGroup = new QActionGroup(this);
+
+    QStringList tmpList;
+
+    foreach (QString iL, Settings::lastFiles) {
+        QFileInfo fRecent(iL);
+
+        iL = fRecent.absoluteFilePath();
+
+        if (fRecent.exists() == false) {
+            Settings::lastFiles.removeOne(iL);
+            continue;
+        }
+
+        if (iL.indexOf(QDir::homePath()) >= 0) {
+            iL.replace(QDir::homePath(), QString("~"));
+        }
+
+        tmpList << iL;
+    }
+
+    tmpList.removeDuplicates();
+
+    foreach (QString iL, tmpList) {
+        QAction *tmpAction = new QAction(iL, actionRecent);
+
+        filesGroup->addAction(tmpAction);
+        filesMenu->addAction(tmpAction);
+
+        actFileSelect.push_back(tmpAction);
+    }
+
+    connect(filesGroup, SIGNAL(triggered(QAction*)), this, SLOT(setFile(QAction*)));
 }
 
 
@@ -985,7 +957,6 @@ bool MainWindow::OpenFile(QString &fileName)
             fileName = fi.absoluteFilePath();
 
             Settings::lastFiles.insert(0, name);
-            Settings::lastFiles.removeDuplicates();
 
             reloadRecentList();
 
@@ -993,14 +964,18 @@ bool MainWindow::OpenFile(QString &fileName)
             fillListWidget(l);
 
             gCodeData = reader->getGCodeData();
-            
-            g0points = reader->getRapidPoints();
-            QVector<int> ant = calculateAntPath(g0points);
-            
-            qDebug() << ant;
-            
-            for  (int n = 0; n < ant.size(); n++){
-                qDebug() << "line:" << g0points.at(ant.at(n)).line << g0points.at(ant.at(n)).coord;
+
+            if (Settings::optimizeRapidWays == true) {
+                g0points = reader->getRapidPoints();
+                QVector<int> ant = calculateAntPath(g0points);
+
+                qDebug() << ant;
+                qDebug() << "list size" << l.size();
+
+                for  (int n = 0; n < ant.size(); n++) {
+                    int ln = g0points.at(ant.at(n)).line;
+                    qDebug() << "line:" << ln << l.at(ln) << g0points.at(ant.at(n)).coord;
+                }
             }
 
             if (enableOpenGL == true) {
@@ -1019,10 +994,10 @@ bool MainWindow::OpenFile(QString &fileName)
                 name.replace(QDir::homePath(), QString("~"));
                 AddLog("File loaded: " + name );
             }
-        
+
             Settings::lastDir = QFileInfo(fileName).absoluteDir().absolutePath();
         }
-        
+
         return f;
     }
 
@@ -1045,38 +1020,6 @@ void MainWindow::setFile(QAction* a)
         AddLog("File loading error: " + fileStr );
         return;
     }
-#if 0
-    QVector<QString> l = reader->getGoodList();
-    fillListWidget(l);
-
-    gCodeData = reader->getGCodeData();
-
-    g0points = reader->getRapidPoints();
-    QVector<int> ant = calculateAntPath(g0points);
-    
-    qDebug() << ant;
-//     QString dbg;
-    for  (int n = 0; n < ant.size(); n++){
-        qDebug() << g0points.at(ant.at(n));
-    }
-    
-    if (enableOpenGL == true) {
-        scene3d->loadFigure();
-    }
-
-    //     l = reader->getBadList();
-    //
-    //     if (l.count() != 0) {
-    //         foreach (QString s, l) {
-    //             AddLog(s);
-    //         }
-    //     }
-
-    if (gCodeData.count() > 0) {
-        fileStr.replace(QDir::homePath(), QString("~"));
-        AddLog("File loaded: " + fileStr );
-    }
-#endif
 }
 
 
@@ -2160,7 +2103,7 @@ void  MainWindow::refreshElementsForms()
         labelB16B5->setPixmap( grayPix );
         labelB16B6->setPixmap( grayPix );
         labelB16B7->setPixmap( grayPix );
-        
+
         labelB19B0->setPixmap( grayPix );
         labelB19B1->setPixmap( grayPix );
         labelB19B2->setPixmap( grayPix );
@@ -2750,7 +2693,7 @@ int MainWindow::calculateMinAngleSteps(int startPos)
  */
 void MainWindow::onSaveFile()
 {
-//     reader->writeFile();
+    //     reader->writeFile();
 }
 
 
@@ -2768,43 +2711,6 @@ void MainWindow::onOpenFile()
         AddLog("File loading error: " + nm );
         return;
     }
-#if 0
-    Settings::lastFiles.insert(0, nm);
-    Settings::lastFiles.removeDuplicates();
-
-    reloadRecentList();
-
-    QVector<QString> l = reader->getGoodList();
-    fillListWidget(l);
-
-    gCodeData = reader->getGCodeData();
-    
-    g0points = reader->getRapidPoints();
-    QVector<int> ant = calculateAntPath(g0points);
-    
-    qDebug() << ant;
-    
-    for  (int n = 0; n < ant.size(); n++){
-        qDebug() << g0points.at(ant.at(n));
-    }
-
-    if (enableOpenGL == true) {
-        scene3d->loadFigure();
-    }
-
-    //     l = reader->getBadList();
-    //
-    //     if (l.count() != 0) {
-    //         foreach (QString s, l) {
-    //             AddLog(s);
-    //         }
-    //     }
-
-    if (gCodeData.count() > 0) {
-        nm.replace(QDir::homePath(), QString("~"));
-        AddLog("File loaded: " + nm );
-    }
-#endif
 }
 
 
@@ -2814,61 +2720,67 @@ const QVector<int> MainWindow::calculateAntPath(const QVector<GCodeOptim> &v)
 
     path.clear();
     path.resize(points);
-  
+
     for (int i = 0; i < distance.size(); ++i) {
         distance[i].clear();
     }
+
     distance.clear();
-    
+
     distance.resize(points);
+
     for (int i = 0; i < distance.size(); ++i) {
         distance[i].resize(points);
     }
-    
-    for (int i=0; i < points; i++){
+
+    for (int i = 0; i < points; i++) {
         path[i] = i;
-        for (int j =0; j<points; j++){
-            distance[i][j] = sqrt((v.at(j).coord.x()- v.at(i).coord.x())*(v.at(j).coord.x()- v.at(i).coord.x()) + (v.at(j).coord.y()- v.at(i).coord.y())*(v.at(j).coord.y()- v.at(i).coord.y()));
+
+        for (int j = 0; j < points; j++) {
+            distance[i][j] = sqrt((v.at(j).coord.x() - v.at(i).coord.x()) * (v.at(j).coord.x() - v.at(i).coord.x()) + (v.at(j).coord.y() - v.at(i).coord.y()) * (v.at(j).coord.y() - v.at(i).coord.y()));
         }
     }
-    
+
     AntColonyOptimization();
-    
+
     return path;
 }
 /**
- * @brief 
- * 
+ * @brief
+ *
  * @see Ant Colony Optimization algorihms
  * @link https://hackaday.io/project/4955-g-code-optimization
  */
 void MainWindow::AntColonyOptimization(/*int[] path, double[][] dis*/)
 {
-//     int cities = dis.GetLength(0), i, j;
-//     START:
-    if (points == 0){
+    //     int cities = dis.GetLength(0), i, j;
+    //     START:
+    if (points == 0) {
         return;
     }
-    
-    for (int i = 0; i < points - 2; i++){
-        for (int j = i + 2; j < points; j++){
+
+    for (int i = 0; i < points - 2; i++) {
+        for (int j = i + 2; j < points; j++) {
             float swap_length = distance[path[i]][path[j]] + distance[path[i + 1]][path[j + 1]];
             float old_length = distance[path[i]][path[i + 1]] + distance[path[j]][path[j + 1]];
+
             if (swap_length < old_length) {
                 // Make the new and shorter path.
                 for (int x = 0; x < (j - i) / 2; x++) {
-                    // swap 
+                    // swap
                     int temp = path[i + 1 + x];
                     path[i + 1 + x] = path[j - x];
                     path[j - x] = temp;
                 }
+
                 // recursive
                 AntColonyOptimization();
-//                 goto START;
+                //                 goto START;
             }
         }
     }
-//     return path;
+
+    //     return path;
 }
 
 

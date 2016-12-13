@@ -122,7 +122,7 @@ Reader::Reader()
 {
     TypeFile = None;
 
-//     this->parent = parent;
+    //     this->parent = parent;
 }
 
 
