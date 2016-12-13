@@ -417,7 +417,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
     GCodeData *tmpCommand = new GCodeData();
 
-    //     int counter = -1;
+    int preCount = 0;
+
     foreach(QString line, gCodeLines) {
         decoded = true;
         QStringList vct_ref = line.simplified().split(" ", QString::SkipEmptyParts);
@@ -463,7 +464,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     // for the way optimizing
                     if (gCodeList.last().movingCode != RAPID_LINE_CODE) {
-                        gPoints << GCodeOptim {current_pos, goodList.count()};
+                        gPoints << GCodeOptim {current_pos, preCount, goodList.count()};
+                        preCount = goodList.count() + 1;
                     }
 
 
@@ -855,6 +857,20 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 }
 
 
+/**
+ *
+ *
+ */
+void GCodeParser::sortGCode(const QVector<int> &antdata)
+{
+    qDebug() << antdata;
+    qDebug() << "list size" << goodList.size();
+
+    for  (int n = 0; n < antdata.size(); n++) {
+        int ln = gPoints.at(antdata.at(n)).toLine;
+        qDebug() << "line:" << ln << goodList.at(ln) << gPoints.at(antdata.at(n)).coord;
+    }
+}
 
 /**
  * @brief detect the min and max ranges

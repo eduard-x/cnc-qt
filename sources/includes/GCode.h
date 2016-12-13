@@ -135,7 +135,8 @@ class GCodeData
 
 struct GCodeOptim {
     QVector3D coord;
-    int line;
+    int fromLine;
+    int toLine;
 };
 
 
@@ -157,13 +158,15 @@ class GCodeParser : public QObject
         bool addLine(GCodeData* param);
         bool addArc(GCodeData* param);
         void detectMinMax(const GCodeData &d);
-
         bool parseCoord(const QString &line, QVector3D &pos, float &E, const float coef, float *F = NULL);
+
+    protected:
+        void sortGCode(const QVector<int> &antdata);
 
     signals:
         void logMessage(const QString &l);
 
-    private:
+    protected:
         QVector<GCodeData> gCodeList;
         QVector<GCodeOptim> gPoints;
         QVector<QString> goodList; // only decoded G-code
