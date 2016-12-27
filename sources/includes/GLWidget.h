@@ -165,6 +165,10 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         QToolButton *cmdTop;
         QToolButton *cmdFront;
         QToolButton *cmdLeft;
+        
+        QToolButton *cmdX[3];
+        QToolButton *cmdY[3];
+        QToolButton *cmdZ[3];
 
         QSlider *cmdZoom;
 

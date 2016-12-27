@@ -619,12 +619,15 @@ const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
         path[i] = i;
 
         for (int j = 0; j < points; j++) {
-            distance[i][j] = sqrt((gPoints.at(j).coord.x() - gPoints.at(i).coord.x()) * (gPoints.at(j).coord.x() - gPoints.at(i).coord.x()) +
-                                  (gPoints.at(j).coord.y() - gPoints.at(i).coord.y()) * (gPoints.at(j).coord.y() - gPoints.at(i).coord.y()));
+//             distance[i][j] = sqrt((gPoints.at(j).coord.x() - gPoints.at(i).coord.x()) * (gPoints.at(j).coord.x() - gPoints.at(i).coord.x()) +
+//                                   (gPoints.at(j).coord.y() - gPoints.at(i).coord.y()) * (gPoints.at(j).coord.y() - gPoints.at(i).coord.y()));
+            distance[i][j] = gPoints.at(j).coord.distanceToPoint(gPoints.at(i).coord);
         }
     }
 
-    AntColonyOptimization();
+    if (points >2){
+        AntColonyOptimization();
+    }
 
     return path;
 }
@@ -636,11 +639,9 @@ const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
  */
 void Reader::AntColonyOptimization(/*int[] path, double[][] dis*/)
 {
-    //     int cities = dis.GetLength(0), i, j;
-    //     START:
-    if (points == 0) {
-        return;
-    }
+//     if (points == 0) {
+//         return;
+//     }
 
     for (int i = 0; i < points - 2; i++) {
         for (int j = i + 2; j < points; j++) {

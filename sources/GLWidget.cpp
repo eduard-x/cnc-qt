@@ -146,6 +146,18 @@ void GLWidget::createButtons()
 
     cmdZoom->setToolTip("Zoom");
 
+    for (int i=0; i<3; i++){
+      cmdX[i] = new QToolButton(this);
+      if(i != 2){
+     cmdX[i]->setBaseSize(QSize(24, 24));
+     cmdX[i]->resize(24, 24);
+      }
+      else{
+             cmdX[i]->setBaseSize(QSize(24*3, 24));
+     cmdX[i]->resize(24*3, 24);
+      }
+    }
+//     cmdIsometric->setToolTip(translate(_ISO));//"Iso");
 
     QObject::connect(cmdIsometric, SIGNAL(clicked(bool)), this, SLOT(setIso()));
     QObject::connect(cmdFit, SIGNAL(clicked(bool)), this, SLOT(setFit()));
@@ -801,6 +813,15 @@ void GLWidget::resizeGL(int w, int h)
 
     cmdZoom->resize(24, this->height() - 120);
     cmdZoom->move(w - (cmdZoom->width() + 8), cmdFit->geometry().bottom() + 8);
+    
+    for (int i =0; i<3;i++){
+        if (i==0){
+            cmdX[i]->move(24, 8);
+        }
+        else{
+            cmdX[i]->move(24*i + cmdX[i-1]->width(), 8);
+        }
+    }
 
 #if 0
     int left = 0, top = 0;

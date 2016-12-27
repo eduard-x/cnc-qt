@@ -135,8 +135,7 @@ class GCodeData
 
 struct GCodeOptim {
     QVector3D coord;
-    int fromLine;
-    int toLine;
+    int line;
 };
 
 

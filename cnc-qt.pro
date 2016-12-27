@@ -6,6 +6,9 @@
 
 QT       += core gui opengl
 
+
+TRANSLATIONS = cnc-qt.ts 
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = cncqt

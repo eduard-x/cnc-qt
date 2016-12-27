@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1118</width>
+    <width>1072</width>
     <height>796</height>
    </rect>
   </property>
@@ -57,10 +57,22 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QGridLayout" name="gridLayout_5">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMinimumSize</enum>
+       </property>
        <item row="0" column="0">
         <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMinimumSize</enum>
+         </property>
          <item>
           <widget class="QGroupBox" name="groupPosition">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="baseSize">
             <size>
              <width>0</width>
@@ -74,6 +86,9 @@
             <bool>false</bool>
            </property>
            <layout class="QGridLayout" name="gridLayout">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetMinimumSize</enum>
+            </property>
             <item row="1" column="1">
              <widget class="QToolButton" name="toolResetCoorY">
               <property name="text">
@@ -178,7 +193,7 @@
          <item>
           <widget class="QGroupBox" name="groupIndicator">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -187,6 +202,9 @@
             <string>Indicator</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_3">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetMinimumSize</enum>
+            </property>
             <item row="0" column="4">
              <widget class="QLabel" name="label_16">
               <property name="text">
@@ -374,10 +392,19 @@
          </item>
          <item>
           <widget class="QGroupBox" name="groupVelocity">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="title">
             <string>Velocity</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetMinimumSize</enum>
+            </property>
             <item row="1" column="0">
              <widget class="QLabel" name="labelSubmission">
               <property name="text">
@@ -437,6 +464,12 @@
          </item>
          <item>
           <widget class="QGroupBox" name="groupManualControl">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="title">
             <string>NumPad control</string>
            </property>
@@ -447,6 +480,9 @@
             <bool>false</bool>
            </property>
            <layout class="QGridLayout" name="gridLayout_4">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetMinimumSize</enum>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="labelNumVelo">
               <property name="text">
@@ -504,20 +540,23 @@
        </item>
        <item row="0" column="1">
         <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMinimumSize</enum>
+         </property>
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+            <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab1">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -526,10 +565,13 @@
              <string>Data</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_13">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetMinimumSize</enum>
+             </property>
              <item row="0" column="0">
               <widget class="QTableWidget" name="listGCodeWidget">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -555,7 +597,7 @@
            </widget>
            <widget class="QWidget" name="tab3">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -564,6 +606,9 @@
              <string>3D</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_14">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetMinimumSize</enum>
+             </property>
              <item row="0" column="0">
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <property name="sizeConstraint">
@@ -831,6 +876,12 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelFix">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="text">
                   <string>Fix:</string>
                  </property>
@@ -865,22 +916,6 @@
                 </widget>
                </item>
                <item>
-                <spacer name="horizontalSpacer_2">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeType">
-                  <enum>QSizePolicy::Minimum</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item>
                 <widget class="QPushButton" name="pushDefaultPreview">
                  <property name="minimumSize">
                   <size>
@@ -905,7 +940,7 @@
              <item row="1" column="0">
               <layout class="QGridLayout" name="OpenGL_preview">
                <property name="sizeConstraint">
-                <enum>QLayout::SetMaximumSize</enum>
+                <enum>QLayout::SetMinimumSize</enum>
                </property>
                <item row="0" column="0">
                 <widget class="QScrollArea" name="scrollArea">
@@ -917,8 +952,8 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>400</width>
-                   <height>300</height>
+                   <width>350</width>
+                   <height>200</height>
                   </size>
                  </property>
                  <property name="frameShape">
@@ -938,9 +973,15 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>400</width>
-                    <height>300</height>
+                    <width>847</width>
+                    <height>498</height>
                    </rect>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
                   </property>
                  </widget>
                 </widget>
@@ -951,7 +992,7 @@
            </widget>
            <widget class="QWidget" name="tab4">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -960,10 +1001,13 @@
              <string>Diagnostic</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_16">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetMinimumSize</enum>
+             </property>
              <item row="3" column="0">
               <widget class="QGroupBox" name="groupB19">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -984,6 +1028,9 @@
                 <string>Byte 19 (E-Sop)</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_10">
+                <property name="sizeConstraint">
+                 <enum>QLayout::SetMinimumSize</enum>
+                </property>
                 <item row="0" column="4">
                  <widget class="QLabel" name="labelB19B3">
                   <property name="text">
@@ -1061,6 +1108,9 @@
                 <string>Actual position in pulses</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_18">
+                <property name="sizeConstraint">
+                 <enum>QLayout::SetMinimumSize</enum>
+                </property>
                 <item row="0" column="1">
                  <widget class="QLineEdit" name="lineXpulses">
                   <property name="sizePolicy">
@@ -1436,7 +1486,7 @@
              <item row="1" column="0">
               <widget class="QGroupBox" name="groupB14">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -1457,6 +1507,9 @@
                 <string>Byte 14 (coolant)</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_15">
+                <property name="sizeConstraint">
+                 <enum>QLayout::SetMinimumSize</enum>
+                </property>
                 <item row="0" column="6">
                  <widget class="QLabel" name="labelB14B1">
                   <property name="text">
@@ -1519,7 +1572,7 @@
              <item row="1" column="1">
               <widget class="QGroupBox" name="groupB15">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -1540,6 +1593,9 @@
                 <string>Byte 15 (axes limitations)</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_7">
+                <property name="sizeConstraint">
+                 <enum>QLayout::SetMinimumSize</enum>
+                </property>
                 <item row="0" column="0">
                  <widget class="QLabel" name="labelB15B7">
                   <property name="text">
@@ -1602,7 +1658,7 @@
              <item row="1" column="2">
               <widget class="QGroupBox" name="groupB16">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -1623,6 +1679,9 @@
                 <string>Byte 16 (reserved)</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_19">
+                <property name="sizeConstraint">
+                 <enum>QLayout::SetMinimumSize</enum>
+                </property>
                 <item row="0" column="0">
                  <widget class="QLabel" name="labelB16B7">
                   <property name="text">
@@ -1687,6 +1746,9 @@
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::MinimumExpanding</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>20</width>
@@ -1698,7 +1760,7 @@
              <item row="0" column="0">
               <widget class="QGroupBox" name="groupBox_3">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -1712,60 +1774,53 @@
                <property name="title">
                 <string>Instructions, completed</string>
                </property>
-               <widget class="QLineEdit" name="lineInstructions">
-                <property name="geometry">
-                 <rect>
-                  <x>141</x>
-                  <y>30</y>
-                  <width>100</width>
-                  <height>32</height>
-                 </rect>
+               <layout class="QGridLayout" name="gridLayout_8">
+                <property name="sizeConstraint">
+                 <enum>QLayout::SetMinimumSize</enum>
                 </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>75</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="readOnly">
-                 <bool>true</bool>
-                </property>
-               </widget>
-               <widget class="QLabel" name="label_8">
-                <property name="geometry">
-                 <rect>
-                  <x>30</x>
-                  <y>30</y>
-                  <width>105</width>
-                  <height>33</height>
-                 </rect>
-                </property>
-                <property name="text">
-                 <string>Bytes 6-9</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_8">
+                  <property name="text">
+                   <string>Bytes 6-9</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLineEdit" name="lineInstructions">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
             </layout>
            </widget>
            <widget class="QWidget" name="tab2">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -1960,6 +2015,9 @@
               <spacer name="verticalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Minimum</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -2286,11 +2344,24 @@
                </layout>
               </widget>
              </item>
+             <item row="0" column="4">
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
            </widget>
            <widget class="QWidget" name="tab">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -2302,7 +2373,7 @@
              <item row="0" column="0" colspan="2">
               <widget class="QTextBrowser" name="textLog">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -2351,10 +2422,13 @@
             <string>Execute</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetMinimumSize</enum>
+            </property>
             <item>
              <widget class="QLabel" name="labelTask">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -2367,7 +2441,7 @@
             <item>
              <widget class="QLabel" name="labelRunFrom">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -2396,6 +2470,12 @@
             </item>
             <item>
              <widget class="QToolButton" name="toolPause">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>40</width>
@@ -2443,7 +2523,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1118</width>
+     <width>1072</width>
      <height>30</height>
     </rect>
    </property>
@@ -2455,7 +2535,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="sizePolicy">
-     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
@@ -2470,7 +2550,7 @@
    </widget>
    <widget class="QMenu" name="menuController">
     <property name="sizePolicy">
-     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
@@ -2485,7 +2565,7 @@
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="sizePolicy">
-     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
@@ -2498,7 +2578,7 @@
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="sizePolicy">
-     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
@@ -2515,7 +2595,7 @@
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -2523,7 +2603,7 @@
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
