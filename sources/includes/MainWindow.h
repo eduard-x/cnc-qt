@@ -277,9 +277,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         void onButtonZtoZero();
         void onButtonAtoZero();
 
-        void getRotation();
+        //         void getRotation();
         void getFPS(int fps);
-        void getScale(int s);
+        //         void getScale(int s);
         void logMessage(const QString &s);
 
 
@@ -304,7 +304,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
 
         bool getLangTable();
         void setLangGUI();
-        void displayRotation();
+        //         void displayRotation();
         void addConnections();
         void translateGUI();
         void addStatusWidgets();

@@ -539,25 +539,25 @@ void MainWindow::addConnections()
     if (enableOpenGL == true) {
 
         // 3d buttons
-        connect(posAngleXm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXm()));
-        connect(posAngleX, SIGNAL(clicked()), scene3d, SLOT(onPosAngleX())); // reset to 0
-        connect(scene3d, SIGNAL(rotationChanged()), this, SLOT(getRotation()));
+        //         connect(posAngleXm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXm()));
+        //         connect(posAngleX, SIGNAL(clicked()), scene3d, SLOT(onPosAngleX())); // reset to 0
+        //         connect(scene3d, SIGNAL(rotationChanged()), this, SLOT(getRotation()));
         connect(scene3d, SIGNAL(fpsChanged(int)), this, SLOT(getFPS(int)));
-        connect(posAngleXp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXp()));
+        //         connect(posAngleXp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleXp()));
 
-        connect(posAngleYm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleYm()));
-        connect(posAngleY, SIGNAL(clicked()), scene3d, SLOT(onPosAngleY())); // reset to 0
+        //         connect(posAngleYm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleYm()));
+        //         connect(posAngleY, SIGNAL(clicked()), scene3d, SLOT(onPosAngleY())); // reset to 0
         //         connect(scene3d, SIGNAL(yRotationChanged(int)), this, SLOT(getYRotation(int)));
-        connect(posAngleYp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleYp()));
+        //         connect(posAngleYp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleYp()));
 
-        connect(posAngleZm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleZm()));
-        connect(posAngleZ, SIGNAL(clicked()), scene3d, SLOT(onPosAngleZ())); // reset to 0
+        //         connect(posAngleZm, SIGNAL(pressed()), scene3d, SLOT(onPosAngleZm()));
+        //         connect(posAngleZ, SIGNAL(clicked()), scene3d, SLOT(onPosAngleZ())); // reset to 0
         //         connect(scene3d, SIGNAL(zRotationChanged(int)), this, SLOT(getZRotation(int)));
-        connect(posAngleZp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleZp()));
+        //         connect(posAngleZp, SIGNAL(pressed()), scene3d, SLOT(onPosAngleZp()));
 
-        connect(scene3d, SIGNAL(scaleChanged(int)), this, SLOT(getScale(int)));
+        //         connect(scene3d, SIGNAL(scaleChanged(int)), this, SLOT(getScale(int)));
 
-        connect(pushDefaultPreview, SIGNAL(clicked()), scene3d, SLOT(onDefaulPreview()));
+        //         connect(pushDefaultPreview, SIGNAL(clicked()), scene3d, SLOT(onDefaulPreview()));
         // end of 3d buttons
 
     }
@@ -1055,32 +1055,23 @@ void MainWindow::getFPS(int f)
  * @brief
  *
  */
-void MainWindow::getRotation()
-{
-    displayRotation();
-}
+// void MainWindow::getRotation()
+// {
+//     displayRotation();
+// }
 
 /**
  * @brief
  *
  */
-void MainWindow::getScale(int s)
-{
-    scale = s;
-    displayRotation();
-}
+// void MainWindow::getScale(int s)
+// {
+//     scale = s;
+//     displayRotation();
+// }
 
 
-/**
- * @brief change the information about rotations on the push buttons
- *
- */
-void MainWindow::displayRotation()
-{
-    posAngleX->setText( QString().sprintf("%d°", Settings::PosAngleX));
-    posAngleY->setText( QString().sprintf("%d°", Settings::PosAngleY));
-    posAngleZ->setText( QString().sprintf("%d°", Settings::PosAngleZ));
-}
+
 
 
 MainWindow::~MainWindow()

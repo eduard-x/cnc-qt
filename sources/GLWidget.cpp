@@ -64,7 +64,7 @@ GLWidget::GLWidget(QWidget *p)
     if (p == NULL) {
         return;
     }
-
+    
     m_zoom = 1;
 
     parent = (MainWindow*)p;
@@ -82,8 +82,16 @@ GLWidget::GLWidget(QWidget *p)
     QTimer* fpsTimer = new QTimer();
     QObject::connect(fpsTimer, SIGNAL(timeout()), this, SLOT(showFPS()));
     fpsTimer->start(1000);
-    //
 
+    //
+    for (int i = 0; i < 3; i++) {
+        cmdX[i] = NULL;
+        cmdY[i] = NULL;
+        cmdZ[i] = NULL;
+    }
+
+    setMinimumSize(350, 200);
+      
     //     QSurfaceFormat f;
     //     f.version();
     //     qDebug() << "GL enabled" << f.version() << "flags:" << f.profile();
@@ -102,6 +110,26 @@ GLWidget::~GLWidget()
 {
     //     arrayVBO.destroy();
     //     indexVBO.destroy();
+}
+
+
+/**
+ * @brief change the information about rotations on the push buttons
+ *
+ */
+void GLWidget::displayRotation()
+{
+    if (cmdX[1] != NULL ) {
+        cmdX[1]->setText( QString().sprintf("X: %d°", Settings::PosAngleX));
+    }
+
+    if (cmdY[1] != NULL ) {
+        cmdY[1]->setText( QString().sprintf("Y: %d°", Settings::PosAngleY));
+    }
+
+    if (cmdZ[1] != NULL ) {
+        cmdZ[1]->setText( QString().sprintf("Z: %d°", Settings::PosAngleZ));
+    }
 }
 
 
@@ -145,20 +173,7 @@ void GLWidget::createButtons()
     //     cmdZoom->setTickInterval(50);
 
     cmdZoom->setToolTip("Zoom");
-
-    for (int i=0; i<3; i++){
-      cmdX[i] = new QToolButton(this);
-      if(i != 2){
-     cmdX[i]->setBaseSize(QSize(24, 24));
-     cmdX[i]->resize(24, 24);
-      }
-      else{
-             cmdX[i]->setBaseSize(QSize(24*3, 24));
-     cmdX[i]->resize(24*3, 24);
-      }
-    }
-//     cmdIsometric->setToolTip(translate(_ISO));//"Iso");
-
+    
     QObject::connect(cmdIsometric, SIGNAL(clicked(bool)), this, SLOT(setIso()));
     QObject::connect(cmdFit, SIGNAL(clicked(bool)), this, SLOT(setFit()));
     QObject::connect(cmdLeft, SIGNAL(clicked(bool)), this, SLOT(setLeft()));
@@ -167,6 +182,76 @@ void GLWidget::createButtons()
 
     QObject::connect(cmdZoom, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     cmdZoom->setValue(Settings::PosZoom);
+    
+
+    for (int i = 0; i < 3; i++) {
+        cmdX[i] = new QToolButton(this);
+
+        if(i != 1) {
+            cmdX[i]->setBaseSize(QSize(24, 24));
+            cmdX[i]->resize(24, 24);
+        } else {
+            cmdX[i]->setBaseSize(QSize(24 * 3, 24));
+            cmdX[i]->resize(24 * 3, 24);
+        }
+    }
+
+    cmdX[0]->setIcon(QIcon(":/images/undo.png"));
+    cmdX[2]->setIcon(QIcon(":/images/redo.png"));
+
+    for (int i = 0; i < 3; i++) {
+        cmdY[i] = new QToolButton(this);
+
+        if(i != 1) {
+            cmdY[i]->setBaseSize(QSize(24, 24));
+            cmdY[i]->resize(24, 24);
+        } else {
+            cmdY[i]->setBaseSize(QSize(24 * 3, 24));
+            cmdY[i]->resize(24 * 3, 24);
+        }
+    }
+
+    cmdY[0]->setIcon(QIcon(":/images/undo.png"));
+    cmdY[2]->setIcon(QIcon(":/images/redo.png"));
+
+
+    for (int i = 0; i < 3; i++) {
+        cmdZ[i] = new QToolButton(this);
+
+        if(i != 1) {
+            cmdZ[i]->setBaseSize(QSize(24, 24));
+            cmdZ[i]->resize(24, 24);
+        } else {
+            cmdZ[i]->setBaseSize(QSize(24 * 3, 24));
+            cmdZ[i]->resize(24 * 3, 24);
+        }
+    }
+
+    cmdZ[0]->setIcon(QIcon(":/images/undo.png"));
+    cmdZ[2]->setIcon(QIcon(":/images/redo.png"));
+
+    QObject::connect(cmdX[0], SIGNAL(pressed()), this, SLOT(onPosAngleXm()));
+    QObject::connect(cmdX[1], SIGNAL(clicked()), this, SLOT(onPosAngleX())); // reset to 0
+    //         connect(scene3d, SIGNAL(rotationChanged()), this, SLOT(getRotation()));
+    //         connect(scene3d, SIGNAL(fpsChanged(int)), this, SLOT(getFPS(int)));
+    QObject::connect(cmdX[2], SIGNAL(pressed()), this, SLOT(onPosAngleXp()));
+
+    QObject::connect(cmdY[0], SIGNAL(pressed()), this, SLOT(onPosAngleYm()));
+    QObject::connect(cmdY[1], SIGNAL(clicked()), this, SLOT(onPosAngleY())); // reset to 0
+    //         connect(scene3d, SIGNAL(yRotationChanged(int)), this, SLOT(getYRotation(int)));
+    QObject::connect(cmdY[2], SIGNAL(pressed()), this, SLOT(onPosAngleYp()));
+
+    QObject::connect(cmdZ[0], SIGNAL(pressed()), this, SLOT(onPosAngleZm()));
+    QObject::connect(cmdZ[1], SIGNAL(clicked()), this, SLOT(onPosAngleZ())); // reset to 0
+    //         connect(scene3d, SIGNAL(zRotationChanged(int)), this, SLOT(getZRotation(int)));
+    QObject::connect(cmdZ[2], SIGNAL(pressed()), this, SLOT(onPosAngleZp()));
+
+    displayRotation();
+    //         connect(scene3d, SIGNAL(scaleChanged(int)), this, SLOT(getScale(int)));
+
+    //         connect(pushDefaultPreview, SIGNAL(clicked()), this, SLOT(onDefaulPreview()));
+
+    //     cmdIsometric->setToolTip(translate(_ISO));//"Iso");
 }
 
 
@@ -217,6 +302,7 @@ QVector<QVector3D> GLWidget::instrumentArray = {
     { -1.0, 1.0, 2.0 },
     { 0.0, 0.0, 0.0 }
 };
+
 
 QVector<QVector3D> GLWidget::footArray = { // GL_LINE_LOOP array
     { 0.0, 0.0, 0.0 },      // 0
@@ -651,7 +737,8 @@ QVector<VertexData> GLWidget::addPointVector(const QVector<QVector3D> &p, const 
  */
 void GLWidget::initPreviewSettings()
 {
-    emit rotationChanged();
+    //     emit rotationChanged();
+    displayRotation();
     //     emit yRotationChanged(Settings::PosAngleY);
     //     emit zRotationChanged(Settings::PosAngleZ);
 
@@ -813,13 +900,33 @@ void GLWidget::resizeGL(int w, int h)
 
     cmdZoom->resize(24, this->height() - 120);
     cmdZoom->move(w - (cmdZoom->width() + 8), cmdFit->geometry().bottom() + 8);
-    
-    for (int i =0; i<3;i++){
-        if (i==0){
+
+    int offs = 0;
+
+    for (int i = 0; i < 3; i++) {
+        if (i == 0) {
             cmdX[i]->move(24, 8);
+        } else {
+            offs = 8 + cmdX[i - 1]->geometry().left() + cmdX[i - 1]->width();
+            cmdX[i]->move(offs, 8);
         }
-        else{
-            cmdX[i]->move(24*i + cmdX[i-1]->width(), 8);
+    }
+
+    for (int i = 0; i < 3; i++) {
+        if (i == 0) {
+            cmdY[i]->move(24 + cmdX[2]->geometry().left() + cmdX[2]->width(), 8);
+        } else {
+            offs = 8 + cmdY[i - 1]->geometry().left() + cmdY[i - 1]->width();
+            cmdY[i]->move(offs, 8);
+        }
+    }
+
+    for (int i = 0; i < 3; i++) {
+        if (i == 0) {
+            cmdZ[i]->move(24 + cmdY[2]->geometry().left() + cmdY[2]->width(), 8);
+        } else {
+            offs = 8 + cmdZ[i - 1]->geometry().left() + cmdZ[i - 1]->width();
+            cmdZ[i]->move(offs, 8);
         }
     }
 
@@ -1217,7 +1324,8 @@ void GLWidget::setXRotation(int angle)
 
     if (angle != Settings::PosAngleX) {
         Settings::PosAngleX = angle;
-        emit rotationChanged();
+        displayRotation();
+        //         emit rotationChanged();
     }
 }
 
@@ -1231,7 +1339,8 @@ void GLWidget::setYRotation(int angle)
 
     if (angle != Settings::PosAngleY) {
         Settings::PosAngleY = angle;
-        emit rotationChanged();
+        displayRotation();
+        //         emit rotationChanged();
     }
 }
 
@@ -1246,7 +1355,8 @@ void GLWidget::setZRotation(int angle)
 
     if (angle != Settings::PosAngleZ) {
         Settings::PosAngleZ = angle;
-        emit rotationChanged();
+        displayRotation();
+        //         emit rotationChanged();
     }
 }
 
@@ -1259,7 +1369,8 @@ void GLWidget::onPosAngleXm()
 {
     --Settings::PosAngleX;
     normalizeAngle(Settings::PosAngleX);
-    emit rotationChanged();
+    displayRotation();
+    //     emit rotationChanged();
 }
 
 
@@ -1270,7 +1381,8 @@ void GLWidget::onPosAngleXm()
 void GLWidget::onPosAngleX()
 {
     Settings::PosAngleX = 0;
-    emit rotationChanged();
+    displayRotation();
+    //     emit rotationChanged();
 }
 
 
@@ -1282,7 +1394,8 @@ void GLWidget::onPosAngleXp()
 {
     ++Settings::PosAngleX;
     normalizeAngle(Settings::PosAngleX);
-    emit rotationChanged();
+    displayRotation();
+    //     emit rotationChanged();
 }
 
 
@@ -1294,7 +1407,8 @@ void GLWidget::onPosAngleYp()
 {
     ++Settings::PosAngleY;
     normalizeAngle(Settings::PosAngleY);
-    emit rotationChanged();
+    displayRotation();
+    //     emit rotationChanged();
 }
 
 /**
@@ -1304,7 +1418,8 @@ void GLWidget::onPosAngleYp()
 void GLWidget::onPosAngleY()
 {
     Settings::PosAngleY = 0;
-    emit rotationChanged();
+    displayRotation();
+    //     emit rotationChanged();
 }
 
 /**
@@ -1315,7 +1430,8 @@ void GLWidget::onPosAngleYm()
 {
     --Settings::PosAngleY;
     normalizeAngle(Settings::PosAngleY);
-    emit rotationChanged();
+    displayRotation();
+    //     emit rotationChanged();
 }
 
 /**
@@ -1326,7 +1442,8 @@ void GLWidget::onPosAngleZp()
 {
     ++Settings::PosAngleZ;
     normalizeAngle(Settings::PosAngleZ);
-    emit rotationChanged();
+    displayRotation();
+    //     emit rotationChanged();
 }
 
 /**
@@ -1336,7 +1453,8 @@ void GLWidget::onPosAngleZp()
 void GLWidget::onPosAngleZ()
 {
     Settings::PosAngleZ = 0;
-    emit rotationChanged();
+    displayRotation();
+    //     emit rotationChanged();
 }
 
 /**
@@ -1347,7 +1465,8 @@ void GLWidget::onPosAngleZm()
 {
     --Settings::PosAngleZ;
     normalizeAngle(Settings::PosAngleZ);
-    emit rotationChanged();
+    displayRotation();
+    //     emit rotationChanged();
 }
 
 /**

@@ -85,6 +85,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         void initPreviewSettings();
         float normalizeAngle(float angle);
         void createButtons();
+        void displayRotation();
         QVector<VertexData> addPointVector(const QVector<QVector3D> &p, const QColor &c);
 
     public slots:
@@ -126,7 +127,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
 
     signals:
         void fpsChanged(int val);
-        void rotationChanged(void);
+        //         void rotationChanged(void);
         void scaleChanged(int scale);
 
     protected:
@@ -165,7 +166,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         QToolButton *cmdTop;
         QToolButton *cmdFront;
         QToolButton *cmdLeft;
-        
+
         QToolButton *cmdX[3];
         QToolButton *cmdY[3];
         QToolButton *cmdZ[3];
