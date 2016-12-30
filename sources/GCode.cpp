@@ -417,7 +417,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
     GCodeData *tmpCommand = new GCodeData();
 
-//     int preCount = 0;
+    //     int preCount = 0;
 
     foreach(QString line, gCodeLines) {
         decoded = true;
@@ -465,7 +465,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     // for the way optimizing
                     if (gCodeList.last().movingCode != RAPID_LINE_CODE) {
                         gPoints << GCodeOptim {current_pos, goodList.count()};
-//                         preCount = goodList.count() + 1;
+                        //                         preCount = goodList.count() + 1;
                     }
 
 
@@ -864,30 +864,32 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 void GCodeParser::sortGCode(const QVector<int> &citydata)
 {
     return;
-    
+
     qDebug() << citydata;
     qDebug() << "list size" << goodList.size();
     QVector<QString> tmpList;
-    
+
     int startNum = 0;
-    int n=0;
+    int n = 0;
+
     do {
         int pos = citydata.at(n);
-        int endNum = gPoints.at(pos+1).line;
+        int endNum = gPoints.at(pos + 1).line;
 
-        for (int j=startNum; j < endNum; j++){
+        for (int j = startNum; j < endNum; j++) {
             tmpList << goodList.at(j);
         }
-        qDebug() << "pos" << pos << "lines:" << startNum << ".."<< endNum-1 << goodList.at(endNum) << gPoints.at(citydata.at(n)).coord;
+
+        qDebug() << "pos" << pos << "lines:" << startNum << ".." << endNum - 1 << goodList.at(endNum) << gPoints.at(citydata.at(n)).coord;
         startNum = endNum;
         n++;
-    }while(n<citydata.size());
-    
-//     for  (int n = 0; n < citydata.size(); n++) {
-//         int ln = gPoints.at(citydata.at(n)).line;
-//         endNum = 
-//         qDebug() << "line:" << ln << goodList.at(ln) << gPoints.at(citydata.at(n)).coord;
-//     }
+    } while(n < citydata.size());
+
+    //     for  (int n = 0; n < citydata.size(); n++) {
+    //         int ln = gPoints.at(citydata.at(n)).line;
+    //         endNum =
+    //         qDebug() << "line:" << ln << goodList.at(ln) << gPoints.at(citydata.at(n)).coord;
+    //     }
 }
 
 /**

@@ -64,7 +64,7 @@ GLWidget::GLWidget(QWidget *p)
     if (p == NULL) {
         return;
     }
-    
+
     m_zoom = 1;
 
     parent = (MainWindow*)p;
@@ -91,7 +91,7 @@ GLWidget::GLWidget(QWidget *p)
     }
 
     setMinimumSize(350, 200);
-      
+
     //     QSurfaceFormat f;
     //     f.version();
     //     qDebug() << "GL enabled" << f.version() << "flags:" << f.profile();
@@ -173,7 +173,7 @@ void GLWidget::createButtons()
     //     cmdZoom->setTickInterval(50);
 
     cmdZoom->setToolTip("Zoom");
-    
+
     QObject::connect(cmdIsometric, SIGNAL(clicked(bool)), this, SLOT(setIso()));
     QObject::connect(cmdFit, SIGNAL(clicked(bool)), this, SLOT(setFit()));
     QObject::connect(cmdLeft, SIGNAL(clicked(bool)), this, SLOT(setLeft()));
@@ -182,7 +182,7 @@ void GLWidget::createButtons()
 
     QObject::connect(cmdZoom, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
     cmdZoom->setValue(Settings::PosZoom);
-    
+
 
     for (int i = 0; i < 3; i++) {
         cmdX[i] = new QToolButton(this);

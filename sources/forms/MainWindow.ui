@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>887</width>
-    <height>734</height>
+    <width>886</width>
+    <height>737</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -204,6 +204,12 @@
             </property>
             <item row="0" column="4">
              <widget class="QLabel" name="label_16">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>Z</string>
               </property>
@@ -214,6 +220,12 @@
             </item>
             <item row="1" column="2">
              <widget class="QLabel" name="maxYLED">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>25</width>
@@ -230,6 +242,12 @@
             </item>
             <item row="2" column="4">
              <widget class="QLabel" name="minZLED">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>25</width>
@@ -246,6 +264,12 @@
             </item>
             <item row="2" column="0">
              <widget class="QLabel" name="labelMinX">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>min</string>
               </property>
@@ -253,6 +277,12 @@
             </item>
             <item row="0" column="6">
              <widget class="QLabel" name="label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>A</string>
               </property>
@@ -263,6 +293,12 @@
             </item>
             <item row="0" column="2">
              <widget class="QLabel" name="label_15">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>Y</string>
               </property>
@@ -273,6 +309,12 @@
             </item>
             <item row="1" column="4">
              <widget class="QLabel" name="maxZLED">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>25</width>
@@ -289,6 +331,12 @@
             </item>
             <item row="1" column="6">
              <widget class="QLabel" name="maxALED">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>25</width>
@@ -305,6 +353,12 @@
             </item>
             <item row="0" column="1">
              <widget class="QLabel" name="label_14">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>X</string>
               </property>
@@ -315,6 +369,12 @@
             </item>
             <item row="2" column="6">
              <widget class="QLabel" name="minALED">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>25</width>
@@ -331,6 +391,12 @@
             </item>
             <item row="1" column="0">
              <widget class="QLabel" name="labelMaxX">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>max</string>
               </property>
@@ -338,6 +404,12 @@
             </item>
             <item row="2" column="2">
              <widget class="QLabel" name="minYLED">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>25</width>
@@ -354,6 +426,12 @@
             </item>
             <item row="1" column="1">
              <widget class="QLabel" name="maxXLED">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>25</width>
@@ -370,6 +448,12 @@
             </item>
             <item row="2" column="1">
              <widget class="QLabel" name="minXLED">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>25</width>
@@ -402,108 +486,36 @@
             <property name="sizeConstraint">
              <enum>QLayout::SetMinimumSize</enum>
             </property>
-            <item row="1" column="0">
-             <widget class="QLabel" name="labelSubmission">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelMaterial">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
-               <string>Submission</string>
+               <string>Material</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="labelMoving">
-              <property name="text">
-               <string>Moving</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1" colspan="2">
-             <widget class="QSpinBox" name="numVeloSubmission">
-              <property name="minimumSize">
-               <size>
-                <width>75</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximum">
-               <number>9999</number>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1" colspan="2">
-             <widget class="QSpinBox" name="numVeloMoving">
-              <property name="minimumSize">
-               <size>
-                <width>75</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximum">
-               <number>9999</number>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
+            <item row="0" column="1">
              <widget class="QToolButton" name="toolCalcVelocity">
               <property name="text">
                <string>...</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="0" colspan="2">
-             <widget class="QLabel" name="labelMaterial">
-              <property name="text">
-               <string>Material</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupManualControl">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="title">
-            <string>NumPad control</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_4">
-            <property name="sizeConstraint">
-             <enum>QLayout::SetMinimumSize</enum>
-            </property>
-            <item row="0" column="0">
-             <widget class="QLabel" name="labelNumVelo">
-              <property name="text">
-               <string>Velocity</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QSpinBox" name="numVeloManual">
-              <property name="minimumSize">
-               <size>
-                <width>75</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximum">
-               <number>9999</number>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="0" colspan="2">
-             <widget class="QPushButton" name="pushManualControl">
+             <widget class="QLabel" name="labelSpeed">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
-               <string>Help</string>
+               <string>TextLabel</string>
               </property>
              </widget>
             </item>
@@ -511,11 +523,20 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="labelSpeed">
-           <property name="text">
-            <string>TextLabel</string>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
-          </widget>
+           <property name="sizeType">
+            <enum>QSizePolicy::MinimumExpanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -527,13 +548,13 @@
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>3</number>
            </property>
            <widget class="QWidget" name="tab1">
             <property name="sizePolicy">
@@ -649,13 +670,6 @@
                  </property>
                 </widget>
                </item>
-               <item>
-                <widget class="Line" name="line_5">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                </widget>
-               </item>
               </layout>
              </item>
              <item row="1" column="0">
@@ -673,8 +687,8 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>350</width>
-                   <height>200</height>
+                   <width>320</width>
+                   <height>240</height>
                   </size>
                  </property>
                  <property name="frameShape">
@@ -694,8 +708,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>662</width>
-                    <height>441</height>
+                    <width>673</width>
+                    <height>473</height>
                    </rect>
                   </property>
                   <property name="sizePolicy">
@@ -751,6 +765,12 @@
                 </property>
                 <item row="0" column="6">
                  <widget class="QLabel" name="labelB14B1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -758,6 +778,12 @@
                 </item>
                 <item row="0" column="5">
                  <widget class="QLabel" name="labelB14B2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -765,6 +791,12 @@
                 </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="labelB14B7">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -772,6 +804,12 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QLabel" name="labelB14B6">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -779,6 +817,12 @@
                 </item>
                 <item row="0" column="2">
                  <widget class="QLabel" name="labelB14B5">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -786,6 +830,12 @@
                 </item>
                 <item row="0" column="7">
                  <widget class="QLabel" name="labelB14B0">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -793,6 +843,12 @@
                 </item>
                 <item row="0" column="3">
                  <widget class="QLabel" name="labelB14B4">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -800,6 +856,12 @@
                 </item>
                 <item row="0" column="4">
                  <widget class="QLabel" name="labelB14B3">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -837,6 +899,12 @@
                 </property>
                 <item row="0" column="0">
                  <widget class="QLabel" name="labelB15B7">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -844,6 +912,12 @@
                 </item>
                 <item row="0" column="4">
                  <widget class="QLabel" name="labelB15B3">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -851,6 +925,12 @@
                 </item>
                 <item row="0" column="6">
                  <widget class="QLabel" name="labelB15B1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -858,6 +938,12 @@
                 </item>
                 <item row="0" column="7">
                  <widget class="QLabel" name="labelB15B0">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -865,6 +951,12 @@
                 </item>
                 <item row="0" column="2">
                  <widget class="QLabel" name="labelB15B5">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -872,6 +964,12 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QLabel" name="labelB15B6">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -879,6 +977,12 @@
                 </item>
                 <item row="0" column="3">
                  <widget class="QLabel" name="labelB15B4">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -886,6 +990,12 @@
                 </item>
                 <item row="0" column="5">
                  <widget class="QLabel" name="labelB15B2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -923,6 +1033,12 @@
                 </property>
                 <item row="0" column="0">
                  <widget class="QLabel" name="labelB16B7">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -930,6 +1046,12 @@
                 </item>
                 <item row="0" column="4">
                  <widget class="QLabel" name="labelB16B3">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -937,6 +1059,12 @@
                 </item>
                 <item row="0" column="6">
                  <widget class="QLabel" name="labelB16B1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -944,6 +1072,12 @@
                 </item>
                 <item row="0" column="7">
                  <widget class="QLabel" name="labelB16B0">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -951,6 +1085,12 @@
                 </item>
                 <item row="0" column="2">
                  <widget class="QLabel" name="labelB16B5">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -958,6 +1098,12 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QLabel" name="labelB16B6">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -965,6 +1111,12 @@
                 </item>
                 <item row="0" column="3">
                  <widget class="QLabel" name="labelB16B4">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -972,6 +1124,12 @@
                 </item>
                 <item row="0" column="5">
                  <widget class="QLabel" name="labelB16B2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -1010,7 +1168,7 @@
                 <item row="0" column="1">
                  <widget class="QLineEdit" name="lineXpulses">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1035,7 +1193,7 @@
                 <item row="0" column="3">
                  <widget class="QLineEdit" name="lineYpulses">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1060,7 +1218,7 @@
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_4">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1076,7 +1234,7 @@
                 <item row="0" column="5">
                  <widget class="QLineEdit" name="lineZpulses">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1101,7 +1259,7 @@
                 <item row="0" column="2">
                  <widget class="QLabel" name="label_5">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1117,7 +1275,7 @@
                 <item row="0" column="4">
                  <widget class="QLabel" name="label_6">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1133,7 +1291,7 @@
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_7">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1149,7 +1307,7 @@
                 <item row="1" column="1">
                  <widget class="QLineEdit" name="lineApulses">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1157,7 +1315,7 @@
                   <property name="minimumSize">
                    <size>
                     <width>75</width>
-                    <height>0</height>
+                    <height>25</height>
                    </size>
                   </property>
                   <property name="maximumSize">
@@ -1174,7 +1332,7 @@
                 <item row="1" column="2">
                  <widget class="QLabel" name="label_12">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1190,7 +1348,7 @@
                 <item row="1" column="4">
                  <widget class="QLabel" name="label_13">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1206,7 +1364,7 @@
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_17">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1222,7 +1380,7 @@
                 <item row="2" column="2">
                  <widget class="QLabel" name="label_19">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1238,7 +1396,7 @@
                 <item row="2" column="4">
                  <widget class="QLabel" name="label_21">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1254,7 +1412,7 @@
                 <item row="2" column="1">
                  <widget class="QLineEdit" name="lineUpulses">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1279,7 +1437,7 @@
                 <item row="2" column="3">
                  <widget class="QLineEdit" name="lineVpulses">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1304,7 +1462,7 @@
                 <item row="2" column="5">
                  <widget class="QLineEdit" name="lineWpulses">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1329,7 +1487,7 @@
                 <item row="1" column="3">
                  <widget class="QLineEdit" name="lineBpulses">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1354,7 +1512,7 @@
                 <item row="1" column="5">
                  <widget class="QLineEdit" name="lineCpulses">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1408,6 +1566,12 @@
                 </property>
                 <item row="0" column="4">
                  <widget class="QLabel" name="labelB19B3">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -1415,6 +1579,12 @@
                 </item>
                 <item row="0" column="3">
                  <widget class="QLabel" name="labelB19B4">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -1422,6 +1592,12 @@
                 </item>
                 <item row="0" column="2">
                  <widget class="QLabel" name="labelB19B5">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -1429,6 +1605,12 @@
                 </item>
                 <item row="0" column="7">
                  <widget class="QLabel" name="labelB19B0">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -1436,6 +1618,12 @@
                 </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="labelB19B7">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -1443,6 +1631,12 @@
                 </item>
                 <item row="0" column="5">
                  <widget class="QLabel" name="labelB19B2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -1450,6 +1644,12 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="QLabel" name="labelB19B6">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -1457,6 +1657,12 @@
                 </item>
                 <item row="0" column="6">
                  <widget class="QLabel" name="labelB19B1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -1511,7 +1717,7 @@
                 <item row="0" column="1">
                  <widget class="QLineEdit" name="lineInstructions">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -1519,7 +1725,7 @@
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
-                    <height>0</height>
+                    <height>25</height>
                    </size>
                   </property>
                   <property name="maximumSize">
@@ -1559,7 +1765,7 @@
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>220</width>
+                 <width>16777215</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -1738,82 +1944,6 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QGroupBox" name="groupGenerate">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>220</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="title">
-                <string>Generate signal </string>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_9">
-                <item row="1" column="2">
-                 <widget class="QSpinBox" name="spinBoxChann"/>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="labelPWMCHan">
-                  <property name="text">
-                   <string>PWM Channel</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QSpinBox" name="spinBoxVelo"/>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="labelPWMVelo">
-                  <property name="text">
-                   <string>PWM Velocity</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="2">
-                 <widget class="QPushButton" name="pushSendSignal">
-                  <property name="text">
-                   <string>Send command</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0" colspan="3">
-                 <widget class="QCheckBox" name="checkEnSpindle">
-                  <property name="text">
-                   <string>Enable spindle</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QRadioButton" name="radioButtonOff">
-                  <property name="text">
-                   <string>Off</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="0">
-                 <widget class="QRadioButton" name="radioButtonRC">
-                  <property name="text">
-                   <string>RC</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QRadioButton" name="radioButtonHz">
-                  <property name="text">
-                   <string>Hz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item row="0" column="2">
               <widget class="QGroupBox" name="groupBoxMoving">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -1823,7 +1953,7 @@
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>220</width>
+                 <width>16777215</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -2066,21 +2196,170 @@
                </layout>
               </widget>
              </item>
-             <item row="5" column="1">
-              <spacer name="verticalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
+             <item row="0" column="2">
+              <widget class="QGroupBox" name="groupManualControl">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Minimum</enum>
+               <property name="title">
+                <string>NumPad control</string>
                </property>
-               <property name="sizeHint" stdset="0">
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_4">
+                <property name="sizeConstraint">
+                 <enum>QLayout::SetMinimumSize</enum>
+                </property>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="labelNumVelo">
+                  <property name="text">
+                   <string>Velocity</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QSpinBox" name="numVeloManual">
+                  <property name="minimumSize">
+                   <size>
+                    <width>75</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximum">
+                   <number>9999</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="2">
+                 <widget class="QPushButton" name="pushManualControl">
+                  <property name="text">
+                   <string>Help</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="QGroupBox" name="groupGenerate">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="maximumSize">
                 <size>
-                 <width>20</width>
-                 <height>40</height>
+                 <width>16777215</width>
+                 <height>16777215</height>
                 </size>
                </property>
-              </spacer>
+               <property name="title">
+                <string>Generate signal </string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_9">
+                <item row="1" column="2">
+                 <widget class="QSpinBox" name="spinBoxChann">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="labelPWMCHan">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>PWM Channel</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QSpinBox" name="spinBoxVelo">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="labelPWMVelo">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>PWM Velocity</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="2">
+                 <widget class="QPushButton" name="pushSendSignal">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Send command</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" colspan="3">
+                 <widget class="QCheckBox" name="checkEnSpindle">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Enable spindle</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QRadioButton" name="radioButtonOff">
+                  <property name="text">
+                   <string>Off</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QRadioButton" name="radioButtonHz">
+                  <property name="text">
+                   <string>Hz</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QRadioButton" name="radioButtonRC">
+                  <property name="text">
+                   <string>RC</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -2142,15 +2421,12 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBoxExec">
+          <widget class="QFrame" name="frameExec">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
-           </property>
-           <property name="title">
-            <string>Execute</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <property name="sizeConstraint">
@@ -2254,7 +2530,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>887</width>
+     <width>886</width>
      <height>29</height>
     </rect>
    </property>

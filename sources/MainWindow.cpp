@@ -838,8 +838,8 @@ void MainWindow::updateSettingsOnGUI()
  */
 void MainWindow::writeSettings()
 {
-    Settings::veloCutting = numVeloSubmission->value();
-    Settings::veloMoving = numVeloMoving->value();
+    //     Settings::veloCutting = numVeloSubmission->value();
+    //     Settings::veloMoving = numVeloMoving->value();
     Settings::veloManual = numVeloManual->value();
 
     if (groupManualControl->isChecked() == false) {
@@ -863,8 +863,8 @@ void MainWindow::readSettings()
 
     groupManualControl->setChecked( Settings::currentKeyPad != -1);
 
-    numVeloSubmission->setValue(Settings::veloCutting);
-    numVeloMoving->setValue(Settings::veloMoving);
+    //     numVeloSubmission->setValue(Settings::veloCutting);
+    //     numVeloMoving->setValue(Settings::veloMoving);
     numVeloManual->setValue( Settings::veloManual);
 
     reloadRecentList();
@@ -1176,7 +1176,7 @@ void MainWindow::translateGUI()
     groupBoxMoving->setTitle(translate(_MOVING_TOPOINT));
     groupGenerate->setTitle(translate(_GEN_SIGNAL));
     groupPosition->setTitle(translate(_COORDINATES));
-    groupBoxExec->setTitle(translate(_GCODE_RUNNING));
+    //     groupBoxExec->setTitle(translate(_GCODE_RUNNING));
     groupManualControl->setTitle(translate(_MANUAL_CONTROL));
     groupIndicator->setTitle(translate(_DISPL_LIMITS));
     groupVelocity->setTitle(translate(_VELOCITY));
@@ -1219,8 +1219,8 @@ void MainWindow::translateGUI()
         tabWidget->setTabText(3, translate(_LOG));
     }
 
-    labelSubmission->setText(translate(_SUBMISSION));
-    labelMoving->setText(translate(_MOVING));
+    //     labelSubmission->setText(translate(_SUBMISSION));
+    //     labelMoving->setText(translate(_MOVING));
 
     checkEnSpindle->setText(translate(_ON_SPINDLE));
     //     checkHWLimits->setText(translate(_CHECK_HW_LIMITS));
@@ -2214,7 +2214,7 @@ void  MainWindow::refreshElementsForms()
     // end debug
 
     // bttons start/stop/pause of task
-    groupBoxExec->setEnabled( cncConnected );
+    frameExec->setEnabled( cncConnected );
 
     if (cncConnected) {
 #if 0
@@ -2713,7 +2713,7 @@ void MainWindow::onCalcVelocity()
         labelMaterial->setText(m.at(0));
     }
 
-    numVeloSubmission->setValue(Settings::veloCutting);
+    //     numVeloSubmission->setValue(Settings::veloCutting);
 #if 0
     CuttingCalc *setfrm = new CuttingCalc(this);
     int dlgResult = setfrm->exec();
