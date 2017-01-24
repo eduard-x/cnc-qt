@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -136,20 +136,20 @@ ScanSurfaceDialog::ScanSurfaceDialog(QWidget *p)
 
 void ScanSurfaceDialog::translateDialog()
 {
-    groupStartPoint->setTitle(translate(_BEG_SURFACE));
-    groupSteps->setTitle(translate(_STEP_PROP));
-    groupTest->setTitle(translate(_TEST_SCAN));
-    groupPoint->setTitle(translate(_TABLE_POINT));
-    labelStepX->setText(translate(_STEP_X));
-    labelStepY->setText(translate(_STEP_Y));
-    checkBoxViewOnly->setText(translate(_VIEW_ONLY));
-    labelVelo->setText(translate(_VELO));
-    labelRet->setText(translate(_RET_MM));
-    groupBoxZ->setTitle(translate(_ALGORITHM_Z));
-    labelGrid->setText(translate(_GRID));
-    pushButtonTest->setText(translate(_TEST_SCAN));
+    groupStartPoint->setTitle(translate(ID_BEG_SURFACE));
+    groupSteps->setTitle(translate(ID_STEP_PROP));
+    groupTest->setTitle(translate(ID_TEST_SCAN));
+    groupPoint->setTitle(translate(ID_TABLE_POINT));
+    labelStepX->setText(translate(ID_STEP_X));
+    labelStepY->setText(translate(ID_STEP_Y));
+    checkBoxViewOnly->setText(translate(ID_VIEW_ONLY));
+    labelVelo->setText(translate(ID_VELO));
+    labelRet->setText(translate(ID_RET_MM));
+    groupBoxZ->setTitle(translate(ID_ALGORITHM_Z));
+    labelGrid->setText(translate(ID_GRID));
+    pushButtonTest->setText(translate(ID_TEST_SCAN));
 
-    pushButtonScan->setText(translate(_SCAN));
+    pushButtonScan->setText(translate(ID_SCAN));
 }
 
 
@@ -372,7 +372,7 @@ void ScanSurfaceDialog::onScan()
     //TODO: to add the selective scanning
     if (Scan) {
         Scan = false;
-        pushButtonScan->setText(translate(_SCAN));
+        pushButtonScan->setText(translate(ID_SCAN));
 
         disconnect(scanThread, SIGNAL(finished()), scanThread, SLOT(deleteLater()));
         emit scanThread->terminate();
@@ -393,7 +393,7 @@ void ScanSurfaceDialog::onScan()
             return;
         }
 
-        pushButtonScan->setText(translate(_STOP_SCAN));
+        pushButtonScan->setText(translate(ID_STOP_SCAN));
 
         Scan = true;
         indexMaxScanX = (int)numCountX->value();

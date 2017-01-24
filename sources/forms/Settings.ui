@@ -37,6 +37,9 @@
        <height>35</height>
       </size>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -64,6 +67,9 @@
          <height>0</height>
         </size>
        </property>
+       <property name="accessibleDescription">
+        <string notr="true"/>
+       </property>
        <property name="inputMethodHints">
         <set>Qt::ImhNone</set>
        </property>
@@ -71,7 +77,7 @@
         <enum>QTabWidget::West</enum>
        </property>
        <property name="currentIndex">
-        <number>7</number>
+        <number>0</number>
        </property>
        <property name="iconSize">
         <size>
@@ -510,6 +516,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="accessibleDescription">
+            <string notr="true"/>
+           </property>
            <property name="widgetResizable">
             <bool>true</bool>
            </property>
@@ -558,6 +567,9 @@
        </property>
        <property name="focusPolicy">
         <enum>Qt::ClickFocus</enum>
+       </property>
+       <property name="accessibleDescription">
+        <string notr="true"/>
        </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::NoSelection</enum>

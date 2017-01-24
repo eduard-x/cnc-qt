@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -76,11 +76,11 @@ EditGCodeDialog::EditGCodeDialog(QWidget *p)
 
 void EditGCodeDialog::translateDialog()
 {
-    setWindowTitle(translate(_EDITGCODE_TITLE));
-    checkCorrecture->setText(translate(_CORRECTURE));
-    groupResize->setTitle(translate(_PROPORTION));
-    groupOffset->setTitle(translate(_OFFSET_GCODE));
-    checkBoxZ->setText(translate(_CORRECT_Z));
+    setWindowTitle(translate(ID_EDITGCODE_TITLE));
+    checkCorrecture->setText(translate(ID_CORRECTURE));
+    groupResize->setTitle(translate(ID_PROPORTION));
+    groupOffset->setTitle(translate(ID_OFFSET_GCODE));
+    checkBoxZ->setText(translate(ID_CORRECT_Z));
 }
 
 

@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -168,38 +168,38 @@ void SettingsVis::changeColor()
 void SettingsVis::translateWidget()
 {
     // visualisation translations
-    QStringList colorList = translate(_COLOR_LIST).split("\n");
+    QStringList colorList = translate(ID_COLOR_LIST).split("\n");
     comboColor->addItems(colorList);
 
     connect(comboColor, SIGNAL(activated(int)), this, SLOT(onChangeColor(int)));
 
     //     checkDisableIfSSH->setText(translate(_DISABLE_VISUALISATION));
     //     groupBoxGrid->setTitle(translate(_DISPLAY_GRID));
-    radioButtonLines->setText(translate(_DISPLAY_LINES));
-    radioButtonPoints->setText(translate(_DISPLAY_POINTS));
-    labelBeginX->setText(translate(_BEGIN));
-    labelEndX->setText(translate(_END));
-    labelBeginY->setText(translate(_BEGIN));
-    labelEndY->setText(translate(_END));
+    radioButtonLines->setText(translate(ID_DISPLAY_LINES));
+    radioButtonPoints->setText(translate(ID_DISPLAY_POINTS));
+    labelBeginX->setText(translate(ID_BEGIN));
+    labelEndX->setText(translate(ID_END));
+    labelBeginY->setText(translate(ID_BEGIN));
+    labelEndY->setText(translate(ID_END));
 
-    checkBoxTool->setText(translate(_DISPLAY_SPINDLE));
-    checkBoxXYZ->setText(translate(_DISPLAY_AXES));
-    checkBoxSurface->setText(translate(_DISPLAY_SURFACE));
+    checkBoxTool->setText(translate(ID_DISPLAY_SPINDLE));
+    checkBoxXYZ->setText(translate(ID_DISPLAY_AXES));
+    checkBoxSurface->setText(translate(ID_DISPLAY_SURFACE));
 
-    checkBoxCommand->setText(translate(_DISPLAY_COMMAND));
-    checkBoxWorkbench->setText(translate(_DISPLAY_WORKBENCH));
-    checkBoxTraverse->setText(translate(_DISPLAY_TRAVERSE));
-    checkBoxSmooth->setText(translate(_SMOOTH_MOVING));
-    labelPoint->setText(translate(_POINT_SIZE));
-    labelLine->setText(translate(_LINE_WIDTH));
+    checkBoxCommand->setText(translate(ID_DISPLAY_COMMAND));
+    checkBoxWorkbench->setText(translate(ID_DISPLAY_WORKBENCH));
+    checkBoxTraverse->setText(translate(ID_DISPLAY_TRAVERSE));
+    checkBoxSmooth->setText(translate(ID_SMOOTH_MOVING));
+    labelPoint->setText(translate(ID_POINT_SIZE));
+    labelLine->setText(translate(ID_LINE_WIDTH));
 
     //     groupBoxShowRang->setTitle(translate(_DISPLAY_RANG));
 
-    labelStep->setText(translate(_STEP));
-    labelMinX->setText(translate(_MINIMUM));
-    labelMaxX->setText(translate(_MAXIMUM));
-    labelMinY->setText(translate(_MINIMUM));
-    labelMaxY->setText(translate(_MAXIMUM));
+    labelStep->setText(translate(ID_STEP));
+    labelMinX->setText(translate(ID_MINIMUM));
+    labelMaxX->setText(translate(ID_MAXIMUM));
+    labelMinY->setText(translate(ID_MINIMUM));
+    labelMaxY->setText(translate(ID_MAXIMUM));
     // end
 }
 

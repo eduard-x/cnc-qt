@@ -19,27 +19,30 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="accessibleDescription">
+   <string notr="true"/>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QLabel" name="labelProgName">
        <property name="text">
-        <string>TextLabel</string>
+        <string>progname</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="labelProgVersion">
        <property name="text">
-        <string>TextLabel</string>
+        <string>progversion</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="labelAuthorNET">
        <property name="text">
-        <string>TextLabel</string>
+        <string>author net</string>
        </property>
        <property name="openExternalLinks">
         <bool>true</bool>
@@ -49,7 +52,7 @@
      <item>
       <widget class="QLabel" name="labelProgAuthor">
        <property name="text">
-        <string>TextLabel</string>
+        <string>author qt</string>
        </property>
        <property name="openExternalLinks">
         <bool>true</bool>
@@ -86,7 +89,7 @@
       </size>
      </property>
      <property name="text">
-      <string>TextLabel</string>
+      <string>info</string>
      </property>
      <property name="textFormat">
       <enum>Qt::RichText</enum>
@@ -121,6 +124,9 @@
          <width>100</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="accessibleDescription">
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>Ok</string>

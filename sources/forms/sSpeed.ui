@@ -28,8 +28,11 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="title">
-      <string>GroupBox</string>
+      <string>GroupBoxSpeed</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_23">
       <item row="0" column="0">
@@ -138,6 +141,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>Start speed</string>
           </property>
@@ -153,6 +159,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Acceleration</string>
@@ -260,6 +269,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Inv. direct.</string>
@@ -392,6 +404,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>Imp/mm</string>
           </property>
@@ -480,6 +495,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>Inv. steps</string>
           </property>
@@ -527,6 +545,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>End speed</string>
@@ -620,6 +641,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>using</string>
           </property>
@@ -679,12 +703,18 @@
        <height>50</height>
       </size>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="title">
-      <string>GroupBox</string>
+      <string>GroupBoxDirections</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_36">
       <item row="0" column="0">
        <widget class="QLabel" name="label_31">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
          <string>Swap directions:</string>
         </property>

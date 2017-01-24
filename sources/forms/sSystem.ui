@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="accessibleDescription">
+   <string notr="true"/>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBacklash">
@@ -21,6 +24,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
      </property>
      <property name="title">
       <string>Backlash</string>
@@ -165,6 +171,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="title">
       <string>Lookahead</string>
      </property>
@@ -178,6 +187,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Lines, differecy in directions, grad:</string>
@@ -210,6 +222,9 @@
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
          <string>Change the trajectory without speed reduction</string>
         </property>

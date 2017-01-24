@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -64,13 +64,13 @@ AboutDialog::AboutDialog(QWidget *p)
 
 void AboutDialog::translateDialog()
 {
-    setWindowTitle(translate(_ABOUT_TITLE));
+    setWindowTitle(translate(ID_ABOUT_TITLE));
     labelAuthorNET->setText("<a href=\"zheigurov@gmail.com\">C#, Windows developing: S. Zheigurov</a>");
     labelProgAuthor->setText("<a href=\"eduard_kalinowski@yahoo.de\">Qt/C++, Linux developing: E. Kalinowski</a>");
-    labelProgName->setText(translate(_PROG_NAME));
-    labelProgVersion->setText(CNCMK1QTVERSION);
+    labelProgName->setText(translate(ID_PROG_NAME) + " v." + QString(CNCMK1QTVERSION));
+    labelProgVersion->setText("");
 
-    QString ab = translate(_ABOUT_TEXT);
+    QString ab = translate(ID_ABOUT_TEXT);
 
     QString link1 = "http://www.planet-cnc.com";
     QString link2 = "http://www.selenur.ru";

@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="accessibleDescription">
+   <string notr="true"/>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
     <widget class="QGroupBox" name="groupBoxColors">
@@ -21,6 +24,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
      </property>
      <property name="title">
       <string>Colors</string>
@@ -33,6 +39,9 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="accessibleDescription">
+         <string notr="true"/>
         </property>
        </widget>
       </item>
@@ -54,8 +63,11 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="title">
-      <string>GroupBox</string>
+      <string>GroupBoxViewing</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_13">
       <item row="0" column="0">
@@ -74,6 +86,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>Selection width</string>
           </property>
@@ -86,6 +101,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Point size</string>
@@ -132,6 +150,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>smooth moving</string>
           </property>
@@ -144,6 +165,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Display traverse</string>
@@ -158,6 +182,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>Display workbench</string>
           </property>
@@ -170,6 +197,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Display scanned surface</string>
@@ -184,6 +214,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>current command</string>
           </property>
@@ -197,6 +230,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>Display X, Y, Z</string>
           </property>
@@ -209,6 +245,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Display tool</string>
@@ -227,6 +266,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
      </property>
      <property name="title">
       <string>Display grid</string>
@@ -284,15 +326,21 @@
       </item>
       <item row="3" column="1">
        <widget class="QLabel" name="labelBeginX">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>Begin</string>
+         <string>BeginX</string>
         </property>
        </widget>
       </item>
       <item row="3" column="2">
        <widget class="QLabel" name="labelEndX">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>End</string>
+         <string>EndX</string>
         </property>
        </widget>
       </item>
@@ -394,6 +442,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>Step, mm</string>
           </property>
@@ -422,6 +473,9 @@
       </item>
       <item row="0" column="0" colspan="3">
        <widget class="QRadioButton" name="radioButtonLines">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
          <string>Lines</string>
         </property>
@@ -429,6 +483,9 @@
       </item>
       <item row="0" column="3" colspan="3">
        <widget class="QRadioButton" name="radioButtonPoints">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
          <string>Points</string>
         </property>
@@ -436,15 +493,21 @@
       </item>
       <item row="3" column="4">
        <widget class="QLabel" name="labelBeginY">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string>BeginY</string>
         </property>
        </widget>
       </item>
       <item row="3" column="5">
        <widget class="QLabel" name="labelEndY">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string>EndY</string>
         </property>
        </widget>
       </item>
@@ -458,6 +521,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
      </property>
      <property name="title">
       <string>Show range</string>
@@ -493,15 +559,21 @@
       </item>
       <item row="0" column="1">
        <widget class="QLabel" name="labelMinX">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>min</string>
+         <string>minX</string>
         </property>
        </widget>
       </item>
       <item row="0" column="2">
        <widget class="QLabel" name="labelMaxX">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>max</string>
+         <string>maxX</string>
         </property>
        </widget>
       </item>
@@ -617,15 +689,21 @@
       </item>
       <item row="0" column="4">
        <widget class="QLabel" name="labelMinY">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string>minY</string>
         </property>
        </widget>
       </item>
       <item row="0" column="5">
        <widget class="QLabel" name="labelMaxY">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string>maxY</string>
         </property>
        </widget>
       </item>

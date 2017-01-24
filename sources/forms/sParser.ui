@@ -16,6 +16,12 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QCheckBox" name="checkBoxRemove">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="text">
       <string>Remove repeateble data from list</string>
      </property>
@@ -42,8 +48,11 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="title">
-      <string>GroupBox</string>
+      <string>GroupBoxArc</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_33">
       <item row="0" column="0">
@@ -58,6 +67,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Splitting arc to short lines (mk1)</string>
@@ -91,6 +103,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>per mm</string>
           </property>
@@ -103,6 +118,12 @@
    </item>
    <item row="1" column="0">
     <widget class="QCheckBox" name="checkBoxOptimize">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="text">
       <string>optimize rapid traverse</string>
      </property>
@@ -116,8 +137,11 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="title">
-      <string>GroupBox</string>
+      <string>GroupBoxRepeat</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -128,8 +152,11 @@
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <widget class="QLabel" name="labelRepeat">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string>TextLabelRepeat</string>
         </property>
        </widget>
       </item>
@@ -138,8 +165,11 @@
       </item>
       <item row="0" column="2">
        <widget class="QLabel" name="labelDepth">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string>TextLabelDepth</string>
         </property>
        </widget>
       </item>

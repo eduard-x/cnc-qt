@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -266,7 +266,7 @@ void SettingsMaterial::changeMaterial(int n)
         unit = QString().sprintf(": %4.1f - %4.1f feet/min", minFeedXY, maxFeedXY);
     }
 
-    labelCuttingRange->setText(translate(_RANGES) + unit);
+    labelCuttingRange->setText(translate(ID_RANGES) + unit);
 
     float m = (materialList.at(n).maxFeedXY + materialList.at(n).minFeedXY) / 2.0;
 
@@ -296,7 +296,7 @@ void SettingsMaterial::changeUnit(int n)
         unit = QString().sprintf(": %4.1f - %4.1f feet/min", (materialList.at(n).minFeedXY / 3.28084), (materialList.at(n).maxFeedXY / 3.28084));
     }
 
-    labelCuttingRange->setText(translate(_RANGES) + unit);
+    labelCuttingRange->setText(translate(ID_RANGES) + unit);
 
     if (Settings::toolDiameter == 0) {
         Settings::toolDiameter = 3.0;
@@ -327,38 +327,38 @@ void SettingsMaterial::translateWidget()
 {
     // tool settings
 
-    labelUnit->setText(translate(_MESSURE_UNIT));
-    groupMaterial->setTitle(translate(_MATERIAL));
-    groupTool->setTitle(translate(_TOOL));
-    labelDiameter->setText(translate(_DIAMETER));
-    labelFlutes->setText(translate(_FLUTES));
-    labelCuttingSpeed->setText(translate(_CUTTING_SPEED));
-    labelCuttingRange->setText(translate(_RANGES));
-    labelDepth->setText(translate(_MAX_DEPTH));
-    labelRange->setText(translate(_RANGE));
+    labelUnit->setText(translate(ID_MESSURE_UNIT));
+    groupMaterial->setTitle(translate(ID_MATERIAL));
+    groupTool->setTitle(translate(ID_TOOL));
+    labelDiameter->setText(translate(ID_DIAMETER));
+    labelFlutes->setText(translate(ID_FLUTES));
+    labelCuttingSpeed->setText(translate(ID_CUTTING_SPEED));
+    labelCuttingRange->setText(translate(ID_RANGES));
+    labelDepth->setText(translate(ID_MAX_DEPTH));
+    labelRange->setText(translate(ID_RANGE));
 
     labelRangeSpindle->setText("");
     labelRangeChipLoad->setText("");
 
-    labelSpendleSpeed->setText(translate(_SPINDLE_SPEED));
-    labelChipLoad->setText(translate(_CHIPLOAD));
-    labelFeedRate->setText(translate(_FEED_RATE));
+    labelSpendleSpeed->setText(translate(ID_SPINDLE_SPEED));
+    labelChipLoad->setText(translate(ID_CHIPLOAD));
+    labelFeedRate->setText(translate(ID_FEED_RATE));
 
-    QString units = translate(_UNITS);
+    QString units = translate(ID_UNITS);
     QStringList u = units.split("\n");
     comboUnit->addItems(u);
 
-    QString materials = translate(_MATERIAL_LIST);
+    QString materials = translate(ID_MATERIAL_LIST);
     QStringList m = materials.split("\n");
     comboMaterial->addItems(m);
 
     //     labelFlutes->setText(translate(_FLUTES));
     //     labelDiameter->setText(translate(_DIAMETER));
-    labelShaft->setText(translate(_SHAFT));
-    labelDiam->setText(translate(_DIAMETER));
-    labelTool->setText(translate(_SELECT_TOOL));
+    labelShaft->setText(translate(ID_SHAFT));
+    labelDiam->setText(translate(ID_DIAMETER));
+    labelTool->setText(translate(ID_SELECT_TOOL));
 
-    QString tblText = translate(_TOOL_TABLE);
+    QString tblText = translate(ID_TOOL_TABLE);
     QStringList tTable = tblText.split("\\");
 
     toolArray.clear();
@@ -372,13 +372,13 @@ void SettingsMaterial::translateWidget()
         }
 
         cmbList << slst.at(2);
-        slst[0] = translate(_DIAMETER) + ": " + slst.at(0);
-        slst[1] = translate(_SHAFT) + ": " + slst.at(1);
+        slst[0] = translate(ID_DIAMETER) + ": " + slst.at(0);
+        slst[1] = translate(ID_SHAFT) + ": " + slst.at(1);
         slst[3] = slst.at(3).simplified();
         toolArray << slst.toVector();
     }
 
-    labelMaterial->setText(translate(_MATERIAL));
+    labelMaterial->setText(translate(ID_MATERIAL));
 
     comboBoxTool->addItems(cmbList);
     connect(comboBoxTool, SIGNAL (activated(int)), this, SLOT(onChangeTool(int)));

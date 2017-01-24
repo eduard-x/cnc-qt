@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -158,13 +158,13 @@ void SettingsSpeed::getSettings()
 void SettingsSpeed::translateWidget()
 {
     //     labelInfo->setText(translate(_DEV_SIM_HELP));
-    labelUse->setText(translate(_USE));
+    labelUse->setText(translate(ID_USE));
 
-    labelSwap->setText(translate(_SWAP));
+    labelSwap->setText(translate(ID_SWAP));
 
-    labelStart->setText(translate(_STARTVELO));
-    labelEnd->setText(translate(_ENDVELO));
-    labelAcceleration->setText(translate(_ACCELERATION));
+    labelStart->setText(translate(ID_STARTVELO));
+    labelEnd->setText(translate(ID_ENDVELO));
+    labelAcceleration->setText(translate(ID_ACCELERATION));
 
 }
 

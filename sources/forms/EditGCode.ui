@@ -41,6 +41,9 @@
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="checkCorrecture">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
          <string>Correcture</string>
         </property>
@@ -48,6 +51,9 @@
       </item>
       <item row="1" column="0">
        <widget class="QGroupBox" name="groupOffset">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="title">
          <string>Offset (mm)</string>
         </property>
@@ -117,6 +123,9 @@
       </item>
       <item row="1" column="1">
        <widget class="QGroupBox" name="groupResize">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="title">
          <string>Resize, %</string>
         </property>
@@ -166,8 +175,11 @@
       </item>
       <item row="2" column="0">
        <widget class="QCheckBox" name="checkBoxZ">
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>CheckBox</string>
+         <string>CheckBoxZ</string>
         </property>
        </widget>
       </item>

@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -326,7 +326,7 @@ bool cTranslator::loadTranslation(const QString fname)
     if (llEng == "LANGUAGE_NAME") {
         translateTable << llEng;
     } else {
-        MessageBox::exec(this, translate(_FILEERR), "File is not a language file!", QMessageBox::Warning);
+        MessageBox::exec(this, translate(ID_FILEERR), "File is not a language file!", QMessageBox::Warning);
 
         langFile.close();
         return (false);

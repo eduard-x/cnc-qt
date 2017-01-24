@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -166,14 +166,14 @@ void SettingsWorkbench::getSettings()
 
 void SettingsWorkbench::translateWidget()
 {
-    labelMin->setText(translate(_MIN));
-    labelMax->setText(translate(_MAX));
+    labelMin->setText(translate(ID_MIN));
+    labelMax->setText(translate(ID_MAX));
 
-    labelSeq->setText(translate(_SEQUENCE));
-    labelSpeed->setText(translate(_SPEED));
-    labelPosition->setText(translate(_POS));
+    labelSeq->setText(translate(ID_SEQUENCE));
+    labelSpeed->setText(translate(ID_SPEED));
+    labelPosition->setText(translate(ID_POS));
 
-    checkBoxDemoController->setText(translate(_DEV_SIMULATION));
+    checkBoxDemoController->setText(translate(ID_DEV_SIMULATION));
 
 
 }

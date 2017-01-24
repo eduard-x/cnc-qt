@@ -8,9 +8,17 @@ CMAKE_POLICY(SET CMP0015 OLD)
 # set the Qt version to 4 or 5
 SET(USE_QT_VERSION 5)
 
+
+# # SET(FILES_TO_TRANSLATE)
+
 #disable -rdynamic
 SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+
+
+# FILE (GLOB TRANSLATIONS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/translations/*.ts)
+
+# OPTION (UPDATE_TRANSLATIONS "Update source translation ${CMAKE_CURRENT_SOURCE_DIR}/translations/*.ts" OFF)
 
 
 MESSAGE(STATUS "Qt version for compiling: " ${USE_QT_VERSION})
@@ -20,10 +28,15 @@ IF(NOT ${USE_QT_VERSION} MATCHES "4" AND NOT ${USE_QT_VERSION} MATCHES "5")
 ENDIF()
 
 #debug or release
-SET(USE_DEBUGGER false)
+# SET(USE_DEBUGGER false)
+
+OPTION (USE_DEBUGGER "Include in binary file debug information" OFF)
 
 #enable or disable profiling info
-SET(USE_PROFILER false)
+# SET(USE_PROFILER false)
+
+OPTION (USE_PROFILER "Include in binary file profiling information" OFF)
+
 
 
 IF(${USE_DEBUGGER})
@@ -59,10 +72,10 @@ INCLUDE(CNCQTCompiler) # Detect problematic compilers
 # INCLUDE(FindOpenGL)
 # FIND_PACKAGE(OpenGL)
 
-find_package(Qt5Core)
-find_package(Qt5Widgets)
-find_package(Qt5Gui)
-find_package(Qt5OpenGL)
+# find_package(Qt5Core)
+# find_package(Qt5Widgets)
+# find_package(Qt5Gui)
+# find_package(Qt5OpenGL)
 
 SET(QtApp_RCCS  "${CMAKE_CURRENT_SOURCE_DIR}/sources/CNC-Qt.qrc")
 
@@ -71,8 +84,10 @@ SET(CURRENT_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE(FindLibUSB-1.0)
 
 
-set (QT_USE_QTOPENGL TRUE)
+SET (QT_USE_QTOPENGL TRUE)
 # set (QT_OPENGL_ES_2 TRUE)
+
+
 
 
 IF(NOT ${LIBUSB_VERSION} LESS "1.0.16")
@@ -117,7 +132,7 @@ MESSAGE(STATUS "Version build date: ${BUILD_DATE}")
 SET(CNCQT_PACKAGE cncqt)
 # SET(CNCQT_VERSION ${CNCQT_MAJOR_VERSION}.${CNCQT_MINOR_VERSION}.${CNCQT_RELEASE_VERSION}.${CNCQT_BUILD_VERSION})
 SET(CNCQT_HOST ${CMAKE_SYSTEM} ${CMAKE_SYSTEM_PROCESSOR})
-SET(CNCQT_COPYRIGHT "Copyright (c) 2015-2016, Sergey Zheigurov, Eduard Kalinowski. All Rights Reserved.")
+SET(CNCQT_COPYRIGHT "Copyright (c) 2015-2017, Sergey Zheigurov, Eduard Kalinowski. All Rights Reserved.")
 SET(CNCQT_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 # Setup high-level build options
@@ -156,6 +171,8 @@ IF(${USE_QT_VERSION} MATCHES "4")
 ELSE()
     FIND_PACKAGE(Qt5 COMPONENTS Core Gui Widgets OpenGL REQUIRED QUIET)
 
+#     FIND_PACKAGE(Qt5 COMPONENTS LinguistTools  REQUIRED QUIET)
+    
     IF(NOT Qt5Widgets_FOUND)
         MESSAGE(FATAL_ERROR "Qt5 could not be found. "
         "If it's INSTALLed in a non-standard location, specify the path to qmake in QT_QMAKE_EXECUTABLE. "
@@ -190,14 +207,14 @@ ELSE()
     MESSAGE(STATUS "QT_INCLUDES ${QT_INCLUDES} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS}")
 
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${Qt5OpenGL_EXECUTABLE_COMPILE_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lQt5OpenGL")
 ENDIF()
 
 
 configure_file (
   "${PROJECT_SOURCE_DIR}/sources/version.h.in"
   "${PROJECT_SOURCE_DIR}/sources/includes/version.h" )
-  
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lQt5OpenGL")
+
 
 SET ( OBJECTS_DIR temp )
 SET ( MOC_DIR temp )
@@ -210,10 +227,12 @@ ADD_SUBDIRECTORY(sources)
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR} $(CMAKE_CURRENT_SOURCE_DIR)/sources/includes ${LIBUSB_INCLUDE_DIRS})
 
 IF(${USE_QT_VERSION} MATCHES "4")
+#     QT4_ADD_TRANSLATION(APP_TRANSLATIONS ${TRANSLATION})
     QT4_WRAP_CPP(APP_HEADERS_MOC ${MAIN_HEADERS} )
     QT4_WRAP_UI(APP_FORMS_HEADERS ${MAIN_FORMS} )
     QT4_ADD_RESOURCES(APP_RESOURCES_RCC ${APP_RESOURCES})
 ELSE()
+#     QT5_ADD_TRANSLATION(APP_TRANSLATIONS ${TRANSLATION})
     QT5_WRAP_CPP(APP_HEADERS_MOC ${MAIN_HEADERS} )
     QT5_WRAP_UI(APP_FORMS_HEADERS ${MAIN_FORMS} )
     QT5_ADD_RESOURCES(APP_RESOURCES_RCC ${APP_RESOURCES})
@@ -247,6 +266,7 @@ ADD_EXECUTABLE(${CMAKE_PROJECT_NAME}
     ${MAIN_SOURCES}
     ${APP_HEADERS_MOC} 
     ${APP_FORMS_HEADERS} 
+#     ${APP_TRANSLATIONS}
     ${APP_RESOURCES_RCC}
 )
 

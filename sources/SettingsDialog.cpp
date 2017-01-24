@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -122,19 +122,19 @@ SettingsDialog::~SettingsDialog()
  */
 void SettingsDialog::translateDialog()
 {
-    setWindowTitle(translate(_SETTINGS_TITLE));
+    setWindowTitle(translate(ID_SETTINGS_TITLE));
 
     //    menu items
 
     QStringList menuList;
-    menuList << translate(_WORKBENCH);
-    menuList << translate(_MOVING_SETTINGS);
-    menuList << translate(_IO);
-    menuList << translate(_SYSTEM);
-    menuList << translate(_PARSER);
-    menuList << translate(_WORK_TOOL);
-    menuList << translate(_VISUALISATION);
-    menuList << translate(_CONTROL);
+    menuList << translate(ID_WORKBENCH);
+    menuList << translate(ID_MOVING_SETTINGS);
+    menuList << translate(ID_IO);
+    menuList << translate(ID_SYSTEM);
+    menuList << translate(ID_PARSER);
+    menuList << translate(ID_WORK_TOOL);
+    menuList << translate(ID_VISUALISATION);
+    menuList << translate(ID_CONTROL);
 
 
     treeWidget->setColumnCount(1);
@@ -180,7 +180,7 @@ void SettingsDialog::translateDialog()
 
 
     QList<QAbstractButton*> l = buttonBox->buttons();
-    QStringList strl = (QStringList() << translate(_SET) << translate(_CANCEL));
+    QStringList strl = (QStringList() << translate(ID_SET) << translate(ID_CANCEL));
 
     for(int i = 0; i < l.count(); i++) {
         l[i]->setText(strl.at(i));

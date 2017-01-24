@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="accessibleDescription">
+   <string notr="true"/>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupHardwareLimits">
@@ -21,6 +24,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
      </property>
      <property name="title">
       <string>Enable hardware switchers</string>
@@ -94,6 +100,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
          <string>Min</string>
         </property>
@@ -106,6 +115,9 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="accessibleDescription">
+         <string notr="true"/>
         </property>
         <property name="text">
          <string>Max</string>
@@ -139,6 +151,9 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="accessibleDescription">
+         <string notr="true"/>
         </property>
         <property name="text">
          <string>Plus</string>
@@ -233,6 +248,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
          <string>Minus</string>
         </property>
@@ -251,6 +269,9 @@
           <width>16777215</width>
           <height>25</height>
          </size>
+        </property>
+        <property name="accessibleDescription">
+         <string notr="true"/>
         </property>
         <property name="text">
          <string>Activate</string>
@@ -273,6 +294,9 @@
           <width>16777215</width>
           <height>25</height>
          </size>
+        </property>
+        <property name="accessibleDescription">
+         <string notr="true"/>
         </property>
         <property name="text">
          <string>Invert</string>
@@ -299,8 +323,11 @@
        <height>0</height>
       </size>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="title">
-      <string>GroupBox</string>
+      <string>GroupBox connectors</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_35">
       <item row="0" column="1">
@@ -495,8 +522,11 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string>connected</string>
         </property>
        </widget>
       </item>
@@ -511,8 +541,11 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="title">
-      <string>Output</string>
+      <string>Output connectors</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
@@ -582,8 +615,11 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="title">
-      <string>Jog</string>
+      <string>Jog connectors</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
@@ -652,6 +688,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
      </property>
      <property name="title">
       <string>ExtPin</string>

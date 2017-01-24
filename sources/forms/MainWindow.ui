@@ -554,7 +554,7 @@
             </sizepolicy>
            </property>
            <property name="currentIndex">
-            <number>3</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tab1">
             <property name="sizePolicy">
@@ -708,7 +708,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>673</width>
+                    <width>661</width>
                     <height>473</height>
                    </rect>
                   </property>
@@ -1958,7 +1958,7 @@
                 </size>
                </property>
                <property name="title">
-                <string>GroupBox</string>
+                <string>GroupBoxMoving</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_20">
                 <item row="0" column="0">
@@ -2441,7 +2441,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabelTask</string>
               </property>
              </widget>
             </item>

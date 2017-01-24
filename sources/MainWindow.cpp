@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -150,11 +150,11 @@ int MessageBox::exec(void* p, const QString &title, const QString &text, int tic
 
     if (ticon == QMessageBox::Question) {
         msgBox->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        msgBox->setButtonText(QMessageBox::Yes, translate(_YES));
-        msgBox->setButtonText(QMessageBox::No, translate(_NO));
+        msgBox->setButtonText(QMessageBox::Yes, translate(ID_YES));
+        msgBox->setButtonText(QMessageBox::No, translate(ID_NO));
     } else {
         msgBox->setStandardButtons(QMessageBox::Yes);
-        msgBox->setButtonText(QMessageBox::Yes, translate(_OK));
+        msgBox->setButtonText(QMessageBox::Yes, translate(ID_OK));
     }
 
     if (parent->programStyleSheet.length() > 0) {
@@ -187,7 +187,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     textLog->document()->setMaximumBlockCount(10000);
 
-    setWindowTitle(translate(_PROG_NAME));
+    setWindowTitle(translate(ID_PROG_NAME));
 
     currentStatus = Task::Stop;
 
@@ -249,7 +249,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     if (readLangDir() == false) { // init from langFiles variable in format "filename:language"
-        MessageBox::exec(this, translate(_ERR),
+        MessageBox::exec(this, translate(ID_ERR),
                          "Directory with other languages not found\nDefault GUI language is english", QMessageBox::Critical);
     }
 
@@ -286,7 +286,7 @@ MainWindow::MainWindow(QWidget *parent)
         //  palette.setColor(statusLabel2->backgroundRole(), Qt::yellow);
         palette.setColor(statusLabel2->foregroundRole(), Qt::darkBlue);
         statusLabel2->setPalette(palette);
-        statusLabel2->setText( "OpenGL " + translate(_ENABLED));
+        statusLabel2->setText( "OpenGL " + translate(ID_ENABLED));
 
         // OpenGL is placed in widget
     } else {
@@ -296,7 +296,7 @@ MainWindow::MainWindow(QWidget *parent)
         //  palette.setColor(statusLabel2->backgroundRole(), Qt::yellow);
         palette.setColor(statusLabel2->foregroundRole(), Qt::red);
         statusLabel2->setPalette(palette);
-        statusLabel2->setText( "OpenGL " + translate(_DISABLED) );
+        statusLabel2->setText( "OpenGL " + translate(ID_DISABLED) );
         tabWidget->removeTab(1);
     }
 
@@ -315,7 +315,7 @@ MainWindow::MainWindow(QWidget *parent)
     addConnections();
 
     if (getLangTable() == false) {
-        MessageBox::exec(this, translate(_ERR),
+        MessageBox::exec(this, translate(ID_ERR),
                          "Can't open language file!\nDefault GUI language is english", QMessageBox::Critical);
 
         Settings::currentLang = "English";
@@ -431,7 +431,7 @@ bool MainWindow::getLangTable()
     }
 
     if (QFile::exists(Settings::langDir + "/" + fileLang) == false) {
-        MessageBox::exec(this, translate(_ERR), "Language file not exists!\n\n"
+        MessageBox::exec(this, translate(ID_ERR), "Language file not exists!\n\n"
                          + Settings::langDir + "\n\n" + fileLang, QMessageBox::Warning);
         // not found
         return (false);
@@ -614,10 +614,10 @@ void MainWindow::hotplugTimerTick()
 
     if (mk1_detected != mk1_connected) {
         if (mk1_detected == true) {
-            AddLog(translate(_HOTPLUGED));
+            AddLog(translate(ID_HOTPLUGED));
             emit mk1Connected();
         } else {
-            AddLog(translate(_DETACHED));
+            AddLog(translate(ID_DETACHED));
             emit mk1Disconnected();
         }
 
@@ -723,7 +723,7 @@ bool MainWindow::readLangDir()
 
     found = false;
 
-    langMenu = menuSettings->addMenu(translate(_LANGUAGE));
+    langMenu = menuSettings->addMenu(translate(ID_LANGUAGE));
 
     langGroup = new QActionGroup(this);
 
@@ -891,7 +891,7 @@ void MainWindow::reloadRecentList()
         return;
     }
 
-    filesMenu = new QMenu( translate(_RECENTFILES)); //insertAction
+    filesMenu = new QMenu( translate(ID_RECENTFILES)); //insertAction
     QAction *actionRecent = menuFile->insertMenu(actionSave, filesMenu);
     filesGroup = new QActionGroup(this);
 
@@ -940,7 +940,7 @@ bool MainWindow::OpenFile(QString &fileName)
     dir = ( Settings::lastDir.length() > 0) ? Settings::lastDir : QDir::homePath();
 
     if (fileName == "") {
-        name = QFileDialog::getOpenFileName ( 0, translate(_LOAD_FROM_FILE), dir );
+        name = QFileDialog::getOpenFileName ( 0, translate(ID_LOAD_FROM_FILE), dir );
 
         if (name.length() == 0) {
             return false;
@@ -1011,6 +1011,18 @@ void MainWindow::setFile(QAction* a)
     }
 }
 
+
+void MainWindow::change_language(QString language)
+{
+    if (language == "deutsch") {
+        qApp->removeTranslator(&language_en); //die Ursprungssprache wird hergestellt
+    }
+
+    if (language == "english") {
+        language_en.load("cnc_qt_en"); // Aufruf der .qm Datei wenn sich die Datei direkt im Buildpfad befindet
+        qApp->installTranslator(&language_en); //die Englishe Translationsdatei wird geladen
+    }
+}
 
 /**
  * @brief set GUI to selected language and do the translation of all GUI widgets
@@ -1096,13 +1108,13 @@ Task::StatusTask MainWindow::getStatus()
 void MainWindow::closeEvent(QCloseEvent* ce)
 {
     if (currentStatus != Task::Stop) {
-        MessageBox::exec(this, translate(_WARN), translate(_MSG_FOR_DISABLE), QMessageBox::Critical);
+        MessageBox::exec(this, translate(ID_WARN), translate(ID_MSG_FOR_DISABLE), QMessageBox::Critical);
         ce->ignore();
         return;
     }
 
     int ans;
-    ans = MessageBox::exec(this, translate(_EXIT), translate(_REALLYQUIT), QMessageBox::Question);
+    ans = MessageBox::exec(this, translate(ID_EXIT), translate(ID_REALLYQUIT), QMessageBox::Question);
 
     if (ans == QMessageBox::No) {
         ce->ignore();
@@ -1136,11 +1148,11 @@ void MainWindow::closeEvent(QCloseEvent* ce)
 void MainWindow::onExit()
 {
     if (currentStatus != Task::Stop) {
-        MessageBox::exec(this, translate(_WARN), translate(_MSG_FOR_DISABLE), QMessageBox::Critical);
+        MessageBox::exec(this, translate(ID_WARN), translate(ID_MSG_FOR_DISABLE), QMessageBox::Critical);
         return;
     }
 
-    if (MessageBox::exec(this, translate(_EXIT), translate(_REALLYQUIT), QMessageBox::Question) == QMessageBox::No) {
+    if (MessageBox::exec(this, translate(ID_EXIT), translate(ID_REALLYQUIT), QMessageBox::Question) == QMessageBox::No) {
         //         ce->ignore();
         return;
     }
@@ -1169,21 +1181,21 @@ void MainWindow::onExit()
  */
 void MainWindow::translateGUI()
 {
-    groupB14->setTitle(translate(_BYTE_14));
-    groupB15->setTitle(translate(_BYTE_15));
-    groupB19->setTitle(translate(_BYTE_19));
+    groupB14->setTitle(translate(ID_BYTE_14));
+    groupB15->setTitle(translate(ID_BYTE_15));
+    groupB19->setTitle(translate(ID_BYTE_19));
 
-    groupBoxMoving->setTitle(translate(_MOVING_TOPOINT));
-    groupGenerate->setTitle(translate(_GEN_SIGNAL));
-    groupPosition->setTitle(translate(_COORDINATES));
-    //     groupBoxExec->setTitle(translate(_GCODE_RUNNING));
-    groupManualControl->setTitle(translate(_MANUAL_CONTROL));
-    groupIndicator->setTitle(translate(_DISPL_LIMITS));
-    groupVelocity->setTitle(translate(_VELOCITY));
+    groupBoxMoving->setTitle(translate(ID_MOVING_TOPOINT));
+    groupGenerate->setTitle(translate(ID_GEN_SIGNAL));
+    groupPosition->setTitle(translate(ID_COORDINATES));
+    //     groupBoxExec->setTitle(translate(ID_GCODE_RUNNING));
+    groupManualControl->setTitle(translate(ID_MANUAL_CONTROL));
+    groupIndicator->setTitle(translate(ID_DISPL_LIMITS));
+    groupVelocity->setTitle(translate(ID_VELOCITY));
 
-    toolRunMoving->setText(translate(_RUN));
+    toolRunMoving->setText(translate(ID_RUN));
 
-    QStringList m = translate(_MATERIAL_LIST).split("\n");
+    QStringList m = translate(ID_MATERIAL_LIST).split("\n");
 
     if (m.count() > 0) {
         if (Settings::cuttedMaterial < m.count()) {
@@ -1193,75 +1205,75 @@ void MainWindow::translateGUI()
         }
     }
 
-    pushClean->setText(translate(_CLEAN));
-    pushSendSignal->setText(translate(_GEN_SIGNAL));
-    pushManualControl->setText(translate(_MANUAL_CONTROL));
+    pushClean->setText(translate(ID_CLEAN));
+    pushSendSignal->setText(translate(ID_GEN_SIGNAL));
+    pushManualControl->setText(translate(ID_MANUAL_CONTROL));
 
-    radioButtonOff->setText(translate(_OFF));
-    radioButtonHz->setText(translate(_HZ));
-    radioButtonRC->setText(translate(_RC));
+    radioButtonOff->setText(translate(ID_OFF));
+    radioButtonHz->setText(translate(ID_HZ));
+    radioButtonRC->setText(translate(ID_RC));
 
-    labelPWMVelo->setText(translate(_VELO_PWM));
-    labelPWMCHan->setText(translate(_CHAN_PWM));
+    labelPWMVelo->setText(translate(ID_VELO_PWM));
+    labelPWMCHan->setText(translate(ID_CHAN_PWM));
 
     if (enableOpenGL == true) {
-        tabWidget->setTabText(0, translate(_DATA));
-        tabWidget->setTabText(1, translate(_3D_VIEW));
-        //         tabWidget->setTabText(2, translate(_WORKBENCH));
-        tabWidget->setTabText(2, translate(_DIAGNOSTIC));
-        tabWidget->setTabText(3, translate(_ADDITIONAL));
-        tabWidget->setTabText(4, translate(_LOG));
+        tabWidget->setTabText(0, translate(ID_DATA));
+        tabWidget->setTabText(1, translate(ID_3D_VIEW));
+        //         tabWidget->setTabText(2, translate(ID_WORKBENCH));
+        tabWidget->setTabText(2, translate(ID_DIAGNOSTIC));
+        tabWidget->setTabText(3, translate(ID_ADDITIONAL));
+        tabWidget->setTabText(4, translate(ID_LOG));
     } else {
-        tabWidget->setTabText(0, translate(_DATA));
-        //         tabWidget->setTabText(1, translate(_WORKBENCH));
-        tabWidget->setTabText(1, translate(_DIAGNOSTIC));
-        tabWidget->setTabText(2, translate(_ADDITIONAL));
-        tabWidget->setTabText(3, translate(_LOG));
+        tabWidget->setTabText(0, translate(ID_DATA));
+        //         tabWidget->setTabText(1, translate(ID_WORKBENCH));
+        tabWidget->setTabText(1, translate(ID_DIAGNOSTIC));
+        tabWidget->setTabText(2, translate(ID_ADDITIONAL));
+        tabWidget->setTabText(3, translate(ID_LOG));
     }
 
-    //     labelSubmission->setText(translate(_SUBMISSION));
-    //     labelMoving->setText(translate(_MOVING));
+    //     labelSubmission->setText(translate(ID_SUBMISSION));
+    //     labelMoving->setText(translate(ID_MOVING));
 
-    checkEnSpindle->setText(translate(_ON_SPINDLE));
-    //     checkHWLimits->setText(translate(_CHECK_HW_LIMITS));
-    checkHomeAtStart->setText(translate(_GO_HOME_AT_START));
-    checkHomeAtEnd->setText(translate(_GO_HOME_AT_END));
+    checkEnSpindle->setText(translate(ID_ON_SPINDLE));
+    //     checkHWLimits->setText(translate(ID_CHECK_HW_LIMITS));
+    checkHomeAtStart->setText(translate(ID_GO_HOME_AT_START));
+    checkHomeAtEnd->setText(translate(ID_GO_HOME_AT_END));
 
-    labelVelo->setText(translate(_VELO));
+    labelVelo->setText(translate(ID_VELO));
 
-    //     labelRotat->setText(translate(_ROTATION));
+    //     labelRotat->setText(translate(ID_ROTATION));
 
-    labelMinX->setText(translate(_MIN));
-    labelMaxX->setText(translate(_MAX));
+    labelMinX->setText(translate(ID_MIN));
+    labelMaxX->setText(translate(ID_MAX));
 
     //
-    labelRunFrom->setText(translate(_CURRENT_LINE));
-    labelNumVelo->setText(translate(_VELO));
+    labelRunFrom->setText(translate(ID_CURRENT_LINE));
+    labelNumVelo->setText(translate(ID_VELO));
 
-    menuFile->setTitle(translate(_FILE));
-    menuSettings->setTitle(translate(_SETTINGS));
-    menuController->setTitle(translate(_CONTROLLER));
-    menuHelp->setTitle(translate(_HELP));
+    menuFile->setTitle(translate(ID_FILE));
+    menuSettings->setTitle(translate(ID_SETTINGS));
+    menuController->setTitle(translate(ID_CONTROLLER));
+    menuHelp->setTitle(translate(ID_HELP));
 
-    actionOpen->setText(translate(_OPEN_FILE));
+    actionOpen->setText(translate(ID_OPEN_FILE));
 
     if (filesMenu != 0) {
-        filesMenu->setTitle( translate(_RECENTFILES));
+        filesMenu->setTitle( translate(ID_RECENTFILES));
     }
 
-    actionSave->setText(translate(_SAVE_GCODE));
-    actionExit->setText(translate(_EXIT));
+    actionSave->setText(translate(ID_SAVE_GCODE));
+    actionExit->setText(translate(ID_EXIT));
 
-    actionFluid->setText(translate(_COOLANT));
-    actionMist->setText(translate(_MIST));
+    actionFluid->setText(translate(ID_COOLANT));
+    actionMist->setText(translate(ID_MIST));
 
-    actionProgram->setText(translate(_PROGRAM));
-    //     actionOpenGL->setText(translate(_OPENGL));
-    //     actionConnect->setText(translate(_CONNECT));
-    //     actionDisconnect->setText(translate(_DISCONNECT));
-    actionAbout->setText(translate(_ABOUT));
+    actionProgram->setText(translate(ID_PROGRAM));
+    //     actionOpenGL->setText(translate(ID_OPENGL));
+    //     actionConnect->setText(translate(ID_CONNECT));
+    //     actionDisconnect->setText(translate(ID_DISCONNECT));
+    actionAbout->setText(translate(ID_ABOUT));
 
-    listGCodeWidget->setHorizontalHeaderLabels((QStringList() << translate(_COMMAND) << translate(_INFO) << translate(_STATE)));
+    listGCodeWidget->setHorizontalHeaderLabels((QStringList() << translate(ID_COMMAND) << translate(ID_INFO) << translate(ID_STATE)));
 }
 
 
@@ -1276,13 +1288,13 @@ void MainWindow::onStartTask()
     //     }
 
     if (!mk1->isConnected()) {
-        MessageBox::exec(this, translate(_ERR), translate(_MSG_NO_CONN), QMessageBox::Critical);
+        MessageBox::exec(this, translate(ID_ERR), translate(ID_MSG_NO_CONN), QMessageBox::Critical);
         return;
     }
 
     if (gCodeData.count() == 0) {
         // no data
-        MessageBox::exec(this, translate(_ERR), translate(_MSG_NO_DATA), QMessageBox::Critical);
+        MessageBox::exec(this, translate(ID_ERR), translate(ID_MSG_NO_DATA), QMessageBox::Critical);
         return;
     }
 
@@ -1299,10 +1311,10 @@ void MainWindow::onStartTask()
     }
 
     if (selected.count() == 1) { //selected only one line
-        QString msg = translate(_QUEST_START_FROMLINE);
+        QString msg = translate(ID_QUEST_START_FROMLINE);
         beg = selected.first().row();
 
-        int dlgres =  MessageBox::exec(this, translate(_START_PROG), msg.arg(QString::number(beg + 1)), QMessageBox::Question);
+        int dlgres =  MessageBox::exec(this, translate(ID_START_PROG), msg.arg(QString::number(beg + 1)), QMessageBox::Question);
 
         if (dlgres == QMessageBox::Cancel) {
             return;
@@ -1312,11 +1324,11 @@ void MainWindow::onStartTask()
     }
 
     if (selected.count() > 1) { //select lines range
-        QString msg = translate(_QUEST_START_FROMTOLINE);
+        QString msg = translate(ID_QUEST_START_FROMTOLINE);
 
         beg = selected.first().row();
         end = selected.count() + beg - 1;
-        int dlgr =  MessageBox::exec(this, translate(_START_PROG),  msg.arg(QString::number(beg + 1 ))
+        int dlgr =  MessageBox::exec(this, translate(ID_START_PROG),  msg.arg(QString::number(beg + 1 ))
                                      .arg(QString::number(end + 1)), QMessageBox::Question);
 
         if (dlgr == QMessageBox::Cancel) {
@@ -1352,7 +1364,7 @@ void MainWindow::onStartTask()
 #endif
 
     qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd /*<< "code" << Task::instructionStart << Task::instructionEnd*/ << "size of code" << gCodeData.count();
-    QString s = translate(_FROM_TO).arg( Task::lineCodeStart + 1).arg( Task::lineCodeEnd + 1);
+    QString s = translate(ID_FROM_TO).arg( Task::lineCodeStart + 1).arg( Task::lineCodeEnd + 1);
     labelTask->setText( s );
 
     statusProgress->setRange(Task::lineCodeStart, Task::lineCodeEnd);
@@ -1502,7 +1514,7 @@ void MainWindow::runNextCommand()
 
     if (Task::lineCodeNow > Task::lineCodeEnd) {
         currentStatus = Task::Stop;
-        AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
+        AddLog(translate(ID_END_TASK_AT) + QDateTime().currentDateTime().toString());
 
         return;
     }
@@ -1567,7 +1579,7 @@ void MainWindow::runNextCommand()
 
         mk1->packFF();
 
-        AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
+        AddLog(translate(ID_END_TASK_AT) + QDateTime().currentDateTime().toString());
 
         return;
     }
@@ -1589,7 +1601,7 @@ void MainWindow::runNextCommand()
             Settings::coord[A].startPos = 0.0;
         }
 
-        AddLog(translate(_START_TASK_AT) + QDateTime().currentDateTime().toString());
+        AddLog(translate(ID_START_TASK_AT) + QDateTime().currentDateTime().toString());
 
         mk1->pack9E(0x05);
 
@@ -1638,7 +1650,7 @@ void MainWindow::runNextCommand()
     // the task is ready
     //     if (Task::posCodeNow > Task::posCodeEnd) {
     //         currentStatus = Stop;
-    //         AddLog(translate(_END_TASK_AT) + QDateTime().currentDateTime().toString());
+    //         AddLog(translate(ID_END_TASK_AT) + QDateTime().currentDateTime().toString());
     //
     //         //         mainTaskTimer.stop();
     //         return false;
@@ -1667,9 +1679,9 @@ void MainWindow::runNextCommand()
             currentStatus = Task::Paused;
 
             //pause before user click
-            MessageBox::exec(this, translate(_PAUSE), translate(_RECIEVED_M0), QMessageBox::Information);
+            MessageBox::exec(this, translate(ID_PAUSE), translate(ID_RECIEVED_M0), QMessageBox::Information);
         } else {
-            QString msg = translate(_PAUSE_G4);
+            QString msg = translate(ID_PAUSE_G4);
             statusLabel2->setText( msg.arg(QString::number(gcodeNow.pauseMSeconds)));
 
             QThread().wait(gcodeNow.pauseMSeconds); // pause in msec
@@ -1683,8 +1695,8 @@ void MainWindow::runNextCommand()
         currentStatus = Task::Paused;
 
         //pause before user click
-        QString msg = translate(_PAUSE_ACTIVATED);
-        MessageBox::exec(this, translate(_PAUSE), msg.arg(QString::number(gcodeNow.numberInstrument)).arg(QString::number(gcodeNow.diametr)), QMessageBox::Information);
+        QString msg = translate(ID_PAUSE_ACTIVATED);
+        MessageBox::exec(this, translate(ID_PAUSE), msg.arg(QString::number(gcodeNow.numberInstrument)).arg(QString::number(gcodeNow.diametr)), QMessageBox::Information);
     }
 
     int commands = 1;
@@ -1746,7 +1758,7 @@ void MainWindow::runNextCommand()
         }
     }
 
-    labelRunFrom->setText( translate(_CURRENT_LINE) + " " + QString::number(Task::lineCodeNow + 1));
+    labelRunFrom->setText( translate(ID_CURRENT_LINE) + " " + QString::number(Task::lineCodeNow + 1));
 }
 
 
@@ -2006,9 +2018,9 @@ void MainWindow::onCncHotplug()
     bool e = mk1->isConnected();
 
     if (e == true) {
-        AddLog(translate(_HOTPLUGED));
+        AddLog(translate(ID_HOTPLUGED));
     } else {
-        AddLog(translate(_DETACHED));
+        AddLog(translate(ID_DETACHED));
     }
 
     actionInfo->setEnabled(e);
@@ -2037,8 +2049,8 @@ void  MainWindow::refreshElementsForms()
     actionMist->setEnabled( cncConnected );
     actionFluid->setEnabled( cncConnected );
 
-    labelSpeed->setText( QString::number(mk1->getSpindleMoveSpeed()) + translate(_MM_MIN));
-    //     statLabelNumInstr->setText( translate(_NUM_INSTR) + QString::number(mk1->numberCompleatedInstructions()));
+    labelSpeed->setText( QString::number(mk1->getSpindleMoveSpeed()) + translate(ID_MM_MIN));
+    //     statLabelNumInstr->setText( translate(ID_NUM_INSTR) + QString::number(mk1->numberCompleatedInstructions()));
 
     if (!cncConnected ) {
         QPixmap grayPix = QPixmap(":/images/ball_gray.png");
@@ -2098,27 +2110,27 @@ void  MainWindow::refreshElementsForms()
 
     switch (currentStatus) {
         case Task::Start: {
-            statusLabel1->setText( translate(_START_TASK));
+            statusLabel1->setText( translate(ID_START_TASK));
             break;
         }
 
         case Task::Paused: {
-            statusLabel1->setText( translate(_PAUSE_TASK));
+            statusLabel1->setText( translate(ID_PAUSE_TASK));
             break;
         }
 
         case Task::Stop: {
-            statusLabel1->setText( translate(_STOP_TASK));
+            statusLabel1->setText( translate(ID_STOP_TASK));
             break;
         }
 
         case Task::Working: {
-            statusLabel1->setText( translate(_RUN_TASK));
+            statusLabel1->setText( translate(ID_RUN_TASK));
             break;
         }
 
         case Task::Waiting: {
-            statusLabel1->setText( translate(_WAIT));
+            statusLabel1->setText( translate(ID_WAIT));
             break;
         }
     }
@@ -2138,6 +2150,7 @@ void  MainWindow::refreshElementsForms()
     lineWpulses->setText(QString::number(Settings::coord[W].actualPosPulses));
 
     lineInstructions->setText(QString::number(mk1->numberCompleatedInstructions()));
+
 #if 0
 
     if (mk1->isEmergencyStopOn()) {
@@ -2358,7 +2371,7 @@ void MainWindow::fillListWidget(QVector<QString> listCode)
     listGCodeWidget->setRowCount( 0);
     listGCodeWidget->setColumnCount(3);
 
-    QStringList header = (QStringList() << translate(_COMMAND) << translate(_INFO) << translate(_STATE));
+    QStringList header = (QStringList() << translate(ID_COMMAND) << translate(ID_INFO) << translate(ID_STATE));
 
     listGCodeWidget->setHorizontalHeaderLabels(header);
     listGCodeWidget->setRowCount( listCode.count() );
@@ -2705,7 +2718,7 @@ void MainWindow::onCalcVelocity()
     sd->exec();
     delete sd;
 
-    QStringList m = translate(_MATERIAL_LIST).split("\n");
+    QStringList m = translate(ID_MATERIAL_LIST).split("\n");
 
     if (Settings::cuttedMaterial < m.count()) {
         labelMaterial->setText(m.at(Settings::cuttedMaterial));
@@ -2720,7 +2733,7 @@ void MainWindow::onCalcVelocity()
 
     if (dlgResult == QMessageBox::Accepted) {
         writeSettings();
-        QStringList m = translate(_MATERIAL_LIST).split("\n");
+        QStringList m = translate(ID_MATERIAL_LIST).split("\n");
 
         if (m.count() > 0) {
             if (Settings::cuttedMaterial < m.count()) {

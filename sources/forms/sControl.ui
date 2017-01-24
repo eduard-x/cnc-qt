@@ -34,8 +34,11 @@
        <height>110</height>
       </size>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="title">
-      <string>GroupBox</string>
+      <string>GroupBoxRemote</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -52,8 +55,11 @@
           <height>25</height>
          </size>
         </property>
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>CheckBox</string>
+         <string>CheckBox opengl</string>
         </property>
        </widget>
       </item>
@@ -86,6 +92,9 @@
             <height>25</height>
            </size>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>connect about usbip</string>
           </property>
@@ -105,6 +114,9 @@
             <height>0</height>
            </size>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
          </widget>
         </item>
         <item>
@@ -120,6 +132,9 @@
             <width>0</width>
             <height>25</height>
            </size>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>port</string>
@@ -162,6 +177,9 @@
             <height>25</height>
            </size>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>Connect</string>
           </property>
@@ -186,8 +204,11 @@
        <height>50</height>
       </size>
      </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <property name="title">
-      <string>GroupBox</string>
+      <string>GroupBox keyboard</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
@@ -200,8 +221,11 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
-           <string>TextLabel</string>
+           <string> select keyboard type</string>
           </property>
          </widget>
         </item>
@@ -219,6 +243,9 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
          </widget>
         </item>
        </layout>
@@ -234,11 +261,14 @@
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
+        <property name="accessibleDescription">
+         <string notr="true"/>
+        </property>
         <property name="tabShape">
          <enum>QTabWidget::Rounded</enum>
         </property>
         <property name="currentIndex">
-         <number>3</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab_3">
          <property name="sizePolicy">
@@ -636,8 +666,11 @@ Del</string>
                 <height>410</height>
                </size>
               </property>
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabel keyboard help</string>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -911,8 +944,11 @@ Up</string>
                 <height>410</height>
                </size>
               </property>
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabel help cursor</string>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -1140,8 +1176,11 @@ Up</string>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabel Zm</string>
               </property>
              </widget>
             </item>
@@ -1159,8 +1198,11 @@ Up</string>
                 <height>100</height>
                </size>
               </property>
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabel userdefined</string>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -1191,8 +1233,11 @@ Up</string>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabel Xm</string>
               </property>
              </widget>
             </item>
@@ -1204,8 +1249,11 @@ Up</string>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabel Yp</string>
               </property>
              </widget>
             </item>
@@ -1217,8 +1265,11 @@ Up</string>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabel Zp</string>
               </property>
              </widget>
             </item>
@@ -1230,8 +1281,11 @@ Up</string>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabel Xp</string>
               </property>
              </widget>
             </item>
@@ -1243,8 +1297,11 @@ Up</string>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabel Ym</string>
               </property>
              </widget>
             </item>
@@ -1256,8 +1313,11 @@ Up</string>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabel Ap</string>
               </property>
              </widget>
             </item>
@@ -1269,8 +1329,11 @@ Up</string>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string>TextLabel Am</string>
               </property>
              </widget>
             </item>
@@ -1485,6 +1548,9 @@ Up</string>
             <height>0</height>
            </size>
           </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
+          </property>
           <property name="text">
            <string>Step distance</string>
           </property>
@@ -1503,6 +1569,9 @@ Up</string>
             <width>100</width>
             <height>0</height>
            </size>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
          </widget>
         </item>
@@ -1530,6 +1599,9 @@ Up</string>
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="accessibleDescription">
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Velocity</string>

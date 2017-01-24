@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -107,11 +107,11 @@ void SettingsParser::getSettings()
  */
 void SettingsParser::translateWidget()
 {
-    checkBoxRemove->setText(translate(_REMOVE_REPEAT));
+    checkBoxRemove->setText(translate(ID_REMOVE_REPEAT));
 
-    groupBoxRepeat->setTitle(translate(_REPEAT_CODE));
-    labelRepeat->setText(translate(_NUM_REPEAT));
-    labelDepth->setText(translate(_DEPTH_SUM));
-    checkBoxOptimize->setText(translate(_OPTIMIZE_RAPID_WAYS));
+    groupBoxRepeat->setTitle(translate(ID_REPEAT_CODE));
+    labelRepeat->setText(translate(ID_NUM_REPEAT));
+    labelDepth->setText(translate(ID_DEPTH_SUM));
+    checkBoxOptimize->setText(translate(ID_OPTIMIZE_RAPID_WAYS));
 }
 

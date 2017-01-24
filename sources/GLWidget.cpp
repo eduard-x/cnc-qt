@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -40,6 +40,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>
 #include <QSurfaceFormat>
+#include <QToolButton>
 
 // for GLES2 are QGLFunctions to implement
 
@@ -80,7 +81,7 @@ GLWidget::GLWidget(QWidget *p)
     fps = 0;
 
     QTimer* fpsTimer = new QTimer();
-    QObject::connect(fpsTimer, SIGNAL(timeout()), this, SLOT(showFPS()));
+    connect(fpsTimer, SIGNAL(timeout()), this, SLOT(showFPS()));
     fpsTimer->start(1000);
 
     //
@@ -135,30 +136,30 @@ void GLWidget::displayRotation()
 
 void GLWidget::createButtons()
 {
-    cmdIsometric = new QToolButton(this);
+    cmdIsometric = new QToolButton((QWidget*)this);
     cmdIsometric->setBaseSize(QSize(24, 24));
     cmdIsometric->resize(24, 24);
-    cmdIsometric->setToolTip(translate(_ISO));//"Iso");
+    cmdIsometric->setToolTip(translate(ID_ISO));//"Iso");
 
     cmdTop = new QToolButton(this);
     cmdTop->setBaseSize(QSize(24, 24));
     cmdTop->resize(24, 24);
-    cmdTop->setToolTip(translate(_TOP));
+    cmdTop->setToolTip(translate(ID_TOP));
 
     cmdFront = new QToolButton(this);
     cmdFront->setBaseSize(QSize(24, 24));
     cmdFront->resize(24, 24);
-    cmdFront->setToolTip(translate(_FRONT));
+    cmdFront->setToolTip(translate(ID_FRONT));
 
     cmdLeft = new QToolButton(this);
     cmdLeft->setBaseSize(QSize(24, 24));
     cmdLeft->resize(24, 24);
-    cmdLeft->setToolTip(translate(_LEFT));
+    cmdLeft->setToolTip(translate(ID_LEFT));
 
     cmdFit = new QToolButton(this);
     cmdFit->setBaseSize(QSize(24, 24));
     cmdFit->resize(24, 24);
-    cmdFit->setToolTip(translate(_FIT));
+    cmdFit->setToolTip(translate(ID_FIT));
 
     cmdFit->setIcon(QIcon(":/images/fit_1.png"));
     cmdIsometric->setIcon(QIcon(":/images/cube.png"));
@@ -174,13 +175,14 @@ void GLWidget::createButtons()
 
     cmdZoom->setToolTip("Zoom");
 
-    QObject::connect(cmdIsometric, SIGNAL(clicked(bool)), this, SLOT(setIso()));
-    QObject::connect(cmdFit, SIGNAL(clicked(bool)), this, SLOT(setFit()));
-    QObject::connect(cmdLeft, SIGNAL(clicked(bool)), this, SLOT(setLeft()));
-    QObject::connect(cmdFront, SIGNAL(clicked(bool)), this, SLOT(setFront()));
-    QObject::connect(cmdTop, SIGNAL(clicked(bool)), this, SLOT(setTop()));
+    connect(cmdIsometric, SIGNAL(clicked(bool)), this, SLOT(setIso()));
+    connect(cmdFit, SIGNAL(clicked(bool)), this, SLOT(setFit()));
+    connect(cmdLeft, SIGNAL(clicked(bool)), this, SLOT(setLeft()));
+    connect(cmdFront, SIGNAL(clicked(bool)), this, SLOT(setFront()));
+    connect(cmdTop, SIGNAL(clicked(bool)), this, SLOT(setTop()));
 
-    QObject::connect(cmdZoom, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
+    connect(cmdZoom, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
+    
     cmdZoom->setValue(Settings::PosZoom);
 
 
@@ -230,21 +232,21 @@ void GLWidget::createButtons()
     cmdZ[0]->setIcon(QIcon(":/images/undo.png"));
     cmdZ[2]->setIcon(QIcon(":/images/redo.png"));
 
-    QObject::connect(cmdX[0], SIGNAL(pressed()), this, SLOT(onPosAngleXm()));
-    QObject::connect(cmdX[1], SIGNAL(clicked()), this, SLOT(onPosAngleX())); // reset to 0
+    connect(cmdX[0], SIGNAL(pressed()), this, SLOT(onPosAngleXm()));
+    connect(cmdX[1], SIGNAL(clicked()), this, SLOT(onPosAngleX())); // reset to 0
     //         connect(scene3d, SIGNAL(rotationChanged()), this, SLOT(getRotation()));
     //         connect(scene3d, SIGNAL(fpsChanged(int)), this, SLOT(getFPS(int)));
-    QObject::connect(cmdX[2], SIGNAL(pressed()), this, SLOT(onPosAngleXp()));
+    connect(cmdX[2], SIGNAL(pressed()), this, SLOT(onPosAngleXp()));
 
-    QObject::connect(cmdY[0], SIGNAL(pressed()), this, SLOT(onPosAngleYm()));
-    QObject::connect(cmdY[1], SIGNAL(clicked()), this, SLOT(onPosAngleY())); // reset to 0
+    connect(cmdY[0], SIGNAL(pressed()), this, SLOT(onPosAngleYm()));
+    connect(cmdY[1], SIGNAL(clicked()), this, SLOT(onPosAngleY())); // reset to 0
     //         connect(scene3d, SIGNAL(yRotationChanged(int)), this, SLOT(getYRotation(int)));
-    QObject::connect(cmdY[2], SIGNAL(pressed()), this, SLOT(onPosAngleYp()));
+    connect(cmdY[2], SIGNAL(pressed()), this, SLOT(onPosAngleYp()));
 
-    QObject::connect(cmdZ[0], SIGNAL(pressed()), this, SLOT(onPosAngleZm()));
-    QObject::connect(cmdZ[1], SIGNAL(clicked()), this, SLOT(onPosAngleZ())); // reset to 0
+    connect(cmdZ[0], SIGNAL(pressed()), this, SLOT(onPosAngleZm()));
+    connect(cmdZ[1], SIGNAL(clicked()), this, SLOT(onPosAngleZ())); // reset to 0
     //         connect(scene3d, SIGNAL(zRotationChanged(int)), this, SLOT(getZRotation(int)));
-    QObject::connect(cmdZ[2], SIGNAL(pressed()), this, SLOT(onPosAngleZp()));
+    connect(cmdZ[2], SIGNAL(pressed()), this, SLOT(onPosAngleZp()));
 
     displayRotation();
     //         connect(scene3d, SIGNAL(scaleChanged(int)), this, SLOT(getScale(int)));

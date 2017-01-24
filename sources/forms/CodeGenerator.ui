@@ -32,6 +32,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="accessibleDescription">
+          <string notr="true"/>
+         </property>
          <property name="title">
           <string>Start point (mm)</string>
          </property>
@@ -108,13 +111,19 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="accessibleDescription">
+             <string notr="true"/>
+            </property>
             <property name="text">
-             <string>TextLabel</string>
+             <string>start text</string>
             </property>
            </widget>
           </item>
           <item row="1" column="0">
            <widget class="QPushButton" name="pushButton_2">
+            <property name="accessibleDescription">
+             <string notr="true"/>
+            </property>
             <property name="text">
              <string>Get Position</string>
             </property>
@@ -125,6 +134,9 @@
        </item>
        <item row="3" column="0">
         <widget class="QGroupBox" name="groupBox_4">
+         <property name="accessibleDescription">
+          <string notr="true"/>
+         </property>
          <property name="title">
           <string>Return point</string>
          </property>
@@ -133,12 +145,18 @@
        </item>
        <item row="2" column="0">
         <widget class="QGroupBox" name="groupBox_3">
+         <property name="accessibleDescription">
+          <string notr="true"/>
+         </property>
          <property name="title">
           <string>Iteration of path</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
           <item row="0" column="2">
            <widget class="QLabel" name="label_10">
+            <property name="accessibleDescription">
+             <string notr="true"/>
+            </property>
             <property name="text">
              <string>Depth (Z)</string>
             </property>
@@ -159,6 +177,9 @@
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_11">
+            <property name="accessibleDescription">
+             <string notr="true"/>
+            </property>
             <property name="text">
              <string>Iteration</string>
             </property>
@@ -179,6 +200,9 @@
           </item>
           <item row="0" column="4">
            <widget class="QLabel" name="label_9">
+            <property name="accessibleDescription">
+             <string notr="true"/>
+            </property>
             <property name="text">
              <string>mm</string>
             </property>
@@ -189,6 +213,9 @@
        </item>
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_2">
+         <property name="accessibleDescription">
+          <string notr="true"/>
+         </property>
          <property name="title">
           <string>Rectangle (mm)</string>
          </property>
@@ -237,6 +264,9 @@
             </item>
             <item row="2" column="0">
              <widget class="QLabel" name="label_6">
+              <property name="accessibleDescription">
+               <string notr="true"/>
+              </property>
               <property name="text">
                <string>Step</string>
               </property>
@@ -265,8 +295,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="accessibleDescription">
+             <string notr="true"/>
+            </property>
             <property name="text">
-             <string>TextLabel</string>
+             <string>rect text</string>
             </property>
            </widget>
           </item>
@@ -312,6 +345,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton">
+       <property name="accessibleDescription">
+        <string notr="true"/>
+       </property>
        <property name="text">
         <string>Generate</string>
        </property>

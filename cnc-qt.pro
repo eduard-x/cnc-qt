@@ -7,7 +7,7 @@
 QT       += core gui opengl
 
 
-TRANSLATIONS = cnc-qt.ts 
+# TRANSLATIONS = cnc-qt.ts 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -118,6 +118,11 @@ FORMS    += sources/forms/About.ui \
 	    sources/forms/sVis.ui \
 	    sources/forms/Settings.ui
 
+	    
+# TRANSLATIONS = sources/translations/cnc_qt_en.ts \
+# 	    sources/translations/cnc_qt_ru.ts \
+# 	    sources/translations/cnc_qt_de.ts
+               
 	    
 # TODO: please check this
 win32:LIBS += -L$$PWD/windows/ -lusb-1.0

@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -34,6 +34,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTranslator>
 #include <QMessageBox>
 #include <QTimer>
 #include <QCloseEvent>
@@ -250,6 +251,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         void onEditGCode(int row, int col);
         void onCellSelect(int row, int col);
 
+        void change_language(QString language);
+
         void onStartTask();
         void onPauseTask();
         void onStopTask();
@@ -328,7 +331,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         Task::StatusTask currentStatus;
         QGraphicsScene *sceneCoordinates;
         //
-
+        QTranslator language_en;
         //
 
         QLabel *statusLabel1;

@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -525,7 +525,7 @@ void SettingsControl::userPressed()
     for (int i = 0; i < buttonsUser.count(); ++i) {
         if (buttonsUser.at(i) == b) {
             //             pressedCommand(decode[i]);
-            labelsUser.at(i)->setText("<" + translate(_PRESS_BUTTON) + ">\t" + strsUser.at(i));
+            labelsUser.at(i)->setText("<" + translate(ID_PRESS_BUTTON) + ">\t" + strsUser.at(i));
             recordKey = i;
 
             break;
@@ -737,27 +737,27 @@ void SettingsControl::tabChanged(int n)
 
 void SettingsControl::translateWidget()
 {
-    labelVelocity->setText(translate(_VELOCITY));
-    labelNumpad->setText(translate(_NUMPAD_HELP));
-    labelCursor->setText(translate(_CONTROLPAD_HELP));
-    labelDistance->setText(translate(_STEP_DISTANCE));
+    labelVelocity->setText(translate(ID_VELOCITY));
+    labelNumpad->setText(translate(ID_NUMPAD_HELP));
+    labelCursor->setText(translate(ID_CONTROLPAD_HELP));
+    labelDistance->setText(translate(ID_STEP_DISTANCE));
 
-    pushConnect->setText(translate(_CONNECT));
-    labelPort->setText(translate(_PORT));
-    checkBoxUSBIP->setText(translate(_REMOTE_NAME));
-    groupRemote->setTitle(translate(_REMOTE_CONNECTION));
+    pushConnect->setText(translate(ID_CONNECT));
+    labelPort->setText(translate(ID_PORT));
+    checkBoxUSBIP->setText(translate(ID_REMOTE_NAME));
+    groupRemote->setTitle(translate(ID_REMOTE_CONNECTION));
 
-    checkBoxOpenGL->setText(translate(_DISABLE_VISUALISATION));
+    checkBoxOpenGL->setText(translate(ID_DISABLE_VISUALISATION));
 
     QStringList lcontrl;
-    lcontrl << translate(_NUMPAD) << translate(_CONTROLPAD) << translate(_USER_DEFINED) << translate(_JOYPAD);
+    lcontrl << translate(ID_NUMPAD) << translate(ID_CONTROLPAD) << translate(ID_USER_DEFINED) << translate(ID_JOYPAD);
     comboBoxControl->addItems(lcontrl);
 
     connect(comboBoxControl, SIGNAL(activated ( int )), this, SLOT(tabChanged(int)));
 
     emit tabChanged(0);
 
-    labelSelectKeyboard->setText(translate(_SELECT_CONTROL));
+    labelSelectKeyboard->setText(translate(ID_SELECT_CONTROL));
 
     QMapIterator<QString, Qt::Key> imap(userManualKeys);
     //     while (imap.hasNext()) {
@@ -771,7 +771,7 @@ void SettingsControl::translateWidget()
         labelsUser.at(i)->setText("'" + QKeySequence(imap.value()).toString() + "'\t\t" + strsUser.at(i));
     }
 
-    labelUserDefined->setText(translate(_USEDEF_TEXT));
+    labelUserDefined->setText(translate(ID_USEDEF_TEXT));
 }
 
 

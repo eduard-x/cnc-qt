@@ -1,11 +1,11 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2016 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -41,7 +41,7 @@
 
 #include <QtOpenGL>
 #include <QBasicTimer>
-
+#include <QObject>
 #include <QOpenGLWidget>
 
 
@@ -72,6 +72,7 @@ class mk1Controller;
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTranslator
 {
         Q_OBJECT
+       
     public:
         explicit GLWidget(QWidget *parent = 0);
         ~GLWidget();
@@ -202,6 +203,9 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         double m_xPan, m_yPan, m_xLastPan, m_yLastPan;
         double m_xLookAt, m_yLookAt, m_zLookAt;
         QPoint m_lastPos;
+        
+    private:
+        Q_DISABLE_COPY(GLWidget);
 };
 
 
