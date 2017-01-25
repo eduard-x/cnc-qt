@@ -40,9 +40,9 @@ int main(int argc, char **argv)
 
     QApplication app(argc, argv);
 
-    QTranslator translator;
-    translator.load("gui_en");
-    app.installTranslator(&translator);
+//     QTranslator translator;
+//     translator.load("gui_en");
+//     app.installTranslator(&translator);
 
 #if QT_VERSION < 0x050000
     // ask QString in Qt 4 to interpret all char* as UTF-8,

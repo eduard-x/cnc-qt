@@ -1,9 +1,9 @@
 #CMakeLists.txt
 
 #set_property(GLOBAL APPEND PROPERTY FOO-LIST "${FOO}")
-SET(TRANSLATIONS ${CMAKE_CURRENT_SOURCE_DIR}/translations/cnc_qt_en.ts
-                 ${CMAKE_CURRENT_SOURCE_DIR}/translations/cnc_qt_de.ts
-                 ${CMAKE_CURRENT_SOURCE_DIR}/translations/cnc_qt_ru.ts)
+# SET(TRANSLATIONS ${CMAKE_CURRENT_SOURCE_DIR}/translations/cnc_qt_en.ts
+#                  ${CMAKE_CURRENT_SOURCE_DIR}/translations/cnc_qt_de.ts
+#                  ${CMAKE_CURRENT_SOURCE_DIR}/translations/cnc_qt_ru.ts)
 
 SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/mk1Controller.cpp

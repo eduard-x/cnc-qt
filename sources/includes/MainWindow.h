@@ -34,7 +34,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QTranslator>
+// #include <QTranslator>
 #include <QMessageBox>
 #include <QTimer>
 #include <QCloseEvent>
@@ -251,7 +251,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         void onEditGCode(int row, int col);
         void onCellSelect(int row, int col);
 
-        void change_language(QString language);
+//         void change_language(QString language);
 
         void onStartTask();
         void onPauseTask();
@@ -331,7 +331,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslato
         Task::StatusTask currentStatus;
         QGraphicsScene *sceneCoordinates;
         //
-        QTranslator language_en;
+//         QTranslator language_en;
         //
 
         QLabel *statusLabel1;
