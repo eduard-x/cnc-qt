@@ -846,6 +846,9 @@ void MainWindow::writeSettings()
         Settings::currentKeyPad = -1;
     }
 
+    Settings::progSize = size();
+    Settings::progPos = pos();
+    
     Settings::saveSettings();
 }
 
