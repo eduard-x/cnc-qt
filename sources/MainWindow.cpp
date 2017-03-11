@@ -846,9 +846,6 @@ void MainWindow::writeSettings()
         Settings::currentKeyPad = -1;
     }
 
-    Settings::progSize = size();
-    Settings::progPos = pos();
-    
     Settings::saveSettings();
 }
 
@@ -1014,18 +1011,18 @@ void MainWindow::setFile(QAction* a)
     }
 }
 
+/*
+void MainWindow::change_language(QString language)
+{
+    if (language == "deutsch") {
+        qApp->removeTranslator(&language_en); //die Ursprungssprache wird hergestellt
+    }
 
-// void MainWindow::change_language(QString language)
-// {
-//     if (language == "deutsch") {
-//         qApp->removeTranslator(&language_en); //die Ursprungssprache wird hergestellt
-//     }
-// 
-//     if (language == "english") {
-//         language_en.load("cnc_qt_en"); // Aufruf der .qm Datei wenn sich die Datei direkt im Buildpfad befindet
-//         qApp->installTranslator(&language_en); //die Englishe Translationsdatei wird geladen
-//     }
-// }
+    if (language == "english") {
+        language_en.load("cnc_qt_en"); // Aufruf der .qm Datei wenn sich die Datei direkt im Buildpfad befindet
+        qApp->installTranslator(&language_en); //die Englishe Translationsdatei wird geladen
+    }
+}*/
 
 /**
  * @brief set GUI to selected language and do the translation of all GUI widgets

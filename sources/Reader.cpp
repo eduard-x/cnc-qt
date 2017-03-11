@@ -178,6 +178,8 @@ bool Reader::readFile(const QString &fileName)
             //             g0points = getRapidPoints();
             QVector<int> ant = calculateAntPath();
 
+            qDebug() << ant;
+
             sortGCode(ant);
         }
 
@@ -598,7 +600,10 @@ void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, 
 
 const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
 {
-    points = gPoints.length();
+    int points = g0Points.count();
+
+    if (points <= 2) {
+    }
 
     path.clear();
     path.resize(points);
@@ -619,15 +624,14 @@ const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
         path[i] = i;
 
         for (int j = 0; j < points; j++) {
-            //             distance[i][j] = sqrt((gPoints.at(j).coord.x() - gPoints.at(i).coord.x()) * (gPoints.at(j).coord.x() - gPoints.at(i).coord.x()) +
-            //                                   (gPoints.at(j).coord.y() - gPoints.at(i).coord.y()) * (gPoints.at(j).coord.y() - gPoints.at(i).coord.y()));
-            distance[i][j] = gPoints.at(j).coord.distanceToPoint(gPoints.at(i).coord);
+            //             distance[i][j] = sqrt((g0Points.at(j).coord.x() - g0Points.at(i).coord.x()) * (g0Points.at(j).coord.x() - g0Points.at(i).coord.x()) +
+            //                                   (g0Points.at(j).coord.y() - g0Points.at(i).coord.y()) * (g0Points.at(j).coord.y() - g0Points.at(i).coord.y()));
+            distance[i][j] = g0Points.at(j).coord.distanceToPoint(g0Points.at(i).coord);
         }
     }
 
-    if (points > 2) {
-        AntColonyOptimization();
-    }
+
+    antColonyOptimization();
 
     return path;
 }
@@ -637,11 +641,9 @@ const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
  * @see Ant Colony Optimization algorihms
  * @link https://hackaday.io/project/4955-g-code-optimization
  */
-void Reader::AntColonyOptimization(/*int[] path, double[][] dis*/)
+void Reader::antColonyOptimization(/*int[] path, double[][] dis*/)
 {
-    //     if (points == 0) {
-    //         return;
-    //     }
+    int points = g0Points.count();
 
     for (int i = 0; i < points - 2; i++) {
         for (int j = i + 2; j < points; j++) {
@@ -658,7 +660,7 @@ void Reader::AntColonyOptimization(/*int[] path, double[][] dis*/)
                 }
 
                 // recursive
-                AntColonyOptimization();
+                antColonyOptimization();
                 //                 goto START;
             }
         }

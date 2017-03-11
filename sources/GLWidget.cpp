@@ -182,7 +182,7 @@ void GLWidget::createButtons()
     connect(cmdTop, SIGNAL(clicked(bool)), this, SLOT(setTop()));
 
     connect(cmdZoom, SIGNAL(valueChanged(int)), this, SLOT(setZoom(int)));
-    
+
     cmdZoom->setValue(Settings::PosZoom);
 
 

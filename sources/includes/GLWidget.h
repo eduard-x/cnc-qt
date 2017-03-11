@@ -72,7 +72,7 @@ class mk1Controller;
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTranslator
 {
         Q_OBJECT
-       
+
     public:
         explicit GLWidget(QWidget *parent = 0);
         ~GLWidget();
@@ -203,7 +203,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         double m_xPan, m_yPan, m_xLastPan, m_yLastPan;
         double m_xLookAt, m_yLookAt, m_zLookAt;
         QPoint m_lastPos;
-        
+
     private:
         Q_DISABLE_COPY(GLWidget);
 };

@@ -406,7 +406,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     currentPlane = XY;
 
     gCodeList.clear();
-    gPoints.clear();
+    g0Points.clear();
+
+
 
     Settings::coord[X].softLimitMax = 0;
     Settings::coord[X].softLimitMin = 0;
@@ -417,6 +419,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
     GCodeData *tmpCommand = new GCodeData();
 
+    // TODO home pos
+    g0Points << GCodeOptim {QVector3D(0, 0, 0), goodList.count(), -1, gCodeList.count(), -1};
     //     int preCount = 0;
 
     foreach(QString line, gCodeLines) {
@@ -432,6 +436,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         switch(cmd.at(0).toLatin1()) {
             case 'G': {
                 if (cmd == "G00") { // eilgang
+                    QVector3D delta_pos;
                     QVector3D next_pos(b_absolute ? current_pos - origin : QVector3D(0, 0, 0));
                     float E;
 
@@ -441,6 +446,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     }
 
                     tmpCommand->xyz = next_pos;
+                    delta_pos = next_pos - gCodeList.last().xyz;
                     //                     tmpCommand->Y = next_pos.y();
                     //                     tmpCommand->Z = next_pos.z();
 
@@ -454,7 +460,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->plane = currentPlane;
 
                     //                     // for the way optimizing
-                    //                     gPoints << current_pos;
+                    //                     g0Points << current_pos;
 
                     if (b_absolute) {
                         current_pos = next_pos + origin;
@@ -463,11 +469,49 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     }
 
                     // for the way optimizing
-                    if (gCodeList.last().movingCode != RAPID_LINE_CODE) {
-                        gPoints << GCodeOptim {current_pos, goodList.count()};
-                        //                         preCount = goodList.count() + 1;
-                    }
+                    switch (currentPlane) {
+                        case XY: {
+                            if (delta_pos.z() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.y() != 0.0)) {
+                                if (current_pos != QVector3D(0.0, 0.0, current_pos.z())) { // TODO: not home pos
+                                    qDebug() << "G0" << current_pos.x() << current_pos.y() << "line" << goodList.count();
+                                    g0Points.last().lineEnd = (goodList.count() - 1 );
+                                    g0Points.last().gcodeEnd = (gCodeList.count() - 1);
+                                    g0Points << GCodeOptim {current_pos, goodList.count(), -1, gCodeList.count(), -1};
+                                }
+                            }
 
+                            break;
+                        }
+
+                        case YZ: {
+                            if (delta_pos.x() == 0.0 && (delta_pos.y() != 0.0 || delta_pos.z() != 0.0)) {
+                                if (current_pos != QVector3D(current_pos.x(), 0, 0)) { // TODO: not home pos
+                                    qDebug() << "G0" << current_pos.x() << current_pos.y() << "line" << goodList.count();
+                                    g0Points.last().lineEnd = (goodList.count() - 1 );
+                                    g0Points.last().gcodeEnd = (gCodeList.count() - 1);
+                                    g0Points << GCodeOptim {current_pos, goodList.count(), -1, gCodeList.count(), -1};
+                                }
+                            }
+
+                            break;
+                        }
+
+                        case ZX: {
+                            if (delta_pos.y() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.z() != 0.0)) {
+                                if (current_pos != QVector3D(0, current_pos.y(), 0)) { // TODO: not home pos
+                                    qDebug() << "G0" << current_pos.x() << current_pos.y() << "line" << goodList.count();
+                                    g0Points.last().lineEnd = (goodList.count() - 1 );
+                                    g0Points.last().gcodeEnd = (gCodeList.count() - 1);
+                                    g0Points << GCodeOptim {current_pos, goodList.count(), -1, gCodeList.count(), -1};
+                                }
+                            }
+
+                            break;
+                        }
+
+                        default:
+                            break;
+                    }
 
                     gCodeList << *tmpCommand;
                     // init of next instuction
@@ -845,6 +889,11 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         //         index++;
     }
 
+    if (g0Points.count() > 2 && goodList.count() > 1) {
+        g0Points.last().lineEnd = (goodList.count() - 1 );
+        g0Points.last().gcodeEnd = (gCodeList.count() - 1);
+    }
+
     //     QString log = "Read gcode, parsed. Time elapsed: " + QString::number(t.elapsed()) + " ms";
     emit logMessage(QString().sprintf("Read gcode, parsed. Time elapsed: %d ms", t.elapsed()));
 
@@ -863,32 +912,46 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
  */
 void GCodeParser::sortGCode(const QVector<int> &citydata)
 {
-    return;
+    //     return;
 
-    qDebug() << citydata;
-    qDebug() << "list size" << goodList.size();
-    QVector<QString> tmpList;
+    //     qDebug() << citydata;
+    //     qDebug() << "list size" << goodList.size();
+    QVector<QString> tmpList; // for the display list
+    QVector<GCodeData> tmpGCodeList; // for the visualisation
 
-    int startNum = 0;
-    int n = 0;
 
-    do {
+    for(int n = 0; n < citydata.size(); n++) {
         int pos = citydata.at(n);
-        int endNum = gPoints.at(pos + 1).line;
+        int startNum = g0Points.at(pos).lineBeg;
+        int endNum = g0Points.at(pos).lineEnd;
 
-        for (int j = startNum; j < endNum; j++) {
+        for (int j = startNum; j <= endNum; j++) {
             tmpList << goodList.at(j);
         }
 
-        qDebug() << "pos" << pos << "lines:" << startNum << ".." << endNum - 1 << goodList.at(endNum) << gPoints.at(citydata.at(n)).coord;
-        startNum = endNum;
-        n++;
-    } while(n < citydata.size());
+        startNum = g0Points.at(pos).gcodeBeg;
+        endNum = g0Points.at(pos).gcodeEnd;
+
+        for (int j = startNum; j <= endNum; j++) {
+            tmpGCodeList << gCodeList.at(j);
+        }
+
+        //         qDebug() << "pos" << pos << "lines:" << startNum << ".." << endNum - 1 << goodList.at(endNum) << g0Points.at(citydata.at(n)).coord;
+        //         startNum = endNum;
+    }
+
+    goodList.clear();
+
+    goodList = tmpList;
+
+    gCodeList.clear();
+
+    gCodeList = tmpGCodeList;
 
     //     for  (int n = 0; n < citydata.size(); n++) {
-    //         int ln = gPoints.at(citydata.at(n)).line;
+    //         int ln = g0Points.at(citydata.at(n)).line;
     //         endNum =
-    //         qDebug() << "line:" << ln << goodList.at(ln) << gPoints.at(citydata.at(n)).coord;
+    //         qDebug() << "line:" << ln << goodList.at(ln) << g0Points.at(citydata.at(n)).coord;
     //     }
 }
 
@@ -1588,7 +1651,7 @@ QVector<QString> GCodeParser::getGoodList()
 
 QVector <GCodeOptim> GCodeParser::getRapidPoints()
 {
-    return gPoints;
+    return g0Points;
 }
 
 /**

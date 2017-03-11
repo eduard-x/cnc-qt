@@ -132,10 +132,15 @@ class GCodeData
 };
 
 
-
+/**
+ * for ant sorting function
+ */
 struct GCodeOptim {
     QVector3D coord;
-    int line;
+    int lineBeg;
+    int lineEnd;
+    int gcodeBeg;
+    int gcodeEnd;
 };
 
 
@@ -167,7 +172,7 @@ class GCodeParser : public QObject
 
     protected:
         QVector<GCodeData> gCodeList;
-        QVector<GCodeOptim> gPoints;
+        QVector<GCodeOptim> g0Points;
         QVector<QString> goodList; // only decoded G-code
         //         QVector<QString> badList;
 };

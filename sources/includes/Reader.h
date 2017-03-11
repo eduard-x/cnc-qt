@@ -251,7 +251,7 @@ class Reader : public GCodeParser// , public cTranslator
         void BresenhamCircle(QVector<QVector<byte> > &p,  int x0, int y0, int radius, byte setvalue = 4, bool needFill = false);
 
         bool readFile( const QString &fileName);
-        void AntColonyOptimization();
+        void antColonyOptimization();
         const QVector<int> calculateAntPath(/*const QVector<GCodeOptim> &v*/);
         //         void loadGCode(const QString &filename);
 
@@ -294,7 +294,7 @@ class Reader : public GCodeParser// , public cTranslator
         void Swap(int &p1, int &p2);
         QVector<int> path;
         QVector <QVector <float> > distance;
-        int points;
+        //         int points;
         //    QVector<GCodeOptim> g0points;
 
         //         bool readGCode( const QByteArray &gcode );
