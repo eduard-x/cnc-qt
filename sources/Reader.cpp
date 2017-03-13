@@ -55,7 +55,7 @@
 // to disable seto to 0
 //
 
-
+QMutex mutex(QMutex::Recursive);
 //
 // units of messure, mm or inches
 //
@@ -169,6 +169,8 @@ bool Reader::readFile(const QString &fileName)
     file.close();
 
     TypeFile = None;
+
+    qDebug() << fileName;
 
     if ((detectArray.indexOf("G0") >= 0) || (detectArray.indexOf("G1") >= 0)) { // G-Code program detect
         TypeFile = GCODE;
@@ -600,19 +602,24 @@ void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, 
 
 const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
 {
+    //     mut.lock();
+
     int points = g0Points.count();
 
     if (points <= 2) {
+        //         return path;
     }
 
     path.clear();
     path.resize(points);
 
-    for (int i = 0; i < distance.size(); ++i) {
-        distance[i].clear();
-    }
+    if (distance.size() > 0) {
+        for (int i = 0; i < distance.size(); ++i) {
+            distance[i].clear();
+        }
 
-    distance.clear();
+        distance.clear();
+    }
 
     distance.resize(points);
 
@@ -620,29 +627,32 @@ const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
         distance[i].resize(points);
     }
 
+    // two dimensional array for distances between the points
     for (int i = 0; i < points; i++) {
         path[i] = i;
 
         for (int j = 0; j < points; j++) {
-            //             distance[i][j] = sqrt((g0Points.at(j).coord.x() - g0Points.at(i).coord.x()) * (g0Points.at(j).coord.x() - g0Points.at(i).coord.x()) +
-            //                                   (g0Points.at(j).coord.y() - g0Points.at(i).coord.y()) * (g0Points.at(j).coord.y() - g0Points.at(i).coord.y()));
             distance[i][j] = g0Points.at(j).coord.distanceToPoint(g0Points.at(i).coord);
         }
     }
 
-
     antColonyOptimization();
+
+    //     mut.unlock();
 
     return path;
 }
+
 /**
  * @brief
  *
- * @see Ant Colony Optimization algorihms
+ * @see Ant Colony Optimization algorithm
  * @link https://hackaday.io/project/4955-g-code-optimization
  */
 void Reader::antColonyOptimization(/*int[] path, double[][] dis*/)
 {
+    QMutexLocker locker(&mutex);
+
     int points = g0Points.count();
 
     for (int i = 0; i < points - 2; i++) {
@@ -659,14 +669,12 @@ void Reader::antColonyOptimization(/*int[] path, double[][] dis*/)
                     path[j - x] = temp;
                 }
 
-                // recursive
+                // recursively
                 antColonyOptimization();
                 //                 goto START;
             }
         }
     }
-
-    //     return path;
 }
 
 //

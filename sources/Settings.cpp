@@ -176,6 +176,7 @@ bool Settings::saveSettings()
     QSettings* s;
     s = new QSettings(QSettings::UserScope, "KarboSoft", "CNC-Qt" );
 
+
     s->setValue("pos", progPos);
     s->setValue("size", progSize);
     s->setValue("LANGUAGE", currentLang);

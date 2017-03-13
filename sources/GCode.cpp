@@ -195,15 +195,9 @@ bool GCodeParser::addArc(GCodeData *c)
  */
 bool GCodeParser::readGCode(const QByteArray &gcode)
 {
-    //  QMutexLocker mLock(&mutex);
-
-
-    //  lock();
+    mut.lock();
 
     goodList.clear();
-    //     badList.clear();
-
-    //  unlock();
 
     QTextStream stream(gcode);
     stream.setLocale(QLocale("C"));
@@ -401,13 +395,12 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
     t.restart();
 
-    //     int index = 0;
+
     PlaneEnum currentPlane;
     currentPlane = XY;
 
     gCodeList.clear();
     g0Points.clear();
-
 
 
     Settings::coord[X].softLimitMax = 0;
@@ -425,6 +418,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
     foreach(QString line, gCodeLines) {
         decoded = true;
+        QString correctLine = line;
         QStringList vct_ref = line.simplified().split(" ", QString::SkipEmptyParts);
         const QString cmd = vct_ref.at(0);
 
@@ -447,8 +441,13 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     tmpCommand->xyz = next_pos;
                     delta_pos = next_pos - gCodeList.last().xyz;
-                    //                     tmpCommand->Y = next_pos.y();
-                    //                     tmpCommand->Z = next_pos.z();
+
+                    if (Settings::filterRepeat == true) {
+                        if (delta_pos == QVector3D(0, 0, 0) && gCodeList.last().movingCode == RAPID_LINE_CODE) {
+                            correctLine = "";
+                            break;
+                        }
+                    }
 
                     detectMinMax(tmpCommand);
 
@@ -459,8 +458,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand->movingCode = RAPID_LINE_CODE;
                     tmpCommand->plane = currentPlane;
 
-                    //                     // for the way optimizing
-                    //                     g0Points << current_pos;
 
                     if (b_absolute) {
                         current_pos = next_pos + origin;
@@ -471,12 +468,20 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     // for the way optimizing
                     switch (currentPlane) {
                         case XY: {
+                            // xy moving
                             if (delta_pos.z() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.y() != 0.0)) {
-                                if (current_pos != QVector3D(0.0, 0.0, current_pos.z())) { // TODO: not home pos
-                                    qDebug() << "G0" << current_pos.x() << current_pos.y() << "line" << goodList.count();
+                                if (gCodeList.last().movingCode == RAPID_LINE_CODE) {
                                     g0Points.last().lineEnd = (goodList.count() - 1 );
-                                    g0Points.last().gcodeEnd = (gCodeList.count() - 1);
                                     g0Points << GCodeOptim {current_pos, goodList.count(), -1, gCodeList.count(), -1};
+                                }
+
+                                break;
+                            }
+
+                            // z moving
+                            if (delta_pos.z() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.y() == 0.0)) {
+                                if (gCodeList.last().movingCode != RAPID_LINE_CODE) {
+                                    g0Points.last().gcodeEnd = (gCodeList.count());
                                 }
                             }
 
@@ -485,11 +490,20 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                         case YZ: {
                             if (delta_pos.x() == 0.0 && (delta_pos.y() != 0.0 || delta_pos.z() != 0.0)) {
-                                if (current_pos != QVector3D(current_pos.x(), 0, 0)) { // TODO: not home pos
-                                    qDebug() << "G0" << current_pos.x() << current_pos.y() << "line" << goodList.count();
+                                // yz moving
+                                if (gCodeList.last().movingCode == RAPID_LINE_CODE) {
                                     g0Points.last().lineEnd = (goodList.count() - 1 );
                                     g0Points.last().gcodeEnd = (gCodeList.count() - 1);
                                     g0Points << GCodeOptim {current_pos, goodList.count(), -1, gCodeList.count(), -1};
+                                }
+
+                                break;
+                            }
+
+                            // x moving
+                            if (delta_pos.x() != 0.0 && (delta_pos.y() == 0.0 && delta_pos.z() == 0.0)) {
+                                if (gCodeList.last().movingCode != RAPID_LINE_CODE) {
+                                    g0Points.last().gcodeEnd = (gCodeList.count());
                                 }
                             }
 
@@ -498,11 +512,20 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                         case ZX: {
                             if (delta_pos.y() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.z() != 0.0)) {
-                                if (current_pos != QVector3D(0, current_pos.y(), 0)) { // TODO: not home pos
-                                    qDebug() << "G0" << current_pos.x() << current_pos.y() << "line" << goodList.count();
+                                // zx moving
+                                if (gCodeList.last().movingCode == RAPID_LINE_CODE) {
                                     g0Points.last().lineEnd = (goodList.count() - 1 );
                                     g0Points.last().gcodeEnd = (gCodeList.count() - 1);
                                     g0Points << GCodeOptim {current_pos, goodList.count(), -1, gCodeList.count(), -1};
+                                }
+
+                                break;
+                            }
+
+                            // y moving
+                            if (delta_pos.y() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.z() == 0.0)) {
+                                if (gCodeList.last().movingCode != RAPID_LINE_CODE) {
+                                    g0Points.last().gcodeEnd = (gCodeList.count());
                                 }
                             }
 
@@ -518,7 +541,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     tmpCommand = new GCodeData(tmpCommand);
 
                     tmpCommand->numberLine = goodList.count();
-
 
                     tmpCommand->changeInstrument = false;
                     tmpCommand->pauseMSeconds = -1; // no pause
@@ -536,8 +558,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     }
 
                     tmpCommand->xyz = next_pos;
-                    //                     tmpCommand->Y = next_pos.y();
-                    //                     tmpCommand->Z = next_pos.z();
+
                     tmpCommand->splits = 0;
 
                     detectMinMax(tmpCommand);
@@ -580,8 +601,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     }
 
                     tmpCommand->xyz = next_pos;
-                    //                     tmpCommand->Y = next_pos.y();
-                    //                     tmpCommand->Z = next_pos.z();
 
                     detectMinMax(tmpCommand);
 
@@ -883,10 +902,10 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         if (decoded == false) {
             emit logMessage(QString("gcode parsing error: " + line));
         } else {
-            goodList << line;
+            if (correctLine.length() > 0) {
+                goodList << correctLine;
+            }
         }
-
-        //         index++;
     }
 
     if (g0Points.count() > 2 && goodList.count() > 1) {
@@ -900,7 +919,10 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     //     qDebug("read gcode, parsed. Time elapsed: %d ms", t.elapsed());
 
     gCodeLines.clear();
-    //  unlock();
+
+    mut.unlock();
+
+    qDebug() << "readGCode" << goodList.count();
 
     return true;
 }
@@ -912,8 +934,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
  */
 void GCodeParser::sortGCode(const QVector<int> &citydata)
 {
-    //     return;
-
+ 
     //     qDebug() << citydata;
     //     qDebug() << "list size" << goodList.size();
     QVector<QString> tmpList; // for the display list
@@ -940,6 +961,8 @@ void GCodeParser::sortGCode(const QVector<int> &citydata)
         //         startNum = endNum;
     }
 
+    mut.lock();
+    
     goodList.clear();
 
     goodList = tmpList;
@@ -948,6 +971,7 @@ void GCodeParser::sortGCode(const QVector<int> &citydata)
 
     gCodeList = tmpGCodeList;
 
+    mut.unlock();
     //     for  (int n = 0; n < citydata.size(); n++) {
     //         int ln = g0Points.at(citydata.at(n)).line;
     //         endNum =

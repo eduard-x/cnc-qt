@@ -34,6 +34,7 @@
 #define GCODE_H
 
 #include <QString>
+#include <QMutex>
 #include <QList>
 #include <QObject>
 #include <QVector>
@@ -171,6 +172,7 @@ class GCodeParser : public QObject
         void logMessage(const QString &l);
 
     protected:
+        QMutex mut;
         QVector<GCodeData> gCodeList;
         QVector<GCodeOptim> g0Points;
         QVector<QString> goodList; // only decoded G-code

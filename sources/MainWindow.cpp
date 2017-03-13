@@ -842,6 +842,10 @@ void MainWindow::writeSettings()
     //     Settings::veloMoving = numVeloMoving->value();
     Settings::veloManual = numVeloManual->value();
 
+    Settings::progPos = pos();//   QPoint pos = s->value("pos", QPoint(200, 200)).toPoint();
+    Settings::progSize = size(); //QSize sz = s->value("size", QSize(730, 440)).toSize();
+
+
     if (groupManualControl->isChecked() == false) {
         Settings::currentKeyPad = -1;
     }

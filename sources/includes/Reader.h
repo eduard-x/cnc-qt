@@ -39,6 +39,7 @@
 #include <QVector>
 #include <QString>
 #include <QStringList>
+#include <QMutexLocker>
 #include <QMutex>
 #include <QPair>
 
@@ -294,8 +295,6 @@ class Reader : public GCodeParser// , public cTranslator
         void Swap(int &p1, int &p2);
         QVector<int> path;
         QVector <QVector <float> > distance;
-        //         int points;
-        //    QVector<GCodeOptim> g0points;
 
         //         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );
@@ -304,16 +303,10 @@ class Reader : public GCodeParser// , public cTranslator
         bool readSVG( const QByteArray &gcode );
         bool readEPS( const QByteArray &gcode );
         bool readPLT( const QByteArray &gcode );
-        //         void lock() const;
-        //         void unlock() const;
         //         GCode_resultParse parseStringGCode(const QString &value);
 
     private:
         typeFileLoad TypeFile;// = typeFileLoad.None;
-
-        //         MainWindow* parent;
-
-        //         mutable QMutex mutex;
 };
 
 
