@@ -886,6 +886,7 @@ void MainWindow::reloadRecentList()
     }
 
     if (filesGroup != 0) {
+        disconnect(filesGroup, SIGNAL(triggered(QAction*)), this, SLOT(setFile(QAction*)));
         delete filesGroup;
     }
 
@@ -902,20 +903,21 @@ void MainWindow::reloadRecentList()
     QStringList tmpList;
 
     foreach (QString iL, Settings::lastFiles) {
-        QFileInfo fRecent(iL);
+        QString fName = iL;
+        QFileInfo fRecent(fName);
 
-        iL = fRecent.absoluteFilePath();
+        fName = fRecent.absoluteFilePath();
 
         if (fRecent.exists() == false) {
-            Settings::lastFiles.removeOne(iL);
+            Settings::lastFiles.removeOne(fName);
             continue;
         }
 
-        if (iL.indexOf(QDir::homePath()) >= 0) {
-            iL.replace(QDir::homePath(), QString("~"));
+        if (fName.indexOf(QDir::homePath()) >= 0) {
+            fName.replace(QDir::homePath(), QString("~"));
         }
 
-        tmpList << iL;
+        tmpList << fName;
     }
 
     tmpList.removeDuplicates();
@@ -1004,15 +1006,18 @@ bool MainWindow::OpenFile(QString &fileName)
 void MainWindow::setFile(QAction* a)
 {
     QString fileStr;
+    disconnect(filesGroup, SIGNAL(triggered(QAction*)), this, SLOT(setFile(QAction*)));
 
     fileStr = a->text();
 
     fileStr = fileStr.remove("&");
+    fileStr = fileStr.replace("~", QDir::homePath());
 
     if (OpenFile(fileStr) == false) {
         AddLog("File loading error: " + fileStr );
-        return;
+//         return;
     }
+     connect(filesGroup, SIGNAL(triggered(QAction*)), this, SLOT(setFile(QAction*)));
 }
 
 /*

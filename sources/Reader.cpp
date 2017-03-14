@@ -674,7 +674,7 @@ void Reader::antColonyOptimization(/*int[] path, double[][] dis*/)
 
                 // recursively
                 antColonyOptimization();
-                //                 goto START;
+                //  say no to goto! ;) // goto START;
             }
         }
     }

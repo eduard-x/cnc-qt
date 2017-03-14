@@ -392,7 +392,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     }
 
     emit logMessage(QString().sprintf("Read gcode, loaded. Time elapsed: %d ms", t.elapsed()));
-
+//     qDebug() << "read gcode end";
     t.restart();
 
 
@@ -440,14 +440,19 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     }
 
                     tmpCommand->xyz = next_pos;
-                    delta_pos = next_pos - gCodeList.last().xyz;
-
-                    if (Settings::filterRepeat == true) {
-                        if (delta_pos == QVector3D(0, 0, 0) && gCodeList.last().movingCode == RAPID_LINE_CODE) {
-                            correctLine = "";
-                            break;
+                    if (gCodeList.count() > 0){
+                        delta_pos = next_pos - gCodeList.last().xyz;
+                        if (Settings::filterRepeat == true) {
+                            if (delta_pos == QVector3D(0, 0, 0) && gCodeList.last().movingCode == RAPID_LINE_CODE) {
+                                correctLine = "";
+                                break;
+                            }
                         }
                     }
+                    else {
+                        delta_pos = QVector3D(0, 0, 0);
+                    }
+
 
                     detectMinMax(tmpCommand);
 
@@ -914,15 +919,18 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     }
 
     //     QString log = "Read gcode, parsed. Time elapsed: " + QString::number(t.elapsed()) + " ms";
-    emit logMessage(QString().sprintf("Read gcode, parsed. Time elapsed: %d ms", t.elapsed()));
-
+ 
     //     qDebug("read gcode, parsed. Time elapsed: %d ms", t.elapsed());
 
     gCodeLines.clear();
 
     mut.unlock();
+    
 
-    qDebug() << "readGCode" << goodList.count();
+    emit logMessage(QString().sprintf("Read gcode, parsed. Time elapsed: %d ms, lines parsed: %d", t.elapsed(), goodList.count()));
+
+
+//     qDebug() << "readGCode" << goodList.count();
 
     return true;
 }
@@ -934,9 +942,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
  */
 void GCodeParser::sortGCode(const QVector<int> &citydata)
 {
- 
-    //     qDebug() << citydata;
-    //     qDebug() << "list size" << goodList.size();
     QVector<QString> tmpList; // for the display list
     QVector<GCodeData> tmpGCodeList; // for the visualisation
 
