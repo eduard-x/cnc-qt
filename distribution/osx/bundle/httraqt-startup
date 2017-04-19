@@ -1,34 +1,33 @@
 #!/bin/sh
 #
 # Author: Aaron Voisine <aaron@voisine.org>
-# Inkscape Modifications: Michael Wybrow <mjwybrow@users.sourceforge.net>
-# HTTraQt Modifications: Timothy M. Shead <tshead@k-3d.com>
+# CNC-Qt Modifications: E.Kalinowski <eduard_kalinowski@yahoo.de>
 
 echo "INFO: Starting $0"
 
-HTTRAQT_BUNDLE="`echo "$0" | sed -e 's/\/Contents\/MacOS\/HTTraQt//'`"
-HTTRAQT_RESOURCES="$HTTRAQT_BUNDLE/Contents/Resources"
-HTTRAQT_TEMP="/tmp/httraqt/$UID"
-HTTRAQT_ETC="$HTTRAQT_TEMP/etc"
-HTTRAQT_PANGO_RC_FILE="$HTTRAQT_ETC/pango/pangorc"
+CNCQT_BUNDLE="`echo "$0" | sed -e 's/\/Contents\/MacOS\/CncQt//'`"
+CNCQT_RESOURCES="$CNCQT_BUNDLE/Contents/Resources"
+CNCQT_TEMP="/tmp/cncqt/$UID"
+CNCQT_ETC="$CNCQT_TEMP/etc"
+CNCQT_PANGO_RC_FILE="$CNCQT_ETC/pango/pangorc"
 
-rm -rf "$HTTRAQT_TEMP"
-mkdir -p "$HTTRAQT_ETC/pango"
+rm -rf "$CNCQT_TEMP"
+mkdir -p "$CNCQT_ETC/pango"
 
-sed -e 's|/opt/local/etc|'"$HTTRAQT_ETC|g" "$HTTRAQT_RESOURCES/etc/pango/pangorc" > "$HTTRAQT_ETC/pango/pangorc"
-sed -e 's|/opt/local|\"'"$HTTRAQT_RESOURCES|g" -e "s/\.so/.so\"/g" "$HTTRAQT_RESOURCES/etc/pango/pango.modules" > "$HTTRAQT_ETC/pango/pango.modules"
-sed -e 's|/opt/local|'"$HTTRAQT_RESOURCES|g" -e "s/\.so/.so\"/g" "$HTTRAQT_RESOURCES/etc/gtk-2.0/gdk-pixbuf.loaders" > "$HTTRAQT_ETC/gdk-pixbuf.loaders"
-cp -f "$HTTRAQT_RESOURCES/etc/pango/pangox.aliases" "$HTTRAQT_ETC/pango/pangox.aliases"
+sed -e 's|/opt/local/etc|'"$CNCQT_ETC|g" "$CNCQT_RESOURCES/etc/pango/pangorc" > "$CNCQT_ETC/pango/pangorc"
+sed -e 's|/opt/local|\"'"$CNCQT_RESOURCES|g" -e "s/\.so/.so\"/g" "$CNCQT_RESOURCES/etc/pango/pango.modules" > "$CNCQT_ETC/pango/pango.modules"
+sed -e 's|/opt/local|'"$CNCQT_RESOURCES|g" -e "s/\.so/.so\"/g" "$CNCQT_RESOURCES/etc/gtk-2.0/gdk-pixbuf.loaders" > "$CNCQT_ETC/gdk-pixbuf.loaders"
+cp -f "$CNCQT_RESOURCES/etc/pango/pangox.aliases" "$CNCQT_ETC/pango/pangox.aliases"
 
-export "DYLD_LIBRARY_PATH=$HTTRAQT_RESOURCES/lib"
-export "FONTCONFIG_PATH=$HTTRAQT_RESOURCES/etc/fonts"
-export "GDK_PIXBUF_MODULE_FILE=$HTTRAQT_ETC/gdk-pixbuf.loaders"
-export "GTK_PATH=$HTTRAQT_RESOURCES/lib/gtk-2.0"
-export "PANGO_RC_FILE=$HTTRAQT_PANGO_RC_FILE"
-export "PATH=$HTTRAQT_RESOURCES/bin:$PATH"
+export "DYLD_LIBRARY_PATH=$CNCQT_RESOURCES/lib"
+export "FONTCONFIG_PATH=$CNCQT_RESOURCES/etc/fonts"
+export "GDK_PIXBUF_MODULE_FILE=$CNCQT_ETC/gdk-pixbuf.loaders"
+export "GTK_PATH=$CNCQT_RESOURCES/lib/gtk-2.0"
+export "PANGO_RC_FILE=$CNCQT_PANGO_RC_FILE"
+export "PATH=$CNCQT_RESOURCES/bin:$PATH"
 
 export
-exec "$HTTRAQT_RESOURCES/bin/httraqt" "--log-level=debug" "--plugins=$HTTRAQT_RESOURCES/lib/httraqt/plugins" "--share=$HTTRAQT_RESOURCES/share/httraqt" "--ui=$HTTRAQT_RESOURCES/lib/httraqt/plugins/httraqt-ngui.module"
+exec "$CNCQT_RESOURCES/bin/cncqt" "--log-level=debug" "--plugins=$CNCQT_RESOURCES/lib/cncqt/plugins" "--share=$CNCQT_RESOURCES/share/cncqt" "--ui=$CNCQT_RESOURCES/lib/cncqt/plugins/cncqt-ngui.module"
 
 echo "INFO: Finishing $0"
 

@@ -7,7 +7,7 @@
 		<key>CFBundleExecutable</key>
 		<string>CNC-Qt</string>
 		<key>CFBundleGetInfoString</key>
-		<string>@CNCQT_VERSION@, @HTTRAQT_COPYRIGHT@</string>
+		<string>@CNCQT_VERSION@, @CNCQT_COPYRIGHT@</string>
 		<key>CFBundleIconFile</key>
 		<string>CNC-Qt</string>
 		<key>CFBundleIdentifier</key>

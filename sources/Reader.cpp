@@ -1,6 +1,6 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
@@ -604,8 +604,6 @@ void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, 
 
 const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
 {
-    //     mut.lock();
-
     int points = g0Points.count();
  
     path.clear();
@@ -641,8 +639,6 @@ const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
 
     antColonyOptimization();
 
-    //     mut.unlock();
-
     return path;
 }
 
@@ -654,8 +650,6 @@ const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
  */
 void Reader::antColonyOptimization(/*int[] path, double[][] dis*/)
 {
-//     QMutexLocker locker(&mutex);
-
     int points = g0Points.count();
 
     for (int i = 0; i < points - 2; i++) {
