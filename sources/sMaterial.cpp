@@ -193,7 +193,8 @@ void SettingsMaterial::onChangeTool(int i)
 
     graphicsView->setScene(grph);
 
-    textBrowser->setText(toolArray[i][3]);
+    graphicsView->setToolTip(toolArray[i][3]);
+//     textBrowser->setText(toolArray[i][3]);
 
     labelDiam->setText(toolArray[i][0]);
     labelShaft->setText(toolArray[i][1]);
