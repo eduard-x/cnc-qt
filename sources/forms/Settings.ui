@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>870</width>
-    <height>714</height>
+    <width>711</width>
+    <height>715</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -56,16 +56,19 @@
      <item row="0" column="1">
       <widget class="QTabWidget" name="tabWidget">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>700</width>
+         <width>500</width>
          <height>0</height>
         </size>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="accessibleDescription">
         <string notr="true"/>
@@ -75,6 +78,9 @@
        </property>
        <property name="tabPosition">
         <enum>QTabWidget::West</enum>
+       </property>
+       <property name="tabShape">
+        <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
         <number>0</number>
@@ -133,12 +139,12 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>649</width>
-              <height>639</height>
+              <width>493</width>
+              <height>640</height>
              </rect>
             </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -191,12 +197,12 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>649</width>
-              <height>639</height>
+              <width>493</width>
+              <height>640</height>
              </rect>
             </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -249,8 +255,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>649</width>
-              <height>639</height>
+              <width>493</width>
+              <height>640</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -310,12 +316,12 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>649</width>
-              <height>639</height>
+              <width>493</width>
+              <height>640</height>
              </rect>
             </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -368,12 +374,12 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>649</width>
-              <height>639</height>
+              <width>493</width>
+              <height>640</height>
              </rect>
             </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -417,12 +423,12 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>645</width>
-              <height>635</height>
+              <width>489</width>
+              <height>636</height>
              </rect>
             </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -475,12 +481,12 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>649</width>
-              <height>639</height>
+              <width>493</width>
+              <height>640</height>
              </rect>
             </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -527,12 +533,12 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>645</width>
-              <height>635</height>
+              <width>489</width>
+              <height>636</height>
              </rect>
             </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -548,7 +554,7 @@
      <item row="0" column="0">
       <widget class="QTreeWidget" name="treeWidget">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>

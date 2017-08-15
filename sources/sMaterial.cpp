@@ -68,43 +68,42 @@ void SettingsMaterial::initMaterialList()
     materialList = (QVector<materialFeed>()
     << (materialFeed) {
         // material, min Feed, max Feed, max RPM, coeff fz diameter
-        HARDWOOD,    60.0, 150.0, 23000, 0.035
+        HARDWOOD,    60.0, 150.0, 3.0, 23000, 0.035
     }
     << (materialFeed) {
-        SOFTWOOD,    80.0, 250.0, 18000, 0.04
+        SOFTWOOD,    80.0, 250.0, 3.0, 18000, 0.04
     }
     << (materialFeed) {
-        PLYWOOD,     80.0, 250.0, 18000, 0.04
+        PLYWOOD,     80.0, 250.0, 3.0, 18000, 0.04
     }
     << (materialFeed) {
-        MDF,         80.0, 250.0, 23000, 0.04
+        MDF,         80.0, 250.0, 3.0, 23000, 0.04
     }
     << (materialFeed) {
-        ACRYLIC,     100.0, 150.0, 20000, 0.035
+        ACRYLIC,     100.0, 150.0, 3.0, 20000, 0.035
     }
     << (materialFeed) {
-        PHENOLIC,    100.0, 200.0, 20000, 0.035
+        PHENOLIC,    100.0, 200.0, 3.0, 20000, 0.035
     }
     << (materialFeed) {
-        FIBERGLASS,  100.0, 150.0, 20000, 0.035
+        FIBERGLASS,  100.0, 150.0, 3.0, 20000, 0.035
     } // polyacril
     << (materialFeed) {
-        HARDPLASTIC, 150.0, 350.0, 18000, 0.035
+        HARDPLASTIC, 150.0, 350.0, 3.0, 18000, 0.035
     }
     << (materialFeed) {
-        SOFTPLASTIC, 200.0, 400.0, 20000, 0.04
+        SOFTPLASTIC, 200.0, 400.0, 3.0, 20000, 0.04
     }
     << (materialFeed) {
-        BRONZE,      30.0, 60.0, 10000, 0.0085
+        BRONZE,      30.0, 60.0, 4.0, 10000, 0.0085
     }
     << (materialFeed) {
-        ALUMINIUM,   70.0, 100.0, 10000, 0.01
+        ALUMINIUM,   70.0, 100.0, 4.0, 10000, 0.01
     }
     << (materialFeed) {
-        COPPER,      50.0, 100.0, 10000, 0.008
+        COPPER,      50.0, 100.0, 4.0, 10000, 0.008
     });
 }
-
 
 
 SettingsMaterial::SettingsMaterial(QWidget *p)
@@ -117,6 +116,9 @@ SettingsMaterial::SettingsMaterial(QWidget *p)
     //     graphicsView->setStyleSheet("background: transparent");
 
     //     setStyleSheet(parent->programStyleSheet);
+    
+    cuttingDeep = Settings::cuttingDeep;
+    carbideTool = Settings::carbideTool;
 
     // pictures of
     for (int i = 1 ; i < 13; i++) {
@@ -126,7 +128,6 @@ SettingsMaterial::SettingsMaterial(QWidget *p)
     }
 
     grph = 0;
-
 
     //  parent = static_cast<MainWindow*>(p);
 
@@ -170,7 +171,9 @@ SettingsMaterial::SettingsMaterial(QWidget *p)
 
 SettingsMaterial::~SettingsMaterial()
 {
+    frz_png.clear();
 }
+
 
 /**
  * @brief change the selection for color
@@ -201,27 +204,13 @@ void SettingsMaterial::onChangeTool(int i)
 }
 
 
-
 void SettingsMaterial::changeParameters(void)
 {
     QObject* s = sender();
 
-    //     if (s == doubleSpinCutting) {
-    //         disconnect(doubleSpinZ, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
-    //         doubleSpinZ->setValue(doubleSpinCutting->value() / 3.0);
-    //         connect(doubleSpinZ, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
-    //     }
-
-    //     if (s == doubleSpinZ) {
-    //         disconnect(doubleSpinCutting, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
-    //         doubleSpinCutting->setValue(doubleSpinZ->value() * 3.0);
-    //         connect(doubleSpinCutting, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
-    //     }
-
-    //     float rpm;
-    z = spinFlutes->value();
     v = doubleSpinCutting->value();
     d = doubleSpinDiameter->value();
+
     rpm = 1000.0 * v / (PI * d);
 
     if (rpm > materialList.at(current).maxRPM) {
@@ -230,14 +219,18 @@ void SettingsMaterial::changeParameters(void)
 
     if (s == doubleSpinDiameter) {
         disconnect(doubleSpinChipLoad, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
-        fz = d * materialList.at(current).kfz;
-        doubleSpinChipLoad->setValue(d * materialList.at(current).kfz);
+        float kfz = materialList.at(current).kfz;
+
+        fz = d * kfz;
+        doubleSpinChipLoad->setValue(d * kfz);
         connect(doubleSpinChipLoad, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
     }
 
     disconnect(doubleSpinSpindleSpeed, SIGNAL(valueChanged(int)), this, SLOT(changeParameters(void)));
     doubleSpinSpindleSpeed->setValue(rpm);
     connect(doubleSpinSpindleSpeed, SIGNAL(valueChanged(int)), this, SLOT(changeParameters(void)));
+
+    z = spinFlutes->value();
 
     feed = fz * rpm * z;
 
@@ -256,23 +249,23 @@ void SettingsMaterial::changeMaterial(int n)
     disconnect(comboMaterial, SIGNAL(activated(int)), this, SLOT(changeMaterial(int)));
 
     QString unit;
-    float minFeedXY = materialList.at(n).minFeedXY;
-    float maxFeedXY = materialList.at(n).maxFeedXY;
+    float minFeedHSS = materialList.at(n).minFeedHSS;
+    float maxFeedHSS = materialList.at(n).maxFeedHSS;
 
     if (scaling == 1.0) {
-        unit = QString().sprintf(": %4.1f - %4.1f m/min", minFeedXY, maxFeedXY);
+        unit = QString().sprintf(": %4.1f - %4.1f m/min", minFeedHSS, maxFeedHSS);
     } else {
-        minFeedXY = materialList.at(n).minFeedXY / 3.28084;
-        maxFeedXY = materialList.at(n).maxFeedXY / 3.28084;
-        unit = QString().sprintf(": %4.1f - %4.1f feet/min", minFeedXY, maxFeedXY);
+        minFeedHSS = materialList.at(n).minFeedHSS / 3.28084; // -> * 0.3048
+        maxFeedHSS = materialList.at(n).maxFeedHSS / 3.28084;
+        unit = QString().sprintf(": %4.1f - %4.1f feet/min", minFeedHSS, maxFeedHSS);
     }
 
     labelCuttingRange->setText(translate(ID_RANGES) + unit);
 
-    float m = (materialList.at(n).maxFeedXY + materialList.at(n).minFeedXY) / 2.0;
+    float m = (materialList.at(n).maxFeedHSS + materialList.at(n).minFeedHSS) / 2.0;
 
-    doubleSpinCutting->setMinimum(minFeedXY);
-    doubleSpinCutting->setMaximum(maxFeedXY);
+    doubleSpinCutting->setMinimum(minFeedHSS);
+    doubleSpinCutting->setMaximum(maxFeedHSS);
     doubleSpinCutting->setValue(m);
 
     //     doubleSpinZ->setMinimum(minFeedXY / 3.0);
@@ -291,10 +284,10 @@ void SettingsMaterial::changeUnit(int n)
 
     if (n == 0) { // mm
         scaling = 1.0;
-        unit = QString().sprintf(": %4.1f - %4.1f m/min", materialList.at(n).minFeedXY, materialList.at(n).maxFeedXY);
+        unit = QString().sprintf(": %4.1f - %4.1f m/min", materialList.at(n).minFeedHSS, materialList.at(n).maxFeedHSS);
     } else { // inch
         scaling = 25.4;
-        unit = QString().sprintf(": %4.1f - %4.1f feet/min", (materialList.at(n).minFeedXY / 3.28084), (materialList.at(n).maxFeedXY / 3.28084));
+        unit = QString().sprintf(": %4.1f - %4.1f feet/min", (materialList.at(n).minFeedHSS / 3.28084), (materialList.at(n).maxFeedHSS / 3.28084));
     }
 
     labelCuttingRange->setText(translate(ID_RANGES) + unit);

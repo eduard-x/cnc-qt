@@ -157,6 +157,9 @@ class Settings : public QSettings
         static QString remoteName;
         static int remotePort;
         static bool enableRemote;
+        
+        static bool carbideTool;
+        static int  cuttingDeep;
 
         static int PosX, PosY, PosZ;
         static int PosAngleX, PosAngleY, PosAngleZ;

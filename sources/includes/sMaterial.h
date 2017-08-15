@@ -50,8 +50,9 @@ class MainWindow;
 // MPM = SFM / 3.281
 struct materialFeed {
     MATERIAL m;
-    float minFeedXY;
-    float maxFeedXY;
+    float minFeedHSS; // High Speed Steel
+    float maxFeedHSS;
+    float carbideCoeff; // Carbide Tool coeff from HSS: feedCarbide = carbideCoeff * HSS feed 
     int maxRPM;
     float kfz; // koeff fz for diameter
 };
@@ -90,6 +91,8 @@ class SettingsMaterial : public QWidget, public Ui::sMaterial,  public cTranslat
         float feed;
         float fz;
         int z;
+        int cuttingDeep; // 1x, 2x, 3x from tool diameter
+        bool carbideTool;
         MATERIAL current;
         //         MainWindow* parent;
 };

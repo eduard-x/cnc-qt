@@ -50,9 +50,7 @@
 #include "includes/SettingsDialog.h"
 #include "includes/About.h"
 #include "includes/Reader.h"
-// #include "includes/CuttingCalc.h"
 #include "includes/EditGCode.h"
-// #include "includes/ManualControl.h"
 #include "includes/ScanSurface.h"
 
 
@@ -61,8 +59,8 @@
 
 class GLWidget;
 
-
 class MainWindow;
+
 
 /**
  * @brief

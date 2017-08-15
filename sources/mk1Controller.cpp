@@ -160,8 +160,6 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
 
     devConnected = false;
 
-
-
     //     rc = libusb_init (NULL);
     //
     //     if (rc < 0) {
