@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CPPCHCK=`type -p astyle`
+CPPCHCK=$(type -p astyle)
 
 if [ ! -f "$CPPCHCK" ]; then
    # not found exit
@@ -25,12 +25,4 @@ export ARTISTIC_STYLE_OPTIONS="\
 --formatted \
 --lineend=linux"
 
-for i in $(find . -type f \( -name "*.cpp" -or -name "*.c"  -or -name "*.h" \));
-do
-    astyle $ARTISTIC_STYLE_OPTIONS "$i";
-done
-
-for i in $(find . -type f \( -name "*.orig" -or -name "*~" -or -name "moc_*" \));
-do
-    rm -if "$i";
-done
+astyle $ARTISTIC_STYLE_OPTIONS --suffix=none --recursive  "sources/*.cpp" "sources/*.h";

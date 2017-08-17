@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CPPCHCK=`type -p cppcheck`
+CPPCHCK=$(type -p cppcheck)
 
 if [ ! -f "$CPPCHCK" ]; then
    # not found exit
@@ -8,7 +8,7 @@ if [ ! -f "$CPPCHCK" ]; then
    exit 0
 fi
 
-COUNT=$(cat /proc/cpuinfo | grep 'model name' | sed -e 's/.*: //' | wc -l)
+COUNT=$(nproc --all)
 echo "number of detected CPUs =" $COUNT
 
 #cppcheck -j $COUNT --force --inline-suppr --enable=warning . 2>errors.txt
