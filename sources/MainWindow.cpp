@@ -2142,9 +2142,9 @@ void  MainWindow::refreshElementsForms()
         }
     }
 
-    numPosX->setValue( Settings::coord[X].posMm());
-    numPosY->setValue( Settings::coord[Y].posMm());
-    numPosZ->setValue( Settings::coord[Z].posMm());
+    numPosX->display( Settings::coord[X].posMm());
+    numPosY->display( Settings::coord[Y].posMm());
+    numPosZ->display( Settings::coord[Z].posMm());
 
     lineXpulses->setText(QString::number(Settings::coord[X].actualPosPulses));
     lineYpulses->setText(QString::number(Settings::coord[Y].actualPosPulses));
@@ -2259,28 +2259,28 @@ void  MainWindow::refreshElementsForms()
 
         if (currentStatus == Task::Waiting) {
             toolResetCoorX->setEnabled( true );
-            numPosX->setReadOnly( true );
+//             numPosX->setReadOnly( true );
 
             toolResetCoorY->setEnabled( true );
-            numPosY->setReadOnly( true );
+//             numPosY->setReadOnly( true );
 
             toolResetCoorZ->setEnabled( true );
-            numPosZ->setReadOnly( true );
+//             numPosZ->setReadOnly( true );
 
             toolResetCoorA->setEnabled( true );
-            numAngleGrad->setReadOnly( true );
+//             numAngleGrad->setReadOnly( true );
         } else {
             toolResetCoorX->setEnabled( false );
-            numPosX->setReadOnly( false );
+//             numPosX->setReadOnly( false );
 
             toolResetCoorY->setEnabled( false );
-            numPosY->setReadOnly( false );
+//             numPosY->setReadOnly( false );
 
             toolResetCoorZ->setEnabled( false );
-            numPosZ->setReadOnly( false );
+//             numPosZ->setReadOnly( false );
 
             toolResetCoorA->setEnabled( false );
-            numAngleGrad->setReadOnly( false );
+//             numAngleGrad->setReadOnly( false );
         }
 
         if (currentStatus == Task::Working) {
@@ -2312,16 +2312,16 @@ void  MainWindow::refreshElementsForms()
             toolPause->setEnabled(false);
 
             toolResetCoorX->setEnabled( true );
-            numPosX->setReadOnly( true );
+//             numPosX->setReadOnly( true );
 
             toolResetCoorY->setEnabled( true );
-            numPosY->setReadOnly( true );
+//             numPosY->setReadOnly( true );
 
             toolResetCoorZ->setEnabled( true );
-            numPosZ->setReadOnly( true );
+//             numPosZ->setReadOnly( true );
 
             toolResetCoorA->setEnabled( true );
-            numAngleGrad->setReadOnly( true );
+//             numAngleGrad->setReadOnly( true );
         }
 
         if (currentStatus == Task::Paused) {
@@ -2339,16 +2339,16 @@ void  MainWindow::refreshElementsForms()
         toolStop->setEnabled( cncConnected );
 
         toolResetCoorX->setEnabled( false );
-        numPosX->setReadOnly( false );
+//         numPosX->setReadOnly( false );
 
         toolResetCoorY->setEnabled( false );
-        numPosY->setReadOnly( false );
+//         numPosY->setReadOnly( false );
 
         toolResetCoorZ->setEnabled( false );
-        numPosZ->setReadOnly( false );
+//         numPosZ->setReadOnly( false );
 
         toolResetCoorA->setEnabled( false );
-        numAngleGrad->setReadOnly( false );
+//         numAngleGrad->setReadOnly( false );
     }
 }
 
@@ -2957,7 +2957,7 @@ void MainWindow::onEditGCode(int row, int col)
 void MainWindow::onButtonXtoZero()
 {
     mk1->deviceNewPosition(0, Settings::coord[Y].actualPosPulses, Settings::coord[Z].actualPosPulses, Settings::coord[A].actualPosPulses);
-    numPosX->setValue(0.0);
+    numPosX->display(0.0);
 }
 
 
@@ -2968,7 +2968,7 @@ void MainWindow::onButtonXtoZero()
 void MainWindow::onButtonYtoZero()
 {
     mk1->deviceNewPosition(Settings::coord[X].actualPosPulses, 0, Settings::coord[Z].actualPosPulses, Settings::coord[A].actualPosPulses);
-    numPosY->setValue(0.0);
+    numPosY->display(0.0);
 }
 
 
@@ -2979,7 +2979,7 @@ void MainWindow::onButtonYtoZero()
 void MainWindow::onButtonZtoZero()
 {
     mk1->deviceNewPosition(Settings::coord[X].actualPosPulses, Settings::coord[Y].actualPosPulses, 0, Settings::coord[A].actualPosPulses);
-    numPosZ->setValue(0.0);
+    numPosZ->display(0.0);
 }
 
 
@@ -2999,7 +2999,7 @@ void MainWindow::logMessage(const QString &msg)
 void MainWindow::onButtonAtoZero()
 {
     mk1->deviceNewPosition(Settings::coord[X].actualPosPulses, Settings::coord[Y].actualPosPulses, Settings::coord[Z].actualPosPulses, 0);
-    numAngleGrad->setValue(0.0);
+    numAngleGrad->display(0.0);
 }
 
 

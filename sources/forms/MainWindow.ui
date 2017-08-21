@@ -39,7 +39,16 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
@@ -93,76 +102,6 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QDoubleSpinBox" name="numPosX">
-              <property name="minimumSize">
-               <size>
-                <width>125</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="decimals">
-               <number>5</number>
-              </property>
-              <property name="minimum">
-               <double>-999.990000000000009</double>
-              </property>
-              <property name="maximum">
-               <double>999.990000000000009</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QDoubleSpinBox" name="numPosY">
-              <property name="minimumSize">
-               <size>
-                <width>125</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="decimals">
-               <number>5</number>
-              </property>
-              <property name="minimum">
-               <double>-999.990000000000009</double>
-              </property>
-              <property name="maximum">
-               <double>999.990000000000009</double>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QDoubleSpinBox" name="numPosZ">
-              <property name="minimumSize">
-               <size>
-                <width>125</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="decimals">
-               <number>5</number>
-              </property>
-              <property name="minimum">
-               <double>-999.990000000000009</double>
-              </property>
-              <property name="maximum">
-               <double>999.990000000000009</double>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="2">
-             <widget class="QDoubleSpinBox" name="numAngleGrad">
-              <property name="minimumSize">
-               <size>
-                <width>125</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="decimals">
-               <number>5</number>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="1">
              <widget class="QToolButton" name="toolResetCoorX">
               <property name="text">
@@ -181,6 +120,34 @@
              <widget class="QToolButton" name="toolResetCoorA">
               <property name="text">
                <string>A</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLCDNumber" name="numPosX">
+              <property name="digitCount">
+               <number>6</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLCDNumber" name="numPosY">
+              <property name="digitCount">
+               <number>6</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QLCDNumber" name="numPosZ">
+              <property name="digitCount">
+               <number>6</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QLCDNumber" name="numAngleGrad">
+              <property name="digitCount">
+               <number>6</number>
               </property>
              </widget>
             </item>
@@ -632,7 +599,7 @@
                <item>
                 <widget class="QRadioButton" name="radioFixX">
                  <property name="text">
-                  <string>X</string>
+                  <string>&amp;X</string>
                  </property>
                 </widget>
                </item>
@@ -646,7 +613,7 @@
                <item>
                 <widget class="QRadioButton" name="radioFixZ">
                  <property name="text">
-                  <string>Z</string>
+                  <string>&amp;Z</string>
                  </property>
                 </widget>
                </item>
@@ -708,8 +675,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>475</width>
-                    <height>393</height>
+                    <width>300</width>
+                    <height>200</height>
                    </rect>
                   </property>
                   <property name="sizePolicy">
@@ -2441,7 +2408,7 @@
                 <item row="3" column="1">
                  <widget class="QRadioButton" name="radioButtonHz">
                   <property name="text">
-                   <string>Hz</string>
+                   <string>H&amp;z</string>
                   </property>
                  </widget>
                 </item>
@@ -2674,7 +2641,7 @@
      </sizepolicy>
     </property>
     <property name="title">
-     <string>File</string>
+     <string>Fi&amp;le</string>
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
@@ -2689,7 +2656,7 @@
      </sizepolicy>
     </property>
     <property name="title">
-     <string>Controller</string>
+     <string>&amp;Controller</string>
     </property>
     <addaction name="actionInfo"/>
     <addaction name="separator"/>
@@ -2704,7 +2671,7 @@
      </sizepolicy>
     </property>
     <property name="title">
-     <string>Help</string>
+     <string>Hel&amp;p</string>
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
@@ -2717,7 +2684,7 @@
      </sizepolicy>
     </property>
     <property name="title">
-     <string>Settings</string>
+     <string>Se&amp;ttings</string>
     </property>
     <addaction name="actionProgram"/>
    </widget>
@@ -2819,7 +2786,7 @@
      <normaloff>:/images/coolant_off.png</normaloff>:/images/coolant_off.png</iconset>
    </property>
    <property name="text">
-    <string>Fluid</string>
+    <string>&amp;Fluid</string>
    </property>
   </action>
   <action name="actionMist">
@@ -2828,7 +2795,7 @@
      <normaloff>:/images/mist_off.png</normaloff>:/images/mist_off.png</iconset>
    </property>
    <property name="text">
-    <string>Mist</string>
+    <string>&amp;Mist</string>
    </property>
   </action>
   <action name="actionExit">
@@ -2846,7 +2813,7 @@
      <normaloff>:/images/icon.png</normaloff>:/images/icon.png</iconset>
    </property>
    <property name="text">
-    <string>About</string>
+    <string>&amp;About</string>
    </property>
   </action>
   <action name="actionAboutQt">
@@ -2855,7 +2822,7 @@
      <normaloff>:/images/qtlogo.png</normaloff>:/images/qtlogo.png</iconset>
    </property>
    <property name="text">
-    <string>About Qt</string>
+    <string>About &amp;Qt</string>
    </property>
   </action>
   <action name="actionProgram">
@@ -2864,7 +2831,7 @@
      <normaloff>:/images/google_webmaster_tools.png</normaloff>:/images/google_webmaster_tools.png</iconset>
    </property>
    <property name="text">
-    <string>Program</string>
+    <string>&amp;Program</string>
    </property>
   </action>
   <action name="actionHardware">
@@ -2893,7 +2860,7 @@
   </action>
   <action name="actionSave">
    <property name="text">
-    <string>Save (GCode)</string>
+    <string>&amp;Save (GCode)</string>
    </property>
   </action>
   <action name="actionInfo">
@@ -2902,13 +2869,12 @@
      <normaloff>:/images/pci.png</normaloff>:/images/pci.png</iconset>
    </property>
    <property name="text">
-    <string>Info</string>
+    <string>&amp;Info</string>
    </property>
   </action>
  </widget>
  <resources>
   <include location="../CNC-Qt.qrc"/>
-  <include location="../../../grblControl-master/src/images.qrc"/>
  </resources>
  <connections/>
 </ui>
