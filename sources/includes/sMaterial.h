@@ -52,7 +52,7 @@ struct materialFeed {
     MATERIAL m;
     float minFeedHSS; // High Speed Steel
     float maxFeedHSS;
-    float carbideCoeff; // Carbide Tool coeff from HSS: feedCarbide = carbideCoeff * HSS feed 
+    float carbideCoeff; // Carbide Tool coeff from HSS: feedCarbide = carbideCoeff * HSS feed
     int maxRPM;
     float kfz; // koeff fz for diameter
 };

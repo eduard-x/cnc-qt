@@ -879,13 +879,16 @@ void MainWindow::readSettings()
  */
 void MainWindow::reloadRecentList()
 {
-    if (filesMenu != 0) {
-        delete filesMenu;
-    }
-
     if (filesGroup != 0) {
         disconnect(filesGroup, SIGNAL(triggered(QAction*)), this, SLOT(setFile(QAction*)));
         delete filesGroup;
+    }
+
+    if (filesMenu != 0) {
+        filesMenu->clear();
+        //         delete filesMenu;
+    } else {
+        filesMenu = new QMenu( translate(ID_RECENTFILES)); //insertAction
     }
 
     actFileSelect.clear();
@@ -894,7 +897,6 @@ void MainWindow::reloadRecentList()
         return;
     }
 
-    filesMenu = new QMenu( translate(ID_RECENTFILES)); //insertAction
     QAction *actionRecent = menuFile->insertMenu(actionSave, filesMenu);
     filesGroup = new QActionGroup(this);
 
@@ -1013,9 +1015,10 @@ void MainWindow::setFile(QAction* a)
 
     if (OpenFile(fileStr) == false) {
         AddLog("File loading error: " + fileStr );
-//         return;
+        //         return;
     }
-     connect(filesGroup, SIGNAL(triggered(QAction*)), this, SLOT(setFile(QAction*)));
+
+    connect(filesGroup, SIGNAL(triggered(QAction*)), this, SLOT(setFile(QAction*)));
 }
 
 /*
@@ -2259,28 +2262,28 @@ void  MainWindow::refreshElementsForms()
 
         if (currentStatus == Task::Waiting) {
             toolResetCoorX->setEnabled( true );
-//             numPosX->setReadOnly( true );
+            //             numPosX->setReadOnly( true );
 
             toolResetCoorY->setEnabled( true );
-//             numPosY->setReadOnly( true );
+            //             numPosY->setReadOnly( true );
 
             toolResetCoorZ->setEnabled( true );
-//             numPosZ->setReadOnly( true );
+            //             numPosZ->setReadOnly( true );
 
             toolResetCoorA->setEnabled( true );
-//             numAngleGrad->setReadOnly( true );
+            //             numAngleGrad->setReadOnly( true );
         } else {
             toolResetCoorX->setEnabled( false );
-//             numPosX->setReadOnly( false );
+            //             numPosX->setReadOnly( false );
 
             toolResetCoorY->setEnabled( false );
-//             numPosY->setReadOnly( false );
+            //             numPosY->setReadOnly( false );
 
             toolResetCoorZ->setEnabled( false );
-//             numPosZ->setReadOnly( false );
+            //             numPosZ->setReadOnly( false );
 
             toolResetCoorA->setEnabled( false );
-//             numAngleGrad->setReadOnly( false );
+            //             numAngleGrad->setReadOnly( false );
         }
 
         if (currentStatus == Task::Working) {
@@ -2312,16 +2315,16 @@ void  MainWindow::refreshElementsForms()
             toolPause->setEnabled(false);
 
             toolResetCoorX->setEnabled( true );
-//             numPosX->setReadOnly( true );
+            //             numPosX->setReadOnly( true );
 
             toolResetCoorY->setEnabled( true );
-//             numPosY->setReadOnly( true );
+            //             numPosY->setReadOnly( true );
 
             toolResetCoorZ->setEnabled( true );
-//             numPosZ->setReadOnly( true );
+            //             numPosZ->setReadOnly( true );
 
             toolResetCoorA->setEnabled( true );
-//             numAngleGrad->setReadOnly( true );
+            //             numAngleGrad->setReadOnly( true );
         }
 
         if (currentStatus == Task::Paused) {
@@ -2339,16 +2342,16 @@ void  MainWindow::refreshElementsForms()
         toolStop->setEnabled( cncConnected );
 
         toolResetCoorX->setEnabled( false );
-//         numPosX->setReadOnly( false );
+        //         numPosX->setReadOnly( false );
 
         toolResetCoorY->setEnabled( false );
-//         numPosY->setReadOnly( false );
+        //         numPosY->setReadOnly( false );
 
         toolResetCoorZ->setEnabled( false );
-//         numPosZ->setReadOnly( false );
+        //         numPosZ->setReadOnly( false );
 
         toolResetCoorA->setEnabled( false );
-//         numAngleGrad->setReadOnly( false );
+        //         numAngleGrad->setReadOnly( false );
     }
 }
 

@@ -116,7 +116,7 @@ SettingsMaterial::SettingsMaterial(QWidget *p)
     //     graphicsView->setStyleSheet("background: transparent");
 
     //     setStyleSheet(parent->programStyleSheet);
-    
+
     cuttingDeep = Settings::cuttingDeep;
     carbideTool = Settings::carbideTool;
 
@@ -197,7 +197,7 @@ void SettingsMaterial::onChangeTool(int i)
     graphicsView->setScene(grph);
 
     graphicsView->setToolTip(toolArray[i][3]);
-//     textBrowser->setText(toolArray[i][3]);
+    //     textBrowser->setText(toolArray[i][3]);
 
     labelDiam->setText(toolArray[i][0]);
     labelShaft->setText(toolArray[i][1]);

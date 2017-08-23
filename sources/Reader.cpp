@@ -180,7 +180,7 @@ bool Reader::readFile(const QString &fileName)
             //             g0points = getRapidPoints();
             QVector<int> ant = calculateAntPath();
 
-            if (ant.count() > 2){
+            if (ant.count() > 2) {
                 qDebug() << ant;
 
                 sortGCode(ant);
@@ -605,13 +605,13 @@ void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, 
 const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
 {
     int points = g0Points.count();
- 
+
     path.clear();
- 
+
     if (points <= 2) {
         return path;
     }
-   
+
     path.resize(points);
 
     if (distance.size() > 0) {
@@ -653,7 +653,7 @@ void Reader::antColonyOptimization(/*int[] path, double[][] dis*/)
     int points = g0Points.count();
 
     for (int i = 0; i < points - 2; i++) {
-        for (int j = i + 2; j < points -1; j++) {
+        for (int j = i + 2; j < points - 1; j++) {
             float swap_length = distance[path[i]][path[j]] + distance[path[i + 1]][path[j + 1]];
             float old_length = distance[path[i]][path[i + 1]] + distance[path[j]][path[j + 1]];
 

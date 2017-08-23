@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>700</width>
+    <width>711</width>
     <height>661</height>
    </rect>
   </property>
@@ -39,16 +39,7 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
@@ -125,29 +116,44 @@
             </item>
             <item row="0" column="2">
              <widget class="QLCDNumber" name="numPosX">
+              <property name="smallDecimalPoint">
+               <bool>false</bool>
+              </property>
               <property name="digitCount">
-               <number>6</number>
+               <number>7</number>
+              </property>
+              <property name="segmentStyle">
+               <enum>QLCDNumber::Filled</enum>
               </property>
              </widget>
             </item>
             <item row="1" column="2">
              <widget class="QLCDNumber" name="numPosY">
+              <property name="smallDecimalPoint">
+               <bool>false</bool>
+              </property>
               <property name="digitCount">
-               <number>6</number>
+               <number>7</number>
               </property>
              </widget>
             </item>
             <item row="2" column="2">
              <widget class="QLCDNumber" name="numPosZ">
+              <property name="smallDecimalPoint">
+               <bool>false</bool>
+              </property>
               <property name="digitCount">
-               <number>6</number>
+               <number>7</number>
               </property>
              </widget>
             </item>
             <item row="3" column="2">
              <widget class="QLCDNumber" name="numAngleGrad">
+              <property name="smallDecimalPoint">
+               <bool>false</bool>
+              </property>
               <property name="digitCount">
-               <number>6</number>
+               <number>7</number>
               </property>
              </widget>
             </item>
@@ -2623,8 +2629,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>700</width>
-     <height>30</height>
+     <width>711</width>
+     <height>26</height>
     </rect>
    </property>
    <property name="sizePolicy">

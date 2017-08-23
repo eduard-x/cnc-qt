@@ -1212,6 +1212,18 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 
 
 /**
+ * @brief press event from mouse
+ *
+ */
+void GLWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    //     m_lastPos = event->pos();
+
+    event->setAccepted(true);
+}
+
+
+/**
  * @brief wheel event from mouse
  *
  */

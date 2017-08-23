@@ -160,9 +160,9 @@ int Settings::maxVelo = 400;
 int Settings::veloMoving = 500;
 
 
-bool Settings::carbideTool=false;
-int  Settings::cuttingDeep=1; // from diameter
-        
+bool Settings::carbideTool = false;
+int  Settings::cuttingDeep = 1; // from diameter
+
 int  Settings::depthSum = 6;
 int  Settings::repeatTimes = 0;
 bool Settings::optimizeRapidWays = false;

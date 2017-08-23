@@ -41,6 +41,8 @@ For connection with hardware please copy the file udev/rules.d/z90_cncusb.rules 
 
 Version history
 
+0.3.1   QLCDNumber in using 
+        QMenu crash after selecting of file from QActionGroup bugfix 
 0.3.0   Ant Colony Optimization for GCode implemented
         resizing of main window for small display resolitions 
 0.2.6   overworked settings window

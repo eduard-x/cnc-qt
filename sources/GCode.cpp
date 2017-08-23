@@ -392,7 +392,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     }
 
     emit logMessage(QString().sprintf("Read gcode, loaded. Time elapsed: %d ms", t.elapsed()));
-//     qDebug() << "read gcode end";
+    //     qDebug() << "read gcode end";
     t.restart();
 
 
@@ -440,16 +440,17 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     }
 
                     tmpCommand->xyz = next_pos;
-                    if (gCodeList.count() > 0){
+
+                    if (gCodeList.count() > 0) {
                         delta_pos = next_pos - gCodeList.last().xyz;
+
                         if (Settings::filterRepeat == true) {
                             if (delta_pos == QVector3D(0, 0, 0) && gCodeList.last().movingCode == RAPID_LINE_CODE) {
                                 correctLine = "";
                                 break;
                             }
                         }
-                    }
-                    else {
+                    } else {
                         delta_pos = QVector3D(0, 0, 0);
                     }
 
@@ -919,18 +920,18 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     }
 
     //     QString log = "Read gcode, parsed. Time elapsed: " + QString::number(t.elapsed()) + " ms";
- 
+
     //     qDebug("read gcode, parsed. Time elapsed: %d ms", t.elapsed());
 
     gCodeLines.clear();
 
     mut.unlock();
-    
+
 
     emit logMessage(QString().sprintf("Read gcode, parsed. Time elapsed: %d ms, lines parsed: %d", t.elapsed(), goodList.count()));
 
 
-//     qDebug() << "readGCode" << goodList.count();
+    //     qDebug() << "readGCode" << goodList.count();
 
     return true;
 }
@@ -967,7 +968,7 @@ void GCodeParser::sortGCode(const QVector<int> &citydata)
     }
 
     mut.lock();
-    
+
     goodList.clear();
 
     goodList = tmpList;
