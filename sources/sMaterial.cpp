@@ -328,7 +328,7 @@ void SettingsMaterial::translateWidget()
     labelFlutes->setText(translate(ID_FLUTES));
     labelCuttingSpeed->setText(translate(ID_CUTTING_SPEED));
     labelCuttingRange->setText(translate(ID_RANGES));
-    labelDepth->setText(translate(ID_MAX_DEPTH));
+    labelMaxDepth->setText(translate(ID_MAX_DEPTH));
     labelRange->setText(translate(ID_RANGE));
 
     labelRangeSpindle->setText("");
