@@ -92,6 +92,8 @@ SettingsDialog::SettingsDialog(QWidget *p, int tabNum)
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSave()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
+    adjustSize();
+
     translateDialog();
 
     QTreeWidgetItem * item;
@@ -100,8 +102,6 @@ SettingsDialog::SettingsDialog(QWidget *p, int tabNum)
     if (item != NULL) {
         treeWidget->setCurrentItem( item );
     }
-
-    adjustSize();
 }
 
 SettingsDialog::~SettingsDialog()
@@ -164,6 +164,7 @@ void SettingsDialog::translateDialog()
         if ((grpArr.at(i).count() == menuArr.at(i).count() - 1)) {
             for (int j = 0; j < menuArr.at(i).count() - 1; j++) {
                 ((QGroupBox*)(grpArr.at(i).at(j)))->setTitle(menuArr.at(i).at(j + 1));
+                ((QGroupBox*)(grpArr.at(i).at(j)))->adjustSize();
             }
         }
     }
@@ -210,7 +211,7 @@ void SettingsDialog::onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip)
     } else {
         mainText = it->text(0);
 
-        treeWidget->collapseAll();
+//         treeWidget->collapseAll();
 
         if (ip != NULL) {
             ip->setSelected(false);
