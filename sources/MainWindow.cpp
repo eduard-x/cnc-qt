@@ -1232,13 +1232,15 @@ void MainWindow::translateGUI()
         //         tabWidget->setTabText(2, translate(ID_WORKBENCH));
         tabWidget->setTabText(2, translate(ID_DIAGNOSTIC));
         tabWidget->setTabText(3, translate(ID_ADDITIONAL));
-        tabWidget->setTabText(4, translate(ID_LOG));
+        tabWidget->setTabText(4, translate(ID_SIGNAL));
+        tabWidget->setTabText(5, translate(ID_LOG));
     } else {
         tabWidget->setTabText(0, translate(ID_DATA));
         //         tabWidget->setTabText(1, translate(ID_WORKBENCH));
         tabWidget->setTabText(1, translate(ID_DIAGNOSTIC));
         tabWidget->setTabText(2, translate(ID_ADDITIONAL));
-        tabWidget->setTabText(3, translate(ID_LOG));
+        tabWidget->setTabText(3, translate(ID_SIGNAL));
+        tabWidget->setTabText(4, translate(ID_LOG));
     }
 
     //     labelSubmission->setText(translate(ID_SUBMISSION));

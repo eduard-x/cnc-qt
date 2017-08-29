@@ -299,6 +299,7 @@ QString cTranslator::engText[] = {
     "Number of repeatings", // 240
     "Total depth",
     "Optimize rapid ways",
+    "Signal",
     ""
 };
 

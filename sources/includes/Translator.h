@@ -300,6 +300,7 @@ enum TR_CONSTS {
     ID_NUM_REPEAT, // 240
     ID_DEPTH_SUM, // 241
     ID_OPTIMIZE_RAPID_WAYS, // 242
+    ID_SIGNAL, // 243
     ID_NULL
 };
 
