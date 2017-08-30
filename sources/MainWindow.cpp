@@ -1200,7 +1200,7 @@ void MainWindow::translateGUI()
     groupPosition->setTitle(translate(ID_COORDINATES));
     //     groupBoxExec->setTitle(translate(ID_GCODE_RUNNING));
     groupManualControl->setTitle(translate(ID_MANUAL_CONTROL));
-//     groupIndicator->setTitle(translate(ID_DISPL_LIMITS));
+    //     groupIndicator->setTitle(translate(ID_DISPL_LIMITS));
     groupVelocity->setTitle(translate(ID_VELOCITY));
 
     toolRunMoving->setText(translate(ID_RUN));
@@ -1257,18 +1257,18 @@ void MainWindow::translateGUI()
 
     maxXLED->setToolTip(translate(ID_MAX));
     minXLED->setToolTip(translate(ID_MIN));
-    
-     maxYLED->setToolTip(translate(ID_MAX));
+
+    maxYLED->setToolTip(translate(ID_MAX));
     minYLED->setToolTip(translate(ID_MIN));
-    
-     maxZLED->setToolTip(translate(ID_MAX));
+
+    maxZLED->setToolTip(translate(ID_MAX));
     minZLED->setToolTip(translate(ID_MIN));
-    
-     maxALED->setToolTip(translate(ID_MAX));
+
+    maxALED->setToolTip(translate(ID_MAX));
     minALED->setToolTip(translate(ID_MIN));
-    
-//     labelMinX->setText(translate(ID_MIN));
-//     labelMaxX->setText(translate(ID_MAX));
+
+    //     labelMinX->setText(translate(ID_MIN));
+    //     labelMaxX->setText(translate(ID_MAX));
 
     //
     labelRunFrom->setText(translate(ID_CURRENT_LINE));

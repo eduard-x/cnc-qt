@@ -151,7 +151,7 @@ SettingsMaterial::SettingsMaterial(QWidget *p)
     connect(doubleSpinSpindleSpeed, SIGNAL(valueChanged(int)), this, SLOT(changeParameters(void)));
     connect(doubleSpinChipLoad, SIGNAL(valueChanged(double)), this, SLOT(changeParameters(void)));
 
-//     connect(comboUnit, SIGNAL(activated(int)), this, SLOT(changeUnit(int)));
+    //     connect(comboUnit, SIGNAL(activated(int)), this, SLOT(changeUnit(int)));
 
     graphicsView->setStyleSheet("background: transparent");
 
@@ -328,7 +328,7 @@ void SettingsMaterial::translateWidget()
     labelFlutes->setText(translate(ID_FLUTES));
     labelCuttingSpeed->setText(translate(ID_CUTTING_SPEED));
     labelCuttingRange->setText(translate(ID_RANGES));
-//     labelMaxDepth->setText(translate(ID_MAX_DEPTH));
+    //     labelMaxDepth->setText(translate(ID_MAX_DEPTH));
     labelRange->setText(translate(ID_RANGE));
 
     labelRangeSpindle->setText("");
@@ -340,7 +340,7 @@ void SettingsMaterial::translateWidget()
 
     QString units = translate(ID_UNITS);
     QStringList u = units.split("\n");
-//     comboUnit->addItems(u);
+    //     comboUnit->addItems(u);
 
     QString materials = translate(ID_MATERIAL_LIST);
     QStringList m = materials.split("\n");

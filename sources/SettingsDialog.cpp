@@ -211,7 +211,7 @@ void SettingsDialog::onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip)
     } else {
         mainText = it->text(0);
 
-//         treeWidget->collapseAll();
+        //         treeWidget->collapseAll();
 
         if (ip != NULL) {
             ip->setSelected(false);
