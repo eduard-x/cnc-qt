@@ -125,6 +125,7 @@ class Settings : public QSettings
         static QSize progSize;
 
         static byte bb14;
+        static byte bb16;
         static byte bb19;
 
         static QChar fromDecimalPoint;

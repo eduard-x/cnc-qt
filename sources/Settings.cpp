@@ -112,6 +112,7 @@ int Settings::remotePort = 0;
 bool Settings::enableRemote = false;
 
 byte Settings::bb14 = 0x0;
+byte Settings::bb16 = 0x0;
 byte Settings::bb19 = 0x0;
 
 bool Settings::ShowBorder = true;

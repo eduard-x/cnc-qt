@@ -58,7 +58,7 @@ class Geometry
         static coord CalcPX(coord p1, coord p2, coord p0);
         static coord CalcPY(coord p1, coord p2, coord p0);
 
-        float cubicHermiteInterpolate (const float v[4] , float t);
+        float cubicHermiteInterpolate (const float v[4], float t);
         float bicubicHermitePatch(const float vv[4][4], float u, float v);
         float bicubicInterpolate(QRectF borderRect, QAbstractTableModel *basePoints, float x, float y);
         bool gernerateBicubicHermiteField();

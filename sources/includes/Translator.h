@@ -301,6 +301,8 @@ enum TR_CONSTS {
     ID_DEPTH_SUM, // 241
     ID_OPTIMIZE_RAPID_WAYS, // 242
     ID_SIGNAL, // 243
+    ID_CTRL,
+    ID_LINE,
     ID_NULL
 };
 

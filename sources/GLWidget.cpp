@@ -441,6 +441,7 @@ void GLWidget::setFit()
  */
 void GLWidget::initStaticElements()
 {
+#if 0
     int i = 0;
 
     // color correcture in the main object
@@ -485,6 +486,8 @@ void GLWidget::initStaticElements()
         //         };
 
     }
+
+#endif
 
     axis.clear();
     axis << addPointVector(xAxis, Settings::colorSettings[COLOR_X]);
@@ -760,7 +763,7 @@ void GLWidget::initializeGL()//Init3D()//*OK*
     glClearColor(Settings::colorSettings[COLOR_BACKGROUND].redF(), Settings::colorSettings[COLOR_BACKGROUND].greenF(), Settings::colorSettings[COLOR_BACKGROUND].blueF(), 1.0f);
 
     // Use QBasicTimer because its faster than QTimer
-    timer.start(50, this);
+    timer.start(100, this);
 
     const char *vsrc =
         "#ifdef GL_ES\n"

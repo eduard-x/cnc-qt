@@ -162,7 +162,7 @@ struct speedSettings {
 };
 
 
-class MainWindow : public QMainWindow, public Ui::MainWindow , public cTranslator // , public Reader
+class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator  // , public Reader
 {
         Q_OBJECT
 

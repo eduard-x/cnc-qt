@@ -177,6 +177,8 @@ bool Reader::readFile(const QString &fileName)
         bool res = readGCode(arr);
 
         if (Settings::optimizeRapidWays == true) {
+            QTime t;
+            t.start();
             //             g0points = getRapidPoints();
             QVector<int> ant = calculateAntPath();
 
@@ -185,6 +187,10 @@ bool Reader::readFile(const QString &fileName)
 
                 sortGCode(ant);
             }
+
+            emit logMessage(QString().sprintf("Read gcode, Ant optimization. Time elapsed: %d ms, cities: %d", t.elapsed(), ant.count()));
+            //     qDebug() << "read gcode end";
+            t.restart();
         }
 
         return res;
@@ -888,7 +894,7 @@ bool Reader::readGBR( const QByteArray &arr)
                     int oY2 = newY;
 
                     typeSpline tps = (typeSpline) {
-                        0, C_circle, sized2 / 100
+                        0, C_circle, (float)(sized2 / 100.0)
                     };
                     BresenhamLine(arrayPoint, oX1, oY1, oX2, oY2, tps);
                 } else {
@@ -898,7 +904,7 @@ bool Reader::readGBR( const QByteArray &arr)
                     int oX2 = newX;
                     int oY2 = newY + (sized2 / 2) - (sized1 / 2);
                     typeSpline tps = (typeSpline) {
-                        0, C_circle, sized1 / 100
+                        0, C_circle, (float)(sized1 / 100.0)
                     };
                     BresenhamLine(arrayPoint, oX1, oY1, oX2, oY2, tps);
                 }

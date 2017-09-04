@@ -1201,7 +1201,8 @@ void MainWindow::translateGUI()
     //     groupBoxExec->setTitle(translate(ID_GCODE_RUNNING));
     groupManualControl->setTitle(translate(ID_MANUAL_CONTROL));
     //     groupIndicator->setTitle(translate(ID_DISPL_LIMITS));
-    groupVelocity->setTitle(translate(ID_VELOCITY));
+    groupVelocity->setTitle(translate(ID_MATERIAL));
+    groupCommand->setTitle(translate(ID_CTRL));
 
     toolRunMoving->setText(translate(ID_RUN));
 
@@ -1243,6 +1244,8 @@ void MainWindow::translateGUI()
         tabWidget->setTabText(4, translate(ID_LOG));
     }
 
+    labelRunFrom->setText(translate(ID_LINE));
+
     //     labelSubmission->setText(translate(ID_SUBMISSION));
     //     labelMoving->setText(translate(ID_MOVING));
 
@@ -1271,7 +1274,7 @@ void MainWindow::translateGUI()
     //     labelMaxX->setText(translate(ID_MAX));
 
     //
-    labelRunFrom->setText(translate(ID_CURRENT_LINE));
+    labelRunFrom->setText(translate(ID_LINE));
     labelNumVelo->setText(translate(ID_VELO));
 
     menuFile->setTitle(translate(ID_FILE));
@@ -1782,7 +1785,7 @@ void MainWindow::runNextCommand()
         }
     }
 
-    labelRunFrom->setText( translate(ID_CURRENT_LINE) + " " + QString::number(Task::lineCodeNow + 1));
+    labelRunFrom->setText( translate(ID_LINE) + " " + QString::number(Task::lineCodeNow + 1));
 }
 
 
@@ -2238,6 +2241,14 @@ void  MainWindow::refreshElementsForms()
     labelB15B6->setPixmap( Settings::coord[A].actualLimitMin  ? redPix : greenPix );
     labelB15B7->setPixmap( Settings::coord[A].actualLimitMax  ? redPix : greenPix );
 
+    labelB16B0->setPixmap( Settings::bb16 & (1 << 0) ? redPix : greenPix );
+    labelB16B1->setPixmap( Settings::bb16 & (1 << 1) ? redPix : greenPix );
+    labelB16B2->setPixmap( Settings::bb16 & (1 << 2) ? redPix : greenPix );
+    labelB16B3->setPixmap( Settings::bb16 & (1 << 3) ? redPix : greenPix );
+    labelB16B4->setPixmap( Settings::bb16 & (1 << 4) ? redPix : greenPix );
+    labelB16B5->setPixmap( Settings::bb16 & (1 << 5) ? redPix : greenPix );
+    labelB16B6->setPixmap( Settings::bb16 & (1 << 6) ? redPix : greenPix );
+    labelB16B7->setPixmap( Settings::bb16 & (1 << 7) ? redPix : greenPix );
 
     labelB19B0->setPixmap( Settings::bb19 & (1 << 0) ? redPix : greenPix );
     labelB19B1->setPixmap( Settings::bb19 & (1 << 1) ? redPix : greenPix );

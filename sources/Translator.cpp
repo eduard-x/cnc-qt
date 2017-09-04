@@ -300,6 +300,8 @@ QString cTranslator::engText[] = {
     "Total depth",
     "Optimize rapid ways",
     "Signal",
+    "Control",
+    "Line:",
     ""
 };
 

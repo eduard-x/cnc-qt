@@ -95,7 +95,7 @@ SettingsControl::SettingsControl(QWidget *p)
     buttonsJoyPad = (QVector<QToolButton*>() << Ui::sControl::toolButtonA << Ui::sControl::toolButtonB << Ui::sControl::toolButtonC << Ui::sControl::toolButtonD);
     //     QRect *rect = new QRect(10,10,50,50);
     //     QRegion* region = new QRegion(*rect, QRegion::Ellipse);
-    QStringList tool = {"Y" , "X", "B", "A"};
+    QStringList tool = {"Y", "X", "B", "A"};
 
     int n = 0;
 

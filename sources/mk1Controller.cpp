@@ -884,6 +884,7 @@ void mk1Controller::parseBinaryInfo()
 
     setCompleatedInstructions(num);
 
+    Settings::bb16 = readBuf[16];
     Settings::bb19 = readBuf[19];
 
     setSpindelOn((Settings::bb19 & 0x01) ? true : false);
