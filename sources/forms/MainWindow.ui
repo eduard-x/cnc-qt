@@ -233,6 +233,12 @@
             </item>
             <item row="0" column="2">
              <widget class="QLCDNumber" name="numPosX">
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
               <property name="smallDecimalPoint">
                <bool>false</bool>
               </property>
@@ -243,7 +249,7 @@
                <number>8</number>
               </property>
               <property name="segmentStyle">
-               <enum>QLCDNumber::Filled</enum>
+               <enum>QLCDNumber::Flat</enum>
               </property>
              </widget>
             </item>
@@ -258,6 +264,9 @@
               <property name="digitCount">
                <number>8</number>
               </property>
+              <property name="segmentStyle">
+               <enum>QLCDNumber::Flat</enum>
+              </property>
              </widget>
             </item>
             <item row="2" column="2">
@@ -271,6 +280,9 @@
               <property name="digitCount">
                <number>8</number>
               </property>
+              <property name="segmentStyle">
+               <enum>QLCDNumber::Flat</enum>
+              </property>
              </widget>
             </item>
             <item row="3" column="2">
@@ -283,6 +295,9 @@
               </property>
               <property name="digitCount">
                <number>8</number>
+              </property>
+              <property name="segmentStyle">
+               <enum>QLCDNumber::Flat</enum>
               </property>
              </widget>
             </item>
@@ -830,7 +845,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>500</width>
+                    <width>503</width>
                     <height>462</height>
                    </rect>
                   </property>

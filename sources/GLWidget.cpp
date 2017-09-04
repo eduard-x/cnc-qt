@@ -763,7 +763,12 @@ void GLWidget::initializeGL()//Init3D()//*OK*
     glClearColor(Settings::colorSettings[COLOR_BACKGROUND].redF(), Settings::colorSettings[COLOR_BACKGROUND].greenF(), Settings::colorSettings[COLOR_BACKGROUND].blueF(), 1.0f);
 
     // Use QBasicTimer because its faster than QTimer
-    timer.start(100, this);
+    if(Settings::smoothMoving){
+        timer.start(200, this);
+    }
+    else{
+        timer.start(75, this);
+    }
 
     const char *vsrc =
         "#ifdef GL_ES\n"
