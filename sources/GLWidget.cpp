@@ -68,7 +68,7 @@ GLWidget::GLWidget(QWidget *p)
 
     m_zoom = 1;
 
-    parent = (MainWindow*)p;
+    parent = static_cast<MainWindow*>(p);
 
     cnc = parent->mk1;
 

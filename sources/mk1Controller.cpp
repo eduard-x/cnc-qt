@@ -159,6 +159,9 @@ mk1Controller::mk1Controller(QObject *parent) : QObject(parent)
     handle = NULL;
 
     devConnected = false;
+    
+//     _error_code = 0;
+//     availableNewData = false;
 
     //     rc = libusb_init (NULL);
     //

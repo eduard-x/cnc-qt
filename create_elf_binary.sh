@@ -22,8 +22,9 @@ fi
 if [ -d "$DIRECTORY" ]; then
     cd "$DIRECTORY"
     rm * -rf
-    cmake -DUSE_DEBUGGER=ON ..
+    # options: USE_PROFILER, USE_DEBUGGER, USE_QT5
+    cmake -DUSE_DEBUGGER=OFF -DUSE_PROFILER=OFF ..
     make -j$CPU_NUM
     cd ..
-    mv ./$DIRECTORY/cncqt .
+    cp ./$DIRECTORY/cncqt .
 fi

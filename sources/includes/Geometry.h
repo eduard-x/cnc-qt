@@ -54,9 +54,9 @@ struct coord {
 class Geometry
 {
     public:
-        static coord GetZ(coord p1, coord p2, coord p3, coord p4, coord p5);
-        static coord CalcPX(coord p1, coord p2, coord p0);
-        static coord CalcPY(coord p1, coord p2, coord p0);
+        static coord GetZ(const coord &p1, const coord &p2, const coord &p3, const coord &p4, const coord &p5);
+        static coord CalcPX(const coord &p1, const coord &p2, const coord &p0);
+        static coord CalcPY(const coord &p1, const coord &p2, const coord &p0);
 
         float cubicHermiteInterpolate (const float v[4], float t);
         float bicubicHermitePatch(const float vv[4][4], float u, float v);

@@ -29,9 +29,9 @@ SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 
 MESSAGE(STATUS "Qt version for compiling: " ${USE_QT_VERSION})
 
-IF(NOT ${USE_QT_VERSION} MATCHES "4" AND NOT ${USE_QT_VERSION} MATCHES "5")
-  MESSAGE(FATAL_ERROR "-- Qt version must be set to 4 or 5!")
-ENDIF()
+# IF(NOT ${USE_QT_VERSION} MATCHES "4" AND NOT ${USE_QT_VERSION} MATCHES "5")
+#   MESSAGE(FATAL_ERROR "-- Qt version must be set to 4 or 5!")
+# ENDIF()
 
 #debug or release
 # SET(USE_DEBUGGER false)
@@ -150,7 +150,12 @@ ENDIF(MSVC)
 
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lusb-1.0")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+IF (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fno-exceptions -fno-rtti")
+ELSE()
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-exceptions -fno-rtti")
+ENDIF()
 
 # options for gprof 
 IF(${USE_PROFILER})

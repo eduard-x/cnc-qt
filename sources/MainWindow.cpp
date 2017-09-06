@@ -2222,14 +2222,14 @@ void  MainWindow::refreshElementsForms()
     //***************
 
     //DEBUG:
-    labelB14B0->setPixmap( Settings::bb14 & (1 << 0) ? redPix : greenPix );
-    labelB14B1->setPixmap( Settings::bb14 & (1 << 1) ? redPix : greenPix );
-    labelB14B2->setPixmap( Settings::bb14 & (1 << 2) ? redPix : greenPix );
-    labelB14B3->setPixmap( Settings::bb14 & (1 << 3) ? redPix : greenPix );
-    labelB14B4->setPixmap( Settings::bb14 & (1 << 4) ? redPix : greenPix );
-    labelB14B5->setPixmap( Settings::bb14 & (1 << 5) ? redPix : greenPix );
-    labelB14B6->setPixmap( Settings::bb14 & (1 << 6) ? redPix : greenPix );
-    labelB14B7->setPixmap( Settings::bb14 & (1 << 7) ? redPix : greenPix );
+    labelB14B0->setPixmap( (Settings::bb14 & (1 << 0)) ? redPix : greenPix );
+    labelB14B1->setPixmap( (Settings::bb14 & (1 << 1)) ? redPix : greenPix );
+    labelB14B2->setPixmap( (Settings::bb14 & (1 << 2)) ? redPix : greenPix );
+    labelB14B3->setPixmap( (Settings::bb14 & (1 << 3)) ? redPix : greenPix );
+    labelB14B4->setPixmap( (Settings::bb14 & (1 << 4)) ? redPix : greenPix );
+    labelB14B5->setPixmap( (Settings::bb14 & (1 << 5)) ? redPix : greenPix );
+    labelB14B6->setPixmap( (Settings::bb14 & (1 << 6)) ? redPix : greenPix );
+    labelB14B7->setPixmap( (Settings::bb14 & (1 << 7)) ? redPix : greenPix );
 
 
     labelB15B0->setPixmap( Settings::coord[X].actualLimitMin  ? redPix : greenPix );
@@ -2241,23 +2241,23 @@ void  MainWindow::refreshElementsForms()
     labelB15B6->setPixmap( Settings::coord[A].actualLimitMin  ? redPix : greenPix );
     labelB15B7->setPixmap( Settings::coord[A].actualLimitMax  ? redPix : greenPix );
 
-    labelB16B0->setPixmap( Settings::bb16 & (1 << 0) ? redPix : greenPix );
-    labelB16B1->setPixmap( Settings::bb16 & (1 << 1) ? redPix : greenPix );
-    labelB16B2->setPixmap( Settings::bb16 & (1 << 2) ? redPix : greenPix );
-    labelB16B3->setPixmap( Settings::bb16 & (1 << 3) ? redPix : greenPix );
-    labelB16B4->setPixmap( Settings::bb16 & (1 << 4) ? redPix : greenPix );
-    labelB16B5->setPixmap( Settings::bb16 & (1 << 5) ? redPix : greenPix );
-    labelB16B6->setPixmap( Settings::bb16 & (1 << 6) ? redPix : greenPix );
-    labelB16B7->setPixmap( Settings::bb16 & (1 << 7) ? redPix : greenPix );
+    labelB16B0->setPixmap( (Settings::bb16 & (1 << 0)) ? redPix : greenPix );
+    labelB16B1->setPixmap( (Settings::bb16 & (1 << 1)) ? redPix : greenPix );
+    labelB16B2->setPixmap( (Settings::bb16 & (1 << 2)) ? redPix : greenPix );
+    labelB16B3->setPixmap( (Settings::bb16 & (1 << 3)) ? redPix : greenPix );
+    labelB16B4->setPixmap( (Settings::bb16 & (1 << 4)) ? redPix : greenPix );
+    labelB16B5->setPixmap( (Settings::bb16 & (1 << 5)) ? redPix : greenPix );
+    labelB16B6->setPixmap( (Settings::bb16 & (1 << 6)) ? redPix : greenPix );
+    labelB16B7->setPixmap( (Settings::bb16 & (1 << 7)) ? redPix : greenPix );
 
-    labelB19B0->setPixmap( Settings::bb19 & (1 << 0) ? redPix : greenPix );
-    labelB19B1->setPixmap( Settings::bb19 & (1 << 1) ? redPix : greenPix );
-    labelB19B2->setPixmap( Settings::bb19 & (1 << 2) ? redPix : greenPix );
-    labelB19B3->setPixmap( Settings::bb19 & (1 << 3) ? redPix : greenPix );
-    labelB19B4->setPixmap( Settings::bb19 & (1 << 4) ? redPix : greenPix );
-    labelB19B5->setPixmap( Settings::bb19 & (1 << 5) ? redPix : greenPix );
-    labelB19B6->setPixmap( Settings::bb19 & (1 << 6) ? redPix : greenPix );
-    labelB19B7->setPixmap( Settings::bb19 & (1 << 7) ? redPix : greenPix );
+    labelB19B0->setPixmap( (Settings::bb19 & (1 << 0)) ? redPix : greenPix );
+    labelB19B1->setPixmap( (Settings::bb19 & (1 << 1)) ? redPix : greenPix );
+    labelB19B2->setPixmap( (Settings::bb19 & (1 << 2)) ? redPix : greenPix );
+    labelB19B3->setPixmap( (Settings::bb19 & (1 << 3)) ? redPix : greenPix );
+    labelB19B4->setPixmap( (Settings::bb19 & (1 << 4)) ? redPix : greenPix );
+    labelB19B5->setPixmap( (Settings::bb19 & (1 << 5)) ? redPix : greenPix );
+    labelB19B6->setPixmap( (Settings::bb19 & (1 << 6)) ? redPix : greenPix );
+    labelB19B7->setPixmap( (Settings::bb19 & (1 << 7)) ? redPix : greenPix );
 
     // end debug
 

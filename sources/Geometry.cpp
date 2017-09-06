@@ -76,7 +76,7 @@ enum AxisNames { X = 0, Y, Z, A, B, C, U, V, W };
 /// p5 correcture pont for the Z calculation
 ///
 
-coord Geometry::GetZ(coord p1, coord p2, coord p3, coord p4, coord p5)
+coord Geometry::GetZ(const coord &p1, const coord &p2, const coord &p3, const coord &p4, const coord &p5)
 {
     coord p12 = CalcPX(p1, p2, p5);
     coord p34 = CalcPX(p3, p4, p5);
@@ -88,7 +88,7 @@ coord Geometry::GetZ(coord p1, coord p2, coord p3, coord p4, coord p5)
 
 
 //нахождение высоты Z точки p0, лежащей на прямой которая паралельна оси X
-coord Geometry::CalcPX(coord p1, coord p2, coord p0)
+coord Geometry::CalcPX(const coord &p1, const coord &p2, const coord &p0)
 {
     coord retPoint = (coord) {
         p0.pos[X], p0.pos[Y], p0.pos[Z], 0.0
@@ -106,7 +106,7 @@ coord Geometry::CalcPX(coord p1, coord p2, coord p0)
 
 //
 //нахождение высоты Z точки p0, лежащей на прямой между точками p3 p4  (прямая паралельна оси Y)
-coord Geometry::CalcPY(coord p1, coord p2, coord p0)
+coord Geometry::CalcPY(const coord &p1, const coord &p2, const coord &p0)
 {
     coord retPoint  = (coord) {
         p0.pos[X], p0.pos[Y], p0.pos[Z], 0.0
