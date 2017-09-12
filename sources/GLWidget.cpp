@@ -763,10 +763,9 @@ void GLWidget::initializeGL()//Init3D()//*OK*
     glClearColor(Settings::colorSettings[COLOR_BACKGROUND].redF(), Settings::colorSettings[COLOR_BACKGROUND].greenF(), Settings::colorSettings[COLOR_BACKGROUND].blueF(), 1.0f);
 
     // Use QBasicTimer because its faster than QTimer
-    if(Settings::smoothMoving){
+    if(Settings::smoothMoving) {
         timer.start(200, this);
-    }
-    else{
+    } else {
         timer.start(75, this);
     }
 

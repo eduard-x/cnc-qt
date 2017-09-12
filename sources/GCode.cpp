@@ -168,6 +168,15 @@ GCodeParser::GCodeParser()
 
 }
 
+/**
+ * @brief destructor
+ *
+ */
+GCodeParser::~GCodeParser()
+{
+    gCodeList.clear();
+    g0Points.clear();
+}
 
 /**
  * @brief
@@ -1247,12 +1256,13 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
     float bLength = r * alpha;
 
-    int n = (int)(bLength * Settings::splitsPerMm) - 1; // num segments of arc per mm
+    float n = (bLength * Settings::splitsPerMm)/* - 1*/; // num segments of arc per mm
     float splitLen = 1.0 / (float)Settings::splitsPerMm;
 
-    if ( n == 0) {
-        qDebug() << "wrong, n = 0" << alpha_beg << alpha_end;
-        return;
+    if ( n <= 1.0) {
+        n++;
+        qDebug() << "warning, n = " << n << alpha_beg << alpha_end << bLength << r << alpha << beginPos.x() << beginPos.y() << endPos.x() << endPos.y();
+        //         return;
     }
 
     float dAlpha = alpha / n;

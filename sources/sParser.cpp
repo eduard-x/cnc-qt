@@ -57,8 +57,9 @@ SettingsParser::SettingsParser(QWidget *p)
     spinArcSplitPermm->setValue(Settings::splitsPerMm);
 
     checkBoxRemove->setChecked(Settings::filterRepeat);
-    checkBoxOptimize->setChecked(Settings::optimizeRapidWays);
+    groupBoxOptimize->setChecked(Settings::optimizeRapidWays);
     groupBoxRepeat->setChecked(Settings::repeatProcessing);
+    spinBoxMaxDepth->setValue(Settings::maxAntSearchDepth);
 
     int n;
     n = comboBoxTimes->findText(QString::number(Settings::repeatTimes));
@@ -97,8 +98,9 @@ void SettingsParser::getSettings()
     Settings::filterRepeat = checkBoxRemove->isChecked();
     Settings::depthSum = comboBoxDepth->currentText().toInt();
     Settings::repeatTimes = comboBoxTimes->currentText().toInt();
-    Settings::optimizeRapidWays = checkBoxOptimize->isChecked();
+    Settings::optimizeRapidWays = groupBoxOptimize->isChecked();
     Settings::repeatProcessing = groupBoxRepeat->isChecked();
+    Settings::maxAntSearchDepth = spinBoxMaxDepth->value();
 }
 
 /**
@@ -112,6 +114,7 @@ void SettingsParser::translateWidget()
     groupBoxRepeat->setTitle(translate(ID_REPEAT_CODE));
     labelRepeat->setText(translate(ID_NUM_REPEAT));
     labelDepth->setText(translate(ID_DEPTH_SUM));
-    checkBoxOptimize->setText(translate(ID_OPTIMIZE_RAPID_WAYS));
+    groupBoxOptimize->setTitle(translate(ID_OPTIMIZE_RAPID_WAYS));
+    labelMaxDepthAnt->setText(translate(ID_MAX_DEPTH_OPTIMIZE));
 }
 

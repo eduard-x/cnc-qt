@@ -153,6 +153,7 @@ class Settings : public QSettings
         static int toolFlutes;
         static int toolRPM;
 
+        static short maxAntSearchDepth;
 
         static bool disableOpenGL;
         static QString remoteName;

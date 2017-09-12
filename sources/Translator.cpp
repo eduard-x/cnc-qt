@@ -265,7 +265,7 @@ QString cTranslator::engText[] = {
     "Left",
     "Fit",
     "Save G-Code",
-    "Parser;Repeating of G-Code;Arc splitting", // 220
+    "Parser;Optimize rapid way;Repeating of G-Code;Arc splitting", // 220
     "Remove repeatable data from list",
     "Work tool/material;Tool;Material;Calc",
     "Control;Remote;Keyboard",
@@ -302,6 +302,7 @@ QString cTranslator::engText[] = {
     "Signal",
     "Control",
     "Line:",
+    "Max ant search depth:",
     ""
 };
 

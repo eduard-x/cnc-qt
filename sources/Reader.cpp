@@ -34,7 +34,6 @@
 #include <QRegExp>
 #include <QDebug>
 #include <QTime>
-// #include <QFileDialog>
 #include <QString>
 #include <QDir>
 
@@ -116,15 +115,18 @@ void GerberData::CalculateGatePoints(int _accuracy)
 }
 
 
-
+// constructor
 Reader::Reader()
-//  : mutex(QMutex::Recursive)
 {
     TypeFile = None;
 
     //     this->parent = parent;
 }
 
+// destructor
+Reader::~Reader()
+{
+}
 
 // void Reader::lock() const
 // {
@@ -198,36 +200,55 @@ bool Reader::readFile(const QString &fileName)
 
     if ( detectArray.indexOf("IN1;") >= 0 ) { // plotter format
         TypeFile = PLT;
-        return readPLT(arr);
+        bool res = readPLT(arr);
+
+
+        return res;
     }
 
     if ( detectArray.indexOf("<svg") >= 0 ) { // svg
         TypeFile = SVG;
-        return readSVG(arr);
+        bool res = readSVG(arr);
+
+
+        return res;
     }
 
     if ( detectArray.indexOf("") >= 0 ) { // eps
         TypeFile = EPS;
-        return readEPS(arr);
+        bool res = readEPS(arr);
+
+
+        return res;
     }
 
     if ( detectArray.indexOf("") >= 0 ) { // polylines
         TypeFile = DXF;
-        return readDXF(arr);
+        bool res = readDXF(arr);
+
+
+        return res;
     }
 
     if ( detectArray.indexOf("") >= 0 ) { // excellon
         TypeFile = DRL;
-        return readDRL(arr);
+        bool res = readDRL(arr);
+
+
+        return res;
     }
 
     if ((detectArray.indexOf("G04 ") >= 0) && (detectArray.indexOf("%MOMM*%") > 0 || detectArray.indexOf("%MOIN*%") > 0) ) { // extended gerber
         TypeFile = GBR;
-        return readGBR(arr);
+        bool res = readGBR(arr);
+
+
+        return res;
     }
 
     if (TypeFile == None) { // error
         // qmessagebox
+
     }
 
     return false;
@@ -658,7 +679,13 @@ void Reader::antColonyOptimization(/*int[] path, double[][] dis*/)
 {
     int points = g0Points.count();
 
-    for (int i = 0; i < points - 2; i++) {
+    int maxDepth = points;
+
+    if (maxDepth > Settings::maxAntSearchDepth) {
+        maxDepth = Settings::maxAntSearchDepth;
+    }
+
+    for (int i = 0; i < maxDepth - 2; i++) {
         for (int j = i + 2; j < points - 1; j++) {
             float swap_length = distance[path[i]][path[j]] + distance[path[i + 1]][path[j + 1]];
             float old_length = distance[path[i]][path[i + 1]] + distance[path[j]][path[j + 1]];

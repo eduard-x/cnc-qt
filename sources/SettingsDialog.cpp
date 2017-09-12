@@ -84,7 +84,7 @@ SettingsDialog::SettingsDialog(QWidget *p, int tabNum)
     grpArr << (QVector <QGroupBox*>() << sSpeed->groupSpeed << sSpeed->groupDirections); // moving
     grpArr << (QVector <QGroupBox*>() << sIO->groupHardwareLimits << sIO->groupConnectors << sIO->groupOutput << sIO->groupJog << sIO->groupExtPin); // I/O
     grpArr << (QVector <QGroupBox*>() << sSystem->groupBacklash << sSystem->groupLookahead); // system
-    grpArr << (QVector <QGroupBox*>() << sParser->groupBoxRepeat << sParser->groupBoxArc); // parser
+    grpArr << (QVector <QGroupBox*>() << sParser->groupBoxOptimize << sParser->groupBoxRepeat << sParser->groupBoxArc); // parser
     grpArr << (QVector <QGroupBox*>() << sMaterial->groupTool << sMaterial->groupMaterial << sMaterial->groupCalc); // tool
     grpArr << (QVector <QGroupBox*>() << sVis->groupViewing << sVis->groupBoxColors << sVis->groupBoxGrid << sVis->groupBoxShowRang); // 3d
     grpArr << (QVector <QGroupBox*>() << sControl->groupRemote << sControl->groupKeyboard); // control

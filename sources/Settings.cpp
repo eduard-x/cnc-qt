@@ -91,6 +91,7 @@ QPoint Settings::progPos = QPoint();
 QSize Settings::progSize = QSize();
 QFont Settings::sysFont = QFont();
 short Settings::fontSize = 10;
+short Settings::maxAntSearchDepth = 20;
 
 QStringList Settings::lastFiles = QStringList("");
 QChar Settings::toDecimalPoint = '.';
@@ -200,6 +201,7 @@ bool Settings::saveSettings()
     s->setValue("VelocityCutting", veloCutting);
     s->setValue("VelocityMoving", veloMoving);
     s->setValue("VelocityManual", veloManual);
+    s->setValue("MaxAntSearchDepth", maxAntSearchDepth);
 
     s->setValue("SplitArcPerMM", splitsPerMm);
     s->setValue("LookaheadAngle", maxLookaheadAngle);
@@ -382,7 +384,7 @@ bool Settings::readSettings()
     accelerationCutting = s->value("AccelerationCutting", 15).toInt();
     minVelo = s->value("MinVelocity", 20).toInt();
     maxVelo = s->value("MaxVelocity", 400).toInt();
-
+    maxAntSearchDepth = s->value("MaxAntSearchDepth", 20).toInt();
     veloCutting = s->value("VelocityCutting", 200).toInt();
     veloMoving = s->value("VelocityMoving", 500).toInt();
     veloManual = s->value("VelocityManual", 400).toInt();

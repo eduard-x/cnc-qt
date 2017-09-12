@@ -1100,6 +1100,7 @@ MainWindow::~MainWindow()
 {
     //     emit mk1Disconnected();
     //
+    delete reader;
     //     libusb_exit(context);
     //
     //     hotplugTimer->stop();

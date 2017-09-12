@@ -150,6 +150,8 @@ class GCodeParser : public QObject
         Q_OBJECT
     public:
         GCodeParser(); // constructor
+        ~GCodeParser(); // destructor
+
         bool readGCode(const QByteArray &gcode);
         QVector<QString> getGoodList();
         QVector<GCodeData> getGCodeData();

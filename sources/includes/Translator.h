@@ -303,6 +303,7 @@ enum TR_CONSTS {
     ID_SIGNAL, // 243
     ID_CTRL,
     ID_LINE,
+    ID_MAX_DEPTH_OPTIMIZE,
     ID_NULL
 };
 

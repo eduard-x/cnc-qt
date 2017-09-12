@@ -247,6 +247,7 @@ class Reader : public GCodeParser// , public cTranslator
 {
     public:
         Reader();
+        ~Reader();
 
         void BresenhamLine(QVector<QVector<byte> > &p, int x0, int y0, int x1, int y1, typeSpline _Splane);
         void BresenhamCircle(QVector<QVector<byte> > &p,  int x0, int y0, int radius, byte setvalue = 4, bool needFill = false);

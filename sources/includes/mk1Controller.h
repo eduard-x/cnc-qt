@@ -208,7 +208,7 @@ class mk1Controller : public QObject, public mk1Data
         void onBufFree();
 
     private:
-//         int count;
+        //         int count;
         bool devConnected;
         bool spindleSetEnable;
         bool fluidSetEnable;
@@ -224,11 +224,11 @@ class mk1Controller : public QObject, public mk1Data
         // thread for reading from controller
         usbReadThread *readThread;
 
-//         int _error_code;
+        //         int _error_code;
 
         //         int product_id, vendor_id;//, class_id;
 
-//         bool availableNewData;
+        //         bool availableNewData;
 
         QTimer hotplugTimer;
 
