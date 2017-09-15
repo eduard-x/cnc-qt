@@ -845,8 +845,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>503</width>
-                    <height>462</height>
+                    <width>300</width>
+                    <height>200</height>
                    </rect>
                   </property>
                   <property name="sizePolicy">
@@ -2731,6 +2731,7 @@
      <string>&amp;Controller</string>
     </property>
     <addaction name="actionInfo"/>
+    <addaction name="actionReset"/>
     <addaction name="separator"/>
     <addaction name="actionMist"/>
     <addaction name="actionFluid"/>
@@ -2942,6 +2943,11 @@
    </property>
    <property name="text">
     <string>&amp;Info</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset</string>
    </property>
   </action>
  </widget>

@@ -565,6 +565,7 @@ void MainWindow::addConnections()
     connect(radioFixZ, SIGNAL(toggled(bool)), this, SLOT(onChangeFix(bool)));
 
     connect(actionInfo, SIGNAL(triggered()), this, SLOT(onDeviceInfo()));
+    connect(actionReset, SIGNAL(triggered()), this, SLOT(onDeviceReset()));
 
     radioFixY->setChecked(true);
 
@@ -626,6 +627,15 @@ void MainWindow::hotplugTimerTick()
             refreshElementsForms();
         }
     }
+}
+
+/**
+ * @brief slot device reset/reboot
+ *
+ */
+void MainWindow::onDeviceReset()
+{
+    mk1->sendReset();
 }
 
 

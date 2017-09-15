@@ -130,6 +130,7 @@ class mk1Data //: public mk1Settings
         void setSpindleMoveSpeed(int i);
         long numberCompleatedInstructions();
         void setCompleatedInstructions(long i);
+        void sendReset(bool send = true);
         bool isSpindelOn();
         void setSpindelOn(bool b);
         bool isMistOn();

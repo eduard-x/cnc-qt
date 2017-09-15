@@ -234,6 +234,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
         void onChangeFix(bool b);
 
         void onDeviceInfo();
+        void onDeviceReset();
 
         void onSettings();
         void onCalcVelocity();

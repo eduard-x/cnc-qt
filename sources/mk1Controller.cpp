@@ -432,6 +432,7 @@ void mk1Controller::onDeviceConnected()
     }
 }
 
+
 // Event:
 // Device was disconnected
 void mk1Controller::onDeviceDisconnected()
@@ -1200,6 +1201,40 @@ void mk1Data::sendBinaryData(bool checkBuffSize)
     }
 }
 
+
+void mk1Data::sendReset(bool send)
+{
+#if 0
+    int rc;
+    QString descrStr;
+
+    if (handle == 0) {
+        devDescriptor = "Device not comnnected";
+        return -1;
+    }
+
+
+    libusb_device *dev = libusb_get_device(handle);
+
+    rc = libusb_get_device_descriptor(dev, &desc);
+
+    if (LIBUSB_SUCCESS != rc) {
+        qDebug() << "Error getting device descriptor";
+        handle = 0;
+        return -1;
+    }
+
+#endif
+
+    cleanBuf(writeBuf);
+
+    writeBuf[0] = 0xfc;
+    writeBuf[4] = 0x80;
+
+    if (send == true) {
+        sendBinaryData();
+    }
+}
 
 /**
  * @brief UNKNOWN COMMAND
