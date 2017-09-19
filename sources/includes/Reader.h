@@ -295,6 +295,7 @@ class Reader : public GCodeParser// , public cTranslator
     private:
         void Swap(int &p1, int &p2);
         QVector<int> path;
+        QVector<int> occup;
         QVector <QVector <float> > distance;
 
         //         bool readGCode( const QByteArray &gcode );

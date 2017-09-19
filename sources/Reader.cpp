@@ -675,7 +675,7 @@ const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
  * @see Ant Colony Optimization algorithm
  * @link https://hackaday.io/project/4955-g-code-optimization
  */
-void Reader::antColonyOptimization(/*int[] path, double[][] dis*/)
+void Reader::antColonyOptimization()
 {
     int points = g0Points.count();
 
