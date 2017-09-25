@@ -8,5 +8,5 @@ Exec=cncqt
 Terminal=false
 Icon=cnc-qt.png
 Type=Application
-Categories=Hardware;Qt;
+Categories=Utility;Qt;
 

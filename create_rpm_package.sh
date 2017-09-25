@@ -33,6 +33,7 @@ if [ -d "$DIRECTORY" ]; then
     rm * -rf
     cmake -DUSE_DEBUGGER=OFF ..
     make -j$CPU_NUM
+    strip -s cncqt
     make package-binary-rpm
     cd ..
     mv ./$DIRECTORY/cncqt*.rpm .
