@@ -20,3 +20,5 @@ ADD_CUSTOM_TARGET(package-source-zip
 	COMMAND ${CMAKE_CPACK_COMMAND} --config "${CMAKE_CURRENT_BINARY_DIR}/package-source-zip.cpack"
 	)
 
+
+INCLUDE(CPack)

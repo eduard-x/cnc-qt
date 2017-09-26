@@ -1,5 +1,5 @@
 # Setup automatic generation of the changelog
-MESSAGE(STATUS "CPack for Linux configuration..." )
+MESSAGE(STATUS "Generate installation variables..." )
 
 SET( CPACK_SOURCE_PACKAGE_FILE_NAME "cnc-qt-${CNCQT_VERSION}" )
 SET( CPACK_SOURCE_IGNORE_FILES
@@ -97,7 +97,6 @@ ENDMACRO(CNCQT_CHECK_INSTALLED_VERSION)
 
 # Generate source packages
 # ADD_SUBDIRECTORY(source)
-INCLUDE(CPack)
 
 # Generate platform-specific binary packages
 IF(APPLE)

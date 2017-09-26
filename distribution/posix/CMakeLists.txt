@@ -52,7 +52,7 @@ IF(DEBIAN_ARCHITECTURE)
         )
 ENDIF()
 
-IF(NOT RPM_ARCHITECTURE)
+IF(NOT DEBIAN_ARCHITECTURE)
     FIND_PROGRAM(RPMBUILD
         NAMES rpmbuild
         PATHS "/usr/bin")
@@ -99,6 +99,8 @@ ADD_CUSTOM_TARGET(package-binary-tgz
         WORKING_DIRECTORY "${CNCQT_PACKAGE_DIRECTORY}"
         COMMAND ${CMAKE_CPACK_COMMAND} --config ${CMAKE_CURRENT_BINARY_DIR}/package-binary-tgz.cpack
         )
+
+INCLUDE(CPack)
 
 # Note ... we intentionally don't provide upload capability for Posix packages, and leave distribution to the experts
 
