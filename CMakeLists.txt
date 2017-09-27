@@ -15,6 +15,8 @@ ELSE(${USE_QT5})
 ENDIF(${USE_QT5})
 
 
+
+SET( CNCQT_CPACK_PACKAGE_SHLIBDEPS ON )
 # # SET(FILES_TO_TRANSLATE)
 
 #disable -rdynamic
@@ -57,7 +59,6 @@ INCLUDE(CheckIncludeFile)
 INCLUDE(CheckIncludeFileCXX)
 INCLUDE(TestCXXAcceptsFlag)
 INCLUDE(CheckCXXCompilerFlag)
-INCLUDE(FindPkgConfig)
 
 
 # SET(TARGET_NAME cnc-qt )
@@ -70,10 +71,12 @@ SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 
 # INCLUDE(CNCQTOutOfSourceBuild) # Disallow in-source builds
-INCLUDE(CNCQTGenerateDEF) # Convenience macro for linking Win32 DLLs using MSVC
-INCLUDE(CNCQTDependencies)
-INCLUDE(CNCQTWordSize) # Detect 32/64 bit platform
-INCLUDE(CNCQTCompiler) # Detect problematic compilers
+INCLUDE(FindPkgConfig)
+
+INCLUDE(GenerateDEF) # Convenience macro for linking Win32 DLLs using MSVC
+INCLUDE(Dependencies)
+INCLUDE(WordSize) # Detect 32/64 bit platform
+INCLUDE(Compiler) # Detect problematic compilers
 
 # INCLUDE(FindOpenGL)
 # FIND_PACKAGE(OpenGL)
@@ -88,6 +91,7 @@ SET(QtApp_RCCS  "${CMAKE_CURRENT_SOURCE_DIR}/sources/CNC-Qt.qrc")
 SET(CURRENT_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 INCLUDE(FindLibUSB-1.0)
+# INCLUDE(FindLibUSB)
 
 
 SET (QT_USE_QTOPENGL TRUE)
@@ -103,38 +107,12 @@ ELSE()
 ENDIF()
 
 # Set the CNC-Qt version
-#cat README | grep -E  '^[0-9]+\.[0-9]+\.[0-9]+' | head -n 1
-# EXECUTE_PROCESS (
-#    COMMAND cat README
-#    COMMAND grep -E  "^[0-9]+\\.[0-9]+\\.[0-9]+"
-#    COMMAND head -n 1
-#    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-#    RESULT_VARIABLE CNCQT_VERSION
-#    OUTPUT_VARIABLE DESCRIBE_STRING
-#    OUTPUT_STRIP_TRAILING_WHITESPACE)
-# 
-# 
-# IF(NOT DESCRIBE_STRING)
-#   SET(DESCRIBE_STRING "no valid git tag for ${PROJECT_NAME} found")
-# ELSE()
-#   STRING(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" CNCQT_VERSION "${DESCRIBE_STRING}" )
-#   IF (NOT CNCQT_VERSION)
-#     SET(DESCRIBE_STRING "no valid git tag ${PROJECT_NAME}-x.x.x found")
-#   ENDIF()
-# ENDIF()
-
-FILE(READ "README" DESCRIBE_STRING)
+FILE(READ "HISTORY" DESCRIBE_STRING)
 STRING(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" CNCQT_VERSION "${DESCRIBE_STRING}" )
 
 
 MESSAGE(STATUS "Version info: ${CNCQT_VERSION}") 
 SET(VERSION ${CNCQT_VERSION})
-
-# EXECUTE_PROCESS (
-#       COMMAND date +"%d %b %Y"
-#       COMMAND sed -e "s/\"//g"
-#       OUTPUT_VARIABLE BUILD_DATE
-#       OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 IF(WIN32)
   EXECUTE_PROCESS (
@@ -368,7 +346,7 @@ MARK_AS_ADVANCED(CNCQT_ENABLE_SYMBOL_VISIBILITY)
 # CNCQT_CHECK_OPTIONAL_DEPENDENCY(CNCQT_BUILD_3DS_IO_MODULE CNCQT_3DS_FOUND "lib3ds")
 
 # Capture system configuration
-INCLUDE(CNCQTSystemConfiguration)
+INCLUDE(SystemConfiguration)
 
 # MSVC configuration
 IF(MSVC)

@@ -37,36 +37,5 @@ M03, M05
 M06
 M206
 
-For connection with hardware please copy the file udev/rules.d/z90_cncusb.rules into /etc/udev/rules.d/ directory and restart the udev daemon.
-
-Version history
-
-0.3.1   QLCDNumber in using 
-        QMenu crash after selecting of file from QActionGroup bugfix 
-0.3.0   Ant Colony Optimization for GCode implemented
-        resizing of main window for small display resolitions 
-0.2.6   overworked settings window
-0.2.5   fixed libusb hotplug attach/detach crash 
-        additional cnc-qt.pro file for QtCreator IDE
-0.2.4   overworked coordinates structures
-        ticket #1 fixed: include for Geometry.cpp
-0.2.3   option "filtering" of duplicated gcode parameter
-        gcode parser 20% faster 
-0.2.2   removed structures colorGL, pointGL, file vec.h
-        border refresh after loading of gcode
-0.2.1   moving of GL object fixed
-        saving of last selected directory fixed
-0.2.0   overworked for OpenGL ES2.0 compatibility 
-        additional widgets for visualisation 
-0.1.6   correcture of jogging coefficient
-        additional jogging settings
-0.1.5   correcture of acceleration coefficients
-        PWM enabled
-0.1.4   load from recent file list fixed
-        selection of language fixed
-0.1.3   settings for visualisation colors are implemented
-        additional translations
-0.1.2   fixed: installation of udev subdirectory
-0.1.1   implemented: make package-binary-deb, make package-binary-rpm 
-0.1.0   init release
+For connection with hardware please copy the file udev/rules.d/z90_cncusb.rules into /etc/udev/rules.d/ or /lib/udev/rules.d/ directory and restart the udev daemon.
 
