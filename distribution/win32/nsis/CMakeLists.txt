@@ -54,7 +54,7 @@ INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/help/"
         FILES_MATCHING PATTERN "*.jpg" PATTERN "*.html"
         ) 
         
-INSTALL_QT_LIBS(Core Gui Widgets QtOpenGL)
+INSTALL_QT_LIBS(Core Gui Widgets OpenGL)
         
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/package-binary-nsis.cpack.in ${CMAKE_CURRENT_BINARY_DIR}/package-binary-nsis.cpack)
 ADD_CUSTOM_TARGET(package-binary-nsis
