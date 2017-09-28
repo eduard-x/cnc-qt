@@ -51,7 +51,7 @@
 // #include "Translator.h"
 
 
-#define byte unsigned char
+// #define byte unsigned char
 
 // class MainWindow;
 // class cTranslator;
@@ -249,8 +249,8 @@ class Reader : public GCodeParser// , public cTranslator
         Reader();
         ~Reader();
 
-        void BresenhamLine(QVector<QVector<byte> > &p, int x0, int y0, int x1, int y1, typeSpline _Splane);
-        void BresenhamCircle(QVector<QVector<byte> > &p,  int x0, int y0, int radius, byte setvalue = 4, bool needFill = false);
+        void BresenhamLine(QVector<QVector<quint8> > &p, int x0, int y0, int x1, int y1, typeSpline _Splane);
+        void BresenhamCircle(QVector<QVector<quint8> > &p,  int x0, int y0, int radius, quint8 setvalue = 4, bool needFill = false);
 
         bool readFile( const QString &fileName);
         void antColonyOptimization();

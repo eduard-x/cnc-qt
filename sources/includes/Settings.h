@@ -89,7 +89,7 @@ enum {
     COLOR_X = 0,
     COLOR_Y,
     COLOR_Z,
-    COLOR_BACKGROUND,
+    COLOR_BGROUND,
     COLOR_TOOL,
     COLOR_WORKBENCH, // 5
     COLOR_TRAVERSE,
@@ -124,9 +124,9 @@ class Settings : public QSettings
         static QPoint progPos;
         static QSize progSize;
 
-        static byte bb14;
-        static byte bb16;
-        static byte bb19;
+        static quint8 bb14;
+        static quint8 bb16;
+        static quint8 bb19;
 
         static QChar fromDecimalPoint;
         static QChar toDecimalPoint;

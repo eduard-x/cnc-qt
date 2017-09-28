@@ -760,7 +760,7 @@ void GLWidget::initializeGL()//Init3D()//*OK*
     // OpenGLES2
     initializeOpenGLFunctions();
 
-    glClearColor(Settings::colorSettings[COLOR_BACKGROUND].redF(), Settings::colorSettings[COLOR_BACKGROUND].greenF(), Settings::colorSettings[COLOR_BACKGROUND].blueF(), 1.0f);
+    glClearColor(Settings::colorSettings[COLOR_BGROUND].redF(), Settings::colorSettings[COLOR_BGROUND].greenF(), Settings::colorSettings[COLOR_BGROUND].blueF(), 1.0f);
 
     // Use QBasicTimer because its faster than QTimer
     if(Settings::smoothMoving) {

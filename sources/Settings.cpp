@@ -122,9 +122,9 @@ QString Settings::lastDir = "";
 int Settings::remotePort = 0;
 bool Settings::enableRemote = false;
 
-byte Settings::bb14 = 0x0;
-byte Settings::bb16 = 0x0;
-byte Settings::bb19 = 0x0;
+quint8 Settings::bb14 = 0x0;
+quint8 Settings::bb16 = 0x0;
+quint8 Settings::bb19 = 0x0;
 
 bool Settings::ShowBorder = true;
 QString Settings::currentAppDir = "";
@@ -281,7 +281,7 @@ bool Settings::saveSettings()
     s->setValue("Color_X", (QColor)colorSettings[COLOR_X]);
     s->setValue("Color_Y", (QColor)colorSettings[COLOR_Y]);
     s->setValue("Color_Z", (QColor)colorSettings[COLOR_Z]);
-    s->setValue("Color_BG", (QColor)colorSettings[COLOR_BACKGROUND]);
+    s->setValue("Color_BG", (QColor)colorSettings[COLOR_BGROUND]);
     s->setValue("Color_Tool", (QColor)colorSettings[COLOR_TOOL]);
     s->setValue("Color_WB", (QColor)colorSettings[COLOR_WORKBENCH]);
     s->setValue("Color_Traverse", (QColor)colorSettings[COLOR_TRAVERSE]);
@@ -523,7 +523,7 @@ bool Settings::readSettings()
     colorSettings[COLOR_Z] = s->value("Color_Z", QColor {
         0, 255, 255, 255
     }).value<QColor>();
-    colorSettings[COLOR_BACKGROUND] = s->value("Color_BG", QColor {
+    colorSettings[COLOR_BGROUND] = s->value("Color_BG", QColor {
         100, 100, 100, 255
     }).value<QColor>();
     colorSettings[COLOR_TOOL] = s->value("Color_Tool", QColor {

@@ -35,7 +35,7 @@
 
 #define BUFFER_SIZE 64
 
-#define byte unsigned char
+// #define byte unsigned char
 
 #include <QObject>
 #include <QStringList>
@@ -47,7 +47,7 @@
 #include "Translator.h"
 // #include "Settings.h"
 
-#include <libusb-1.0/libusb.h>
+#include <libusb.h>
 
 #define BULK_ENDPOINT_OUT     0x81
 #define BULK_ENDPOINT_IN      0x01
@@ -66,7 +66,7 @@ struct moveParameters {
     int   restPulses; // offset 46
     int   speed; // vector speed, offset 43
     int   numberInstruction;
-    byte  movingCode; // 0x39, 0x31, 0x21, 0x11, 0x01, offset 5
+    quint8  movingCode; // 0x39, 0x31, 0x21, 0x11, 0x01, offset 5
 };
 
 #if 0
@@ -101,7 +101,7 @@ class mk1Data //: public mk1Settings
         };
 
     public:
-        void packC0(byte byte05 = 0x0, bool send = true);
+        void packC0(quint8 byte05 = 0x0, bool send = true);
         void packB5(bool spindleON, int numPWMChanel = 0, TypeSignal ts = None, int SpeedPWM = 61535, bool send = true);
         void packAA(bool send = true);
         void packA0( bool send = true);
@@ -112,8 +112,8 @@ class mk1Data //: public mk1Settings
         void packB6( bool mist, bool fluid, bool send = true);
         void packAB( bool send = true);
         void packD2(int speed, float returnDistance, bool send = true);
-        void packBE(byte direction, int speed, int lenInPulses, bool send = true);
-        void pack9E(byte value, bool send = true);
+        void packBE(quint8 direction, int speed, int lenInPulses, bool send = true);
+        void pack9E(quint8 value, bool send = true);
         void pack9F( bool send = true);
         void packBF(int speedLimit[4], bool send = true);
         //         void packCA(int _posX, int _posY, int _posZ, int _posA, int _speed, int _NumberInstruction, int _code, bool send = true);
@@ -121,8 +121,8 @@ class mk1Data //: public mk1Settings
         void packCA(moveParameters *params, bool send = true);
         void packFF(bool send = true);
         void pack9D(bool send = true);
-        void setByte(byte offset, byte data);
-        byte getByte(byte offset);
+        void setByte(quint8 offset, quint8 data);
+        quint8 getByte(quint8 offset);
         void sendBinaryData(bool checkBuffSize = true);
         //
         int  getSpindleMoveSpeed();
@@ -145,17 +145,17 @@ class mk1Data //: public mk1Settings
 
 
     private:
-        static void packFourBytes(byte offset, int val);
-        static void packTwoBytes(byte offset, int val);
-        static void cleanBuf(byte *m);
+        static void packFourBytes(quint8 offset, int val);
+        static void packTwoBytes(quint8 offset, int val);
+        static void cleanBuf(quint8 *m);
 
     public:
         static libusb_device_handle *handle;
         static libusb_device_descriptor desc;
 
         // raw data
-        static byte writeBuf[BUFFER_SIZE];
-        static byte readBuf[BUFFER_SIZE];
+        static quint8 writeBuf[BUFFER_SIZE];
+        static quint8 readBuf[BUFFER_SIZE];
 
         //
         bool setSettings;
@@ -332,7 +332,7 @@ class usbReadThread : public QThread
         //         void bufIsFree();
 
     private:
-        byte buf[BUFFER_SIZE];
+        quint8 buf[BUFFER_SIZE];
         mk1Controller* p;
 };
 

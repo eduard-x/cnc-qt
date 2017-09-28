@@ -486,7 +486,7 @@ void Reader::Swap(int &p1, int &p2)
 // парам: setvalue какое значение записывать в матрицу, если необходимо нарисовать точку окружности
 // парам: needFill необходимость заполнить внутренность круга
 //
-void Reader::BresenhamCircle(QVector<QVector< byte > > &arrayPoint,  int x0, int y0, int radius, byte setvalue, bool needFill)
+void Reader::BresenhamCircle(QVector<QVector< quint8 > > &arrayPoint,  int x0, int y0, int radius, quint8 setvalue, bool needFill)
 {
     int tmpradius = radius;
 
@@ -521,12 +521,12 @@ void Reader::BresenhamCircle(QVector<QVector< byte > > &arrayPoint,  int x0, int
 }
 
 
-void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, int x1, int y1, typeSpline _Splane)
+void Reader::BresenhamLine(QVector<QVector<quint8> > &arrayPoint, int x0, int y0, int x1, int y1, typeSpline _Splane)
 {
     //матрицу сплайна
     //  byte[,] spArray = new byte[1, 1];
     //  spArray[0, 0] = 1; //просто обычная точка
-    QVector<QVector<byte> > spArray;
+    QVector<QVector<quint8> > spArray;
 
     int sizeMatrixX = 0;
     int sizeMatrixY = 0;
@@ -543,11 +543,11 @@ void Reader::BresenhamLine(QVector<QVector<byte> > &arrayPoint, int x0, int y0, 
         //matrixYline matrixline = new matrixYline();
 
         //matrixline.Y = numPosY->value() + (y* numStep->value());
-        spArray.push_back(QVector< byte > ());
+        spArray.push_back(QVector< quint8 > ());
 
         for (int x = 0; x <= sizeMatrixX; x++) {
             //  parent->surfaceMatrix[x][y] = new dobPoint(posX + (x * stepX), posY + (y * stepY), posZ);
-            byte v = 0;//{0.0, 0.0, 0.0, 0.0 };
+            quint8 v = 0;//{0.0, 0.0, 0.0, 0.0 };
             spArray[y].push_back(v);
             //matrixline.X.Add(new matrixPoint(numPosX->value() + (x * numStep->value()), numPosZ->value(), true));
         }
@@ -835,17 +835,17 @@ bool Reader::readGBR( const QByteArray &arr)
 
     //     qDebug() << "Наполнение массива";
 
-    QVector<QVector<byte> > arrayPoint;// = new byte[grb.X_max + 1, grb.Y_max + 1];
+    QVector<QVector<quint8> > arrayPoint;// = new byte[grb.X_max + 1, grb.Y_max + 1];
 
     for (int y = 0; y <= grb.Y_max; y++) {
         //matrixYline matrixline = new matrixYline();
 
         //matrixline.Y = numPosY->value() + (y* numStep->value());
-        arrayPoint.push_back(QVector< byte > ());
+        arrayPoint.push_back(QVector< quint8 > ());
 
         for (int x = 0; x <= grb.X_max; x++) {
             //  parent->surfaceMatrix[x][y] = new dobPoint(posX + (x * stepX), posY + (y * stepY), posZ);
-            byte v = 0;//{0.0, 0.0, 0.0, 0.0 };
+            quint8 v = 0;//{0.0, 0.0, 0.0, 0.0 };
             arrayPoint[y].push_back(v);
             //matrixline.X.Add(new matrixPoint(numPosX->value() + (x * numStep->value()), numPosZ->value(), true));
         }

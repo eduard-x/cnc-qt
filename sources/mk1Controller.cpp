@@ -841,7 +841,7 @@ int mk1Data::availableBufferSize()
  */
 void mk1Data::setBufferSize(int i)
 {
-    freebuffSize = (byte)i;
+    freebuffSize = (quint8)i;
 }
 
 
@@ -873,7 +873,7 @@ void mk1Controller::parseBinaryInfo()
     Settings::coord[V].actualPosPulses = ((readBuf[55] << 24) + (readBuf[54] << 16) + (readBuf[53] << 8) + (readBuf[52]));
     Settings::coord[W].actualPosPulses = ((readBuf[59] << 24) + (readBuf[58] << 16) + (readBuf[57] << 8) + (readBuf[56]));
 
-    byte bb15 = readBuf[15];
+    quint8 bb15 = readBuf[15];
 
     Settings::coord[X].actualLimitMin = (bb15 & 0x01) != 0;
     Settings::coord[X].actualLimitMax = (bb15 & 0x02) != 0;
@@ -995,7 +995,7 @@ void mk1Controller::startManualMove(QString x, QString y, QString z, QString a, 
         return;
     }
 
-    byte axesDirection = 0x00;
+    quint8 axesDirection = 0x00;
 
     // set the bits
     if (x == "-") {
@@ -1083,15 +1083,15 @@ void mk1Controller::deviceNewPosition(float x, float y, float z, float a)
 
 
 // You MUST declare it, because of static field
-byte mk1Data::readBuf[BUFFER_SIZE];
-byte mk1Data::writeBuf[BUFFER_SIZE];
+quint8 mk1Data::readBuf[BUFFER_SIZE];
+quint8 mk1Data::writeBuf[BUFFER_SIZE];
 
 
 /**
  * @brief set one byte in array
  *
  */
-void mk1Data::setByte(byte offset, byte data)
+void mk1Data::setByte(quint8 offset, quint8 data)
 {
     if (offset >= BUFFER_SIZE) {
         return;
@@ -1105,7 +1105,7 @@ void mk1Data::setByte(byte offset, byte data)
  * @brief get one byte from buffer
  *
  */
-byte mk1Data::getByte(byte offset)
+quint8 mk1Data::getByte(quint8 offset)
 {
     if (offset >= BUFFER_SIZE) {
         return 0;
@@ -1119,7 +1119,7 @@ byte mk1Data::getByte(byte offset)
  * @brief vlean buffer
  *
  */
-void mk1Data::cleanBuf(byte *m)
+void mk1Data::cleanBuf(quint8 *m)
 {
     memset(m, 0x0, BUFFER_SIZE);
 }
@@ -1129,30 +1129,30 @@ void mk1Data::cleanBuf(byte *m)
  * @brief set two bytes in buffer
  *
  */
-void mk1Data::packTwoBytes(byte offset, int val)
+void mk1Data::packTwoBytes(quint8 offset, int val)
 {
     if ((offset + 1) >= BUFFER_SIZE) {
         return;
     }
 
-    writeBuf[offset + 0] = (byte)val;
-    writeBuf[offset + 1] = (byte)(val >> 8);
+    writeBuf[offset + 0] = (quint8)val;
+    writeBuf[offset + 1] = (quint8)(val >> 8);
 }
 
 /**
  * @brief set four bytes in buffer
  *
  */
-void mk1Data::packFourBytes(byte offset, int val)
+void mk1Data::packFourBytes(quint8 offset, int val)
 {
     if ((offset + 3) >= BUFFER_SIZE) {
         return;
     }
 
-    writeBuf[offset + 0] = (byte)val;
-    writeBuf[offset + 1] = (byte)(val >> 8);
-    writeBuf[offset + 2] = (byte)(val >> 16);
-    writeBuf[offset + 3] = (byte)(val >> 24);
+    writeBuf[offset + 0] = (quint8)val;
+    writeBuf[offset + 1] = (quint8)(val >> 8);
+    writeBuf[offset + 2] = (quint8)(val >> 16);
+    writeBuf[offset + 3] = (quint8)(val >> 24);
 }
 
 /**
@@ -1264,7 +1264,7 @@ void mk1Data::pack9D(bool send)
  * @brief
  *
  */
-void mk1Data::pack9E(byte value, bool send)
+void mk1Data::pack9E(quint8 value, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1360,7 +1360,7 @@ void mk1Data::packA0(bool send)
     writeBuf[46] = 0x08;// unknown byte
 
     // reverse of axis.: 0xff no reverse, 0xfe axis x, 0xfd axis y, 0xfb axis z
-    byte r = 0xff;
+    quint8 r = 0xff;
     // reset bits
     r &= (Settings::coord[X].invertDirection == true) ? 0xfe : 0xff;
     r &= (Settings::coord[Y].invertDirection == true) ? 0xfd : 0xff;
@@ -1400,7 +1400,7 @@ void mk1Data::packA1( bool send )
     writeBuf[4] = 0x80; // settings
 
     // allow limits: bit 7 a+; bit 6 a-, bit 5 z+, bit 4 z-, bit 3 y+, bit 2 y-, bit 1 x+, bit 0 x-
-    byte limits = 0x0;
+    quint8 limits = 0x0;
     // set bits
     limits |= (Settings::coord[X].useLimitMin == true) ? 0x01 : 0x00;
     limits |= (Settings::coord[X].useLimitMax == true) ? 0x02 : 0x00;
@@ -1565,7 +1565,7 @@ void mk1Data::packB6( bool mist, bool fluid, bool send )
 // direction axes
 // speed
 //
-void mk1Data::packBE(byte direction, int speed, int lenInPulses, bool send)
+void mk1Data::packBE(quint8 direction, int speed, int lenInPulses, bool send)
 {
     cleanBuf(writeBuf);
 
@@ -1795,7 +1795,7 @@ void mk1Data::packBF(int speedLimit[4], bool send)
  * @brief command unknown....
  *
  */
-void mk1Data::packC0(byte byte05, bool send)
+void mk1Data::packC0(quint8 byte05, bool send)
 {
     cleanBuf(writeBuf);
 
