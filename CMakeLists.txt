@@ -75,8 +75,8 @@ INCLUDE(FindPkgConfig)
 
 INCLUDE(GenerateDEF) # Convenience macro for linking Win32 DLLs using MSVC
 INCLUDE(Dependencies)
-INCLUDE(WordSize) # Detect 32/64 bit platform
-INCLUDE(Compiler) # Detect problematic compilers
+# INCLUDE(WordSize) # Detect 32/64 bit platform
+# INCLUDE(Compiler) # Detect problematic compilers
 
 # INCLUDE(FindOpenGL)
 # FIND_PACKAGE(OpenGL)

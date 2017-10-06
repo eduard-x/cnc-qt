@@ -26,5 +26,5 @@ if [ -d "$DIRECTORY" ]; then
     cmake -DUSE_DEBUGGER=OFF -DUSE_PROFILER=OFF ..
     make -j$CPU_NUM
     cd ..
-    cp ./$DIRECTORY/cncqt .
+    cp "./$DIRECTORY/cnc-qt" .
 fi
