@@ -30,3 +30,5 @@ echo "Compile sources"
 mingw32-make 
 
 cd ..
+
+move "build\cnc*.exe" .

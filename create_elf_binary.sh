@@ -23,7 +23,7 @@ if [ -d "$DIRECTORY" ]; then
     cd "$DIRECTORY"
     rm * -rf
     # options: USE_PROFILER, USE_DEBUGGER, USE_QT5
-    cmake -DUSE_DEBUGGER=OFF -DUSE_PROFILER=OFF ..
+    cmake -DUSE_DEBUGGER=ON -DUSE_PROFILER=OFF ..
     make -j$CPU_NUM
     cd ..
     cp "./$DIRECTORY/cnc-qt" .

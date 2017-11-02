@@ -33,7 +33,7 @@ if [ -d "$DIRECTORY" ]; then
     rm * -rf
     cmake -DUSE_DEBUGGER=OFF ..
     make -j$CPU_NUM
-    strip -s cncqt
+    strip -s cnc-qt
     make package-binary-deb
     DEB_PACKAGE_FILE_NAME=$(ls cncqt*.deb)
     PROJECT_NAME=$(echo ${DEB_PACKAGE_FILE_NAME%.*})

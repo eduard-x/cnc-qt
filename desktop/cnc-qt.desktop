@@ -1,10 +1,10 @@
 [Desktop Entry]
-Version=0.1.0
+Version=0.3.3
 Name=CNC-Qt
 Comment=CNC controller
 GenericName=CNC-Qt
 TryExec=cnc-qt
-Exec=cncqt
+Exec=cnc-qt
 Terminal=false
 Icon=cnc-qt.png
 Type=Application
