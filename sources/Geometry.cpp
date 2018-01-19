@@ -32,7 +32,7 @@
 #include <QtCore/qmath.h>
 #include "includes/Geometry.h"
 
-enum AxisNames { X = 0, Y, Z, A, B, C, U, V, W };
+#include "includes/Settings.h"
 
 
 /******************************************************************************
@@ -91,15 +91,15 @@ coord Geometry::GetZ(const coord &p1, const coord &p2, const coord &p3, const co
 coord Geometry::CalcPX(const coord &p1, const coord &p2, const coord &p0)
 {
     coord retPoint = (coord) {
-        p0.pos[X], p0.pos[Y], p0.pos[Z], 0.0
+        p0.X, p0.Y, p0.Z, 0.0
     };
 
-    if ((p1.pos[X] != p2.pos[X]) && (p0.pos[X] != p1.pos[X])) {
-        retPoint.pos[Z] = p1.pos[Z] + (((p1.pos[Z] - p2.pos[Z]) / (p1.pos[X] - p2.pos[X])) * (p0.pos[X] - p1.pos[X]));
+    if ((p1.X != p2.X) && (p0.X != p1.X)) {
+        retPoint.Z = p1.Z + (((p1.Z - p2.Z) / (p1.X - p2.X)) * (p0.X - p1.X));
     }
 
     //TODO: учесть на будущее что точка 1 и 2 могут лежать не на одной паралльной линии оси Х
-    retPoint.pos[Y] = p1.pos[Y];
+    retPoint.Y = p1.Y;
 
     return retPoint;
 }
@@ -109,11 +109,11 @@ coord Geometry::CalcPX(const coord &p1, const coord &p2, const coord &p0)
 coord Geometry::CalcPY(const coord &p1, const coord &p2, const coord &p0)
 {
     coord retPoint  = (coord) {
-        p0.pos[X], p0.pos[Y], p0.pos[Z], 0.0
+        p0.X, p0.Y, p0.Z, 0.0
     };
 
-    if ((p1.pos[Y] != p2.pos[Y]) && (p0.pos[Y] != p1.pos[Y])) {
-        retPoint.pos[Z] = p1.pos[Z] + (((p1.pos[Z] - p2.pos[Z]) / (p1.pos[Y] - p2.pos[Y])) * (p0.pos[Y] - p1.pos[Y]));
+    if ((p1.Y != p2.Y) && (p0.Y != p1.Y)) {
+        retPoint.Z = p1.Z + (((p1.Z - p2.Z) / (p1.Y - p2.Y)) * (p0.Y - p1.Y));
     }
 
     return retPoint;

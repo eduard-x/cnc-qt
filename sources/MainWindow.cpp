@@ -1587,10 +1587,10 @@ void MainWindow::runNextCommand()
             //moving to the first point axes X and Y
             //TODO: spindle move higher, now 10 mm
             moveParameters mParams;
-            mParams.pos[X] = Settings::coord[X].startPos;
-            mParams.pos[Y] = Settings::coord[Y].startPos;
-            mParams.pos[Z] = Settings::coord[Z].startPos + 10.0;
-            mParams.pos[A] = Settings::coord[A].startPos;//, userSpeedG0;
+            mParams.pos.X = Settings::coord[X].startPos;
+            mParams.pos.Y = Settings::coord[Y].startPos;
+            mParams.pos.Z = Settings::coord[Z].startPos + 10.0;
+            mParams.pos.A = Settings::coord[A].startPos;//, userSpeedG0;
             mParams.speed = 0;//gcodeNow.vectSpeed;
             mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.movingCode;
             mParams.restPulses = 0;//gcodeNow.stepsCounter;
@@ -1651,10 +1651,10 @@ void MainWindow::runNextCommand()
         //moving to the first point axes X and Y
         //TODO: spindle move higher, now 10 mm
         moveParameters mParams;
-        mParams.pos[X] = Settings::coord[X].startPos;
-        mParams.pos[Y] = Settings::coord[Y].startPos;
-        mParams.pos[Z] = Settings::coord[Z].startPos + 10.0;
-        mParams.pos[A] = Settings::coord[A].startPos;//, userSpeedG0;
+        mParams.pos.X = Settings::coord[X].startPos;
+        mParams.pos.Y = Settings::coord[Y].startPos;
+        mParams.pos.Z = Settings::coord[Z].startPos + 10.0;
+        mParams.pos.A = Settings::coord[A].startPos;//, userSpeedG0;
         mParams.speed = 0;//gcodeNow.vectSpeed;
         mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.movingCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
@@ -1662,10 +1662,10 @@ void MainWindow::runNextCommand()
 
         mk1->packCA(&mParams); // move to init position
 
-        mParams.pos[X] = gcodeNow.xyz.x();
-        mParams.pos[Y] = gcodeNow.xyz.y();
-        mParams.pos[Z] = gcodeNow.xyz.z() + 10.0;
-        mParams.pos[A] = gcodeNow.abc.x();//, userSpeedG0;
+        mParams.pos.X = gcodeNow.xyz.x();
+        mParams.pos.Y = gcodeNow.xyz.y();
+        mParams.pos.Z = gcodeNow.xyz.z() + 10.0;
+        mParams.pos.A = gcodeNow.abc.x();//, userSpeedG0;
         mParams.speed = gcodeNow.vectSpeed;
         mParams.movingCode = gcodeNow.movingCode;
         mParams.restPulses = gcodeNow.stepsCounter;
@@ -1773,10 +1773,10 @@ void MainWindow::runNextCommand()
             //TODO: additional velocity control manual/automatical
             //     int speed = (gcodeNow.workspeed) ? userSpeedG1 : userSpeedG0;
             moveParameters mParams;
-            mParams.pos[X] = pointX;
-            mParams.pos[Y] = pointY;
-            mParams.pos[Z] = pointZ;
-            mParams.pos[A] = pointA;//, userSpeedG0;
+            mParams.pos.X = pointX;
+            mParams.pos.Y = pointY;
+            mParams.pos.Z = pointZ;
+            mParams.pos.A = pointA;//, userSpeedG0;
             mParams.speed = gcodeNow.vectSpeed;
             mParams.movingCode = gcodeNow.movingCode; //
             mParams.restPulses = gcodeNow.stepsCounter;//
@@ -1833,7 +1833,7 @@ void MainWindow::onCleanStatus()
 void MainWindow::moveToPoint(bool surfaceScan)
 {
     int speed = 0;
-    float pos[4];//X, posY, posZ, posA;
+    coord pos;//X, posY, posZ, posA;
 
     if (mk1->isConnected() == false) {
         return;
@@ -1846,17 +1846,17 @@ void MainWindow::moveToPoint(bool surfaceScan)
             return;
         }
 
-        pos[X] = surfaceMatrix[scanPosY][scanPosX].pos[X];
-        pos[Y] = surfaceMatrix[scanPosY][scanPosX].pos[Y];
-        pos[Z] = surfaceMatrix[scanPosY][scanPosX].pos[Z];
-        pos[A] = surfaceMatrix[scanPosY][scanPosX].pos[A];
+        pos.X = surfaceMatrix[scanPosY][scanPosX].X;
+        pos.Y = surfaceMatrix[scanPosY][scanPosX].Y;
+        pos.Z = surfaceMatrix[scanPosY][scanPosX].Z;
+        pos.A = surfaceMatrix[scanPosY][scanPosX].A;
     } else {
         speed = spinMoveVelo->value();
 
-        pos[X] = doubleSpinMoveX->value();
-        pos[Y] = doubleSpinMoveY->value();
-        pos[Z] = doubleSpinMoveZ->value();
-        pos[A] = numAngleGrad->value();
+        pos.X = doubleSpinMoveX->value();
+        pos.Y = doubleSpinMoveY->value();
+        pos.Z = doubleSpinMoveZ->value();
+        pos.A = numAngleGrad->value();
     }
 
     mk1->pack9E(0x05);
@@ -1867,10 +1867,10 @@ void MainWindow::moveToPoint(bool surfaceScan)
 
     {
         moveParameters mParams;
-        mParams.pos[X] = pos[X];
-        mParams.pos[Y] = pos[Y];
-        mParams.pos[Z] = pos[Z];
-        mParams.pos[A] = pos[A];//, userSpeedG0;
+        mParams.pos.X = pos.X;
+        mParams.pos.Y = pos.Y;
+        mParams.pos.Z = pos.Z;
+        mParams.pos.A = pos.A;//, userSpeedG0;
         mParams.speed = speed;
         mParams.movingCode = RAPID_LINE_CODE; //gcodeNow.movingCode;
         mParams.restPulses = 0;//gcodeNow.stepsCounter;
@@ -2016,23 +2016,23 @@ float MainWindow::getDeltaZ(float _x, float _y)
 
     for (int y = 0; y < sizeY - 1; y++) {
         for (int x = 0; x < sizeX - 1; x++) {
-            if ((_x > surfaceMatrix[y][0].pos[X]) && (_x < surfaceMatrix[y + 1][0].pos[X]) && (surfaceMatrix[0][x].pos[Y] < _y) && (surfaceMatrix[0][x + 1].pos[Y] > _y)) {
+            if ((_x > surfaceMatrix[y][0].X) && (_x < surfaceMatrix[y + 1][0].X) && (surfaceMatrix[0][x].Y < _y) && (surfaceMatrix[0][x + 1].Y > _y)) {
                 indexXmin = x;
                 indexYmin = y;
             }
         }
     }
 
-    coord p1 = {surfaceMatrix[indexYmin][indexXmin].pos[X], surfaceMatrix[indexYmin][indexXmin].pos[Y], surfaceMatrix[indexYmin][indexXmin].pos[Z], 0.0};
-    coord p3 = {surfaceMatrix[indexYmin + 1][indexXmin].pos[X], surfaceMatrix[indexYmin + 1][indexXmin].pos[Y], surfaceMatrix[indexYmin + 1][indexXmin].pos[Z], 0.0};
-    coord p2 = {surfaceMatrix[indexYmin][indexXmin + 1].pos[X], surfaceMatrix[indexYmin][indexXmin + 1].pos[Y], surfaceMatrix[indexYmin][indexXmin + 1].pos[Z], 0.0};
-    coord p4 = {surfaceMatrix[indexYmin + 1][indexXmin + 1].pos[X], surfaceMatrix[indexYmin + 1][indexXmin + 1].pos[Y], surfaceMatrix[indexYmin + 1][indexXmin + 1].pos[Z], 0.0};
+    coord p1 = {surfaceMatrix[indexYmin][indexXmin].X, surfaceMatrix[indexYmin][indexXmin].Y, surfaceMatrix[indexYmin][indexXmin].Z, 0.0};
+    coord p3 = {surfaceMatrix[indexYmin + 1][indexXmin].X, surfaceMatrix[indexYmin + 1][indexXmin].Y, surfaceMatrix[indexYmin + 1][indexXmin].Z, 0.0};
+    coord p2 = {surfaceMatrix[indexYmin][indexXmin + 1].X, surfaceMatrix[indexYmin][indexXmin + 1].Y, surfaceMatrix[indexYmin][indexXmin + 1].Z, 0.0};
+    coord p4 = {surfaceMatrix[indexYmin + 1][indexXmin + 1].X, surfaceMatrix[indexYmin + 1][indexXmin + 1].Y, surfaceMatrix[indexYmin + 1][indexXmin + 1].Z, 0.0};
 
     coord p12 = Geometry::CalcPX(p1, p2, pResult);
     coord p34 = Geometry::CalcPX(p3, p4, pResult);
     coord p1234 = Geometry::CalcPY(p12, p34, pResult);
 
-    return p1234.pos[Z];
+    return p1234.Z;
 }
 
 

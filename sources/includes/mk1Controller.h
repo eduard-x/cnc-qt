@@ -58,7 +58,8 @@ class mk1Controller;
 
 // use enum AxisNames for 'pos' array
 struct moveParameters {
-    float pos[4]; // X, Y, Z, A
+    coord pos;
+    //     float pos[4]; // X, Y, Z, A
     //     float posX;
     //     float posY;
     //     float posZ;

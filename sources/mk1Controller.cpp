@@ -1877,10 +1877,10 @@ void mk1Data::packCA(moveParameters *params, bool send)
 
     writeBuf[5] = params->movingCode;
 
-    int pulsesX  = Settings::coord[X].posPulse(params->pos[X]);
-    int pulsesY  = Settings::coord[Y].posPulse(params->pos[Y]);
-    int pulsesZ  = Settings::coord[Z].posPulse(params->pos[Z]);
-    int pulsesA  = Settings::coord[A].posPulse(params->pos[A]);
+    int pulsesX  = Settings::coord[X].posPulse(params->pos.X);
+    int pulsesY  = Settings::coord[Y].posPulse(params->pos.Y);
+    int pulsesZ  = Settings::coord[Z].posPulse(params->pos.Z);
+    int pulsesA  = Settings::coord[A].posPulse(params->pos.A);
 
     //how many pulses
     packFourBytes(6, pulsesX );

@@ -575,14 +575,14 @@ void GLWidget::initStaticElements()
     for (int y = 0; y < maxY; y++) {
         for (int x = 0; x < maxX; x++) {
             surfaceLines << (VertexData) {
-                QVector3D{parent->surfaceMatrix[y][x].pos[X], parent->surfaceMatrix[y][x].pos[Y], parent->surfaceMatrix[y][x].pos[Z]},
+                QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z},
                           QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
             };
 
             if (y > 0) {
                 //line 1
                 surfaceLines << (VertexData) {
-                    QVector3D{parent->surfaceMatrix[y - 1][x].pos[X], parent->surfaceMatrix[y - 1][x].pos[Y], parent->surfaceMatrix[y - 1][x].pos[Z]},
+                    QVector3D{parent->surfaceMatrix[y - 1][x].X, parent->surfaceMatrix[y - 1][x].Y, parent->surfaceMatrix[y - 1][x].Z},
                               QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
                 };
             }
@@ -590,7 +590,7 @@ void GLWidget::initStaticElements()
             if (y < maxY - 1) {
                 //line2
                 surfaceLines << (VertexData) {
-                    QVector3D{parent->surfaceMatrix[y + 1][x].pos[X], parent->surfaceMatrix[y + 1][x].pos[Y], parent->surfaceMatrix[y + 1][x].pos[Z]},
+                    QVector3D{parent->surfaceMatrix[y + 1][x].X, parent->surfaceMatrix[y + 1][x].Y, parent->surfaceMatrix[y + 1][x].Z},
                               QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
                 };
             }
@@ -598,7 +598,7 @@ void GLWidget::initStaticElements()
             if (x > 0) {
                 //line 3
                 surfaceLines << (VertexData) {
-                    QVector3D{parent->surfaceMatrix[y][x - 1].pos[X], parent->surfaceMatrix[y][x - 1].pos[Y], parent->surfaceMatrix[y][x - 1].pos[Z]},
+                    QVector3D{parent->surfaceMatrix[y][x - 1].X, parent->surfaceMatrix[y][x - 1].Y, parent->surfaceMatrix[y][x - 1].Z},
                               QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
                 };
             }
@@ -606,14 +606,14 @@ void GLWidget::initStaticElements()
             if (x < maxX - 1) {
                 //line4
                 surfaceLines << (VertexData) {
-                    QVector3D{parent->surfaceMatrix[y][x + 1].pos[X], parent->surfaceMatrix[y][x + 1].pos[Y], parent->surfaceMatrix[y][x + 1].pos[Z]},
+                    QVector3D{parent->surfaceMatrix[y][x + 1].X, parent->surfaceMatrix[y][x + 1].Y, parent->surfaceMatrix[y][x + 1].Z},
                               QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
                 };
             }
 
             // now points
             surfacePoints << (VertexData) {
-                QVector3D{parent->surfaceMatrix[y][x].pos[X], parent->surfaceMatrix[y][x].pos[Y], parent->surfaceMatrix[y][x].pos[Z]},
+                QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z},
                           QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
             };
         }

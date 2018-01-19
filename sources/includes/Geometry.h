@@ -39,16 +39,22 @@
 // #include "vec.h"
 
 
-// struct dPoint {
-//   float X;       // coord in mm
-//     float Y;       // coord in mm
-//     float Z;       // coord in mm
-//     float A;       // angle in °
-// };
-
 struct coord {
-    float pos[4];
+    float X;       // coord in mm
+    float Y;       // coord in mm
+    float Z;       // coord in mm
+    float A;       // angle in °
+    // extended coordinates system
+    float B;
+    float C;
+    float U;
+    float V;
+    float W;
 };
+
+// struct coord {
+//     float pos[4];
+// };
 
 
 class Geometry
