@@ -245,9 +245,9 @@ bool Geometry::gernerateBicubicHermiteField()
             //                 printf("  ");
             float jPercent = ((float)j) / ((float)(c_numValues - 1));
 
-            //             float valueX = BicubicHermitePatch(*c_ControlPointsX, jPercent, iPercent);
-            //             float valueY = BicubicHermitePatch(*c_ControlPointsY, jPercent, iPercent);
-            //             float valueZ = BicubicHermitePatch(*c_ControlPointsZ, jPercent, iPercent);
+            //             float valueX = bicubicHermitePatch(*c_ControlPointsX, jPercent, iPercent);
+            //             float valueY = bicubicHermitePatch(*c_ControlPointsY, jPercent, iPercent);
+            //             float valueZ = bicubicHermitePatch(*c_ControlPointsZ, jPercent, iPercent);
             //             printf("(%0.2f, %0.2f, %0.2f) ", valueX, valueY, valueZ);
         }
 
