@@ -36,9 +36,10 @@
 #include <QDebug>
 
 #include <QtOpenGL/QtOpenGL>
-
-#include <QOpenGLWidget>
-#include <QOpenGLShaderProgram>
+#include <QtOpenGL/QGLShaderProgram>
+#include <QtOpenGL/QGLWidget>
+// #include <QOpenGLWidget>
+// #include <QOpenGLShaderProgram>
 #include <QSurfaceFormat>
 #include <QToolButton>
 

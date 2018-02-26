@@ -39,14 +39,14 @@
 #include <QEvent>
 #include <QWidget>
 
-#include <QtOpenGL>
+// #include <QtOpenGL>
 #include <QBasicTimer>
 #include <QObject>
-#include <QOpenGLWidget>
 
+#include <QtOpenGL/QGLShaderProgram>
+#include <QtOpenGL/QGLWidget>
 
-#include <QOpenGLShaderProgram>
-#include <QOpenGLFunctions>
+#include <QtOpenGL/QGLFunctions>
 
 #include <QSlider>
 #include <QMainWindow>
