@@ -31,7 +31,7 @@
 
 
 #include <QObject>
-#include <QRegExp>
+// #include <QRegExp>
 #include <QDebug>
 // #include <QTime>
 #include <QString>
@@ -208,8 +208,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
     goodList.clear();
 
-    QTextStream stream(gcode);
-    stream.setLocale(QLocale("C"));
+    QString s(gcode);
+    QStringList streamList = s.split(QRegExp("\n|\r\n|\r"));
+    //     stream.setLocale(QLocale("C"));
     // or this ? QString.split(QRegExp("\n|\r\n|\r"));
     // if we switch the input methode from QTextStream to QStringList, performance is about 15% higher
 
@@ -229,8 +230,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     //     QString lastCommand;
     QString param[16];//X, paramY, paramZ, paramA, paramF;
 
-    while(!stream.atEnd()) { // restruct lines
-        QString lineStream = stream.readLine().toUpper();
+    //     while(!stream.atEnd()) { // restruct lines
+    foreach (QString t, streamList) {
+        QString lineStream = t.toUpper();
         lineNr++;
 
         // ignore commentars
@@ -264,161 +266,167 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             continue;
         }
 
-        QRegExp rx("([A-Z])((\\-)?(\\+)?\\d+(\\.\\d+)?)");
+        //         QRegExp rx("([A-Z])((\\-)?(\\+)?\\d+(\\.\\d+)?)");
         int pos = 0;
         QString tmpStr;
 
+        QVector<QString> lines;
+        // extract separate commands/coordinates into the lines variable
+        int cmd_pos = 0;
+
+        while (cmd_pos < lineStream.length()) {
+            QChar c;
+
+            // when not command or coordinate characters
+            while (cmd_pos < lineStream.length()) {
+                c = lineStream.at(cmd_pos);
+
+                if ( c >= 'A' && c <= 'Z') {
+                    break;
+                }
+
+                cmd_pos++;
+            }
+
+            if (cmd_pos == lineStream.length() ) {
+                break;
+            }
+
+            int len = 1;
+
+            while ((cmd_pos + len) < lineStream.length()) { // to find: number
+                c = lineStream.at(cmd_pos + len);
+
+                if ( c >= 'A' && c <= 'Z') {
+                    break;
+                }
+
+                len++;
+            }
+
+            if ((cmd_pos + len) < lineStream.length()) {
+                QString cText = lineStream.mid(cmd_pos, len).simplified();
+
+                if (cText != "") {
+                    lines << cText;
+                }
+            } else {
+                QString cText = lineStream.mid(cmd_pos).simplified();
+
+                if (cText != "") {
+                    lines << cText;
+                }
+            }
+
+            cmd_pos += len;
+        }
+
         if (Settings::filterRepeat == true) {
-            while ((pos = rx.indexIn(lineStream, pos)) != -1) {
-                QString currentText = rx.cap(0);
+            foreach (QString currentText, lines) {
                 QChar c = currentText.at(0);
 
                 if (c == 'N') { // ignore line number
-                    pos += rx.matchedLength();
                     continue;
                 }
 
-                if (pos == 0) {
-                    if (currentText == "G1" || currentText == "G01") {
+                switch (c.toLatin1()) {
+                    case 'G': {
+                        if (param[PARAM_CMD] != "") {
+                            if ( param[PARAM_CMD] != currentText) { // TODO we need this?
+                                param[PARAM_CMD] = currentText;
+                                param[PARAM_X].clear();
+                                param[PARAM_Y].clear();
+                                param[PARAM_Z].clear();
+                                param[PARAM_I].clear();
+                                param[PARAM_J].clear();
+                                param[PARAM_K].clear();
+                                param[PARAM_A].clear();
+                                param[PARAM_B].clear();
+                                param[PARAM_C].clear();
+                                param[PARAM_F].clear();
+                            }
+                        } else {
+                            param[PARAM_CMD] = currentText;
+                        }
+
+                        break;
+                    }
+
+                    case 'M': {
                         param[PARAM_CMD] = currentText;
-                    } else {
-                        param[PARAM_CMD].clear();
-                        param[PARAM_X].clear();
-                        param[PARAM_Y].clear();
-                        param[PARAM_Z].clear();
-                        param[PARAM_I].clear();
-                        param[PARAM_J].clear();
-                        param[PARAM_K].clear();
-                        param[PARAM_A].clear();
-                        param[PARAM_B].clear();
-                        param[PARAM_C].clear();
-                        param[PARAM_F].clear();
+                        break;
                     }
 
-                    pos += rx.matchedLength();
-                } else {
-                    // when last command exists
-                    pos += rx.matchedLength();
-
-                    if (param[PARAM_CMD].length() > 0) {
-                        switch (c.toLatin1()) {
-                            case 'X': {
-                                if (currentText == param[PARAM_X]) {
-                                    continue;
-                                } else {
-                                    param[PARAM_X] = currentText;
-                                }
-
-                                break;
-                            }
-
-                            case 'Y': {
-                                if (currentText == param[PARAM_Y]) {
-                                    continue;
-                                } else {
-                                    param[PARAM_Y] = currentText;
-                                }
-
-                                break;
-                            }
-
-                            case 'Z': {
-                                if (currentText == param[PARAM_Z]) {
-                                    continue;
-                                } else {
-                                    param[PARAM_Z] = currentText;
-                                }
-
-                                break;
-                            }
-
-                            case 'A': {
-                                if (currentText == param[PARAM_A]) {
-                                    continue;
-                                } else {
-                                    param[PARAM_A] = currentText;
-                                }
-
-                                break;
-                            }
-
-                            case 'F': {
-                                if (currentText == param[PARAM_F]) {
-                                    continue;
-                                } else {
-                                    param[PARAM_F] = currentText;
-                                }
-
-                                break;
-                            }
-                        };
-
-#if 0
-                        if (c == 'X') {
-                            if (currentText == param[PARAM_X]) {
-                                continue;
-                            } else {
-                                param[PARAM_X] = currentText;
-                            }
+                    case 'X': {
+                        if (currentText == param[PARAM_X]) {
+                            continue;
+                        } else {
+                            param[PARAM_X] = currentText;
                         }
 
-                        if (c == 'Y') {
-                            if (currentText == param[PARAM_Y]) {
-                                continue;
-                            } else {
-                                param[PARAM_Y] = currentText;
-                            }
-                        }
-
-                        if (c == 'Z') {
-                            if (currentText == param[PARAM_Z]) {
-                                continue;
-                            } else {
-                                param[PARAM_Z] = currentText;
-                            }
-                        }
-
-                        if (c == 'A') {
-                            if (currentText == param[PARAM_A]) {
-                                continue;
-                            } else {
-                                param[PARAM_A] = currentText;
-                            }
-                        }
-
-                        if (c == 'F') {
-                            if (currentText == param[PARAM_F]) {
-                                continue;
-                            } else {
-                                param[PARAM_F] = currentText;
-                            }
-                        }
-
-#endif
+                        break;
                     }
+
+                    case 'Y': {
+                        if (currentText == param[PARAM_Y]) {
+                            continue;
+                        } else {
+                            param[PARAM_Y] = currentText;
+                        }
+
+                        break;
+                    }
+
+                    case 'Z': {
+                        if (currentText == param[PARAM_Z]) {
+                            continue;
+                        } else {
+                            param[PARAM_Z] = currentText;
+                        }
+
+                        break;
+                    }
+
+                    case 'A': {
+                        if (currentText == param[PARAM_A]) {
+                            continue;
+                        } else {
+                            param[PARAM_A] = currentText;
+                        }
+
+                        break;
+                    }
+
+                    case 'F': {
+                        if (currentText == param[PARAM_F]) {
+                            continue;
+                        } else {
+                            param[PARAM_F] = currentText;
+                        }
+
+                        break;
+                    }
+                };
+
+                tmpStr += currentText;
+
+                tmpStr += " ";
+            }
+        } else {
+            foreach (QString currentText, lines) {
+                QChar c = currentText.at(0);
+
+                if (c == 'N') { // ignore line number
+                    continue;
                 }
 
                 tmpStr += currentText;
                 tmpStr += " ";
             }
-        } else {
-            while ((pos = rx.indexIn(lineStream, pos)) != -1) {
-                QChar c = rx.cap(0).at(0);
-
-                pos += rx.matchedLength();
-
-                if (c == 'N') { // ignore line number
-                    continue;
-                }
-
-                tmpStr += rx.cap(0);
-                tmpStr += " ";
-            }
         }
 
         if (tmpStr.length() == 0) {
-            emit logMessage(QString("gcode parqSing error: " + lineStream));
-            //             badList << lineStream;
+            emit logMessage(QString("gcode parsing error: " + t));
             continue;
         }
 
@@ -428,8 +436,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             if (lastCmd.length() > 0) {
                 tmpStr = QString(lastCmd + " " + tmpStr);
             } else {
-                emit logMessage(QString("gcode parqSing error: " + lineStream));
-                //                 badList << QString::number(lineNr - 1) + ": " + lineStream;
+                emit logMessage(QString("gcode parsing error: " + t));
             }
         } else {
             int posSpace = tmpStr.indexOf(" ");
