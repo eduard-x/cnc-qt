@@ -31,9 +31,8 @@
 
 
 #include <QObject>
-// #include <QRegExp>
+#include <QRegExp>
 #include <QDebug>
-// #include <QTime>
 #include <QString>
 
 #include <QtCore/qmath.h>
@@ -219,8 +218,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     bool b_absolute = true;
     float coef = 1.0; // 1 or 24.5
 
-    QTime t;
-    t.start();
+    QTime tMess;
+    tMess.start();
 
     bool decoded;
 
@@ -462,9 +461,14 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         gCodeLines << tmpStr;
     }
 
-    emit logMessage(QString().sprintf("Read gcode, loaded. Time elapsed: %d ms", t.elapsed()));
-    //     qDebug() << "read gcode end";
-    t.restart();
+    if (Settings::filterRepeat == true) {
+        emit logMessage(QString().sprintf("Read gcode, preloaded with filtering. Time elapsed: %d ms", tMess.elapsed()));
+    }
+    else {
+        emit logMessage(QString().sprintf("Read gcode, preloaded. Time elapsed: %d ms", tMess.elapsed()));
+    }
+
+    tMess.restart();
 
 
     PlaneEnum currentPlane;
@@ -489,7 +493,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     foreach(QString line, gCodeLines) {
         decoded = true;
         QString correctLine = line;
-        QStringList vct_ref = line.simplified().split(" ", QString::SkipEmptyParts);
+        QStringList vct_ref = line.split(" ", QString::SkipEmptyParts);
         const QString cmd = vct_ref.at(0);
 
         if (cmd.isEmpty()) {
@@ -527,7 +531,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                         } else {
                             delta_pos = QVector3D(0, 0, 0);
                         }
-
 
                         detectMinMax(tmpCommand);
 
@@ -1002,7 +1005,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     mut.unlock();
 
 
-    emit logMessage(QString().sprintf("Read gcode, parsed. Time elapsed: %d ms, lines parsed: %d", t.elapsed(), goodList.count()));
+    emit logMessage(QString().sprintf("Read gcode, parsed. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), goodList.count()));
 
 
     return true;

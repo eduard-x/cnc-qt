@@ -31,7 +31,7 @@
 
 
 #include <QObject>
-#include <QRegExp>
+// #include <QRegExp>
 #include <QDebug>
 #include <QTime>
 #include <QString>

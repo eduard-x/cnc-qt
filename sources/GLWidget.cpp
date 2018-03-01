@@ -425,6 +425,26 @@ void GLWidget::setZoom(int i)
     }
 }
 
+QVector<QVector3D> GLWidget::textToVector(double x, double y, double z, const QString &s, const QFont &f)
+{
+    QPainterPath path;
+    QVector<QVector3D> v;
+    
+    path.addText(QPointF(0, 0), f, s);
+    QList<QPolygonF> poly = path.toSubpathPolygons();
+    for (QList<QPolygonF>::iterator i = poly.begin(); i != poly.end(); i++){
+//         glBegin(GL_LINE_LOOP);
+        for (QPolygonF::iterator p = (*i).begin(); p != i->end(); p++) {
+//             glVertex3f(p->rx()*0.1f, -p->ry()*0.1f, 0);
+
+            v << QVector3D(x + p->rx()*0.2f, y - p->ry()*0.2f, z);
+        }
+
+//         glEnd();
+    }
+
+    return v;
+}
 
 /**
  *
@@ -491,58 +511,59 @@ void GLWidget::initStaticElements()
 #endif
 
     axis.clear();
+    vText.clear();
+    
     axis << addPointVector(xAxis, Settings::colorSettings[COLOR_X]);
+    QVector<QVector3D> xTmp = textToVector(12, -1, 0, "X");
+
+    vText << addPointVector(xTmp, Settings::colorSettings[COLOR_X]);
+
+    
     axis << addPointVector(yAxis, Settings::colorSettings[COLOR_Y]);
+    QVector<QVector3D> yTmp = textToVector(-1, 12, 0, "Y");
+
+    vText << addPointVector(yTmp, Settings::colorSettings[COLOR_Y]);
+
+    
     axis << addPointVector(zAxis, Settings::colorSettings[COLOR_Z]);
+    QVector<QVector3D> zTmp = textToVector(-1, -1, 12, "Z");
+
+    vText << addPointVector(zTmp, Settings::colorSettings[COLOR_Z]);
+
 
     instrument.clear();
     instrument << addPointVector(instrumentArray, Settings::colorSettings[COLOR_TOOL]);
 
     border.clear();
+    
+    QVector3D brdColor = QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF());
     border << (VertexData) {
-        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0},
-                   QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF())
-    };
+        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0}, brdColor };
     border << (VertexData) {
-        QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin, 0},
-                   QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF())
-    };
+        QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin, 0}, brdColor };
     border << (VertexData) {
-        QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMax, 0},
-                   QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF())
-    };
+        QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMax, 0}, brdColor };
     border << (VertexData) {
-        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMax, 0},
-                   QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF())
-    };
+        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMax, 0}, brdColor };
     border << (VertexData) {
-        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0},
-                   QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF())
-    };
+        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0}, brdColor };
 
 
     gridLines.clear();
 
+    QVector3D grdColor = QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF());
     for (int gX = Settings::GridXstart; gX < Settings::GridXend + 1; gX += Settings::GrigStep) {
         gridLines << (VertexData) {
-            QVector3D{(GLfloat)gX, (GLfloat)Settings::GridYstart, 0.0 },
-                      QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
-        };
+            QVector3D{(GLfloat)gX, (GLfloat)Settings::GridYstart, 0.0 }, grdColor };
         gridLines << (VertexData) {
-            QVector3D{(GLfloat)gX, (GLfloat)Settings::GridYend, 0.0},
-                      QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
-        };
+            QVector3D{(GLfloat)gX, (GLfloat)Settings::GridYend, 0.0}, grdColor };
     }
 
     for (int gY = Settings::GridYstart; gY < Settings::GridYend + 1; gY += Settings::GrigStep) {
         gridLines << (VertexData) {
-            QVector3D{(GLfloat)Settings::GridXstart, (GLfloat)gY, 0.0},
-                      QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
-        };
+            QVector3D{(GLfloat)Settings::GridXstart, (GLfloat)gY, 0.0}, grdColor };
         gridLines << (VertexData) {
-            QVector3D{(GLfloat)Settings::GridXend, (GLfloat)gY, 0.0},
-                      QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
-        };
+            QVector3D{(GLfloat)Settings::GridXend, (GLfloat)gY, 0.0}, grdColor };
     }
 
     gridPoints.clear();
@@ -551,9 +572,7 @@ void GLWidget::initStaticElements()
         for (int x = Settings::GridXstart; x < Settings::GridXend + 1; x += Settings::GrigStep) {
             //point
             gridPoints << (VertexData) {
-                QVector3D{(GLfloat)x, (GLfloat)y, 0.0},
-                          QVector3D(Settings::colorSettings[COLOR_GRID].redF(), Settings::colorSettings[COLOR_GRID].greenF(), Settings::colorSettings[COLOR_GRID].blueF())
-            };
+                QVector3D{(GLfloat)x, (GLfloat)y, 0.0}, grdColor };
         }
     }
 
@@ -573,50 +592,39 @@ void GLWidget::initStaticElements()
     surfaceLines.clear();
     surfacePoints.clear();
 
+    QVector3D srfcColor = QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF());
     for (int y = 0; y < maxY; y++) {
         for (int x = 0; x < maxX; x++) {
             surfaceLines << (VertexData) {
-                QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z},
-                          QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
-            };
+                QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z}, srfcColor };
 
             if (y > 0) {
                 //line 1
                 surfaceLines << (VertexData) {
-                    QVector3D{parent->surfaceMatrix[y - 1][x].X, parent->surfaceMatrix[y - 1][x].Y, parent->surfaceMatrix[y - 1][x].Z},
-                              QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
-                };
+                    QVector3D{parent->surfaceMatrix[y - 1][x].X, parent->surfaceMatrix[y - 1][x].Y, parent->surfaceMatrix[y - 1][x].Z}, srfcColor };
             }
 
             if (y < maxY - 1) {
                 //line2
                 surfaceLines << (VertexData) {
-                    QVector3D{parent->surfaceMatrix[y + 1][x].X, parent->surfaceMatrix[y + 1][x].Y, parent->surfaceMatrix[y + 1][x].Z},
-                              QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
-                };
+                    QVector3D{parent->surfaceMatrix[y + 1][x].X, parent->surfaceMatrix[y + 1][x].Y, parent->surfaceMatrix[y + 1][x].Z}, srfcColor };
             }
 
             if (x > 0) {
                 //line 3
                 surfaceLines << (VertexData) {
-                    QVector3D{parent->surfaceMatrix[y][x - 1].X, parent->surfaceMatrix[y][x - 1].Y, parent->surfaceMatrix[y][x - 1].Z},
-                              QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
-                };
+                    QVector3D{parent->surfaceMatrix[y][x - 1].X, parent->surfaceMatrix[y][x - 1].Y, parent->surfaceMatrix[y][x - 1].Z}, srfcColor };
             }
 
             if (x < maxX - 1) {
                 //line4
                 surfaceLines << (VertexData) {
-                    QVector3D{parent->surfaceMatrix[y][x + 1].X, parent->surfaceMatrix[y][x + 1].Y, parent->surfaceMatrix[y][x + 1].Z},
-                              QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
-                };
+                    QVector3D{parent->surfaceMatrix[y][x + 1].X, parent->surfaceMatrix[y][x + 1].Y, parent->surfaceMatrix[y][x + 1].Z}, srfcColor };
             }
 
             // now points
             surfacePoints << (VertexData) {
-                QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z},
-                          QVector3D(Settings::colorSettings[COLOR_SURFACE].redF(), Settings::colorSettings[COLOR_SURFACE].greenF(), Settings::colorSettings[COLOR_SURFACE].blueF())
-            };
+                QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z}, srfcColor };
         }
     }
 
@@ -1107,8 +1115,19 @@ void GLWidget::Draw() // drawing, main function
 
         glDisableVertexAttribArray(m_colAttr);
         glDisableVertexAttribArray(m_posAttr);
-
+        
         glLineWidth((GLfloat)1.0);
+        
+        glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &vText[0].coord);
+        glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &vText[0].color);
+
+        glEnableVertexAttribArray(m_posAttr);
+        glEnableVertexAttribArray(m_colAttr);
+
+        glDrawArrays(GL_LINE_STRIP, 0, vText.count());
+
+        glDisableVertexAttribArray(m_colAttr);
+        glDisableVertexAttribArray(m_posAttr);
     }
 
 

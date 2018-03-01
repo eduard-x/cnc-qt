@@ -39,7 +39,7 @@
 #include <QEvent>
 #include <QWidget>
 
-// #include <QtOpenGL>
+#include <QFont>
 #include <QBasicTimer>
 #include <QObject>
 
@@ -88,6 +88,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         void createButtons();
         void displayRotation();
         QVector<VertexData> addPointVector(const QVector<QVector3D> &p, const QColor &c);
+        QVector<QVector3D> textToVector(double x, double y, double z, const QString &s, const QFont & font = QFont());
 
     public slots:
         //         void onRenderTimer();  // not connected
@@ -196,6 +197,8 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         QVector<VertexData> gridPoints;
         QVector<VertexData> surfaceLines;
         QVector<VertexData> surfacePoints;
+        
+        QVector<VertexData> vText;
 
         float fps;
         double m_zoom;
