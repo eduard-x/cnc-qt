@@ -198,7 +198,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         QVector<VertexData> surfaceLines;
         QVector<VertexData> surfacePoints;
         
-        QVector<VertexData> vText;
+        QVector< QVector<VertexData> > vText;
 
         float fps;
         double m_zoom;

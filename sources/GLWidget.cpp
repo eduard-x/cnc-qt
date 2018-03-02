@@ -100,6 +100,9 @@ GLWidget::GLWidget(QWidget *p)
     //     QString glStr = QString().sprintf("%s %s %s", (char*)glGetString(GL_VENDOR), (char*)glGetString(GL_RENDERER), (char*)glGetString(GL_VERSION));
     //
     //     qDebug() << glStr;
+    
+    initStaticElements();
+
 
     initPreviewSettings();
 }
@@ -255,6 +258,7 @@ void GLWidget::createButtons()
     //         connect(pushDefaultPreview, SIGNAL(clicked()), this, SLOT(onDefaulPreview()));
 
     //     cmdIsometric->setToolTip(translate(_ISO));//"Iso");
+
 }
 
 
@@ -511,7 +515,13 @@ void GLWidget::initStaticElements()
 #endif
 
     axis.clear();
-    vText.clear();
+    
+    foreach(QVector<VertexData> v, vText) {
+        v.clear();
+    }
+//     vText[0].clear();
+//     vText[1].clear();
+//     vText[2].clear();
     
     axis << addPointVector(xAxis, Settings::colorSettings[COLOR_X]);
     QVector<QVector3D> xTmp = textToVector(12, -1, 0, "X");
@@ -1118,16 +1128,22 @@ void GLWidget::Draw() // drawing, main function
         
         glLineWidth((GLfloat)1.0);
         
-        glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &vText[0].coord);
-        glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &vText[0].color);
+        // text output: X, Y, Z
+        if (vText.count() >= 3) {
+            for (int i = 0; i < 3; i++) {
+                QVector<VertexData> v = vText.at(i);
+                glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &v.at(0).coord);
+                glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &v.at(0).color);
 
-        glEnableVertexAttribArray(m_posAttr);
-        glEnableVertexAttribArray(m_colAttr);
+                glEnableVertexAttribArray(m_posAttr);
+                glEnableVertexAttribArray(m_colAttr);
 
-        glDrawArrays(GL_LINE_STRIP, 0, vText.count());
+                glDrawArrays(GL_LINE_LOOP, 0, v.count());
 
-        glDisableVertexAttribArray(m_colAttr);
-        glDisableVertexAttribArray(m_posAttr);
+                glDisableVertexAttribArray(m_colAttr);
+                glDisableVertexAttribArray(m_posAttr);
+            }
+        }
     }
 
 
