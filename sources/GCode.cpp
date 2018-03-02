@@ -203,6 +203,12 @@ bool GCodeParser::addArc(GCodeData *c)
  */
 bool GCodeParser::readGCode(const QByteArray &gcode)
 {
+    struct pLines {
+        QString ln;
+        int nr;
+    };
+
+
     mut.lock();
 
     goodList.clear();
@@ -222,8 +228,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     tMess.start();
 
     bool decoded;
-
-    QVector<QString> gCodeLines;
+ 
+    QVector<pLines> gCodeLines;
     QString lastCmd;
     int lineNr = 0;
     //     QString lastCommand;
@@ -425,7 +431,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         }
 
         if (tmpStr.length() == 0) {
-            emit logMessage(QString("gcode parsing error: " + t));
+            emit logMessage(QString().sprintf("gcode parsing error, line %d: %s", lineNr, t.toLatin1().data()));
             continue;
         }
 
@@ -435,7 +441,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             if (lastCmd.length() > 0) {
                 tmpStr = QString(lastCmd + " " + tmpStr);
             } else {
-                emit logMessage(QString("gcode parsing error: " + t));
+                emit logMessage(QString().sprintf("gcode parsing error, line %d: %s", lineNr, t.toLatin1().data()));
             }
         } else {
             int posSpace = tmpStr.indexOf(" ");
@@ -458,13 +464,12 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             }
         }
 
-        gCodeLines << tmpStr;
+        gCodeLines << (pLines){tmpStr, lineNr};
     }
 
     if (Settings::filterRepeat == true) {
         emit logMessage(QString().sprintf("Read gcode, preloaded with filtering. Time elapsed: %d ms", tMess.elapsed()));
-    }
-    else {
+    } else {
         emit logMessage(QString().sprintf("Read gcode, preloaded. Time elapsed: %d ms", tMess.elapsed()));
     }
 
@@ -490,7 +495,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     // TODO home pos
     g0Points << GCodeOptim {QVector3D(0, 0, 0), goodList.count(), -1, gCodeList.count(), -1};
 
-    foreach(QString line, gCodeLines) {
+    for(int cur = 0; cur < gCodeLines.count(); cur++) {
+        QString line = gCodeLines.at(cur).ln;
         decoded = true;
         QString correctLine = line;
         QStringList vct_ref = line.split(" ", QString::SkipEmptyParts);
@@ -987,7 +993,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         }
 
         if (decoded == false) {
-            emit logMessage(QString("gcode parsing error: " + line));
+            emit logMessage(QString().sprintf("gcode parsing error, line %d: %s", gCodeLines.at(cur).nr, gCodeLines.at(cur).ln.toLatin1().data()));
         } else {
             if (correctLine.length() > 0) {
                 goodList << correctLine;
