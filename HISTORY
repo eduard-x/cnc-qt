@@ -1,5 +1,8 @@
 Version history
 
+0.3.5   gcode parser is 2.5 times faster 
+        additional info in log widget about not decoded gcode lines
+        possible to display the characters in in OpenGL ES 
 0.3.4   gcode parser optimization
         coordinates structs changed
 0.3.3   fixed libusb search under windows
