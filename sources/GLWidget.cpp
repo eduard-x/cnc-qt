@@ -52,6 +52,7 @@
 
 #define ZOOMSTEP 1.1
 
+#include "includes/shader.h"
 
 /**
  * @brief constructor
@@ -788,89 +789,6 @@ void GLWidget::initializeGL()//Init3D()//*OK*
         timer.start(75, this);
     }
 
-    const char *vsrc =
-        "#ifdef GL_ES\n"
-        "// Set default precision to medium\n"
-        "precision mediump int;\n"
-        "precision mediump float;\n"
-        "#endif\n"
-        "\n"
-        "uniform mat4 mvp_matrix;\n"
-        "uniform mat4 mv_matrix;\n"
-        "uniform float point_size;\n"
-        "\n"
-        "attribute vec4 a_position;\n"
-        "attribute vec4 a_color;\n"
-        //         "attribute vec4 a_start;\n"
-        "\n"
-        "varying vec4 v_color;\n"
-        "varying vec2 v_position;\n"
-        //         "varying vec2 v_start;\n"
-        //         "\n"
-        //         "bool isNan(float val)\n"
-        //         "{\n"
-        //         "    return (val > 65535.0);\n"
-        //         "}\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    // Calculate interpolated vertex position & line start point\n"
-        "    v_position = (mv_matrix * a_position).xy;\n"
-        "\n"
-        //         "    if (!isNan(a_start.x)) v_start = (mv_matrix * a_start).xy;\n"
-        //         "    else v_start = a_start.xy;\n"
-        //         "\n"
-        "    // Calculate vertex position in screen space\n"
-        "    gl_Position = mvp_matrix * a_position;\n"
-        "\n"
-        "    // Value will be automatically interpolated to fragments inside polygon faces\n"
-        "    v_color = a_color;\n"
-        "\n"
-        "    // Set point size\n"
-        "    gl_PointSize = point_size;\n"
-        "}\n"
-        "\n";
-
-    const char *fsrc =
-        "#ifdef GL_ES\n"
-        "// Set default precision to medium\n"
-        "precision mediump int;\n"
-        "precision mediump float;\n"
-        "#endif\n"
-        "\n"
-        "//Dash grid (px) = factor * pi;\n"
-        "const float factor = 2.0;\n"
-        "\n"
-        "uniform float point_size;\n"
-        "\n"
-        "varying vec4 v_color;\n"
-        "varying vec2 v_position;\n"
-        //         "varying vec2 v_start;\n"
-        //         "\n"
-        //         "bool isNan(float val)\n"
-        //         "{\n"
-        //         "    return (val > 65535.0);\n"
-        //         "}\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        //         "    // Draw dash lines\n"
-        //         "    if (!isNan(v_start.x)) {\n"
-        //         "        vec2 sub = v_position - v_start;\n"
-        //         "        float coord = length(sub.x) > length(sub.y) ? gl_FragCoord.x : gl_FragCoord.y;\n"
-        //         "        if (cos(coord / factor) > 0.0) discard;\n"
-        //         "    }\n"
-        "#ifdef GL_ES\n"
-        "    if (point_size > 0.0) {\n"
-        "        vec2 coord = gl_PointCoord.st - vec2(0.5, 0.5);\n"
-        "        if (length(coord) > 0.5) discard;\n"
-        "    }\n"
-        "#endif\n"
-        "\n"
-        "    // Set fragment color from texture\n"
-        "    gl_FragColor = v_color;\n"
-        "}\n";
-
     program = new QOpenGLShaderProgram(this);
 
     program->addShaderFromSourceCode(QOpenGLShader::Vertex, vsrc);
@@ -996,7 +914,7 @@ void GLWidget::Draw() // drawing, main function
     if (!program) {
         return;
     }
-
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     int w = this->width();
     int h = this->height();
@@ -1239,6 +1157,51 @@ void GLWidget::Draw() // drawing, main function
         glDisableVertexAttribArray(m_colAttr);
         glDisableVertexAttribArray(m_posAttr);
     }
+#if 0
+    
+    QPainter painter(this);
+
+    // Segment counter
+    int vertices = 0;
+
+    painter.beginNativePainting();
+    // Draw 2D
+//     glDisable(GL_DEPTH_TEST);
+//     glDisable(GL_MULTISAMPLE);
+//     glDisable(GL_LINE_SMOOTH);
+//     glDisable(GL_BLEND);
+
+ 
+
+    QColor m_colorText = Qt::yellow;
+    QPen pen(m_colorText);
+    painter.setPen(pen);
+
+    double x = 10;
+    double y = this->height() - 60;
+
+//     painter.drawText(QPoint(x, y), QString("X: %1 ... %2").arg(m_xMin, 0, 'f', 3).arg(m_xMax, 0, 'f', 3));
+//     painter.drawText(QPoint(x, y + 15), QString("Y: %1 ... %2").arg(m_yMin, 0, 'f', 3).arg(m_yMax, 0, 'f', 3));
+//     painter.drawText(QPoint(x, y + 30), QString("Z: %1 ... %2").arg(m_zMin, 0, 'f', 3).arg(m_zMax, 0, 'f', 3));
+//     painter.drawText(QPoint(x, y + 45), QString("%1 / %2 / %3").arg(m_xSize, 0, 'f', 3).arg(m_ySize, 0, 'f', 3).arg(m_zSize, 0, 'f', 3));
+
+    QFontMetrics fm(painter.font());
+
+//     painter.drawText(QPoint(x, fm.height() + 10), m_parserStatus);
+
+    QString str = QString(tr("Vertices: %1")).arg(vertices);
+    painter.drawText(QPoint(this->width() - fm.width(str) - 10, y + 30), str);
+    str = QString("FPS: %1").arg(fps);
+    painter.drawText(QPoint(this->width() - fm.width(str) - 10, y + 45), str);
+
+//     str = m_spendTime.toString("hh:mm:ss") + " / " + m_estimatedTime.toString("hh:mm:ss");
+//     painter.drawText(QPoint(this->width() - fm.width(str) - 10, y), str);
+
+//     str = m_bufferState;
+//     painter.drawText(QPoint(this->width() - fm.width(str) - 10, y + 15), str);
+    
+       painter.endNativePainting();
+#endif
 }
 
 

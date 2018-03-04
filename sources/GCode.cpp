@@ -208,7 +208,6 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         int nr;
     };
 
-
     mut.lock();
 
     goodList.clear();
