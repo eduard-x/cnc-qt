@@ -126,6 +126,7 @@ quint8 Settings::bb14 = 0x0;
 quint8 Settings::bb16 = 0x0;
 quint8 Settings::bb19 = 0x0;
 
+
 bool Settings::ShowBorder = true;
 QString Settings::currentAppDir = "";
 MATERIAL Settings::cuttedMaterial = HARDWOOD;
@@ -146,7 +147,7 @@ bool Settings::ShowLines = false;
 bool Settings::ShowPoints = true;
 bool Settings::ShowSurface = false;
 bool Settings::ShowAxes = true;
-
+bool Settings::ShowMessure = true;
 
 // end of 3d
 

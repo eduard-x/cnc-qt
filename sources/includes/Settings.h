@@ -174,7 +174,8 @@ class Settings : public QSettings
         static bool ShowPoints;
         static bool ShowSurface;
         static bool ShowAxes;
-
+        static bool ShowMessure;
+        
         //         bool disableIfSSH;
 
         static int GridXstart;

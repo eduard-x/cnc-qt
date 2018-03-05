@@ -38,8 +38,6 @@
 #include <QtOpenGL/QtOpenGL>
 #include <QtOpenGL/QGLShaderProgram>
 #include <QtOpenGL/QGLWidget>
-// #include <QOpenGLWidget>
-// #include <QOpenGLShaderProgram>
 #include <QSurfaceFormat>
 #include <QToolButton>
 
@@ -430,21 +428,23 @@ void GLWidget::setZoom(int i)
     }
 }
 
-QVector<QVector3D> GLWidget::textToVector(double x, double y, double z, const QString &s, const QFont &f)
+QVector<QVector<VertexData> > GLWidget::textToVector(double x, double y, double z, const QString &s, const QColor &c, const QFont &f)
 {
     QPainterPath path;
-    QVector<QVector3D> v;
+    QVector<QVector<VertexData> > v;
     
     path.addText(QPointF(0, 0), f, s);
     QList<QPolygonF> poly = path.toSubpathPolygons();
     for (QList<QPolygonF>::iterator i = poly.begin(); i != poly.end(); i++){
 //         glBegin(GL_LINE_LOOP);
+        QVector<VertexData> subv;
         for (QPolygonF::iterator p = (*i).begin(); p != i->end(); p++) {
 //             glVertex3f(p->rx()*0.1f, -p->ry()*0.1f, 0);
 
-            v << QVector3D(x + p->rx()*0.2f, y - p->ry()*0.2f, z);
+            subv << (VertexData){QVector3D(x + p->rx()*0.2f, y - p->ry()*0.2f, z), QVector3D(c.redF(), c.greenF(), c.blueF())};
         }
-
+        
+        v << subv;
 //         glEnd();
     }
 
@@ -517,29 +517,27 @@ void GLWidget::initStaticElements()
 
     axis.clear();
     
-    foreach(QVector<VertexData> v, vText) {
+    foreach(QVector<VertexData> v, aText) {
         v.clear();
     }
-//     vText[0].clear();
-//     vText[1].clear();
-//     vText[2].clear();
+    aText.clear();
     
     axis << addPointVector(xAxis, Settings::colorSettings[COLOR_X]);
-    QVector<QVector3D> xTmp = textToVector(12, -1, 0, "X");
-
-    vText << addPointVector(xTmp, Settings::colorSettings[COLOR_X]);
+    
+    aText << textToVector(12, -1, 0, "X", Settings::colorSettings[COLOR_X]);
+//     aText << addPointVector(xTmp, Settings::colorSettings[COLOR_X]);
 
     
     axis << addPointVector(yAxis, Settings::colorSettings[COLOR_Y]);
-    QVector<QVector3D> yTmp = textToVector(-1, 12, 0, "Y");
-
-    vText << addPointVector(yTmp, Settings::colorSettings[COLOR_Y]);
+    
+    aText << textToVector(-1, 12, 0, "Y", Settings::colorSettings[COLOR_Y]);
+//     aText << addPointVector(yTmp, Settings::colorSettings[COLOR_Y]);
 
     
     axis << addPointVector(zAxis, Settings::colorSettings[COLOR_Z]);
-    QVector<QVector3D> zTmp = textToVector(-1, -1, 12, "Z");
-
-    vText << addPointVector(zTmp, Settings::colorSettings[COLOR_Z]);
+    
+    aText << textToVector(-1, -1, 12, "Z", Settings::colorSettings[COLOR_Z]);
+//     aText << addPointVector(zTmp, Settings::colorSettings[COLOR_Z]);
 
 
     instrument.clear();
@@ -585,6 +583,82 @@ void GLWidget::initStaticElements()
             gridPoints << (VertexData) {
                 QVector3D{(GLfloat)x, (GLfloat)y, 0.0}, grdColor };
         }
+    }
+    
+    messure.clear();
+    foreach(QVector<VertexData> v, mText) {
+        v.clear();
+    }
+    mText.clear();
+    
+    if (border.count() > 0){
+        
+        messure << (VertexData) { // X messure
+            QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin -10.0, 0.0), grdColor
+        } ;
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin -10.0, 0.0), grdColor
+        };
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin -7.5, 0.0), grdColor
+        } ;
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin -12.5, 0.0), grdColor
+        };
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin -7.5, 0.0), grdColor
+        } ;
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin -12.5, 0.0), grdColor
+        };
+        messure <<  (VertexData) { // Y messure
+            QVector3D(Settings::coord[X].softLimitMin -10.0,  Settings::coord[Y].softLimitMin, 0.0), grdColor
+        } ;
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin -10.0,  Settings::coord[Y].softLimitMax, 0.0), grdColor
+        };
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin -7.5,  Settings::coord[Y].softLimitMin, 0.0), grdColor
+        } ;
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin -12.5,  Settings::coord[Y].softLimitMin, 0.0), grdColor
+        };
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin -7.5,  Settings::coord[Y].softLimitMax, 0.0), grdColor
+        } ;
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin -12.5,  Settings::coord[Y].softLimitMax, 0.0), grdColor
+        };
+        messure <<  (VertexData) { // Z messure
+            QVector3D(Settings::coord[X].softLimitMin -10.0,  Settings::coord[Y].softLimitMin -10.0, Settings::coord[Z].softLimitMin), grdColor
+        } ;
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin -10.0,  Settings::coord[Y].softLimitMin -10.0, Settings::coord[Z].softLimitMax), grdColor
+        };
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin -7.5,  Settings::coord[Y].softLimitMin -7.5, Settings::coord[Z].softLimitMin), grdColor
+        } ;
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin -12.5,  Settings::coord[Y].softLimitMin -12.5, Settings::coord[Z].softLimitMin), grdColor
+        };
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin -7.5,  Settings::coord[Y].softLimitMin -7.5, Settings::coord[Z].softLimitMax), grdColor
+        };
+        messure <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin -12.5,  Settings::coord[Y].softLimitMin -12.5, Settings::coord[Z].softLimitMax), grdColor
+        };
+        
+        float xdiff = qFabs(Settings::coord[X].softLimitMax - Settings::coord[X].softLimitMin);
+        mText << textToVector(xdiff * 0.5, -15.0, 0, QString().sprintf("%.2f mm", xdiff), Settings::colorSettings[COLOR_X]);
+//         mText << addPointVector(xMM, Settings::colorSettings[COLOR_X]);
+        
+        float ydiff = qFabs(Settings::coord[Y].softLimitMax - Settings::coord[Y].softLimitMin);
+        mText << textToVector(-15.0, ydiff * 0.5, 0, QString().sprintf("%.2f mm", ydiff), Settings::colorSettings[COLOR_X]);
+//         mText << addPointVector(yMM, Settings::colorSettings[COLOR_X]);
+        
+        float zdiff = qFabs(Settings::coord[Z].softLimitMax - Settings::coord[Z].softLimitMin);
+        mText << textToVector(-10.0, -10.0, zdiff * 0.5, QString().sprintf("%.2f mm", zdiff), Settings::colorSettings[COLOR_X]);
+//         mText << addPointVector(zMM, Settings::colorSettings[COLOR_X]);
     }
 
     int maxY, maxX;
@@ -638,7 +712,6 @@ void GLWidget::initStaticElements()
                 QVector3D{parent->surfaceMatrix[y][x].X, parent->surfaceMatrix[y][x].Y, parent->surfaceMatrix[y][x].Z}, srfcColor };
         }
     }
-
 
 #if 0
 
@@ -905,6 +978,236 @@ void GLWidget::timerEvent(QTimerEvent *)
 #define GLSCALE 0.05
 
 
+#if 0
+void GLWidget::show_extents(self){
+    s = self.stat
+    g = self.canon
+
+    if (g is None)
+        return
+
+    // Dimensions
+    x,y,z,p = 0,1,2,3
+    view = self.get_view()
+    is_metric = self.get_show_metric()
+    dimscale = is_metric and 25.4 or 1.0
+    fmt = is_metric and "%.1f" or "%.2f"
+
+    machine_limit_min, machine_limit_max = self.soft_limits()
+
+    pullback = max(g.max_extents[x] - g.min_extents[x],
+                    g.max_extents[y] - g.min_extents[y],
+                    g.max_extents[z] - g.min_extents[z],
+                    2 ) * .1
+
+    dashwidth = pullback/4
+    charsize = dashwidth * 1.5
+    halfchar = charsize * .5
+
+    if (view == z or view == p){
+        z_pos = g.min_extents[z]
+        zdashwidth = 0
+    }
+    else{
+        z_pos = g.min_extents[z] - pullback
+        zdashwidth = dashwidth
+    }
+    // x dimension
+
+    self.color_limit(0)
+    
+    glBegin(GL_LINES)
+    
+    if (view != x and g.max_extents[x] > g.min_extents[x]){
+        y_pos = g.min_extents[y] - pullback
+        glVertex3f(g.min_extents[x], y_pos, z_pos)
+        glVertex3f(g.max_extents[x], y_pos, z_pos)
+
+        glVertex3f(g.min_extents[x], y_pos - dashwidth, z_pos - zdashwidth)
+        glVertex3f(g.min_extents[x], y_pos + dashwidth, z_pos + zdashwidth)
+
+        glVertex3f(g.max_extents[x], y_pos - dashwidth, z_pos - zdashwidth)
+        glVertex3f(g.max_extents[x], y_pos + dashwidth, z_pos + zdashwidth)
+    }
+
+    // y dimension
+    if (view != y and g.max_extents[y] > g.min_extents[y]){
+        x_pos = g.min_extents[x] - pullback
+        glVertex3f(x_pos, g.min_extents[y], z_pos)
+        glVertex3f(x_pos, g.max_extents[y], z_pos)
+
+        glVertex3f(x_pos - dashwidth, g.min_extents[y], z_pos - zdashwidth)
+        glVertex3f(x_pos + dashwidth, g.min_extents[y], z_pos + zdashwidth)
+
+        glVertex3f(x_pos - dashwidth, g.max_extents[y], z_pos - zdashwidth)
+        glVertex3f(x_pos + dashwidth, g.max_extents[y], z_pos + zdashwidth)
+    }
+
+    // z dimension
+    if (view != z and g.max_extents[z] > g.min_extents[z]){
+        x_pos = g.min_extents[x] - pullback
+        y_pos = g.min_extents[y] - pullback
+        glVertex3f(x_pos, y_pos, g.min_extents[z])
+        glVertex3f(x_pos, y_pos, g.max_extents[z])
+
+        glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.min_extents[z])
+        glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.min_extents[z])
+
+        glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.max_extents[z])
+        glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.max_extents[z])
+    }
+
+    glEnd()
+
+    // Labels
+    if (self.get_show_relative()){
+        offset = self.to_internal_units(s.g5x_offset + s.g92_offset)
+    }
+    else{
+        offset = 0, 0, 0
+    }
+        
+    if (view != z and g.max_extents[z] > g.min_extents[z]){
+        if (view == x){
+            x_pos = g.min_extents[x] - pullback
+            y_pos = g.min_extents[y] - 6.0*dashwidth
+        }
+        else{
+            x_pos = g.min_extents[x] - 6.0*dashwidth
+            y_pos = g.min_extents[y] - pullback
+        }
+
+        bbox = self.color_limit(g.min_extents_notool[z] < machine_limit_min[z])
+        glPushMatrix()
+        f = fmt % ((g.min_extents[z]-offset[z]) * dimscale)
+        glTranslatef(x_pos, y_pos, g.min_extents[z] - halfchar)
+        glScalef(charsize, charsize, charsize)
+        glRotatef(-90, 0, 1, 0)
+        glRotatef(-90, 0, 0, 1)
+        if (view != x){
+            glRotatef(-90, 0, 1, 0)
+        }
+        self.hershey.plot_string(f, 0, bbox)
+        glPopMatrix()
+
+        bbox = self.color_limit(g.max_extents_notool[z] > machine_limit_max[z])
+        glPushMatrix()
+        f = fmt % ((g.max_extents[z]-offset[z]) * dimscale)
+        glTranslatef(x_pos, y_pos, g.max_extents[z] - halfchar)
+        glScalef(charsize, charsize, charsize)
+        glRotatef(-90, 0, 1, 0)
+        glRotatef(-90, 0, 0, 1)
+        if (view != x){
+            glRotatef(-90, 0, 1, 0)
+        }
+        self.hershey.plot_string(f, 0, bbox)
+        glPopMatrix()
+
+        self.color_limit(0)
+        glPushMatrix()
+        f = fmt % ((g.max_extents[z] - g.min_extents[z]) * dimscale)
+        glTranslatef(x_pos, y_pos, (g.max_extents[z] + g.min_extents[z])/2)
+        glScalef(charsize, charsize, charsize)
+        if (view != x){
+            glRotatef(-90, 0, 0, 1)
+        }
+        glRotatef(-90, 0, 1, 0)
+        self.hershey.plot_string(f, .5, bbox)
+        glPopMatrix()
+    }
+
+    if (view != y and g.max_extents[y] > g.min_extents[y]){
+        x_pos = g.min_extents[x] - 6.0*dashwidth
+
+        bbox = self.color_limit(g.min_extents_notool[y] < machine_limit_min[y])
+        glPushMatrix()
+        f = fmt % ((g.min_extents[y] - offset[y]) * dimscale)
+        glTranslatef(x_pos, g.min_extents[y] + halfchar, z_pos)
+        glRotatef(-90, 0, 0, 1)
+        glRotatef(-90, 0, 0, 1)
+        if (view == x){
+            glRotatef(90, 0, 1, 0)
+            glTranslatef(dashwidth*1.5, 0, 0)
+        }
+        glScalef(charsize, charsize, charsize)
+        self.hershey.plot_string(f, 0, bbox)
+        glPopMatrix()
+
+        bbox = self.color_limit(g.max_extents_notool[y] > machine_limit_max[y])
+        glPushMatrix()
+        f = fmt % ((g.max_extents[y] - offset[y]) * dimscale)
+        glTranslatef(x_pos, g.max_extents[y] + halfchar, z_pos)
+        glRotatef(-90, 0, 0, 1)
+        glRotatef(-90, 0, 0, 1)
+        if (view == x){
+            glRotatef(90, 0, 1, 0)
+            glTranslatef(dashwidth*1.5, 0, 0)
+        }
+        glScalef(charsize, charsize, charsize)
+        self.hershey.plot_string(f, 0, bbox)
+        glPopMatrix()
+
+        self.color_limit(0)
+        glPushMatrix()
+        f = fmt % ((g.max_extents[y] - g.min_extents[y]) * dimscale)
+
+        glTranslatef(x_pos, (g.max_extents[y] + g.min_extents[y])/2,
+                    z_pos)
+        glRotatef(-90, 0, 0, 1)
+        if (view == x){
+            glRotatef(-90, 1, 0, 0)
+            glTranslatef(0, halfchar, 0)
+        }
+        glScalef(charsize, charsize, charsize)
+        self.hershey.plot_string(f, .5)
+        glPopMatrix()
+    }
+
+    if (view != x and g.max_extents[x] > g.min_extents[x]) {
+        y_pos = g.min_extents[y] - 6.0*dashwidth
+
+        bbox = self.color_limit(g.min_extents_notool[x] < machine_limit_min[x])
+        glPushMatrix()
+        f = fmt % ((g.min_extents[x] - offset[x]) * dimscale)
+        glTranslatef(g.min_extents[x] - halfchar, y_pos, z_pos)
+        glRotatef(-90, 0, 0, 1)
+        if (view == y){
+            glRotatef(90, 0, 1, 0)
+            glTranslatef(dashwidth*1.5, 0, 0)
+        }
+        glScalef(charsize, charsize, charsize)
+        self.hershey.plot_string(f, 0, bbox)
+        glPopMatrix()
+
+        bbox = self.color_limit(g.max_extents_notool[x] > machine_limit_max[x])
+        glPushMatrix()
+        f = fmt % ((g.max_extents[x] - offset[x]) * dimscale)
+        glTranslatef(g.max_extents[x] - halfchar, y_pos, z_pos)
+        glRotatef(-90, 0, 0, 1)
+        if (view == y){
+            glRotatef(90, 0, 1, 0)
+            glTranslatef(dashwidth*1.5, 0, 0)
+        }
+        glScalef(charsize, charsize, charsize)
+        self.hershey.plot_string(f, 0, bbox)
+        glPopMatrix()
+
+        self.color_limit(0)
+        glPushMatrix()
+        f = fmt % ((g.max_extents[x] - g.min_extents[x]) * dimscale)
+
+        glTranslatef((g.max_extents[x] + g.min_extents[x])/2, y_pos,
+                    z_pos)
+        if (view == y){
+            glRotatef(-90, 1, 0, 0)
+            glTranslatef(0, halfchar, 0)
+        }
+        glScalef(charsize, charsize, charsize)
+        self.hershey.plot_string(f, .5)
+        glPopMatrix()
+    }
+}
+#endif
 /**
  * @brief
  *
@@ -1028,6 +1331,40 @@ void GLWidget::Draw() // drawing, main function
 
             glLineWidth((GLfloat)1.0);
         }
+        
+        if(Settings::ShowMessure){
+            if (messure.count() > 0){
+                glLineWidth((GLfloat)1.0);
+
+                glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &messure[0].coord);
+                glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &messure[0].color);
+
+                glEnableVertexAttribArray(m_posAttr);
+                glEnableVertexAttribArray(m_colAttr);
+
+                glDrawArrays(GL_LINES, 0, messure.count());
+
+                glDisableVertexAttribArray(m_colAttr);
+                glDisableVertexAttribArray(m_posAttr);
+                
+                // text output: X, Y, Z
+//                 if (mText.count() > 0) {
+                    for (int i = 0; i < mText.count(); i++) {
+                        QVector<VertexData> v = mText.at(i);
+                        glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &v.at(0).coord);
+                        glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &v.at(0).color);
+
+                        glEnableVertexAttribArray(m_posAttr);
+                        glEnableVertexAttribArray(m_colAttr);
+
+                        glDrawArrays(GL_LINE_LOOP, 0, v.count());
+
+                        glDisableVertexAttribArray(m_colAttr);
+                        glDisableVertexAttribArray(m_posAttr);
+                    }
+//                 }
+            }
+        }
     }
 
     if (Settings::ShowAxes) {
@@ -1047,9 +1384,9 @@ void GLWidget::Draw() // drawing, main function
         glLineWidth((GLfloat)1.0);
         
         // text output: X, Y, Z
-        if (vText.count() >= 3) {
-            for (int i = 0; i < 3; i++) {
-                QVector<VertexData> v = vText.at(i);
+//         if (aText.count() >= 0) {
+            for (int i = 0; i < aText.count(); i++) {
+                QVector<VertexData> v = aText.at(i);
                 glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &v.at(0).coord);
                 glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &v.at(0).color);
 
@@ -1061,7 +1398,7 @@ void GLWidget::Draw() // drawing, main function
                 glDisableVertexAttribArray(m_colAttr);
                 glDisableVertexAttribArray(m_posAttr);
             }
-        }
+//         }
     }
 
 

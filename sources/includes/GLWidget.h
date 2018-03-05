@@ -88,7 +88,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         void createButtons();
         void displayRotation();
         QVector<VertexData> addPointVector(const QVector<QVector3D> &p, const QColor &c);
-        QVector<QVector3D> textToVector(double x, double y, double z, const QString &s, const QFont & font = QFont());
+        QVector<QVector<VertexData> > textToVector(double x, double y, double z, const QString &s, const QColor &c, const QFont & font = QFont());
 
     public slots:
         //         void onRenderTimer();  // not connected
@@ -192,13 +192,15 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         QVector<VertexData> figure;
         QVector<VertexData> border;
         QVector<VertexData> axis;
+        QVector<VertexData> messure;
         QVector<VertexData> instrument;
         QVector<VertexData> gridLines;
         QVector<VertexData> gridPoints;
         QVector<VertexData> surfaceLines;
         QVector<VertexData> surfacePoints;
         
-        QVector< QVector<VertexData> > vText;
+        QVector< QVector<VertexData> > aText;
+        QVector< QVector<VertexData> > mText;
 
         float fps;
         double m_zoom;
