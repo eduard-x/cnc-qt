@@ -46,7 +46,7 @@ const char *vsrc =
     "\n"
     "attribute vec4 a_position;\n"
     "attribute vec4 a_color;\n"
-            "attribute vec4 a_start;\n"
+    "attribute vec4 a_start;\n"
     "\n"
     "varying vec4 v_color;\n"
     "varying vec2 v_position;\n"
@@ -90,12 +90,12 @@ const char *fsrc =
     "\n"
     "varying vec4 v_color;\n"
     "varying vec2 v_position;\n"
-            "varying vec2 v_start;\n"
-            "\n"
-            "bool isNan(float val)\n"
-            "{\n"
-            "    return (val > 65535.0);\n"
-            "}\n"
+    "varying vec2 v_start;\n"
+    "\n"
+    "bool isNan(float val)\n"
+    "{\n"
+    "    return (val > 65535.0);\n"
+    "}\n"
     "\n"
     "void main()\n"
     "{\n"
@@ -104,7 +104,7 @@ const char *fsrc =
     "        vec2 sub = v_position - v_start;\n"
     "        float coord = length(sub.x) > length(sub.y) ? gl_FragCoord.x : gl_FragCoord.y;\n"
     //         "        if (cos(coord / factor) > 0.0) discard;\n"
-            "    }\n"
+    "    }\n"
     "#ifdef GL_ES\n"
     "    if (point_size > 0.0) {\n"
     "        vec2 coord = gl_PointCoord.st - vec2(0.5, 0.5);\n"
@@ -116,5 +116,5 @@ const char *fsrc =
     "    gl_FragColor = v_color;\n"
     "}\n";
 
-    
+
 #endif

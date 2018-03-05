@@ -88,7 +88,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         void createButtons();
         void displayRotation();
         QVector<VertexData> addPointVector(const QVector<QVector3D> &p, const QColor &c);
-        QVector<QVector<VertexData> > textToVector(double x, double y, double z, const QString &s, const QColor &c, const QFont & font = QFont());
+        QVector<QVector<VertexData> > textToVector(double x, double y, double z, const QString &s, const QColor &c, int direction, const QFont & font = QFont());
 
     public slots:
         //         void onRenderTimer();  // not connected
@@ -198,7 +198,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         QVector<VertexData> gridPoints;
         QVector<VertexData> surfaceLines;
         QVector<VertexData> surfacePoints;
-        
+
         QVector< QVector<VertexData> > aText;
         QVector< QVector<VertexData> > mText;
 

@@ -227,7 +227,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     tMess.start();
 
     bool decoded;
- 
+
     QVector<pLines> gCodeLines;
     QString lastCmd;
     int lineNr = 0;
@@ -463,7 +463,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             }
         }
 
-        gCodeLines << (pLines){tmpStr, lineNr};
+        gCodeLines << (pLines) {
+            tmpStr, lineNr
+        };
     }
 
     if (Settings::filterRepeat == true) {
