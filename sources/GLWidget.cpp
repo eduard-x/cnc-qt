@@ -5,7 +5,7 @@
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -428,13 +428,52 @@ void GLWidget::setZoom(int i)
     }
 }
 
+#define DEF_D 5
 
+QVector<QVector3D> GLWidget::generateCone()
+{
+    QVector<QVector3D> v;
+    /* sides */
+//  GL_TRIANGLES
+    for (int k=0;k<=360;k+=DEF_D){
+      v << QVector3D(0,0,0);
+      v << QVector3D(qCos(k),qSin(k),5.0);
+      v << QVector3D(qCos(k+DEF_D),qSin(k+DEF_D),5.0);
+      
+//       v << QVector3D(0,0,5.0);
+//       v << QVector3D(qCos(k),qSin(k),5.0);
+//       v << QVector3D(qCos(k+DEF_D),qSin(k+DEF_D),5.0);
+      
+      v << QVector3D(0,0,0.0);
+      v << QVector3D(qCos(k),-qSin(k), 5.0);
+      v << QVector3D(qCos(k+DEF_D),-qSin(k+DEF_D), 5.0);
+      
+//       v << QVector3D(0,0,5.0);
+//       v << QVector3D(qCos(k),-qSin(k), 5.0);
+//       v << QVector3D(qCos(k+DEF_D),-qSin(k+DEF_D), 5.0);
+    }
+    
+    return v;
+}
+/**
+ * @brief
+ * @param x coordinate of text center
+ *        y
+ *        z
+ *
+ */
 QVector<QVector<VertexData> > GLWidget::textToVector(double x, double y, double z, const QString &s, const QColor &c, int direction, const QFont &f)
 {
     QPainterPath path;
     QVector<QVector<VertexData> > v;
+    float coeff = 0.2;
+
+    QFontMetricsF fm(f);
+    float pixelsWide = fm.width(s) * coeff * 0.5; // 0.5 is half of text width
+    float pixelsHigh = fm.height() * coeff * 0.25;
 
     path.addText(QPointF(0, 0), f, s);
+
     QList<QPolygonF> poly = path.toSubpathPolygons();
 
     for (QList<QPolygonF>::iterator i = poly.begin(); i != poly.end(); i++) {
@@ -445,7 +484,7 @@ QVector<QVector<VertexData> > GLWidget::textToVector(double x, double y, double 
             case X:
                 for (QPolygonF::iterator p = (*i).begin(); p != i->end(); p++) {
                     subv << (VertexData) {
-                        QVector3D(x + p->rx() * 0.2f, y - p->ry() * 0.2f, z), QVector3D(c.redF(), c.greenF(), c.blueF())
+                        QVector3D(x - pixelsWide + p->rx() * coeff, y - pixelsHigh - p->ry() * coeff, z), QVector3D(c.redF(), c.greenF(), c.blueF())
                     };
                 }
 
@@ -454,7 +493,7 @@ QVector<QVector<VertexData> > GLWidget::textToVector(double x, double y, double 
             case Y:
                 for (QPolygonF::iterator p = (*i).begin(); p != i->end(); p++) {
                     subv << (VertexData) {
-                        QVector3D(y + p->ry() * 0.2f, x + p->rx() * 0.2f, z), QVector3D(c.redF(), c.greenF(), c.blueF())
+                        QVector3D(x + pixelsHigh + p->ry() * coeff, y - pixelsWide + p->rx() * coeff, z), QVector3D(c.redF(), c.greenF(), c.blueF())
                     };
                 }
 
@@ -463,7 +502,7 @@ QVector<QVector<VertexData> > GLWidget::textToVector(double x, double y, double 
             case Z:
                 for (QPolygonF::iterator p = (*i).begin(); p != i->end(); p++) {
                     subv << (VertexData) {
-                        QVector3D(x + p->rx() * 0.2f, y, z - p->ry() * 0.2f), QVector3D(c.redF(), c.greenF(), c.blueF())
+                        QVector3D(x + p->rx() * coeff, y, z - pixelsHigh - p->ry() * coeff), QVector3D(c.redF(), c.greenF(), c.blueF())
                     };
                 }
 
@@ -502,18 +541,21 @@ void GLWidget::initStaticElements()
 
     axis << addPointVector(xAxis, Settings::colorSettings[COLOR_X]);
 
-    aText << textToVector(12, -1, 0, "X", Settings::colorSettings[COLOR_X], X);
+    aText << textToVector(12, 0, 0, "X", Settings::colorSettings[COLOR_X], X);
 
     axis << addPointVector(yAxis, Settings::colorSettings[COLOR_Y]);
 
-    aText << textToVector(-1, 12, 0, "Y", Settings::colorSettings[COLOR_Y], X);
+    aText << textToVector(0, 12, 0, "Y", Settings::colorSettings[COLOR_Y], Y);
 
     axis << addPointVector(zAxis, Settings::colorSettings[COLOR_Z]);
 
-    aText << textToVector(-1, -1, 12, "Z", Settings::colorSettings[COLOR_Z], Z);
+    aText << textToVector(-0.5, -0.5, 12, "Z", Settings::colorSettings[COLOR_Z], Z);
 
     instrument.clear();
-    instrument << addPointVector(instrumentArray, Settings::colorSettings[COLOR_TOOL]);
+    QVector<QVector3D> inst = generateCone();
+    
+    instrument = addPointVector(inst, Settings::colorSettings[COLOR_TOOL]);
+//     instrument << addPointVector(instrumentArray, Settings::colorSettings[COLOR_TOOL]);
 
     border.clear();
 
@@ -580,68 +622,125 @@ void GLWidget::initStaticElements()
 
         messure << (VertexData) { // X messure
             QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
-        } ;
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
-        };
-        messure <<  (VertexData) {
+        }
+        // pfeil links
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin + 2.5,  Settings::coord[Y].softLimitMin - 10.5, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin + 2.5,  Settings::coord[Y].softLimitMin - 9.5, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
+        }
+        // pfeil ende
+        // pfeil rechts
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMax - 2.5, Settings::coord[Y].softLimitMin - 10.5, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMax - 2.5, Settings::coord[Y].softLimitMin - 9.5, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
+        }
+        // pfeil ende
+
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 7.5, 0.0), grdColor
-        } ;
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 12.5, 0.0), grdColor
-        };
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 7.5, 0.0), grdColor
-        } ;
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 12.5, 0.0), grdColor
-        };
-        messure <<  (VertexData) { // Y messure
+        }
+        <<  (VertexData) { // Y messure
             QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin, 0.0), grdColor
-        } ;
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMax, 0.0), grdColor
-        };
-        messure <<  (VertexData) {
+        }
+        // pfeil unten
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin - 10.5,  Settings::coord[Y].softLimitMin + 2.5, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin - 9.5,  Settings::coord[Y].softLimitMin + 2.5, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin, 0.0), grdColor
+        }
+        // pfeil ende
+        // pfeil oben
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin - 10.5,  Settings::coord[Y].softLimitMax - 2.5, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMax, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin - 9.5,  Settings::coord[Y].softLimitMax - 2.5, 0.0), grdColor
+        }
+        <<  (VertexData) {
+            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMax, 0.0), grdColor
+        }
+        // pfeil ende
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMin, 0.0), grdColor
-        } ;
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMin, 0.0), grdColor
-        };
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMax, 0.0), grdColor
-        } ;
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMax, 0.0), grdColor
-        };
-        messure <<  (VertexData) { // Z messure
+        }
+
+        <<  (VertexData) { // Z messure
             QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin - 10.0, Settings::coord[Z].softLimitMin), grdColor
-        } ;
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin - 10.0, Settings::coord[Z].softLimitMax), grdColor
-        };
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMin - 7.5, Settings::coord[Z].softLimitMin), grdColor
-        } ;
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMin - 12.5, Settings::coord[Z].softLimitMin), grdColor
-        };
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMin - 7.5, Settings::coord[Z].softLimitMax), grdColor
-        };
-        messure <<  (VertexData) {
+        }
+        <<  (VertexData) {
             QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMin - 12.5, Settings::coord[Z].softLimitMax), grdColor
         };
 
         float xdiff = qFabs(Settings::coord[X].softLimitMax - Settings::coord[X].softLimitMin);
-        // TODO depended from text width correct the begin coordinates 
-        mText << textToVector(xdiff * 0.4 + Settings::coord[X].softLimitMin, Settings::coord[Y].softLimitMin -15.0, 0, QString().sprintf("%.2f mm", xdiff), Settings::colorSettings[COLOR_X], X);
+        mText << textToVector(xdiff * 0.5 + Settings::coord[X].softLimitMin, Settings::coord[Y].softLimitMin - 15.0, 0, QString().sprintf("%.2f mm", xdiff), Settings::colorSettings[COLOR_BORDER], X);
 
         float ydiff = qFabs(Settings::coord[Y].softLimitMax - Settings::coord[Y].softLimitMin);
-        mText << textToVector( ydiff * 0.4 + Settings::coord[Y].softLimitMin, Settings::coord[X].softLimitMin -12.0, 0, QString().sprintf("%.2f mm", ydiff), Settings::colorSettings[COLOR_X], Y);
+        mText << textToVector( Settings::coord[X].softLimitMin - 15.0, ydiff * 0.5 + Settings::coord[Y].softLimitMin,  0, QString().sprintf("%.2f mm", ydiff), Settings::colorSettings[COLOR_BORDER], Y);
 
         float zdiff = qFabs(Settings::coord[Z].softLimitMax - Settings::coord[Z].softLimitMin);
-        mText << textToVector(Settings::coord[X].softLimitMin -10.0, Settings::coord[Y].softLimitMin -10.0, zdiff * 0.4, QString().sprintf("%.2f mm", zdiff), Settings::colorSettings[COLOR_X], Z);
+        mText << textToVector(Settings::coord[X].softLimitMin - 10.0, Settings::coord[Y].softLimitMin - 10.0, zdiff * 0.5, QString().sprintf("%.2f mm", zdiff), Settings::colorSettings[COLOR_BORDER], Z);
     }
 
     int maxY, maxX;
@@ -1237,7 +1336,7 @@ void GLWidget::Draw() // drawing, main function
         glEnableVertexAttribArray(m_posAttr);
         glEnableVertexAttribArray(m_colAttr);
 
-        glDrawArrays(GL_LINES, 0, instrument.count());
+        glDrawArrays(GL_TRIANGLES, 0, instrument.count());
 
         glDisableVertexAttribArray(m_colAttr);
         glDisableVertexAttribArray(m_posAttr);

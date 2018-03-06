@@ -87,6 +87,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         float normalizeAngle(float angle);
         void createButtons();
         void displayRotation();
+        QVector<QVector3D> generateCone();
         QVector<VertexData> addPointVector(const QVector<QVector3D> &p, const QColor &c);
         QVector<QVector<VertexData> > textToVector(double x, double y, double z, const QString &s, const QColor &c, int direction, const QFont & font = QFont());
 
