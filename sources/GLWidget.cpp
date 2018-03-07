@@ -428,33 +428,28 @@ void GLWidget::setZoom(int i)
     }
 }
 
-#define DEF_D 5
+
+#define DEF_D 30
 
 QVector<QVector3D> GLWidget::generateCone()
 {
     QVector<QVector3D> v;
-    /* sides */
-//  GL_TRIANGLES
-    for (int k=0;k<=360;k+=DEF_D){
+    float dRad = qDegreesToRadians((float)DEF_D);
+    // for GL_TRIANGLES
+    for (int k = 0; k < 360; k+=DEF_D){
+        float kRad =  qDegreesToRadians((float)k);
       v << QVector3D(0,0,0);
-      v << QVector3D(qCos(k),qSin(k),5.0);
-      v << QVector3D(qCos(k+DEF_D),qSin(k+DEF_D),5.0);
-      
-//       v << QVector3D(0,0,5.0);
-//       v << QVector3D(qCos(k),qSin(k),5.0);
-//       v << QVector3D(qCos(k+DEF_D),qSin(k+DEF_D),5.0);
-      
+      v << QVector3D(qCos(kRad),qSin(kRad),5.0);
+      v << QVector3D(qCos(kRad+dRad),qSin(kRad+dRad),5.0);
+     
       v << QVector3D(0,0,0.0);
-      v << QVector3D(qCos(k),-qSin(k), 5.0);
-      v << QVector3D(qCos(k+DEF_D),-qSin(k+DEF_D), 5.0);
-      
-//       v << QVector3D(0,0,5.0);
-//       v << QVector3D(qCos(k),-qSin(k), 5.0);
-//       v << QVector3D(qCos(k+DEF_D),-qSin(k+DEF_D), 5.0);
+      v << QVector3D(qCos(kRad),-qSin(kRad), 5.0);
+      v << QVector3D(qCos(kRad+dRad),-qSin(kRad+dRad), 5.0);
     }
-    
+   
     return v;
 }
+
 /**
  * @brief
  * @param x coordinate of text center
