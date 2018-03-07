@@ -5,7 +5,7 @@
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -88,6 +88,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         void createButtons();
         void displayRotation();
         QVector<QVector3D> generateCone();
+        QVector<QVector3D> generateCylinder();
         QVector<VertexData> addPointVector(const QVector<QVector3D> &p, const QColor &c);
         QVector<QVector<VertexData> > textToVector(double x, double y, double z, const QString &s, const QColor &c, int direction, const QFont & font = QFont());
 

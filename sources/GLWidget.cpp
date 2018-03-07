@@ -434,22 +434,47 @@ void GLWidget::setZoom(int i)
 QVector<QVector3D> GLWidget::generateCone()
 {
     QVector<QVector3D> v;
+    float h = Settings::ShowIntrumentHight;
+    float r = Settings::ShowIntrumentDiameter * 0.5;
+    
     float dRad = qDegreesToRadians((float)DEF_D);
     // for GL_TRIANGLES
     for (int k = 0; k < 360; k+=DEF_D){
         float kRad =  qDegreesToRadians((float)k);
-      v << QVector3D(0,0,0);
-      v << QVector3D(qCos(kRad),qSin(kRad),5.0);
-      v << QVector3D(qCos(kRad+dRad),qSin(kRad+dRad),5.0);
-     
-      v << QVector3D(0,0,0.0);
-      v << QVector3D(qCos(kRad),-qSin(kRad), 5.0);
-      v << QVector3D(qCos(kRad+dRad),-qSin(kRad+dRad), 5.0);
+        v << QVector3D(0, 0, 0);
+        v << QVector3D(r*qCos(kRad),r*qSin(kRad), h);
+        v << QVector3D(r*qCos(kRad+dRad),r*qSin(kRad+dRad), h);
+   
+        v << QVector3D(0, 0, 0);
+        v << QVector3D(r*qCos(kRad),-r*qSin(kRad), h);
+        v << QVector3D(r*qCos(kRad+dRad),-r*qSin(kRad+dRad), h);
     }
    
     return v;
 }
 
+
+QVector<QVector3D> GLWidget::generateCylinder()
+{
+    QVector<QVector3D> v;
+    float h = Settings::ShowIntrumentHight;
+    float r = Settings::ShowIntrumentDiameter * 0.5;
+    
+    float dRad = qDegreesToRadians((float)DEF_D);
+    // for GL_TRIANGLES
+    for (int k = 0; k < 360; k+=DEF_D){
+        float kRad =  qDegreesToRadians((float)k);
+        v << QVector3D(r*qCos(kRad),r*qSin(kRad), 0);
+        v << QVector3D(r*qCos(kRad),r*qSin(kRad), h);
+        v << QVector3D(r*qCos(kRad+dRad),r*qSin(kRad+dRad), h);
+   
+        v << QVector3D(r*qCos(kRad),-r*qSin(kRad), 0);
+        v << QVector3D(r*qCos(kRad),-r*qSin(kRad), h);
+        v << QVector3D(r*qCos(kRad+dRad),-r*qSin(kRad+dRad), h);
+    }
+   
+    return v;
+}
 /**
  * @brief
  * @param x coordinate of text center

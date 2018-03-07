@@ -5,7 +5,7 @@
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -148,6 +148,9 @@ bool Settings::ShowPoints = true;
 bool Settings::ShowSurface = false;
 bool Settings::ShowAxes = true;
 bool Settings::ShowMessure = true;
+bool Settings::ShowInstrumentCone = true; // cone or cylinder
+float Settings::ShowIntrumentHight = 5.0;
+float Settings::ShowIntrumentDiameter = 1.0;
 
 // end of 3d
 
