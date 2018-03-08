@@ -266,6 +266,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             }
         }
 
+        lineStream = lineStream.simplified();
+        lineStream.remove(QChar(' '));
+        
         if (lineStream.length() == 0) {
             continue;
         }
@@ -309,13 +312,13 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             }
 
             if ((cmd_pos + len) < lineStream.length()) {
-                QString cText = lineStream.mid(cmd_pos, len).simplified();
+                QString cText = lineStream.mid(cmd_pos, len);
 
                 if (cText != "") {
                     lines << cText;
                 }
             } else {
-                QString cText = lineStream.mid(cmd_pos).simplified();
+                QString cText = lineStream.mid(cmd_pos);
 
                 if (cText != "") {
                     lines << cText;

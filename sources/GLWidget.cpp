@@ -436,20 +436,21 @@ QVector<QVector3D> GLWidget::generateCone()
     QVector<QVector3D> v;
     float h = Settings::ShowIntrumentHight;
     float r = Settings::ShowIntrumentDiameter * 0.5;
-    
+
     float dRad = qDegreesToRadians((float)DEF_D);
+
     // for GL_TRIANGLES
-    for (int k = 0; k < 360; k+=DEF_D){
+    for (int k = 0; k < 360; k += DEF_D) {
         float kRad =  qDegreesToRadians((float)k);
         v << QVector3D(0, 0, 0);
-        v << QVector3D(r*qCos(kRad),r*qSin(kRad), h);
-        v << QVector3D(r*qCos(kRad+dRad),r*qSin(kRad+dRad), h);
-   
+        v << QVector3D(r * qCos(kRad), r * qSin(kRad), h);
+        v << QVector3D(r * qCos(kRad + dRad), r * qSin(kRad + dRad), h);
+
         v << QVector3D(0, 0, 0);
-        v << QVector3D(r*qCos(kRad),-r*qSin(kRad), h);
-        v << QVector3D(r*qCos(kRad+dRad),-r*qSin(kRad+dRad), h);
+        v << QVector3D(r * qCos(kRad), -r * qSin(kRad), h);
+        v << QVector3D(r * qCos(kRad + dRad), -r * qSin(kRad + dRad), h);
     }
-   
+
     return v;
 }
 
@@ -459,22 +460,25 @@ QVector<QVector3D> GLWidget::generateCylinder()
     QVector<QVector3D> v;
     float h = Settings::ShowIntrumentHight;
     float r = Settings::ShowIntrumentDiameter * 0.5;
-    
+ 
     float dRad = qDegreesToRadians((float)DEF_D);
+
     // for GL_TRIANGLES
-    for (int k = 0; k < 360; k+=DEF_D){
+    for (int k = 0; k < 360; k += DEF_D) {
         float kRad =  qDegreesToRadians((float)k);
-        v << QVector3D(r*qCos(kRad),r*qSin(kRad), 0);
-        v << QVector3D(r*qCos(kRad),r*qSin(kRad), h);
-        v << QVector3D(r*qCos(kRad+dRad),r*qSin(kRad+dRad), h);
-   
-        v << QVector3D(r*qCos(kRad),-r*qSin(kRad), 0);
-        v << QVector3D(r*qCos(kRad),-r*qSin(kRad), h);
-        v << QVector3D(r*qCos(kRad+dRad),-r*qSin(kRad+dRad), h);
+        v << QVector3D(r * qCos(kRad), r * qSin(kRad), 0);
+        v << QVector3D(r * qCos(kRad), r * qSin(kRad), h);
+        v << QVector3D(r * qCos(kRad + dRad), r * qSin(kRad + dRad), h);
+
+        v << QVector3D(r * qCos(kRad), -r * qSin(kRad), 0);
+        v << QVector3D(r * qCos(kRad), -r * qSin(kRad), h);
+        v << QVector3D(r * qCos(kRad + dRad), -r * qSin(kRad + dRad), h);
     }
-   
+
     return v;
 }
+
+
 /**
  * @brief
  * @param x coordinate of text center
@@ -573,9 +577,9 @@ void GLWidget::initStaticElements()
 
     instrument.clear();
     QVector<QVector3D> inst = generateCone();
-    
+
     instrument = addPointVector(inst, Settings::colorSettings[COLOR_TOOL]);
-//     instrument << addPointVector(instrumentArray, Settings::colorSettings[COLOR_TOOL]);
+    //     instrument << addPointVector(instrumentArray, Settings::colorSettings[COLOR_TOOL]);
 
     border.clear();
 
@@ -753,14 +757,15 @@ void GLWidget::initStaticElements()
             QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMin - 12.5, Settings::coord[Z].softLimitMax), grdColor
         };
 
+        QFont f("Times", 5);
         float xdiff = qFabs(Settings::coord[X].softLimitMax - Settings::coord[X].softLimitMin);
-        mText << textToVector(xdiff * 0.5 + Settings::coord[X].softLimitMin, Settings::coord[Y].softLimitMin - 15.0, 0, QString().sprintf("%.2f mm", xdiff), Settings::colorSettings[COLOR_BORDER], X);
+        mText << textToVector(xdiff * 0.5 + Settings::coord[X].softLimitMin, Settings::coord[Y].softLimitMin - 15.0, 0, QString().sprintf("%.2f mm", xdiff), Settings::colorSettings[COLOR_BORDER], X, f);
 
         float ydiff = qFabs(Settings::coord[Y].softLimitMax - Settings::coord[Y].softLimitMin);
-        mText << textToVector( Settings::coord[X].softLimitMin - 15.0, ydiff * 0.5 + Settings::coord[Y].softLimitMin,  0, QString().sprintf("%.2f mm", ydiff), Settings::colorSettings[COLOR_BORDER], Y);
+        mText << textToVector( Settings::coord[X].softLimitMin - 15.0, ydiff * 0.5 + Settings::coord[Y].softLimitMin,  0, QString().sprintf("%.2f mm", ydiff), Settings::colorSettings[COLOR_BORDER], Y, f);
 
         float zdiff = qFabs(Settings::coord[Z].softLimitMax - Settings::coord[Z].softLimitMin);
-        mText << textToVector(Settings::coord[X].softLimitMin - 10.0, Settings::coord[Y].softLimitMin - 10.0, zdiff * 0.5, QString().sprintf("%.2f mm", zdiff), Settings::colorSettings[COLOR_BORDER], Z);
+        mText << textToVector(Settings::coord[X].softLimitMin - 10.0, Settings::coord[Y].softLimitMin - 10.0, zdiff * 0.5, QString().sprintf("%.2f mm", zdiff), Settings::colorSettings[COLOR_BORDER], Z, f);
     }
 
     int maxY, maxX;
