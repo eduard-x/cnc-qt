@@ -298,7 +298,7 @@ MainWindow::MainWindow(QWidget *parent)
         tabWidget->removeTab(1);
     }
 
-
+    tabWidget->setCurrentIndex(0);
 
     Correction = false;
     deltaX = 0;
@@ -2441,8 +2441,6 @@ void MainWindow::fillListWidget(QVector<QString> listCode)
 
     Task::lineCodeStart = 0;
     Task::lineCodeEnd = listGCodeWidget->rowCount();
-
-    tabWidget->setCurrentIndex(0);
 
     statusProgress->setRange(0, listGCodeWidget->rowCount());
     statusProgress->setValue(0);

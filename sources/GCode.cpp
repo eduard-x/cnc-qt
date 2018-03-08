@@ -204,6 +204,7 @@ bool GCodeParser::addArc(GCodeData *c)
 bool GCodeParser::readGCode(const QByteArray &gcode)
 {
     struct pLines {
+        QString orig;
         QString ln;
         int nr;
     };
@@ -231,7 +232,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     QVector<pLines> gCodeLines;
     QString lastCmd;
     int lineNr = 0;
-    //     QString lastCommand;
+    
     QString param[16];//X, paramY, paramZ, paramA, paramF;
 
     //     while(!stream.atEnd()) { // restruct lines
@@ -467,7 +468,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         }
 
         gCodeLines << (pLines) {
-            tmpStr, lineNr
+            t, tmpStr, lineNr
         };
     }
 
@@ -997,7 +998,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
         }
 
         if (decoded == false) {
-            emit logMessage(QString().sprintf("gcode parsing error, line %d: %s", gCodeLines.at(cur).nr, gCodeLines.at(cur).ln.toLatin1().data()));
+            emit logMessage(QString().sprintf("gcode parsing error, line %d: %s", gCodeLines.at(cur).nr, gCodeLines.at(cur).orig.toLatin1().data()));
         } else {
             if (correctLine.length() > 0) {
                 goodList << correctLine;
