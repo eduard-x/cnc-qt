@@ -178,7 +178,6 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
 
         QSlider *cmdZoom;
 
-        static QVector<QVector3D> instrumentArray;
         static QVector<QVector3D> footArray;
         static QVector<QVector3D> traverseArray;
 

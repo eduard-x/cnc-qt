@@ -288,27 +288,6 @@ QVector<QVector3D> GLWidget::zAxis = {
     { -1.0, -1.0, 9.0 }
 };
 
-QVector<QVector3D> GLWidget::instrumentArray = {
-    { 0.0, 0.0, 0.0 },
-    { 0.0, 0.0, 4.0 },
-    { -1.0, -1.0, 2.0 },
-    { -1.0, 1.0, 2.0 },
-    { 1.0, -1.0, 2.0 },
-    { 1.0, 1.0, 2.0 },
-    { 1.0, 1.0, 2.0 },
-    { -1.0, 1.0, 2.0 },
-    { 1.0, -1.0, 2.0 },
-    { -1.0, -1.0, 2.0 },
-    { -1.0, -1.0, 2.0 },
-    { 0.0, 0.0, 0.0 },
-    { 1.0, 1.0, 2.0 },
-    { 0.0, 0.0, 0.0 },
-    { 1.0, -1.0, 2.0 },
-    { 0.0, 0.0, 0.0 },
-    { -1.0, 1.0, 2.0 },
-    { 0.0, 0.0, 0.0 }
-};
-
 
 QVector<QVector3D> GLWidget::footArray = { // GL_LINE_LOOP array
     { 0.0, 0.0, 0.0 },      // 0
@@ -576,10 +555,16 @@ void GLWidget::initStaticElements()
     aText << textToVector(-0.5, -0.5, 12, "Z", Settings::colorSettings[COLOR_Z], Z);
 
     instrument.clear();
-    QVector<QVector3D> inst = generateCone();
-
+    QVector<QVector3D> inst;
+    
+    if (Settings::ShowInstrumentCone) {
+        inst = generateCone();
+    }
+    else {
+        inst = generateCylinder();
+    }
+    
     instrument = addPointVector(inst, Settings::colorSettings[COLOR_TOOL]);
-    //     instrument << addPointVector(instrumentArray, Settings::colorSettings[COLOR_TOOL]);
 
     border.clear();
 
