@@ -1,5 +1,8 @@
 Version history
 
+0.3.6   gcode parser: feed of G01 implemented
+        OpenGL, Instrument as cone/cylinder
+        small bugfixes in parser
 0.3.5   gcode parser is 2.5 times faster 
         additional info in log widget about not decoded gcode lines
         possible to display the characters in in OpenGL ES 
