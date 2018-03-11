@@ -251,7 +251,12 @@ bool Settings::saveSettings()
     s->setValue("ShowGrid", ShowGrid);
     s->setValue("ShowSurface", ShowSurface);
     s->setValue("ShowAxes", ShowAxes);
-
+    
+    s->setValue("ShowMessure", ShowMessure);
+    s->setValue("ShowInstrumentCone", ShowInstrumentCone);
+    s->setValue("ShowIntrumentDiameter", ShowIntrumentDiameter);
+    s->setValue("ShowIntrumentHight", ShowIntrumentHight);
+    
     s->setValue("DisableOpenGL", disableOpenGL);
     s->setValue("RemoteName", remoteName);
     s->setValue("RemotePort", remotePort);
@@ -489,6 +494,11 @@ bool Settings::readSettings()
     ShowGrid = s->value("ShowGrid", true).toBool();
     ShowSurface = s->value("ShowSurface", false).toBool();
     ShowAxes = s->value("ShowAxes", true).toBool();
+    
+    ShowMessure = s->value("ShowMessure", true).toBool();
+    ShowInstrumentCone = s->value("ShowInstrumentCone", true).toBool();
+    ShowIntrumentDiameter = s->value("ShowIntrumentDiameter", 0.5).toFloat();
+    ShowIntrumentHight = s->value("ShowIntrumentHight", 5.0).toFloat();
 
     disableOpenGL = s->value("DisableOpenGL", false).toBool();
     remoteName = s->value("RemoteName", "").toString();

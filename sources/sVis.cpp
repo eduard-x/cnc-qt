@@ -58,6 +58,11 @@ SettingsVis::SettingsVis(QWidget *p)
     groupBoxGrid->setChecked(Settings::ShowGrid);
     checkBoxSurface->setChecked(Settings::ShowSurface);
     checkBoxXYZ->setChecked(Settings::ShowAxes);
+    
+    checkBoxMessure->setChecked(Settings::ShowMessure);
+    checkBoxInstCone->setChecked(Settings::ShowInstrumentCone);
+    spinBoxInstDiametr->setValue(Settings::ShowIntrumentDiameter);
+    spinBoxInstHight->setValue(Settings::ShowIntrumentHight);
 
     //     checkDisableIfSSH->setChecked(Settings::disableIfSSH);
     spinBoxGrid->setValue(Settings::GrigStep);
@@ -103,7 +108,10 @@ void SettingsVis::getSettings()
     Settings::ShowSurface = checkBoxSurface->isChecked();
     Settings::ShowAxes = checkBoxXYZ->isChecked();
 
-
+    Settings::ShowMessure = checkBoxMessure->isChecked();
+    Settings::ShowInstrumentCone = checkBoxInstCone->isChecked();
+    Settings::ShowIntrumentDiameter = spinBoxInstDiametr->value();
+    Settings::ShowIntrumentHight = spinBoxInstHight->value();
 
     //     Settings::disableIfSSH = checkDisableIfSSH->isChecked();
     Settings::GrigStep = spinBoxGrid->value();
