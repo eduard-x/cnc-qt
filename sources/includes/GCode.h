@@ -105,6 +105,8 @@ class GCodeData
         int   vectSpeed; // telegr CA offset
         float vectorCoeff; // for the max from dH / dX of dH / dY ratio, in case XY plane
 
+        float feedVelocity;
+
         int   movingCode;
         int   stepsCounter; // number of steps in current direction
 

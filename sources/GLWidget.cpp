@@ -439,7 +439,7 @@ QVector<QVector3D> GLWidget::generateCylinder()
     QVector<QVector3D> v;
     float h = Settings::ShowIntrumentHight;
     float r = Settings::ShowIntrumentDiameter * 0.5;
- 
+
     float dRad = qDegreesToRadians((float)DEF_D);
 
     // for GL_TRIANGLES
@@ -556,14 +556,13 @@ void GLWidget::initStaticElements()
 
     instrument.clear();
     QVector<QVector3D> inst;
-    
+
     if (Settings::ShowInstrumentCone) {
         inst = generateCone();
-    }
-    else {
+    } else {
         inst = generateCylinder();
     }
-    
+
     instrument = addPointVector(inst, Settings::colorSettings[COLOR_TOOL]);
 
     border.clear();

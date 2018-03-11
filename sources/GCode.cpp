@@ -86,6 +86,8 @@ GCodeData::GCodeData()
     vectorCoeff = 0.0;
     // end of arc
 
+    feedVelocity = 0.0;
+
     typeMoving = NoType;
 
     movingCode =  NO_CODE;
@@ -131,6 +133,8 @@ GCodeData::GCodeData(GCodeData *d)
     Radius = d->Radius;
 
     plane = d->plane;
+
+    feedVelocity = d->feedVelocity; // ???
 
     vectorCoeff = 0.0;
 
@@ -232,7 +236,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
     QVector<pLines> gCodeLines;
     QString lastCmd;
     int lineNr = 0;
-    
+
     QString param[16];//X, paramY, paramZ, paramA, paramF;
 
     //     while(!stream.atEnd()) { // restruct lines
@@ -269,7 +273,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
         lineStream = lineStream.simplified();
         lineStream.remove(QChar(' '));
-        
+
         if (lineStream.length() == 0) {
             continue;
         }
@@ -551,6 +555,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                         tmpCommand->movingCode = RAPID_LINE_CODE;
                         tmpCommand->plane = currentPlane;
+                        tmpCommand->feedVelocity = 0.0;
 
 
                         if (b_absolute) {
@@ -645,13 +650,16 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     case 1: {
                         QVector3D next_pos(b_absolute ? current_pos - origin : QVector3D(0, 0, 0));
                         float E(-1.0);
+                        float feed = 0.0;
 
-                        if (parseCoord(line, next_pos, E, coef) == false) {
+                        if (parseCoord(line, next_pos, E, coef, &feed) == false) {
                             decoded = false;
                             break;
                         }
 
                         tmpCommand->xyz = next_pos;
+
+                        tmpCommand->feedVelocity = feed;
 
                         tmpCommand->splits = 0;
 
@@ -695,6 +703,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                         }
 
                         tmpCommand->xyz = next_pos;
+
+                        tmpCommand->feedVelocity = 0.0;
 
                         detectMinMax(tmpCommand);
 
@@ -744,27 +754,29 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                     }
 
                     case 4: {
-                        // need next parameter
-                        QString property1 = vct_ref.at(1).mid(0, 1);
-                        QString value1 = vct_ref.at(1).mid(1);
+                        if (vct_ref.count() > 1) {
+                            // need next parameter
+                            QString property1 = vct_ref.at(1).mid(0, 1);
+                            QString value1 = vct_ref.at(1).mid(1);
 
-                        if (property1 == "P") {
-                            bool res;
-                            tmpCommand->pauseMSeconds = value1.toInt(&res);
+                            if (property1 == "P") {
+                                bool res;
+                                tmpCommand->pauseMSeconds = value1.toInt(&res);
 
-                            if (res == false) {
-                                decoded = false;
-                                break;
+                                if (res == false) {
+                                    decoded = false;
+                                    break;
+                                }
                             }
-                        }
 
-                        if (property1 == "X") {
-                            bool res;
-                            tmpCommand->pauseMSeconds = value1.toFloat(&res) * 1000;
+                            if (property1 == "X") {
+                                bool res;
+                                tmpCommand->pauseMSeconds = value1.toFloat(&res) * 1000;
 
-                            if (res == false) {
-                                decoded = false;
-                                break;
+                                if (res == false) {
+                                    decoded = false;
+                                    break;
+                                }
                             }
                         }
 
@@ -865,6 +877,19 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                 break;
             }
 
+            case 'F': {
+                QString value1 = vct_ref.at(0).mid(1);
+                bool res;
+                tmpCommand->feedVelocity = value1.toFloat(&res);
+
+                if (res == false) {
+                    decoded = false;
+                    tmpCommand->feedVelocity = 0.0;
+                }
+
+                break;
+            }
+
             case 'M': {
                 switch (cmdNum) {
                     case 0: {
@@ -884,35 +909,37 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                     case 6: {
                         // need next parameter
-                        QString property1 = vct_ref.at(1).mid(0, 1);
-                        QString value1 = vct_ref.at(1).mid(1);
+                        if (vct_ref.count() > 1) {
+                            QString property1 = vct_ref.at(1).mid(0, 1);
+                            QString value1 = vct_ref.at(1).mid(1);
 
-                        if (property1 == "T") {
-                            tmpCommand->changeInstrument = true;
-                            bool res;
-                            tmpCommand->numberInstrument = value1.toInt(&res);
+                            if (property1 == "T") {
+                                tmpCommand->changeInstrument = true;
+                                bool res;
+                                tmpCommand->numberInstrument = value1.toInt(&res);
 
-                            if (res == false) {
-                                decoded = false;
-                            }
+                                if (res == false) {
+                                    decoded = false;
+                                }
 
-                            tmpCommand->pauseMSeconds = value1.toInt(&res);
+                                tmpCommand->pauseMSeconds = value1.toInt(&res);
 
-                            if (res == false) {
-                                decoded = false;
-                            }
+                                if (res == false) {
+                                    decoded = false;
+                                }
 
-                            if (vct_ref.count() > 2) {
-                                QString property2 = vct_ref.at(2).mid(0, 1);
+                                if (vct_ref.count() > 2) {
+                                    QString property2 = vct_ref.at(2).mid(0, 1);
 
-                                if ( property2 == "D" ) {
-                                    QString value2 = vct_ref.at(2).mid(1).replace(Settings::fromDecimalPoint, Settings::toDecimalPoint);
+                                    if ( property2 == "D" ) {
+                                        QString value2 = vct_ref.at(2).mid(1).replace(Settings::fromDecimalPoint, Settings::toDecimalPoint);
 
-                                    tmpCommand->diametr = value2.toDouble(&res);
+                                        tmpCommand->diametr = value2.toDouble(&res);
 
-                                    if (res == false) {
-                                        decoded = false;
-                                        break;
+                                        if (res == false) {
+                                            decoded = false;
+                                            break;
+                                        }
                                     }
                                 }
                             }
