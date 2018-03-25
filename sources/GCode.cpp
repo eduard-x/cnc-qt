@@ -50,21 +50,27 @@
  */
 GCodeData::GCodeData()
 {
-    changeInstrument = false;
-    numberInstrument = 0;
-    numberInstruction = 0;
+    toolChange = false;
+    toolNumber = 0;
+    commandNum = 0;
     numberLine = 0;
     /** @var pauseMSeconds
      * no pause: -1
      * waiting: 0
      * pause > 0 in milliseconds
      */
-    pauseMSeconds = -1;
+    pauseMSec = -1; // no pause
 
-    xyz = { 0.0, 0.0, 0.0 };
+    baseCoord = { 0.0, 0.0, 0.0 }; // X, Y, Z
+
+    useExtCoord = NoEXT;
+
+    extCoord = { 0.0, 0.0, 0.0 };
+#if 0
     ijk = { 0.0, 0.0, 0.0 };
     abc = { 0.0, 0.0, 0.0 };
     uvw = { 0.0, 0.0, 0.0 };
+#endif
     //     for(int i=0; i< 16; i++){
     //         axis[i] = 0.0;
     //     }
@@ -82,11 +88,11 @@ GCodeData::GCodeData()
 
     plane = None;
 
-    Radius = 0.0;
+    radius = 0.0;
     vectorCoeff = 0.0;
     // end of arc
 
-    feedVelocity = 0.0;
+    rapidVelo = 0.0;
 
     typeMoving = NoType;
 
@@ -99,10 +105,13 @@ GCodeData::GCodeData()
     angle = 0.0;
     deltaAngle = 0.0;
 
-    spindelON = false;
+    spindelOn = false;
+    mistOn = false;
+    coolantOn = false;
+
     splits = 0; // init
 
-    diametr = 0.0;
+    toolDiameter = 0.0;
 };
 
 
@@ -112,10 +121,14 @@ GCodeData::GCodeData()
  */
 GCodeData::GCodeData(GCodeData *d)
 {
-    xyz = d->xyz;
+    baseCoord = d->baseCoord;
+    useExtCoord = NoEXT;
+    extCoord = { 0.0, 0.0, 0.0 }; // for ABC, IJK, UVW
+#if 0
     ijk = { 0.0, 0.0, 0.0 };
     abc = { 0.0, 0.0, 0.0 };
     uvw = { 0.0, 0.0, 0.0 };
+#endif
     //     for(int i=A; i< 16; i++){
     //         axis[i] = 0.0;
     //     }
@@ -130,17 +143,20 @@ GCodeData::GCodeData(GCodeData *d)
     //     J = d->J;
     //     K = d->K;
 
-    Radius = d->Radius;
+    radius = d->radius; // got G02, G03
 
     plane = d->plane;
 
-    feedVelocity = d->feedVelocity; // ???
+    rapidVelo = d->rapidVelo; // ???
 
     vectorCoeff = 0.0;
 
     typeMoving = d->typeMoving;
 
-    spindelON = d->spindelON;
+    spindelOn = d->spindelOn;
+    mistOn = d->mistOn;
+    coolantOn = d->coolantOn;
+
     vectSpeed = d->vectSpeed;
 
     splits = 0; // if arc, will be splitted, debug information only
@@ -149,18 +165,20 @@ GCodeData::GCodeData(GCodeData *d)
     movingCode = NO_CODE;
 
     numberLine = d->numberLine;
-    numberInstruction = 0;
+    commandNum = 0;
 
     angle = 0.0;//d->angleVectors;
 
     deltaAngle = 0.0;
 
-    changeInstrument = d->changeInstrument;
-    numberInstrument = d->numberInstrument;
-    pauseMSeconds = d->pauseMSeconds;
-    diametr = d->diametr;
+    toolChange = d->toolChange;
+    toolNumber = d->toolNumber;
+    pauseMSec = d->pauseMSec;
+    toolDiameter = d->toolDiameter;
 };
 
+// is static
+QVector<GCodeData> GCodeParser::gCodeList;
 
 /**
  * @brief constructor
@@ -190,6 +208,25 @@ bool GCodeParser::addLine(GCodeData *c)
 }
 
 
+/* opens the given file, fallback to stdin/stdout */
+FILE * GCodeParser::open_file (char * file, const char * flag)
+{
+    FILE * fd = NULL;
+
+    if (file) {
+        if ((fd = fopen (file, flag)) == NULL) {
+            fprintf (stderr, "cannot open file `%s': %s, using %s instead\n",
+                     file, strerror (errno), flag[0] == 'r' ? "stdin" : "stdout");
+            fd = flag[0] == 'r' ? stdin : stdout;
+        }
+    } else {
+        fd = flag[0] == 'r' ? stdin : stdout;
+    }
+
+    return fd;
+}
+
+
 /**
  * @brief
  *
@@ -199,6 +236,79 @@ bool GCodeParser::addArc(GCodeData *c)
 }
 
 
+void GCodeParser::gcode_init()
+{
+    //      gcode_result = NULL;
+    //   gcode_vector = NULL;
+    //   gcode_header = NULL;
+}
+
+
+bool GCodeParser::gcode_checker()
+{
+}
+
+
+void GCodeParser::gcode_destroy()
+{
+    //      if (csv_result != NULL) {
+    //     // delete associated dataset
+    //     delete csv_result;
+    //     csv_result = NULL;
+    //   }
+    //   if (csv_vector != NULL) {
+    //     csv_finalize ();
+    //     csv_vector = NULL;
+    //   }
+}
+
+
+bool GCodeParser::readGCode(const QString &infile)
+{
+    int ret = true;
+    
+    mut.lock();
+    
+    QTime tMess;
+    tMess.start();
+
+    
+    gcode_init ();
+//     printf("start readGCode()\n");
+
+    if ((gcode_in = open_file (infile.toLatin1().data(), "r")) == NULL) {
+        ret = false;
+    } else if ( gcode_parse () != 0) {
+        ret = false;
+    } else if ( gcode_checker () != 0) {
+        ret = false;
+    }
+
+    gcode_lex_destroy ();
+
+    if ( gcode_in) {
+        fclose ( gcode_in);
+    }
+
+    mut.unlock();
+    
+    if (!ret) {
+        gcode_destroy ();
+        return false;
+    }
+
+    //   if ((qucs_out = open_file (outfile, "w")) == NULL)
+    //     return -1;
+    //   if (!strcmp (action->out, "qucsdata"))
+    //     qucsdata_producer_vcd ();
+    //   fclose (qucs_out);
+    gcode_destroy ();
+
+    emit logMessage(QString().sprintf("Parse gcode, flex/bison. Time elapsed: %d ms", tMess.elapsed()));
+
+
+    return true;
+}
 /**
  * @brief read and parse into GCodeData list and OpenGL list
  * @see for the optimizations see https://blog.qt.io/blog/2014/06/13/qt-weekly-13-qstringliteral/
@@ -532,10 +642,10 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                             break;
                         }
 
-                        tmpCommand->xyz = next_pos;
+                        tmpCommand->baseCoord = next_pos;
 
                         if (gCodeList.count() > 0) {
-                            delta_pos = next_pos - gCodeList.last().xyz;
+                            delta_pos = next_pos - gCodeList.last().baseCoord;
 
                             if (Settings::filterRepeat == true) {
                                 if (delta_pos == QVector3D(0, 0, 0) && gCodeList.last().movingCode == RAPID_LINE_CODE) {
@@ -555,7 +665,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                         tmpCommand->movingCode = RAPID_LINE_CODE;
                         tmpCommand->plane = currentPlane;
-                        tmpCommand->feedVelocity = 0.0;
+                        tmpCommand->rapidVelo = 0.0;
 
 
                         if (b_absolute) {
@@ -641,8 +751,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                         tmpCommand->numberLine = goodList.count();
 
-                        tmpCommand->changeInstrument = false;
-                        tmpCommand->pauseMSeconds = -1; // no pause
+                        tmpCommand->toolChange = false;
+                        tmpCommand->pauseMSec = -1; // no pause
 
                         break;
                     }
@@ -657,9 +767,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                             break;
                         }
 
-                        tmpCommand->xyz = next_pos;
+                        tmpCommand->baseCoord = next_pos;
 
-                        tmpCommand->feedVelocity = feed;
+                        tmpCommand->rapidVelo = feed;
 
                         tmpCommand->splits = 0;
 
@@ -686,8 +796,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                         tmpCommand->numberLine = goodList.count();
 
-                        tmpCommand->changeInstrument = false;
-                        tmpCommand->pauseMSeconds = -1; // no pause
+                        tmpCommand->toolChange = false;
+                        tmpCommand->pauseMSec = -1; // no pause
 
                         break;
                     }
@@ -702,9 +812,9 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                             break;
                         }
 
-                        tmpCommand->xyz = next_pos;
+                        tmpCommand->baseCoord = next_pos;
 
-                        tmpCommand->feedVelocity = 0.0;
+                        tmpCommand->rapidVelo = 0.0;
 
                         detectMinMax(tmpCommand);
 
@@ -721,12 +831,13 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                         if (radius == 0.0) {
                             // the arc center coordinateds
-                            tmpCommand->ijk = arc_center;
+                            tmpCommand->useExtCoord = IJK;
+                            tmpCommand->extCoord = arc_center;
                             //                         tmpCommand->J = arc_center.y();
                             //                         tmpCommand->K = arc_center.z();
                         }
 
-                        tmpCommand->Radius = radius;
+                        tmpCommand->radius = radius;
 
                         if (cmdNum == 2) {
                             tmpCommand->typeMoving = GCodeData::ArcCW;
@@ -747,8 +858,8 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                         tmpCommand->numberLine = goodList.count();
 
-                        tmpCommand->changeInstrument = false;
-                        tmpCommand->pauseMSeconds = -1; // no pause
+                        tmpCommand->toolChange = false;
+                        tmpCommand->pauseMSec = -1; // no pause
 
                         break;
                     }
@@ -761,7 +872,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                             if (property1 == "P") {
                                 bool res;
-                                tmpCommand->pauseMSeconds = value1.toInt(&res);
+                                tmpCommand->pauseMSec = value1.toInt(&res);
 
                                 if (res == false) {
                                     decoded = false;
@@ -771,7 +882,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
 
                             if (property1 == "X") {
                                 bool res;
-                                tmpCommand->pauseMSeconds = value1.toFloat(&res) * 1000;
+                                tmpCommand->pauseMSec = value1.toFloat(&res) * 1000;
 
                                 if (res == false) {
                                     decoded = false;
@@ -880,11 +991,11 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             case 'F': {
                 QString value1 = vct_ref.at(0).mid(1);
                 bool res;
-                tmpCommand->feedVelocity = value1.toFloat(&res);
+                tmpCommand->rapidVelo = value1.toFloat(&res);
 
                 if (res == false) {
                     decoded = false;
-                    tmpCommand->feedVelocity = 0.0;
+                    tmpCommand->rapidVelo = 0.0;
                 }
 
                 break;
@@ -893,17 +1004,17 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
             case 'M': {
                 switch (cmdNum) {
                     case 0: {
-                        tmpCommand->pauseMSeconds = 0; // waiting
+                        tmpCommand->pauseMSec = 0; // waiting
                         break;
                     }
 
                     case 3: {
-                        tmpCommand->spindelON = true;
+                        tmpCommand->spindelOn = true;
                         break;
                     }
 
                     case 5: {
-                        tmpCommand->spindelON = false;
+                        tmpCommand->spindelOn = false;
                         break;
                     }
 
@@ -914,15 +1025,15 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                             QString value1 = vct_ref.at(1).mid(1);
 
                             if (property1 == "T") {
-                                tmpCommand->changeInstrument = true;
+                                tmpCommand->toolChange = true;
                                 bool res;
-                                tmpCommand->numberInstrument = value1.toInt(&res);
+                                tmpCommand->toolNumber = value1.toInt(&res);
 
                                 if (res == false) {
                                     decoded = false;
                                 }
 
-                                tmpCommand->pauseMSeconds = value1.toInt(&res);
+                                tmpCommand->pauseMSec = value1.toInt(&res);
 
                                 if (res == false) {
                                     decoded = false;
@@ -934,7 +1045,7 @@ bool GCodeParser::readGCode(const QByteArray &gcode)
                                     if ( property2 == "D" ) {
                                         QString value2 = vct_ref.at(2).mid(1).replace(Settings::fromDecimalPoint, Settings::toDecimalPoint);
 
-                                        tmpCommand->diametr = value2.toDouble(&res);
+                                        tmpCommand->toolDiameter = value2.toDouble(&res);
 
                                         if (res == false) {
                                             decoded = false;
@@ -1106,28 +1217,28 @@ void GCodeParser::sortGCode(const QVector<int> &citydata)
  */
 void GCodeParser::detectMinMax(const GCodeData &d)
 {
-    if (d.xyz.x() > Settings::coord[X].softLimitMax) {
-        Settings::coord[X].softLimitMax = d.xyz.x();
+    if (d.baseCoord.x() > Settings::coord[X].softLimitMax) {
+        Settings::coord[X].softLimitMax = d.baseCoord.x();
     }
 
-    if (d.xyz.x() < Settings::coord[X].softLimitMin) {
-        Settings::coord[X].softLimitMin = d.xyz.x();
+    if (d.baseCoord.x() < Settings::coord[X].softLimitMin) {
+        Settings::coord[X].softLimitMin = d.baseCoord.x();
     }
 
-    if (d.xyz.y() > Settings::coord[Y].softLimitMax) {
-        Settings::coord[Y].softLimitMax = d.xyz.y();
+    if (d.baseCoord.y() > Settings::coord[Y].softLimitMax) {
+        Settings::coord[Y].softLimitMax = d.baseCoord.y();
     }
 
-    if (d.xyz.y() < Settings::coord[Y].softLimitMin) {
-        Settings::coord[Y].softLimitMin = d.xyz.y();
+    if (d.baseCoord.y() < Settings::coord[Y].softLimitMin) {
+        Settings::coord[Y].softLimitMin = d.baseCoord.y();
     }
 
-    if (d.xyz.z() > Settings::coord[Z].softLimitMax) {
-        Settings::coord[Z].softLimitMax = d.xyz.z();
+    if (d.baseCoord.z() > Settings::coord[Z].softLimitMax) {
+        Settings::coord[Z].softLimitMax = d.baseCoord.z();
     }
 
-    if (d.xyz.z() < Settings::coord[Z].softLimitMin) {
-        Settings::coord[Z].softLimitMin = d.xyz.z();
+    if (d.baseCoord.z() < Settings::coord[Z].softLimitMin) {
+        Settings::coord[Z].softLimitMin = d.baseCoord.z();
     }
 }
 
@@ -1201,17 +1312,17 @@ void GCodeParser::calcAngleOfLines(int pos)
 
     switch (gCodeList.at(pos).plane) {
         case XY: {
-            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).xyz.y() - gCodeList.at(pos - 1).xyz.y(), gCodeList.at(pos).xyz.x() - gCodeList.at(pos - 1).xyz.x());
+            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).baseCoord.y() - gCodeList.at(pos - 1).baseCoord.y(), gCodeList.at(pos).baseCoord.x() - gCodeList.at(pos - 1).baseCoord.x());
             break;
         }
 
         case YZ: {
-            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).xyz.z() - gCodeList.at(pos - 1).xyz.z(), gCodeList.at(pos).xyz.y() - gCodeList.at(pos - 1).xyz.y());
+            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).baseCoord.z() - gCodeList.at(pos - 1).baseCoord.z(), gCodeList.at(pos).baseCoord.y() - gCodeList.at(pos - 1).baseCoord.y());
             break;
         }
 
         case ZX: {
-            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).xyz.x() - gCodeList.at(pos - 1).xyz.x(), gCodeList.at(pos).xyz.z() - gCodeList.at(pos - 1).xyz.z());
+            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).baseCoord.x() - gCodeList.at(pos - 1).baseCoord.x(), gCodeList.at(pos).baseCoord.z() - gCodeList.at(pos - 1).baseCoord.z());
             break;
         }
 
@@ -1254,8 +1365,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
     //     float x2, x1, y2, y1, z2, z1;
     QVector3D beginPos, endPos;
 
-    beginPos = begData.xyz;
-    endPos = endData->xyz;
+    beginPos = begData.baseCoord;
+    endPos = endData->baseCoord;
     //     x1 = begData.X;;
     //     x2 = endData->X;
     //
@@ -1266,9 +1377,9 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
     //     z2 = endData->Z;
 
     float i, j, k;
-    i = endData->ijk.x();
-    j = endData->ijk.y();
-    k = endData->ijk.z();
+    i = endData->extCoord.x(); // IJK
+    j = endData->extCoord.y();
+    k = endData->extCoord.z();
 
     //     QVector3D pos1 = begData; //(x1, y1, z1);
     //     QVector3D pos2(x2, y2, z2);
@@ -1278,10 +1389,10 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
     switch (endData->plane) {
         case XY: {
-            if (endData->Radius == 0.0) {
+            if (endData->radius == 0.0) {
                 r = qSqrt(qPow(beginPos.x() - i, 2) + qPow(beginPos.y() - j, 2));
             } else {
-                r = endData->Radius;
+                r = endData->radius;
                 // compute i, j
                 //                 float a = determineAngle (pos1, pos2, endData->plane) + PI;
                 //                 qDebug() << "radius " << r << "alpha" << a << "xy point 1" << x1 << y1 << "xy point 2" << x2 << y2;
@@ -1293,10 +1404,10 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
         break;
 
         case YZ: {
-            if (endData->Radius == 0.0) {
+            if (endData->radius == 0.0) {
                 r = qSqrt(qPow(beginPos.y() - j, 2) + qPow(beginPos.z() - k, 2));
             } else {
-                r = endData->Radius;
+                r = endData->radius;
                 // compute j, k
             }
 
@@ -1306,10 +1417,10 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
         break;
 
         case ZX: {
-            if (endData->Radius == 0.0) {
+            if (endData->radius == 0.0) {
                 r = qSqrt(qPow(beginPos.z() - k, 2) + qPow(beginPos.x() - i, 2));
             } else {
-                r = endData->Radius;
+                r = endData->radius;
                 // compute k, i
             }
 
@@ -1392,8 +1503,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
     QVector<GCodeData> tmpList;
 
-    ncommand->xyz = begData.xyz;
-    ncommand->abc = begData.abc;
+    ncommand->baseCoord = begData.baseCoord;
+    ncommand->extCoord = begData.extCoord; // ABC
     //     ncommand->Z = begData.Z;
     //     ncommand->A = begData.A;
 
@@ -1416,14 +1527,14 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 float x_new = i + r * c;
                 float y_new = j + r * s;
 
-                float angle = qAtan2(y_new - ncommand->xyz.y(), x_new - ncommand->xyz.x());
+                float angle = qAtan2(y_new - ncommand->baseCoord.y(), x_new - ncommand->baseCoord.x());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
 
                 ncommand->angle = angle;
-                ncommand->xyz = {x_new, y_new, loopPos};
+                ncommand->baseCoord = {x_new, y_new, loopPos};
 
                 detectMinMax(ncommand);
 #if DEBUG_ARC
@@ -1431,8 +1542,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 #endif
 
                 /** detection of end because of rounding */
-                if (qSqrt((x_new - endData->xyz.x()) * (x_new - endData->xyz.x()) + (y_new - endData->xyz.y()) * (y_new - endData->xyz.y())) <= splitLen) {
-                    float t_angle = qAtan2(y_new - endData->xyz.y(), x_new - endData->xyz.x());
+                if (qSqrt((x_new - endData->baseCoord.x()) * (x_new - endData->baseCoord.x()) + (y_new - endData->baseCoord.y()) * (y_new - endData->baseCoord.y())) <= splitLen) {
+                    float t_angle = qAtan2(y_new - endData->baseCoord.y(), x_new - endData->baseCoord.x());
 
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
@@ -1440,7 +1551,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                     ncommand->angle = t_angle;
 
-                    ncommand->xyz = endData->xyz;
+                    ncommand->baseCoord = endData->baseCoord;
                     //                     ncommand->Y = endData->Y;
                     //                     ncommand->Z = endData->Z;
 
@@ -1474,14 +1585,14 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 float y_new = j + r * c;
                 float z_new = k + r * s;
 
-                float angle = qAtan2(z_new - ncommand->xyz.z(), y_new - ncommand->xyz.y());
+                float angle = qAtan2(z_new - ncommand->baseCoord.z(), y_new - ncommand->baseCoord.y());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
 
                 ncommand->angle = angle;
-                ncommand->xyz = {loopPos, y_new, z_new};
+                ncommand->baseCoord = {loopPos, y_new, z_new};
                 //                 ncommand->X = loopPos;
 
                 detectMinMax(ncommand);
@@ -1490,8 +1601,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 #endif
 
                 /** detection of end because of rounding */
-                if (qSqrt((y_new - endData->xyz.y()) * (y_new - endData->xyz.y()) + (z_new - endData->xyz.z()) * (z_new - endData->xyz.z())) <= splitLen) {
-                    float t_angle = qAtan2(z_new - endData->xyz.z(), y_new - endData->xyz.y());
+                if (qSqrt((y_new - endData->baseCoord.y()) * (y_new - endData->baseCoord.y()) + (z_new - endData->baseCoord.z()) * (z_new - endData->baseCoord.z())) <= splitLen) {
+                    float t_angle = qAtan2(z_new - endData->baseCoord.z(), y_new - endData->baseCoord.y());
 
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
@@ -1499,7 +1610,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                     ncommand->angle = t_angle;
 
-                    ncommand->xyz = endData->xyz;
+                    ncommand->baseCoord = endData->baseCoord;
                     //                     ncommand->Y = endData->Y;
                     //                     ncommand->Z = endData->Z;
 
@@ -1533,14 +1644,14 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
                 float z_new = k + r * c;
                 float x_new = i + r * s;
 
-                float angle = qAtan2(x_new - ncommand->xyz.x(), z_new - ncommand->xyz.z());
+                float angle = qAtan2(x_new - ncommand->baseCoord.x(), z_new - ncommand->baseCoord.z());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
 
                 ncommand->angle = angle;
-                ncommand->xyz = {x_new, loopPos, z_new};
+                ncommand->baseCoord = {x_new, loopPos, z_new};
                 //                 ncommand->X = x_new;
                 //                 ncommand->Y = loopPos;
 
@@ -1550,8 +1661,8 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 #endif
 
                 /** detection of end because of rounding */
-                if (qSqrt((x_new - endData->xyz.x()) * (x_new - endData->xyz.x()) + (z_new - endData->xyz.z()) * (z_new - endData->xyz.z())) <= splitLen) {
-                    float t_angle = qAtan2(x_new - endData->xyz.x(), z_new - endData->xyz.z());
+                if (qSqrt((x_new - endData->baseCoord.x()) * (x_new - endData->baseCoord.x()) + (z_new - endData->baseCoord.z()) * (z_new - endData->baseCoord.z())) <= splitLen) {
+                    float t_angle = qAtan2(x_new - endData->baseCoord.x(), z_new - endData->baseCoord.z());
 
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
@@ -1559,7 +1670,7 @@ void GCodeParser::convertArcToLines(GCodeData *endData)
 
                     ncommand->angle = t_angle;
 
-                    ncommand->xyz = endData->xyz;
+                    ncommand->baseCoord = endData->baseCoord;
                     //                     ncommand->Y = endData->Y;
                     //                     ncommand->Z = endData->Z;
 

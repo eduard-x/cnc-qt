@@ -1,0 +1,326 @@
+/* -*-c++-*- */
+
+%{
+/*
+ * parse_gcode.y - parser for a GCODE data file
+ *
+ * Copyright (C) 2006 Stefan Jahn <stefan@lkcc.org>
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this package; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ *
+ * $Id$
+ *
+ */
+
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define YYERROR_VERBOSE 42
+#define YYDEBUG 1
+#define YYMAXDEPTH 1000000
+
+#define __NOEXTENSIONS__ 1
+
+// #include "object.h"
+// #include "complex.h"
+// #include "vector.h"
+
+#include <QString>
+#include <QChar>
+#include <QDebug>
+
+
+#include "GCode.h"
+// #include "check_gcode.h"
+extern int gcode_lex();
+extern void gcode_error(char*);
+// using namespace reader;
+
+static int gcodelineno = 0;
+static int gcodecharno = 0;
+
+// init of first gcode data
+GCodeData *g_data = new GCodeData();
+
+
+%}
+
+%name-prefix "gcode_"
+
+%token T_CMD
+%token T_ANGLE
+%token T_FEED
+%token T_RADIUS
+%token T_LABEL
+%token T_ARC
+%token T_COORD
+
+
+%union {
+    int       i_val;
+    float     f_val;
+    char     *s_val;
+}
+
+
+%token <i_val> Num
+%token <f_val> Real
+%token <s_val> Strg
+
+
+// %type <f_val> f_expr
+// %type <i_val> i_expr
+
+
+
+// %union {
+//   char * ident;
+//   double f;
+//   struct gcode_data_t * data;
+//   struct gcode_header_t * head;
+//   struct gcode_vector_t * vec;
+//   struct gcode_line_t * line;
+// }
+
+// %type <ident> DataFMT DataTYP DataIDN DataIdent
+// %type <ident> Identifier Unit Ident
+// %type <f> Real
+// %type <head> BodyStart
+// %type <vec> DataHeader
+// %type <data> Body BodyList
+// %type <line> DataLine DataList
+
+// parser subroutines 
+
+%start parse_gcode
+
+%%
+
+parse_gcode: 
+        | glines;
+
+glines: glines gline | gline;
+
+gline:  T_LABEL command 
+        {
+            // the new line, create new object
+//             qInfo() << "Label " << gcode_lval.s_val;
+            GCodeParser::gCodeList << g_data;
+            g_data = new GCodeData(g_data);
+            g_data->numberLine = gcodelineno;
+        }
+        | T_LABEL params
+        {
+            // the new line, create new object
+//             qInfo() << "Label " << gcode_lval.s_val;
+            GCodeParser::gCodeList << g_data;
+            g_data =  new GCodeData(g_data);
+            g_data->numberLine = gcodelineno;
+        }
+        | command
+        {
+            // the new line, create new object
+//             qInfo() << "new line with command" << gcode_lval.s_val;
+            GCodeParser::gCodeList << g_data;
+            g_data =  new GCodeData(g_data);
+            g_data->numberLine = gcodelineno;
+        }
+        | comment
+        {
+            qInfo() << gcode_lval.s_val;
+        }
+        | params 
+        {
+            // the new line, create new object
+//             qInfo() << "new line with params";
+            GCodeParser::gCodeList << g_data;
+            g_data =  new GCodeData(g_data);
+            g_data->numberLine = gcodelineno;
+        }
+        ;
+        
+command: T_CMD
+        {
+            QString n = &gcode_lval.s_val[1];
+            bool res;
+            int i = n.toInt(&res);
+            if (res == false) {
+                qInfo() << "Code is wrong" << gcode_lval.s_val;
+                return -1;
+            }
+            
+            if ((gcode_lval.s_val[0] | 0x20) == 'g'){
+                g_data->gCmd = i;
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'm'){
+                g_data->mCmd = i;
+            }
+//             free (gcode_lval.s_val);
+        }
+        | T_CMD params
+        {
+            QString n = &gcode_lval.s_val[1];
+            bool res;
+            int i = n.toInt(&res);
+            if (res == false) {
+                qInfo() << "Code is wrong" << gcode_lval.s_val;
+                return -1;
+            }
+            
+            if ((gcode_lval.s_val[0] | 0x20) == 'g'){
+                g_data->gCmd = i;
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'm'){
+                g_data->mCmd = i;
+            }
+//             free (gcode_lval.s_val);
+        }
+        | T_CMD params comment
+        {
+            QString n = &gcode_lval.s_val[1];
+            bool res;
+            int i = n.toInt(&res);
+            if (res == false) {
+                qInfo() << "Code is wrong" << gcode_lval.s_val;
+                return -1;
+            }
+            
+            if ((gcode_lval.s_val[0] | 0x20) == 'g'){
+                g_data->gCmd = i;
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'm'){
+                g_data->mCmd = i;
+            }
+//             free (gcode_lval.s_val);
+        }
+        ;
+
+params: params param | param;
+
+param:  T_COORD 
+        {
+            QString s = &gcode_lval.s_val[1];
+            
+            bool res;
+            float f = s.toFloat(&res);
+            if (res == false) {
+                qInfo() << "coord is wrong " << gcode_lval.s_val;
+                return -1;
+            }
+            
+            if ((gcode_lval.s_val[0] | 0x20) == 'x'){
+                g_data->baseCoord.setX(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'y'){
+                g_data->baseCoord.setY(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'z'){
+                g_data->baseCoord.setZ(f);
+            }
+//             free (gcode_lval.s_val);
+        }
+        | T_ANGLE 
+        {
+            QString s = &gcode_lval.s_val[1];
+            bool res;
+            float f = s.toFloat(&res);
+            if (res == false) {
+                qInfo() << "angle is wrong " << gcode_lval.s_val;
+                return -1;
+            }
+            
+            g_data->useExtCoord = ABC;
+            if ((gcode_lval.s_val[0] | 0x20) == 'a'){
+                g_data->extCoord.setX(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'b'){
+                g_data->extCoord.setY(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'c'){
+                g_data->extCoord.setZ(f);
+            }
+//             free (gcode_lval.s_val);
+        }
+        | T_FEED 
+        {
+            QString s = &gcode_lval.s_val[1];
+            bool res;
+            float f = s.toFloat(&res);
+            if (res == false) {
+                qInfo() << "feed is wrong" << gcode_lval.s_val;
+                return -1;
+            }
+            g_data->rapidVelo = f;
+//             free (gcode_lval.s_val);
+        }
+        | T_RADIUS
+        {
+            QString s = &gcode_lval.s_val[1];
+            bool res;
+            float f = s.toFloat(&res);
+            if (res == false) {
+                qInfo() << "radius is wrong" << gcode_lval.s_val;
+                return -1;
+            }
+            g_data->radius = f;
+//             free (gcode_lval.s_val);
+        }
+        | T_ARC 
+        {
+            QString s = &gcode_lval.s_val[1];
+            bool res;
+            float f = s.toFloat(&res);
+            if (res == false) {
+                qInfo() << "arc is wrong" << gcode_lval.s_val;
+                return -1;
+            }
+            
+            g_data->useExtCoord = IJK;
+            if ((gcode_lval.s_val[0] | 0x20) == 'i'){
+                g_data->extCoord.setX(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'j'){
+                g_data->extCoord.setY(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'k'){
+                g_data->extCoord.setZ(f);
+            }
+//             free (gcode_lval.s_val);
+        }
+        ;
+      
+comment: "(" Strg ")"
+        {
+            qInfo() << "comment" << $2;
+        }
+        | "#" Strg 
+        {
+            qInfo() << "comment" << $2;
+        }
+        ;
+        
+%%
+
+int gcode_error (const char * error) {
+  fprintf (stderr, "line %d: %s\n", gcodelineno, error);
+  return 0;
+}

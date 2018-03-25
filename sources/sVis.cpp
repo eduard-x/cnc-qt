@@ -58,7 +58,7 @@ SettingsVis::SettingsVis(QWidget *p)
     groupBoxGrid->setChecked(Settings::ShowGrid);
     checkBoxSurface->setChecked(Settings::ShowSurface);
     checkBoxXYZ->setChecked(Settings::ShowAxes);
-    
+
     checkBoxMessure->setChecked(Settings::ShowMessure);
     checkBoxInstCone->setChecked(Settings::ShowInstrumentCone);
     spinBoxInstDiametr->setValue(Settings::ShowIntrumentDiameter);

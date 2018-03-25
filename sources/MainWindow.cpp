@@ -1662,10 +1662,16 @@ void MainWindow::runNextCommand()
 
         mk1->packCA(&mParams); // move to init position
 
-        mParams.pos.X = gcodeNow.xyz.x();
-        mParams.pos.Y = gcodeNow.xyz.y();
-        mParams.pos.Z = gcodeNow.xyz.z() + 10.0;
-        mParams.pos.A = gcodeNow.abc.x();//, userSpeedG0;
+        mParams.pos.X = gcodeNow.baseCoord.x();
+        mParams.pos.Y = gcodeNow.baseCoord.y();
+        mParams.pos.Z = gcodeNow.baseCoord.z() + 10.0;
+
+        if (gcodeNow.useExtCoord == ABC) {
+            mParams.pos.A = gcodeNow.extCoord.x();    //, userSpeedG0;
+        } else {
+            mParams.pos.A = 0.0;
+        }
+
         mParams.speed = gcodeNow.vectSpeed;
         mParams.movingCode = gcodeNow.movingCode;
         mParams.restPulses = gcodeNow.stepsCounter;
@@ -1712,29 +1718,29 @@ void MainWindow::runNextCommand()
     //     qDebug() << "buff size free: " << mk1->availableBufferSize() - 3 << "current instruction: " << Task::instrCounter << "compleate instructions: " << mk1->numberCompleatedInstructions();
 
     //command G4 or M0
-    if (gcodeNow.pauseMSeconds != -1) {
-        if (gcodeNow.pauseMSeconds == 0) { // M0 - waiting command
+    if (gcodeNow.pauseMSec != -1) {
+        if (gcodeNow.pauseMSec == 0) { // M0 - waiting command
             currentStatus = Task::Paused;
 
             //pause before user click
             MessageBox::exec(this, translate(ID_PAUSE), translate(ID_RECIEVED_M0), QMessageBox::Information);
         } else {
             QString msg = translate(ID_PAUSE_G4);
-            statusLabel2->setText( msg.arg(QString::number(gcodeNow.pauseMSeconds)));
+            statusLabel2->setText( msg.arg(QString::number(gcodeNow.pauseMSec)));
 
-            QThread().wait(gcodeNow.pauseMSeconds); // pause in msec
+            QThread().wait(gcodeNow.pauseMSec); // pause in msec
 
             statusLabel2->setText( "" );
         }
     }
 
     //replace instrument
-    if (gcodeNow.changeInstrument) {
+    if (gcodeNow.toolChange) {
         currentStatus = Task::Paused;
 
         //pause before user click
         QString msg = translate(ID_PAUSE_ACTIVATED);
-        MessageBox::exec(this, translate(ID_PAUSE), msg.arg(QString::number(gcodeNow.numberInstrument)).arg(QString::number(gcodeNow.diametr)), QMessageBox::Information);
+        MessageBox::exec(this, translate(ID_PAUSE), msg.arg(QString::number(gcodeNow.toolNumber)).arg(QString::number(gcodeNow.toolDiameter)), QMessageBox::Information);
     }
 
     int commands = 1;
@@ -1745,10 +1751,14 @@ void MainWindow::runNextCommand()
     }
 
     for (int i = 0; i < commands; i++) {
-        float pointX = gcodeNow.xyz.x();
-        float pointY = gcodeNow.xyz.y();
-        float pointZ = gcodeNow.xyz.z();
-        float pointA = gcodeNow.abc.x();
+        float pointX = gcodeNow.baseCoord.x();
+        float pointY = gcodeNow.baseCoord.y();
+        float pointZ = gcodeNow.baseCoord.z();
+        float pointA = 0.0;
+
+        if (gcodeNow.useExtCoord == ABC) {
+            pointA = gcodeNow.extCoord.x();
+        }
 
         Task::lineCodeNow = gcodeNow.numberLine;
 
@@ -1783,7 +1793,7 @@ void MainWindow::runNextCommand()
 
             mParams.numberInstruction = Task::instrCounter++;
 
-            gcodeNow.numberInstruction = mParams.numberInstruction;
+            gcodeNow.commandNum = mParams.numberInstruction;
 
             mk1->packCA(&mParams); // move to init position
 
@@ -2328,7 +2338,7 @@ void  MainWindow::refreshElementsForms()
 
             // TODO to link with line number
             foreach (const GCodeData v, gCodeData) {
-                if (v.numberInstruction > complectaed) {
+                if (v.commandNum > complectaed) {
                     break;
                 }
 
@@ -2539,8 +2549,8 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
 
-                float dX = qFabs(gCodeData.at(i - 1).xyz.x() - gCodeData.at(i).xyz.x());
-                float dY = qFabs(gCodeData.at(i - 1).xyz.y() - gCodeData.at(i).xyz.y());
+                float dX = qFabs(gCodeData.at(i - 1).baseCoord.x() - gCodeData.at(i).baseCoord.x());
+                float dY = qFabs(gCodeData.at(i - 1).baseCoord.y() - gCodeData.at(i).baseCoord.y());
                 float dH = qSqrt(dX * dX + dY * dY);
                 float coeff = 1.0;
 
@@ -2572,8 +2582,8 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         case YZ: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                float dY = qFabs(gCodeData.at(i - 1).xyz.y() - gCodeData.at(i).xyz.y());
-                float dZ = qFabs(gCodeData.at(i - 1).xyz.z() - gCodeData.at(i).xyz.z());
+                float dY = qFabs(gCodeData.at(i - 1).baseCoord.y() - gCodeData.at(i).baseCoord.y());
+                float dZ = qFabs(gCodeData.at(i - 1).baseCoord.z() - gCodeData.at(i).baseCoord.z());
                 float dH = qSqrt(dZ * dZ + dY * dY);
                 float coeff = 1.0;
 
@@ -2604,8 +2614,8 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         case ZX: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                float dZ = qFabs(gCodeData.at(i - 1).xyz.z() - gCodeData.at(i).xyz.z());
-                float dX = qFabs(gCodeData.at(i - 1).xyz.x() - gCodeData.at(i).xyz.x());
+                float dZ = qFabs(gCodeData.at(i - 1).baseCoord.z() - gCodeData.at(i).baseCoord.z());
+                float dX = qFabs(gCodeData.at(i - 1).baseCoord.x() - gCodeData.at(i).baseCoord.x());
                 float dH = qSqrt(dX * dX + dZ * dZ);
                 float coeff = 1.0;
 
@@ -2634,7 +2644,7 @@ void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
         }
 
         default: {
-            qDebug() << "no plane information: pos " << begPos << "x" << gCodeData[begPos].xyz.x() << "y" << gCodeData[begPos].xyz.y() << "z" << gCodeData[begPos].xyz.z();
+            qDebug() << "no plane information: pos " << begPos << "x" << gCodeData[begPos].baseCoord.x() << "y" << gCodeData[begPos].baseCoord.y() << "z" << gCodeData[begPos].baseCoord.z();
         }
     }
 

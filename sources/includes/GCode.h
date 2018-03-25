@@ -44,6 +44,25 @@
 // #include <utility>
 // #include "vec.h"
 
+/* Externalize variables used by the scanner and parser. */
+
+
+
+extern FILE * gcode_in;
+void gcode_restart (FILE *);
+
+__BEGIN_DECLS
+
+/* Available functions of the checker. */
+int gcode_parse (void);
+int gcode_error (const char *);
+int gcode_lex (void);
+int gcode_lex_destroy (void);
+// int gcode_check (qucs::dataset *);
+
+// static int gcode_lineno = 0;
+
+__END_DECLS
 
 enum PlaneEnum {
     None = 0,
@@ -53,6 +72,13 @@ enum PlaneEnum {
     UV,
     VW,
     WU
+};
+
+enum CoordEnum {
+    NoEXT = 0,
+    ABC,
+    IJK,
+    UVW
 };
 
 //
@@ -69,60 +95,58 @@ class GCodeData
         };
 
     public:
-        bool changeInstrument; // to change the tool
-        int  numberInstrument; // собственно номер tool
-        int  numberInstruction; // set it, if instuction was sent
+        int   gCmd;
+        int   mCmd;
 
-        int  pauseMSeconds;  // if waiting = 0, no pause = -1. other pause in milliseconds
+        bool  toolChange; // to change the tool
+        int   toolNumber; // собственно номер tool
+        float toolDiameter; // diameter of tool
+
+        int   commandNum; // set it, if instuction was sent
+
+        QString label;
+
+        int   pauseMSec;  // if waiting = 0, no pause = -1. other pause in milliseconds
         //
         // coordinates in mm
-        QVector3D xyz;
-        QVector3D abc;
-        QVector3D ijk;
-        QVector3D uvw;
-        //         float axis[16];
+        QVector3D baseCoord; // XYZ
+        CoordEnum useExtCoord;
+        QVector3D extCoord;
+
+        // if arc splitted, number of followed cuts.
+        int   splits; // TODO we need this?
+        // for convertion from G02/G03 to G01
+        QVector<QVector3D> arcCoord;
+
 #if 0
-        float X;
-        float Y;
-        float Z;
-        //
-        // angle in grad
-        float A;
-        float B;
-        float C;
-
-        // curve settings: G02, G03
-        float I;
-        float J;
-        float K;
-
-        float U;
-        float V;
-        float W;
+        QVector3D abc; // angle in grad
+        QVector3D ijk; // curve settings: G02, G03
+        QVector3D uvw;
 #endif
-        PlaneEnum plane;
+
+        PlaneEnum plane; // XY, YZ, ZX
 
         int   vectSpeed; // telegr CA offset
         float vectorCoeff; // for the max from dH / dX of dH / dY ratio, in case XY plane
 
-        float feedVelocity;
+        float rapidVelo;
 
         int   movingCode;
         int   stepsCounter; // number of steps in current direction
 
-        float Radius;
+        float radius;
         // end of curves
 
-        bool  spindelON;      // spinle on
-        // normal is 1: one command is one cut
-        // if line splitted, number of followed cuts.
-        int   splits;
+        bool  spindelOn;      // spinle on
+        bool  mistOn;
+        bool  coolantOn;
+
         int   numberLine;     // from g-code file
 
+        // TODO to remove this?
         MovingType typeMoving; // NONE, LINE, ARC_CW, ARC_CCW
 
-        float diametr; // diameter of tool
-
+        // TODO local data for calculations?
         float angle; // angle between two lines around the actual point
         float deltaAngle;
 
@@ -158,6 +182,10 @@ class GCodeParser : public QObject
         QVector<QString> getGoodList();
         QVector<GCodeData> getGCodeData();
         QVector <GCodeOptim> getRapidPoints();
+        bool readGCode(const QString &infile);
+
+    public:
+        static QVector<GCodeData> gCodeList;
 
     private:
         float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);
@@ -168,6 +196,10 @@ class GCodeParser : public QObject
         bool addArc(GCodeData* param);
         void detectMinMax(const GCodeData &d);
         bool parseCoord(const QString &line, QVector3D &pos, float &E, const float coef, float *F = NULL);
+        void gcode_init();
+        bool gcode_checker();
+        void gcode_destroy();
+        FILE * open_file (char * file, const char * flag);
 
     protected:
         void sortGCode(const QVector<int> &antdata);
@@ -177,7 +209,7 @@ class GCodeParser : public QObject
 
     protected:
         QMutex mut;
-        QVector<GCodeData> gCodeList;
+
         QVector<GCodeOptim> g0Points;
         QVector<QString> goodList; // only decoded G-code
         //         QVector<QString> badList;

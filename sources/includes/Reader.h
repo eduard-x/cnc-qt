@@ -227,7 +227,6 @@ class GerberData
         int countPdigX;
         int countPdigY;
 
-
         int X_min;
         int X_max;
 
@@ -263,8 +262,6 @@ class Reader : public GCodeParser// , public cTranslator
 
         void writeFile(const QString &fileName);
 
-
-
     public:
         QList<DataCollections> data;
         QVector<QPair<float, QVector<QVector2D> > > layers;
@@ -274,7 +271,6 @@ class Reader : public GCodeParser// , public cTranslator
         //         std::vector<Vec3f> cached_color;
 
         //         QString lastDir;
-
 
         //             signals:
         //                 void logMessage(const QString &s);

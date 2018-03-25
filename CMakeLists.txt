@@ -36,6 +36,40 @@ ENDIF()
 # SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 
 
+#
+# Need Flex
+#
+FIND_PACKAGE(FLEX 2.5.9  REQUIRED)
+IF(FLEX_FOUND)
+  MESSAGE(STATUS "Found flex: ${FLEX_EXECUTABLE} / Version: ${FLEX_VERSION}" )
+ENDIF()
+
+#
+# Need Bison
+#
+# This is a HACK to get arround a PATH issue with Qt Creator on OSX.
+# It seams impossible to pass a custom PATH to Qt Creator on OSX, ie, cannot prepend `/usr/local/bin/` for intance.
+# The FIND_PACKAGE fails. For now we provide a fallback with a custom FIND_PROGRAM. The variable BISON_DIR is also available.
+IF(WIN32)
+  FIND_PACKAGE(BISON 3.0 REQUIRED)
+  IF(BISON_FOUND)
+    MESSAGE(STATUS "Found bison: ${BISON_EXECUTABLE} / Version: ${BISON_VERSION}" )
+  ENDIF()
+ELSE()  # Linux, OSX
+  # use -DBISON_DIR=/path/ to provide the path to bison
+  FIND_PROGRAM( BISON_EXECUTABLE bison
+    PATHS /usr/local/bin/ /opt/local/bin/ /usr/bin ${BISON_DIR}
+    DOC "bison path"
+    NO_DEFAULT_PATH )
+  IF(BISON_EXECUTABLE )
+    MESSAGE(STATUS "Found bison: " ${BISON_EXECUTABLE})
+  ELSE()
+    MESSAGE(FATAL_ERROR "Unable to find bison. Try to provide -DBISON_DIR=[path]")
+  ENDIF()
+ENDIF()
+
+
+
 # FILE (GLOB TRANSLATIONS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/translations/*.ts)
 
 # OPTION (UPDATE_TRANSLATIONS "Update source translation ${CMAKE_CURRENT_SOURCE_DIR}/translations/*.ts" OFF)
@@ -201,7 +235,7 @@ SET( CNCQT_CPACK_PACKAGE_SHLIBDEPS ON )
 
 IF(${USE_QT_VERSION} MATCHES "4")
     INCLUDE_DIRECTORIES(${QT_INCLUDES})
-    MESSAGE(STATUS "Qt4 INCLUDES ${QT_INCLUDES}")
+#     MESSAGE(STATUS "Qt4 INCLUDES ${QT_INCLUDES}")
     ADD_DEFINITIONS(-DGL_IMPLEMENTATION_GL)
 #     LINK_DIRECTORIES(${QT_LIBRARY_DIR} ${LIBUSB_LIBRARIES})
 ELSE()
@@ -222,13 +256,13 @@ ELSE()
       MESSAGE(SEND_ERROR "Qt5Gui_OPENGL_IMPLEMENTATION does not contain valid data.")
     ENDIF()
 
-    MESSAGE(STATUS "Qt5 INCLUDES ${QT_INCLUDES} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS}")
+#     MESSAGE(STATUS "Qt5 INCLUDES ${QT_INCLUDES} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS}")
 
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5OpenGL_EXECUTABLE_COMPILE_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ")
 ENDIF()
 
 
-configure_file (
+CONFIGURE_FILE (
     "${PROJECT_SOURCE_DIR}/sources/version.h.in"
     "${PROJECT_SOURCE_DIR}/sources/includes/version.h"
     )
@@ -240,28 +274,86 @@ SET ( UI_HEADERS_DIR temp )
 SET ( UI_SOURCES_DIR temp )
 
 
+#
+# List of lexer/parsers type names
+#
+SET(ParserTypes
+  gcode
+)
+
+# clear value
+SET(generated_SRC)
+
+MESSAGE(STATUS "Generate from ${FLEX_EXECUTABLE} ${BISON_EXECUTABLE}")
+
+MESSAGE(STATUS "Current sources dir ${CMAKE_CURRENT_SOURCE_DIR}")
+MESSAGE(STATUS "Sources dir ${CMAKE_SOURCE_DIR}")
+
+FOREACH( type ${ParserTypes} )
+  MESSAGE(STATUS "Parser: ${type}" )
+  # Create custom Bison
+  SET(BisonOutput ${CMAKE_CURRENT_BINARY_DIR}/parse_${type}.cpp)
+
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${BisonOutput}
+    COMMAND ${BISON_EXECUTABLE}
+              --defines=${CMAKE_CURRENT_BINARY_DIR}/parse_${type}.h
+              --output=${BisonOutput}
+              ${CMAKE_CURRENT_SOURCE_DIR}/sources/parse_${type}.ypp
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/sources/parse_${type}.ypp
+    )
+
+  # Create custom Flex
+  SET(FlexInput ${CMAKE_CURRENT_SOURCE_DIR}/sources/scan_${type}.lpp )
+  SET(FlexOutput ${CMAKE_CURRENT_BINARY_DIR}/scan_${type}.cpp )
+  
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${FlexOutput}
+    COMMAND ${FLEX_EXECUTABLE}
+            --outfile=${FlexOutput}
+            ${FlexInput}
+    DEPENDS ${BisonOutput} ${FlexInput}
+    )
+    
+  SET(generated_SRC ${generated_SRC} ${FlexOutput})
+  SET(generated_SRC ${generated_SRC} ${BisonOutput})
+ENDFOREACH()
+
+FOREACH( gfile ${generated_SRC} )
+  #MESSAGE(STATUS "Generate file: ${gfile}" )
+  SET_SOURCE_FILES_PROPERTIES(${gfile} PROPERTIES GENERATED TRUE)
+ENDFOREACH()
+
+MESSAGE(STATUS "Sources dir ${generated_SRC}")
+
+SET(GENERATED_PARSERS ${generated_SRC})
+
+                
+
 ADD_SUBDIRECTORY(sources)
+
 
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/sources/includes ${LIBUSB_INCLUDE_DIRS})
 MESSAGE(STATUS "LibUSB INCLUDES ${LIBUSB_INCLUDE_DIRS}")
 
 IF(${USE_QT_VERSION} MATCHES "4")
 #     QT4_ADD_TRANSLATION(APP_TRANSLATIONS ${TRANSLATION})
-    QT4_WRAP_CPP(APP_HEADERS_MOC ${MAIN_HEADERS} )
+    QT4_WRAP_CPP(APP_HEADERS_MOC ${MOC_HEADERS} )
     QT4_WRAP_UI(APP_FORMS_HEADERS ${MAIN_FORMS} )
     QT4_ADD_RESOURCES(APP_RESOURCES_RCC ${APP_RESOURCES})
 ELSE()
 #     QT5_ADD_TRANSLATION(APP_TRANSLATIONS ${TRANSLATION})
-    QT5_WRAP_CPP(APP_HEADERS_MOC ${MAIN_HEADERS} )
+    QT5_WRAP_CPP(APP_HEADERS_MOC ${MOC_HEADERS} )
     QT5_WRAP_UI(APP_FORMS_HEADERS ${MAIN_FORMS} )
     QT5_ADD_RESOURCES(APP_RESOURCES_RCC ${APP_RESOURCES})
 ENDIF()
 
 
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR} )
 
 SOURCE_GROUP( "Generated Files" FILES
     ${MOC_FILES_CPP}
+    ${MAIN_HEADERS}
     ${APP_FORMS_HEADERS}
     ${APP_RESOURCES_RCC}
 )
@@ -290,7 +382,8 @@ IF(WIN32)
 ENDIF()
 
 ADD_EXECUTABLE(${CMAKE_PROJECT_NAME}
-    ${APP_SOURCES} 
+    ${GENERATED_PARSERS}
+    ${APP_SOURCES}
     ${MAIN_SOURCES}
     ${APP_HEADERS_MOC} 
     ${APP_FORMS_HEADERS} 

@@ -1,0 +1,111 @@
+/* -*-c-*- */
+
+%{
+/*
+ * scan_gcode.l - scanner for a GCODE data file
+ *
+ * Copyright (C) 2006, 2007 Stefan Jahn <stefan@lkcc.org>
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this package; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ *
+ * $Id$
+ *
+ */
+
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-register"
+#endif
+
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#ifdef __MINGW32__
+#include <io.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+
+
+#if !HAVE_STRCHR
+# define strchr  index
+# define strrchr rindex
+#endif
+
+#include <QString>
+// #include "check_gcode.h"
+#include "GCode.h"
+
+// this generated header file from parse_gcode.ypp
+#include "parse_gcode.h"
+
+static int gcodelineno = 0;
+static int gcodecharno = 0;
+
+// using namespace reader;
+
+%}
+
+WSPACE   [ \t]+
+DIGIT    [0-9]
+EXPONENT [Ee][+-]?{DIGIT}+
+INT      [+-]?{DIGIT}+
+REAL     [+-]?{DIGIT}+("."{DIGIT}+)?{EXPONENT}?
+DECIMAL  {DIGIT}+
+DIGITS   {DIGIT}+
+Eol      \n
+
+
+%option caseless noyywrap nounput noinput prefix="gcode_"
+
+
+%%
+
+
+[GM]{DIGITS}  { gcode_lval.s_val = strdup(gcode_text); return T_CMD; }
+[ABC]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE; }
+[F]{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_FEED; }
+[R]{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_RADIUS; }
+[N]{DIGITS}   { gcode_lval.s_val = strdup(gcode_text); return T_LABEL; }
+[IJK]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_ARC; }
+[XYZ]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_COORD; }
+
+
+(.)       ; /* nothing */
+
+
+WSPACE  gcodecharno++; /* ignore */
+
+
+Eol gcodelineno++; gcodecharno=1; 
+
+
+<*>. { /* any other character is invalid */
+  fprintf (stderr,
+	   "line %d: syntax error, unrecognized character: `%s'\n",
+	   gcodelineno, gcode_text);
+}
+
+%%

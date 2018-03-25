@@ -822,7 +822,7 @@ void GLWidget::surfaceReloaded()
     for (int i = 0; i < figure.count(); i++) {
         if (parent->deltaFeed) {
             //             QVector3D p;
-            QVector3D point = parent->gCodeData.at(i).xyz;
+            QVector3D point = parent->gCodeData.at(i).baseCoord;
             //             float pointY = parent->gCodeData.at(i).Y;
             //             float pointZ = parent->gCodeData.at(i).Z;
 
@@ -866,9 +866,9 @@ void GLWidget::loadFigure()
             }
 
             // coordinates of next point
-            float pointX = vv.xyz.x();
-            float pointY = vv.xyz.y();
-            float pointZ = vv.xyz.z();
+            float pointX = vv.baseCoord.x();
+            float pointY = vv.baseCoord.y();
+            float pointZ = vv.baseCoord.z();
 
             // moving in G-code
             if (parent->Correction) {

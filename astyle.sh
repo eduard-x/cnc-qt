@@ -10,7 +10,7 @@ fi
 
 set -e
  
-export ARTISTIC_STYLE_OPTIONS="\
+ARTISTIC_STYLE_OPTIONS="\
 --mode=c \
 --style=k&r \
 --indent=spaces=4 \

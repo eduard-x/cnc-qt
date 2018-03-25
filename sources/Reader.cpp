@@ -177,6 +177,7 @@ bool Reader::readFile(const QString &fileName)
     if ((detectArray.indexOf("G0") >= 0) || (detectArray.indexOf("G1") >= 0)) { // G-Code program detect
         TypeFile = GCODE;
         bool res = readGCode(arr);
+//         bool res = readGCode(fileName);
 
         if (Settings::optimizeRapidWays == true) {
             QTime t;

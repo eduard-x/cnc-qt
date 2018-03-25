@@ -5,6 +5,7 @@
 #                  ${CMAKE_CURRENT_SOURCE_DIR}/translations/cnc_qt_de.ts
 #                  ${CMAKE_CURRENT_SOURCE_DIR}/translations/cnc_qt_ru.ts)
 
+
 SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/mk1Controller.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/sControl.cpp
@@ -27,8 +28,7 @@ SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/ScanSurface.cpp)
 
 
-SET(MAIN_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/Translator.h
+SET(MOC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/sControl.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/sIO.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/sMaterial.h
@@ -37,17 +37,21 @@ SET(MAIN_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/sSystem.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/sVis.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/sWorkbench.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/Settings.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/SettingsDialog.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/Reader.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/GCode.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/About.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/Geometry.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/EditGCode.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/MainWindow.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/ScanSurface.h)
 
 
+SET(MAIN_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/Geometry.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/Settings.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/Translator.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/Reader.h
+                 PARENT_SCOPE)
+
+# 
 SET(MAIN_FORMS  ${CMAKE_CURRENT_SOURCE_DIR}/forms/About.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/sControl.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/sIO.ui
@@ -63,24 +67,24 @@ SET(MAIN_FORMS  ${CMAKE_CURRENT_SOURCE_DIR}/forms/About.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/ScanSurface.ui
                 PARENT_SCOPE)
 
-                
+
 IF(${QT_USE_QTOPENGL})
   SET(MAIN_SOURCES ${MAIN_SOURCES}
                  ${CMAKE_CURRENT_SOURCE_DIR}/GLWidget.cpp
                  PARENT_SCOPE)
-                 
-  SET(MAIN_HEADERS ${MAIN_HEADERS}
+
+  SET(MOC_HEADERS ${MOC_HEADERS}
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/GLWidget.h
                  PARENT_SCOPE)
 ELSE()
   SET(MAIN_SOURCES ${MAIN_SOURCES}
                  PARENT_SCOPE)
                  
-  SET(MAIN_HEADERS ${MAIN_HEADERS}
+  SET(MOC_HEADERS ${MOC_HEADERS}
                  PARENT_SCOPE)
 ENDIF()
 
-
+                 
 # SET(FILES_TO_TRANSLATE ${FILES_TO_TRANSLATE} ${MAIN_SOURCES} ${MAIN_FORMS} ${MAIN_HEADERS} 
 #                  PARENT_SCOPE)
 
@@ -88,7 +92,9 @@ SET(APP_RESOURCES  ${CMAKE_CURRENT_SOURCE_DIR}/CNC-Qt.qrc
 		 PARENT_SCOPE)
 
 
+
+
 # cleanup $build/*.cpp~ on "make clean"
-SET_DIRECTORY_PROPERTIES(PROPERTIES
-    ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*~")
+# SET_DIRECTORY_PROPERTIES(PROPERTIES
+#     ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*~")
 
