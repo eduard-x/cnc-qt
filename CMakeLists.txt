@@ -311,6 +311,7 @@ FOREACH( type ${ParserTypes} )
     OUTPUT ${FlexOutput}
     COMMAND ${FLEX_EXECUTABLE}
             --outfile=${FlexOutput}
+            --header-file=${CMAKE_CURRENT_BINARY_DIR}/scan_${type}.h
             ${FlexInput}
     DEPENDS ${BisonOutput} ${FlexInput}
     )

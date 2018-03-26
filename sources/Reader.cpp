@@ -156,6 +156,7 @@ bool Reader::readFile(const QString &fileName)
     QFile file(fileName);
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text) == false) {
+        qInfo() << "cannot open " << fileName;
         return false;
     }
 
@@ -165,7 +166,7 @@ bool Reader::readFile(const QString &fileName)
         return false;
     }
 
-    const QByteArray arr = file.readAll();
+    QByteArray arr = file.readAll();
     QByteArray detectArray = arr.left(1024); // first 1024 bytes for format detection
 
     file.close();
@@ -176,8 +177,7 @@ bool Reader::readFile(const QString &fileName)
 
     if ((detectArray.indexOf("G0") >= 0) || (detectArray.indexOf("G1") >= 0)) { // G-Code program detect
         TypeFile = GCODE;
-        bool res = readGCode(arr);
-//         bool res = readGCode(fileName);
+        bool res = readGCode(arr.data());
 
         if (Settings::optimizeRapidWays == true) {
             QTime t;

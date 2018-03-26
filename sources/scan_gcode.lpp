@@ -4,7 +4,7 @@
 /*
  * scan_gcode.l - scanner for a GCODE data file
  *
- * Copyright (C) 2006, 2007 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2018 Eduard Kalinowski <eduard_kalinowski@yahoo.de>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,21 +54,19 @@
 # define strrchr rindex
 #endif
 
-#include <QString>
-// #include "check_gcode.h"
 #include "GCode.h"
 
 // this generated header file from parse_gcode.ypp
 #include "parse_gcode.h"
 
-static int gcodelineno = 0;
 static int gcodecharno = 0;
 
-// using namespace reader;
+extern int gcode_lineno;
+
 
 %}
 
-WSPACE   [ \t]+
+WSPACE   [ \t\r]+
 DIGIT    [0-9]
 EXPONENT [Ee][+-]?{DIGIT}+
 INT      [+-]?{DIGIT}+
@@ -78,34 +76,41 @@ DIGITS   {DIGIT}+
 Eol      \n
 
 
+
 %option caseless noyywrap nounput noinput prefix="gcode_"
 
 
 %%
 
 
-[GM]{DIGITS}  { gcode_lval.s_val = strdup(gcode_text); return T_CMD; }
-[ABC]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE; }
-[F]{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_FEED; }
-[R]{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_RADIUS; }
-[N]{DIGITS}   { gcode_lval.s_val = strdup(gcode_text); return T_LABEL; }
-[IJK]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_ARC; }
-[XYZ]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_COORD; }
+[GM]{DIGITS} { gcode_lval.s_val = strdup(gcode_text); return T_CMD; }
+[ABC]{REAL}  { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE; }
+F{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_FEED; }
+R{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_RADIUS; }
+D{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_DIAMETER; }
+T{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_CHANGETOOL; }
+P{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_PAUSE; }
+S{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_PAUSESEC; }
+N{DIGITS}    { gcode_lval.s_val = strdup(gcode_text); return T_LABEL; }
+[IJK]{REAL}  { gcode_lval.s_val = strdup(gcode_text); return T_ARC; }
+[XYZ]{REAL}  { gcode_lval.s_val = strdup(gcode_text); return T_COORD; }
 
+% { return T_COMMENT; /* do nothing */ }
 
-(.)       ; /* nothing */
+<*>(.) { return T_COMMENT; /* do nothing */ }
 
+\n { gcode_lineno++; }
 
-WSPACE  gcodecharno++; /* ignore */
-
-
-Eol gcodelineno++; gcodecharno=1; 
+<*>\r?\n|{WSPACE}  { gcodecharno++; /* skip end of line and spaces */ }
 
 
 <*>. { /* any other character is invalid */
   fprintf (stderr,
 	   "line %d: syntax error, unrecognized character: `%s'\n",
-	   gcodelineno, gcode_text);
+	   gcode_lineno, gcode_text);
+   return InvalidCharacter;
 }
 
 %%
+
+                  

@@ -104,7 +104,7 @@ class GCodeData
 
         int   commandNum; // set it, if instuction was sent
 
-        QString label;
+        int   labelNum;
 
         int   pauseMSec;  // if waiting = 0, no pause = -1. other pause in milliseconds
         //
@@ -118,11 +118,7 @@ class GCodeData
         // for convertion from G02/G03 to G01
         QVector<QVector3D> arcCoord;
 
-#if 0
-        QVector3D abc; // angle in grad
-        QVector3D ijk; // curve settings: G02, G03
-        QVector3D uvw;
-#endif
+        bool decoded;
 
         PlaneEnum plane; // XY, YZ, ZX
 
@@ -150,11 +146,12 @@ class GCodeData
         float angle; // angle between two lines around the actual point
         float deltaAngle;
 
+    public:
         //
         // null constructor
         GCodeData();
 
-        // Конструктор на основе существующей команды
+        // constructor with copy from last data
         GCodeData(GCodeData *_cmd);
 };
 
@@ -178,28 +175,25 @@ class GCodeParser : public QObject
         GCodeParser(); // constructor
         ~GCodeParser(); // destructor
 
-        bool readGCode(const QByteArray &gcode);
         QVector<QString> getGoodList();
         QVector<GCodeData> getGCodeData();
         QVector <GCodeOptim> getRapidPoints();
-        bool readGCode(const QString &infile);
+        bool readGCode(char *indata);
 
     public:
         static QVector<GCodeData> gCodeList;
 
     private:
         float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);
-        void convertArcToLines(GCodeData *endData);
+        void convertArcToLines(GCodeData &d);
         void calcAngleOfLines(int pos);
-        bool parseArc(const QString &line, QVector3D &pos, float &R, const float coef);
         bool addLine(GCodeData* param);
         bool addArc(GCodeData* param);
         void detectMinMax(const GCodeData &d);
-        bool parseCoord(const QString &line, QVector3D &pos, float &E, const float coef, float *F = NULL);
         void gcode_init();
         bool gcode_checker();
         void gcode_destroy();
-        FILE * open_file (char * file, const char * flag);
+        void resetSoftLimits();
 
     protected:
         void sortGCode(const QVector<int> &antdata);
@@ -212,7 +206,6 @@ class GCodeParser : public QObject
 
         QVector<GCodeOptim> g0Points;
         QVector<QString> goodList; // only decoded G-code
-        //         QVector<QString> badList;
 };
 
 
