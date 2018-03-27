@@ -98,15 +98,19 @@ N{DIGITS}   { gcode_lval.s_val = strdup(gcode_text); return T_LABEL; }
 [IJK]{REAL} { gcode_lval.s_val = strdup(gcode_text); return T_ARC; }
 [ABC]{REAL} { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE; }
 
-"%" { /* do nothing */ }
+[XYZ]{WSPACE} { gcode_lval.s_val = strdup(gcode_text); return T_COORD_STORED; }
+[IJK]{WSPACE} { gcode_lval.s_val = strdup(gcode_text); return T_ARC_STORED; }
+[ABC]{WSPACE} { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE_STORED; }
 
-<*>(.) { /* do nothing */ }
+"(".*")" { /* ignore comments, do nothing */ }
+
+"%".*[\r\n]+ { /* ignore comments, do nothing */ }
+
+";".*[\r\n]+ { /* ignore comments, do nothing */ }
 
 \n { gcode_lineno++; }
 
 <*>{WSPACE}  { gcodecharno++; /* skip end of line and spaces */ }
-
-"("<*>")" { /* do nothing */ }
 
 <*>. { /* any other character is invalid */
   fprintf (stderr,

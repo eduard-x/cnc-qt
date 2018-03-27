@@ -230,6 +230,8 @@ void GCodeParser::resetSoftLimits()
     Settings::coord[Z].softLimitMax = 0;
     Settings::coord[Z].softLimitMin = 0;
 }
+
+
 /**
  * @brief read and parse into GCodeData list and OpenGL list
  * @see for the optimizations see https://blog.qt.io/blog/2014/06/13/qt-weekly-13-qstringliteral/
@@ -300,9 +302,9 @@ bool GCodeParser::readGCode(char *indata)
             continue;
         }
         
-        if (d.gCmd == -1 && d.mCmd == -1){
-            continue;
-        }
+//         if (d.gCmd == -1 && d.mCmd == -1){
+//             continue;
+//         }
 
         if (d.gCmd >= 0) {
             detectMinMax(d);

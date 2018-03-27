@@ -69,11 +69,14 @@ GCodeData *g_data = new GCodeData();
 %token T_GCMD
 %token T_MCMD
 %token T_ANGLE
+%token T_ANGLE_STORED
 %token T_FEED
 %token T_RADIUS
 %token T_LABEL
 %token T_ARC
+%token T_ARC_STORED
 %token T_COORD
+%token T_COORD_STORED
 %token T_COMMENT
 %token T_CHANGETOOL
 %token T_DIAMETER
@@ -88,7 +91,6 @@ GCodeData *g_data = new GCodeData();
     int       i_val;
     float     f_val;
     char     *s_val;
-    class GCodeData *gd;
 }
 
 
@@ -96,7 +98,6 @@ GCodeData *g_data = new GCodeData();
 %token <f_val> Real
 %token <s_val> Strg
 
-%type <gd> command 
 
 %start parse_gcode
 
@@ -196,9 +197,23 @@ param:  T_COORD
             float f = s.toFloat(&res);
             if (res == false) {
                 g_data->decoded = false;
+                qInfo() << "not decoded" << s;
                 return -1;
             }
             
+            if ((gcode_lval.s_val[0] | 0x20) == 'x'){
+                g_data->baseCoord.setX(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'y'){
+                g_data->baseCoord.setY(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'z'){
+                g_data->baseCoord.setZ(f);
+            }
+        }
+        | T_COORD_STORED
+        {
+            float f = 0; // TODO
             if ((gcode_lval.s_val[0] | 0x20) == 'x'){
                 g_data->baseCoord.setX(f);
             }
@@ -219,6 +234,20 @@ param:  T_COORD
                 return -1;
             }
             
+            g_data->useExtCoord = ABC;
+            if ((gcode_lval.s_val[0] | 0x20) == 'a'){
+                g_data->extCoord.setX(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'b'){
+                g_data->extCoord.setY(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'c'){
+                g_data->extCoord.setZ(f);
+            }
+        }
+        | T_ANGLE_STORED
+        {
+            float f = 0; // TODO
             g_data->useExtCoord = ABC;
             if ((gcode_lval.s_val[0] | 0x20) == 'a'){
                 g_data->extCoord.setX(f);
@@ -311,6 +340,20 @@ param:  T_COORD
                 return -1;
             }
             
+            g_data->useExtCoord = IJK;
+            if ((gcode_lval.s_val[0] | 0x20) == 'i'){
+                g_data->extCoord.setX(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'j'){
+                g_data->extCoord.setY(f);
+            }
+            if ((gcode_lval.s_val[0] | 0x20) == 'k'){
+                g_data->extCoord.setZ(f);
+            }
+        }
+        | T_ARC_STORED
+        {
+            float f = 0; // TODO
             g_data->useExtCoord = IJK;
             if ((gcode_lval.s_val[0] | 0x20) == 'i'){
                 g_data->extCoord.setX(f);
