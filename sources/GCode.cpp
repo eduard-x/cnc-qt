@@ -296,11 +296,13 @@ bool GCodeParser::readGCode(char *indata)
         GCodeData d = gCodeList.at(cur);
 
         if (d.decoded == false) {
-            emit logMessage(QString().sprintf("Not decoded line %d", d.numberLine));
+//             emit logMessage(QString().sprintf("Not decoded line %d", d.numberLine));
             continue;
         }
-
-        qInfo() << "line " << d.numberLine << d.gCmd;
+        
+        if (d.gCmd == -1 && d.mCmd == -1){
+            continue;
+        }
 
         if (d.gCmd >= 0) {
             detectMinMax(d);
@@ -504,7 +506,7 @@ bool GCodeParser::readGCode(char *indata)
                 }
 
                 default: {
-                    qInfo() << "g is not decoded" <<  d.gCmd << d.numberLine;
+//                     qInfo() << "g is not decoded" <<  d.gCmd << d.numberLine;
                     emit logMessage(QString().sprintf("Not decoded line %d G command %d", d.numberLine, d.gCmd));
                     d.decoded = false;
                     break;
@@ -514,6 +516,11 @@ bool GCodeParser::readGCode(char *indata)
             switch (d.mCmd) {
                 case 0: {
                     d.pauseMSec = 0; // waiting
+                    break;
+                }
+                
+                case 2: {
+                    d.spindelOn = true;
                     break;
                 }
 
@@ -586,7 +593,7 @@ bool GCodeParser::readGCode(char *indata)
                 }
 
                 default: {
-                    qInfo() << "m is not decoded" <<  d.gCmd << d.numberLine;
+//                     qInfo() << "m is not decoded" <<  d.gCmd << d.numberLine;
                     emit logMessage(QString().sprintf("Not decoded line %d, M command %d", d.numberLine, d.mCmd));
                     d.decoded = false;
                     break;

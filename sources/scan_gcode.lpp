@@ -83,26 +83,30 @@ Eol      \n
 %%
 
 
-[GM]{DIGITS} { gcode_lval.s_val = strdup(gcode_text); return T_CMD; }
-[ABC]{REAL}  { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE; }
-F{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_FEED; }
-R{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_RADIUS; }
-D{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_DIAMETER; }
-T{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_CHANGETOOL; }
-P{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_PAUSE; }
-S{REAL}      { gcode_lval.s_val = strdup(gcode_text); return T_PAUSESEC; }
-N{DIGITS}    { gcode_lval.s_val = strdup(gcode_text); return T_LABEL; }
-[IJK]{REAL}  { gcode_lval.s_val = strdup(gcode_text); return T_ARC; }
-[XYZ]{REAL}  { gcode_lval.s_val = strdup(gcode_text); return T_COORD; }
+G{DIGITS}   { gcode_lval.s_val = strdup(gcode_text); return T_GCMD; }
+M{DIGITS}   { gcode_lval.s_val = strdup(gcode_text); return T_MCMD; }
 
-% { return T_COMMENT; /* do nothing */ }
+F{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_FEED; }
+R{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_RADIUS; }
+D{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_DIAMETER; }
+T{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_CHANGETOOL; }
+P{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_PAUSE; }
+S{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_PAUSESEC; }
+N{DIGITS}   { gcode_lval.s_val = strdup(gcode_text); return T_LABEL; }
 
-<*>(.) { return T_COMMENT; /* do nothing */ }
+[XYZ]{REAL} { gcode_lval.s_val = strdup(gcode_text); return T_COORD; }
+[IJK]{REAL} { gcode_lval.s_val = strdup(gcode_text); return T_ARC; }
+[ABC]{REAL} { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE; }
+
+"%" { /* do nothing */ }
+
+<*>(.) { /* do nothing */ }
 
 \n { gcode_lineno++; }
 
-<*>\r?\n|{WSPACE}  { gcodecharno++; /* skip end of line and spaces */ }
+<*>{WSPACE}  { gcodecharno++; /* skip end of line and spaces */ }
 
+"("<*>")" { /* do nothing */ }
 
 <*>. { /* any other character is invalid */
   fprintf (stderr,

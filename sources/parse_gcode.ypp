@@ -66,7 +66,8 @@ GCodeData *g_data = new GCodeData();
 
 %name-prefix "gcode_"
 
-%token T_CMD
+%token T_GCMD
+%token T_MCMD
 %token T_ANGLE
 %token T_FEED
 %token T_RADIUS
@@ -80,13 +81,14 @@ GCodeData *g_data = new GCodeData();
 %token T_PAUSESEC
 
 %token InvalidCharacter
-%token Eol
 
+%token Eol
 
 %union {
     int       i_val;
     float     f_val;
     char     *s_val;
+    class GCodeData *gd;
 }
 
 
@@ -94,7 +96,7 @@ GCodeData *g_data = new GCodeData();
 %token <f_val> Real
 %token <s_val> Strg
 
-
+%type <gd> command 
 
 %start parse_gcode
 
@@ -103,34 +105,29 @@ GCodeData *g_data = new GCodeData();
 parse_gcode: 
         | glines;
 
-glines: glines gline | gline;
 
-gline:  T_LABEL commands 
+glines: gline glines 
+        | gline;
+
+
+gline:  label 
         {
-            // the new line, create new object
-            GCodeParser::gCodeList << g_data;
+           // the new line, create new object
             g_data = new GCodeData(g_data);
-            g_data->numberLine = gcode_lineno;
-            
             QString n = &gcode_lval.s_val[1];
             bool res;
             int i = n.toInt(&res);
             g_data->labelNum = i;
+            g_data->numberLine = gcode_lineno;
         }
-        | T_LABEL params 
+        | commands 
         {
             // the new line, create new object
             GCodeParser::gCodeList << g_data;
             g_data =  new GCodeData(g_data);
             g_data->numberLine = gcode_lineno;
-            
-            QString n = &gcode_lval.s_val[1];
-            bool res;
-            int i = n.toInt(&res);
-            g_data->labelNum = i;
         }
-        | commands 
-        | comment 
+        | comment
         | params 
         {
             // the new line, create new object
@@ -139,34 +136,29 @@ gline:  T_LABEL commands
             g_data->numberLine = gcode_lineno;
         }
         ;
-     
-commands: commands command 
-        | command;
 
-command: T_CMD
+
+label:  T_LABEL
+        | T_LABEL params
+        | T_LABEL commands
+        ;
+
+
+commands: commands command
         {
-            QString n = &gcode_lval.s_val[1];
-            bool res;
-            int i = n.toInt(&res);
-            if (res == false) {
-                g_data->decoded = false;
-                return -1;
-            }
             // the new line, create new object
             GCodeParser::gCodeList << g_data;
             g_data =  new GCodeData(g_data);
             g_data->numberLine = gcode_lineno;
-            
-            if ((gcode_lval.s_val[0] | 0x20) == 'g'){
-                g_data->gCmd = i;
-                g_data->mCmd = -1;
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'm'){
-                g_data->mCmd = i;
-                g_data->gCmd = -1;
-            }
         }
-        | T_CMD params
+        | command params
+        | command params comment
+        | command comment
+        | command
+        ;
+
+
+command: T_GCMD
         {
             QString n = &gcode_lval.s_val[1];
             bool res;
@@ -175,21 +167,11 @@ command: T_CMD
                 g_data->decoded = false;
                 return -1;
             }
-            // the new command, create new object
-            GCodeParser::gCodeList << g_data;
-            g_data =  new GCodeData(g_data);
-            g_data->numberLine = gcode_lineno;
-            
-            if ((gcode_lval.s_val[0] | 0x20) == 'g'){
-                g_data->gCmd = i;
-                g_data->mCmd = -1;
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'm'){
-                g_data->mCmd = i;
-                g_data->gCmd = -1;
-            }
+
+            g_data->gCmd = i;
+            g_data->mCmd = -1;
         }
-        | T_CMD params comment
+        | T_MCMD
         {
             QString n = &gcode_lval.s_val[1];
             bool res;
@@ -198,23 +180,13 @@ command: T_CMD
                 g_data->decoded = false;
                 return -1;
             }
-            // the new command, create new object
-            GCodeParser::gCodeList << g_data;
-            g_data =  new GCodeData(g_data);
-            g_data->numberLine = gcode_lineno;
             
-            if ((gcode_lval.s_val[0] | 0x20) == 'g'){
-                g_data->gCmd = i;
-                g_data->mCmd = -1;
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'm'){
-                g_data->mCmd = i;
-                g_data->gCmd = -1;
-            }
+            g_data->mCmd = i;
+            g_data->gCmd = -1;
         }
         ;
 
-params: params param | param;
+params: param params | param;
 
 param:  T_COORD
         {
@@ -351,9 +323,10 @@ param:  T_COORD
             }
         }
         ;
-      
+
 comment: T_COMMENT
         {
+            qInfo() << "comment";
         }
         | T_COMMENT Strg
         {
@@ -366,7 +339,7 @@ comment: T_COMMENT
             free ($2);
         }
         ;
-        
+
 %%
 
 int gcode_error (const char * error) {
