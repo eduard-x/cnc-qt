@@ -224,9 +224,11 @@ void GCodeParser::gcodeChecker()
     QVector3D current_pos(0, 0, 0);
     
     // TODO home pos
+    // goodList has the text for table 
     g0Points << GCodeOptim {QVector3D(0, 0, 0), goodList.count(), -1, gCodeList.count(), -1};
 
-    for(int cur = 0; cur < gCodeList.count(); cur++) {
+    // the first pos (cur = 0) is 0 or home
+    for(int cur = 1; cur < gCodeList.count(); cur++) {
         GCodeData d = gCodeList.at(cur);
 
         if (d.decoded == false) {
@@ -246,11 +248,7 @@ void GCodeParser::gcodeChecker()
                     QVector3D delta_pos;
                     d.movingCode = RAPID_LINE_CODE;
 
-                    if (cur >= 1) {
-                        delta_pos = d.baseCoord - gCodeList.at(cur - 1).baseCoord;
-                    } else {
-                        delta_pos = QVector3D(0, 0, 0);
-                    }
+                    delta_pos = d.baseCoord - gCodeList.at(cur - 1).baseCoord;
 
                     if (Settings::filterRepeat == true) { // TODO
                     }
@@ -345,9 +343,10 @@ void GCodeParser::gcodeChecker()
                 case 1: {
                     d.movingCode = FEED_LINE_CODE;
                     d.typeMoving = GCodeData::Line;
+                    d.toolChange = false;
+                    d.pauseMSec = -1; // no pause
 
                     d.plane = currentPlane;
-                    d.rapidVelo = 0.0;
 
                     if (b_absolute) {
                         current_pos = d.baseCoord + origin;
@@ -446,7 +445,8 @@ void GCodeParser::gcodeChecker()
                     break;
                 }
             }
-        } else {
+        } // end of g decoding 
+        {
             switch (d.mCmd) {
                 case 0: {
                     d.pauseMSec = 0; // waiting
@@ -454,7 +454,7 @@ void GCodeParser::gcodeChecker()
                 }
                 
                 case 2: {
-                    d.spindelOn = true;
+//                     d.spindelOn = true;
                     break;
                 }
 
@@ -528,7 +528,7 @@ void GCodeParser::gcodeChecker()
 
                 default: {
 //                     qInfo() << "m is not decoded" <<  d.gCmd << d.numberLine;
-                    emit logMessage(QString().sprintf("Not decoded line %d, M command %d", d.numberLine, d.mCmd));
+//                     emit logMessage(QString().sprintf("Not decoded line %d, M command %d", d.numberLine, d.mCmd));
                     d.decoded = false;
                     break;
                 }
