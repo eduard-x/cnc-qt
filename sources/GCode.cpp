@@ -75,6 +75,8 @@ GCodeData::GCodeData()
     extCoord = { 0.0, 0.0, 0.0 };
 
     plane = None;
+    
+    labelNum = -1;
 
     radius = 0.0;
     vectorCoeff = 0.0;
@@ -111,6 +113,7 @@ GCodeData::GCodeData(GCodeData *d)
 {
     baseCoord = d->baseCoord;
     useExtCoord = NoEXT;
+
     extCoord = { 0.0, 0.0, 0.0 }; // for ABC, IJK, UVW
 
     decoded = true;
@@ -123,6 +126,8 @@ GCodeData::GCodeData(GCodeData *d)
     plane = d->plane;
 
     rapidVelo = d->rapidVelo; // ???
+    
+    labelNum = -1;
 
     vectorCoeff = 0.0;
 
@@ -143,7 +148,7 @@ GCodeData::GCodeData(GCodeData *d)
     numberLine = d->numberLine;
     commandNum = 0;
 
-    angle = 0.0;//d->angleVectors;
+    angle = 0.0; //d->angleVectors;
 
     deltaAngle = 0.0;
 
@@ -193,7 +198,7 @@ bool GCodeParser::addArc(GCodeData *c)
 }
 
 
-void GCodeParser::gcode_init()
+void GCodeParser::gcodeInit()
 {
     gcode_lineno = 0;
     //      gcode_result = NULL;
@@ -202,85 +207,9 @@ void GCodeParser::gcode_init()
 }
 
 
-bool GCodeParser::gcode_checker()
+void GCodeParser::gcodeChecker()
 {
-}
-
-
-void GCodeParser::gcode_destroy()
-{
-    //      if (csv_result != NULL) {
-    //     // delete associated dataset
-    //     delete csv_result;
-    //     csv_result = NULL;
-    //   }
-    //   if (csv_vector != NULL) {
-    //     csv_finalize ();
-    //     csv_vector = NULL;
-    //   }
-}
-
-
-void GCodeParser::resetSoftLimits()
-{
-    Settings::coord[X].softLimitMax = 0;
-    Settings::coord[X].softLimitMin = 0;
-    Settings::coord[Y].softLimitMax = 0;
-    Settings::coord[Y].softLimitMin = 0;
-    Settings::coord[Z].softLimitMax = 0;
-    Settings::coord[Z].softLimitMin = 0;
-}
-
-
-/**
- * @brief read and parse into GCodeData list and OpenGL list
- * @see for the optimizations see https://blog.qt.io/blog/2014/06/13/qt-weekly-13-qstringliteral/
- * TODO convert QString to QStringLiteral
- *
- */
-bool GCodeParser::readGCode(char *indata)
-{
-    int ret = true;
-
-    gCodeList.clear();
-    goodList.clear();
-
-    mut.lock();
-
-    QTime tMess;
-    tMess.start();
-
-    gcode_init ();
-
-    /* because the data in already in buffer 'indata' */
-
-    YY_BUFFER_STATE bs = gcode__scan_string(indata);
-    gcode__switch_to_buffer(bs);
-
-    if ( gcode_parse () != 0) {
-        ret = false;
-    } else if ( gcode_checker () != 0) {
-        ret = false;
-    }
-
-    gcode_lex_destroy ();
-
-    mut.unlock();
-
-    if (!ret) {
-        gcode_destroy ();
-        return false;
-    }
-
-    gcode_destroy ();
-
-    emit logMessage(QString().sprintf("Parse gcode, flex/bison. Time elapsed: %d ms", tMess.elapsed()));
-
-    tMess.restart();
-
-    // the parsed data is in gCodeList
-    qInfo() << "file parsed";
-
+    // for Ant optimization
     g0Points.clear();
 
     resetSoftLimits();
@@ -293,6 +222,9 @@ bool GCodeParser::readGCode(char *indata)
 
     QVector3D origin(0, 0, 0);
     QVector3D current_pos(0, 0, 0);
+    
+    // TODO home pos
+    g0Points << GCodeOptim {QVector3D(0, 0, 0), goodList.count(), -1, gCodeList.count(), -1};
 
     for(int cur = 0; cur < gCodeList.count(); cur++) {
         GCodeData d = gCodeList.at(cur);
@@ -301,7 +233,7 @@ bool GCodeParser::readGCode(char *indata)
 //             emit logMessage(QString().sprintf("Not decoded line %d", d.numberLine));
             continue;
         }
-        
+
 //         if (d.gCmd == -1 && d.mCmd == -1){
 //             continue;
 //         }
@@ -603,6 +535,81 @@ bool GCodeParser::readGCode(char *indata)
             }
         }
     }
+}
+
+
+void GCodeParser::gcodeDestroy()
+{
+    //      if (csv_result != NULL) {
+    //     // delete associated dataset
+    //     delete csv_result;
+    //     csv_result = NULL;
+    //   }
+    //   if (csv_vector != NULL) {
+    //     csv_finalize ();
+    //     csv_vector = NULL;
+    //   }
+}
+
+
+void GCodeParser::resetSoftLimits()
+{
+    Settings::coord[X].softLimitMax = 0;
+    Settings::coord[X].softLimitMin = 0;
+    Settings::coord[Y].softLimitMax = 0;
+    Settings::coord[Y].softLimitMin = 0;
+    Settings::coord[Z].softLimitMax = 0;
+    Settings::coord[Z].softLimitMin = 0;
+}
+
+
+/**
+ * @brief read and parse into GCodeData list and OpenGL list
+ * @see for the optimizations see https://blog.qt.io/blog/2014/06/13/qt-weekly-13-qstringliteral/
+ * TODO convert QString to QStringLiteral
+ *
+ */
+bool GCodeParser::readGCode(char *indata)
+{
+    int ret = true;
+
+    gCodeList.clear();
+    goodList.clear();
+
+    mut.lock();
+
+    QTime tMess;
+    tMess.start();
+
+    gcodeInit();
+
+    /* because the data in already in buffer 'indata' */
+
+    YY_BUFFER_STATE bs = gcode__scan_string(indata);
+    gcode__switch_to_buffer(bs);
+
+    if ( gcode_parse() != 0) {
+        ret = false;
+    }
+
+    gcode_lex_destroy();
+
+    mut.unlock();
+
+    if (!ret) {
+        gcodeDestroy();
+        return false;
+    }
+
+    gcodeDestroy();
+
+    emit logMessage(QString().sprintf("Parse gcode, flex/bison. Time elapsed: %d ms", tMess.elapsed()));
+  // the parsed data is in gCodeList
+    qInfo() << "file parsed" << tMess.elapsed() << "msec";
+    
+    tMess.restart();
+    
+    gcodeChecker();
 
     emit logMessage(QString().sprintf("Data was converted. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), goodList.count()));
 

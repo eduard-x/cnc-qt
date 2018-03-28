@@ -59,12 +59,13 @@
 // this generated header file from parse_gcode.ypp
 #include "parse_gcode.h"
 
-static int gcodecharno = 0;
+// static int gcodecharno = 0;
 
 extern int gcode_lineno;
 
 
 %}
+
 
 WSPACE   [ \t\r]+
 DIGIT    [0-9]
@@ -76,41 +77,41 @@ DIGITS   {DIGIT}+
 Eol      \n
 
 
-
-%option caseless noyywrap nounput noinput prefix="gcode_"
+%option caseless yylineno noyywrap nounput noinput prefix="gcode_"
 
 
 %%
 
 
-G{DIGITS}   { gcode_lval.s_val = strdup(gcode_text); return T_GCMD; }
-M{DIGITS}   { gcode_lval.s_val = strdup(gcode_text); return T_MCMD; }
+G{DIGITS}     { gcode_lval.s_val = strdup(gcode_text); return T_GCMD; }
+M{DIGITS}     { gcode_lval.s_val = strdup(gcode_text); return T_MCMD; }
 
-F{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_FEED; }
-R{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_RADIUS; }
-D{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_DIAMETER; }
-T{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_CHANGETOOL; }
-P{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_PAUSE; }
-S{REAL}     { gcode_lval.s_val = strdup(gcode_text); return T_PAUSESEC; }
-N{DIGITS}   { gcode_lval.s_val = strdup(gcode_text); return T_LABEL; }
+F{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_FEED; }
+R{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_RADIUS; }
+D{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_DIAMETER; }
+T{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_CHANGETOOL; }
+P{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_PAUSE; }
+S{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_PAUSESEC; }
+N{DIGITS}     { gcode_lval.s_val = strdup(gcode_text); return T_LABEL; }
 
-[XYZ]{REAL} { gcode_lval.s_val = strdup(gcode_text); return T_COORD; }
-[IJK]{REAL} { gcode_lval.s_val = strdup(gcode_text); return T_ARC; }
-[ABC]{REAL} { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE; }
+[XYZ]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_COORD; }
+[IJK]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_ARC; }
+[ABC]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE; }
 
 [XYZ]{WSPACE} { gcode_lval.s_val = strdup(gcode_text); return T_COORD_STORED; }
 [IJK]{WSPACE} { gcode_lval.s_val = strdup(gcode_text); return T_ARC_STORED; }
 [ABC]{WSPACE} { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE_STORED; }
 
+
 "(".*")" { /* ignore comments, do nothing */ }
 
-"%".*[\r\n]+ { /* ignore comments, do nothing */ }
+"%".*{Eol}* { /* ignore comments, do nothing */ }
 
-";".*[\r\n]+ { /* ignore comments, do nothing */ }
+";".*{Eol}* { /* ignore comments, do nothing */ }
 
 \n { gcode_lineno++; }
 
-<*>{WSPACE}  { gcodecharno++; /* skip end of line and spaces */ }
+<*>{WSPACE}  { /* skip end of line and spaces */ }
 
 <*>. { /* any other character is invalid */
   fprintf (stderr,

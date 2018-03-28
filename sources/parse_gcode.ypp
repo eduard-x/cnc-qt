@@ -99,19 +99,22 @@ GCodeData *g_data = new GCodeData();
 %token <s_val> Strg
 
 
+
 %start parse_gcode
 
 %%
 
 parse_gcode: 
-        | glines;
+        | glines
+        ;
 
 
-glines: gline glines 
-        | gline;
+glines: gline glines
+        | gline
+        ;
 
 
-gline:  label 
+gline:  label
         {
            // the new line, create new object
             g_data = new GCodeData(g_data);
@@ -121,16 +124,11 @@ gline:  label
             g_data->labelNum = i;
             g_data->numberLine = gcode_lineno;
         }
-        | commands 
-        {
-            // the new line, create new object
-            GCodeParser::gCodeList << g_data;
-            g_data =  new GCodeData(g_data);
-            g_data->numberLine = gcode_lineno;
-        }
+        | commands
         | comment
-        | params 
+        | params
         {
+            // the line beginns with parameters directly, without Gxx
             // the new line, create new object
             GCodeParser::gCodeList << g_data;
             g_data =  new GCodeData(g_data);
@@ -145,13 +143,7 @@ label:  T_LABEL
         ;
 
 
-commands: commands command
-        {
-            // the new line, create new object
-            GCodeParser::gCodeList << g_data;
-            g_data =  new GCodeData(g_data);
-            g_data->numberLine = gcode_lineno;
-        }
+commands: command commands
         | command params
         | command params comment
         | command comment
@@ -161,29 +153,35 @@ commands: commands command
 
 command: T_GCMD
         {
+            // the new command, create new object
+            GCodeParser::gCodeList << g_data;
+            g_data =  new GCodeData(g_data);
+            g_data->numberLine = gcode_lineno;
+
             QString n = &gcode_lval.s_val[1];
             bool res;
             int i = n.toInt(&res);
             if (res == false) {
                 g_data->decoded = false;
-                return -1;
             }
 
             g_data->gCmd = i;
-            g_data->mCmd = -1;
         }
         | T_MCMD
         {
+            // the new command, create new object
+            GCodeParser::gCodeList << g_data;
+            g_data =  new GCodeData(g_data);
+            g_data->numberLine = gcode_lineno;
+
             QString n = &gcode_lval.s_val[1];
             bool res;
             int i = n.toInt(&res);
             if (res == false) {
                 g_data->decoded = false;
-                return -1;
             }
-            
+
             g_data->mCmd = i;
-            g_data->gCmd = -1;
         }
         ;
 
@@ -197,8 +195,6 @@ param:  T_COORD
             float f = s.toFloat(&res);
             if (res == false) {
                 g_data->decoded = false;
-                qInfo() << "not decoded" << s;
-                return -1;
             }
             
             if ((gcode_lval.s_val[0] | 0x20) == 'x'){
@@ -231,7 +227,6 @@ param:  T_COORD
             float f = s.toFloat(&res);
             if (res == false) {
                 g_data->decoded = false;
-                return -1;
             }
             
             g_data->useExtCoord = ABC;
@@ -266,7 +261,6 @@ param:  T_COORD
             float f = s.toFloat(&res);
             if (res == false) {
                 g_data->decoded = false;
-                return -1;
             }
             if (g_data->gCmd == 4){
                 g_data->pauseMSec = f*1000.0;
@@ -279,7 +273,6 @@ param:  T_COORD
             float f = s.toFloat(&res);
             if (res == false) {
                 g_data->decoded = false;
-                return -1;
             }
             if (g_data->gCmd == 4){
                 g_data->pauseMSec = f;
@@ -292,7 +285,6 @@ param:  T_COORD
             float f = s.toFloat(&res);
             if (res == false) {
                 g_data->decoded = false;
-                return -1;
             }
             g_data->toolDiameter = f;
         }
@@ -303,7 +295,6 @@ param:  T_COORD
             float f = s.toFloat(&res);
             if (res == false) {
                 g_data->decoded = false;
-                return -1;
             }
             g_data->toolChange = true;
             g_data->toolNumber = f;
@@ -315,7 +306,6 @@ param:  T_COORD
             float f = s.toFloat(&res);
             if (res == false) {
                 g_data->decoded = false;
-                return -1;
             }
             g_data->rapidVelo = f;
         }
@@ -326,7 +316,6 @@ param:  T_COORD
             float f = s.toFloat(&res);
             if (res == false) {
                 g_data->decoded = false;
-                return -1;
             }
             g_data->radius = f;
         }
@@ -337,7 +326,6 @@ param:  T_COORD
             float f = s.toFloat(&res);
             if (res == false) {
                 g_data->decoded = false;
-                return -1;
             }
             
             g_data->useExtCoord = IJK;

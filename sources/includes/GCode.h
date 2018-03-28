@@ -190,9 +190,9 @@ class GCodeParser : public QObject
         bool addLine(GCodeData* param);
         bool addArc(GCodeData* param);
         void detectMinMax(const GCodeData &d);
-        void gcode_init();
-        bool gcode_checker();
-        void gcode_destroy();
+        void gcodeInit();
+        void gcodeChecker();
+        void gcodeDestroy();
         void resetSoftLimits();
 
     protected:
