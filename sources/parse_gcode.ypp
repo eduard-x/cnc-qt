@@ -46,6 +46,8 @@
 #include <QDebug>
 
 
+#include "Settings.h"
+
 #include "GCode.h"
 
 extern int gcode_lex();
@@ -55,6 +57,10 @@ extern void gcode_error(char*);
 // static int gcodelineno = 0;
 extern int gcode_lineno;
 static int gcodecharno = 0;
+
+
+bool set_data_float(char c, float f);
+bool set_data_int(char c, int n);
 
 // gcode_lineno = 0;
 
@@ -66,22 +72,28 @@ GCodeData *g_data = new GCodeData();
 
 %name-prefix "gcode_"
 
-%token T_GCMD
-%token T_MCMD
-%token T_ANGLE
-%token T_ANGLE_STORED
-%token T_FEED
-%token T_RADIUS
-%token T_LABEL
-%token T_ARC
-%token T_ARC_STORED
-%token T_COORD
-%token T_COORD_STORED
-%token T_COMMENT
-%token T_CHANGETOOL
-%token T_DIAMETER
-%token T_PAUSE
-%token T_PAUSESEC
+%token GCOMMAND
+%token MCOMMAND
+%token ANGLE
+%token ANGLE_STORED
+%token FEED
+%token RADIUS
+%token LABEL
+%token ARC
+%token ARC_STORED
+%token COORD
+%token COORD_STORED
+%token COMMENT
+%token CHANGETOOL
+%token DIAMETER
+%token PAUSE
+%token PAUSESEC
+
+%token NL_CHAR
+%token CHAR
+%token INT
+%token FLOAT
+%token NEW_LINE
 
 %token InvalidCharacter
 
@@ -90,14 +102,13 @@ GCodeData *g_data = new GCodeData();
 %union {
     int       i_val;
     float     f_val;
-    char     *s_val;
+    char      c_val;
 }
 
 
-%token <i_val> Num
-%token <f_val> Real
-%token <s_val> Strg
-
+%type <i_val> INT
+%type <f_val> FLOAT
+%type <c_val> NL_CHAR CHAR
 
 
 %start parse_gcode
@@ -114,264 +125,181 @@ glines: gline glines
         ;
 
 
-gline:  label
+gline:  NL_CHAR INT
         {
-           // the new line, create new object
-            g_data = new GCodeData(g_data);
-            QString n = &gcode_lval.s_val[1];
-            bool res;
-            int i = n.toInt(&res);
-            g_data->labelNum = i;
-            g_data->numberLine = gcode_lineno;
-        }
-        | commands
-        | comment
-        | params
-        {
-            // the line beginns with parameters directly, without Gxx
             // the new line, create new object
             GCodeParser::gCodeList << g_data;
             g_data =  new GCodeData(g_data);
             g_data->numberLine = gcode_lineno;
+
+            switch ($1 | 0x20){
+                case 'n' :
+                    g_data->labelNum = $2;
+                    break;
+
+                case 'g' :
+                    g_data->gCmd = $2; 
+                    if ($2 == 1 || $2 == 2 || $2 == 3) {
+                        g_data->movingCode = FEED_LINE_CODE;
+                    }
+                    if ($2 == 0) {
+                        g_data->movingCode = RAPID_LINE_CODE;
+                    }
+                    break;
+
+                case 'm' :
+                    g_data->mCmd = $2;
+                    break;
+ 
+                default:
+                    if (set_data_float(($1 | 0x20), (float) $2) == false) {
+                        g_data->decoded = false;
+                        printf("not decoded char %c, line %d\n", $1, gcode_lineno);
+                    }
+                    break;
+            }
         }
-        ;
-
-
-label:  T_LABEL
-        | T_LABEL params
-        | T_LABEL commands
-        ;
-
-
-commands: command commands
-        | command params
-        | command params comment
-        | command comment
-        | command
-        ;
-
-
-command: T_GCMD
+        | NL_CHAR FLOAT
         {
-            // the new command, create new object
+            // the new line, create new object
             GCodeParser::gCodeList << g_data;
             g_data =  new GCodeData(g_data);
             g_data->numberLine = gcode_lineno;
-
-            QString n = &gcode_lval.s_val[1];
-            bool res;
-            int i = n.toInt(&res);
-            if (res == false) {
-                g_data->decoded = false;
-            }
-
-            g_data->gCmd = i;
+            
+            set_data_float(($1 | 0x20), $2);
         }
-        | T_MCMD
+        | NL_CHAR
         {
-            // the new command, create new object
+            // store coordinates
+        }
+        | CHAR INT 
+        {
+            // new command in line, create new object
             GCodeParser::gCodeList << g_data;
             g_data =  new GCodeData(g_data);
             g_data->numberLine = gcode_lineno;
+            
+            switch ($1 | 0x20){
+                case 'g' :
+                    g_data->gCmd = $2; 
+                    if ($2 == 1 || $2 == 2 || $2 == 3) {
+                        g_data->movingCode = FEED_LINE_CODE;
+                    }
+                    if ($2 == 0) {
+                        g_data->movingCode = RAPID_LINE_CODE;
+                    }
+                    break;
 
-            QString n = &gcode_lval.s_val[1];
-            bool res;
-            int i = n.toInt(&res);
-            if (res == false) {
-                g_data->decoded = false;
+                case 'm' :
+                    g_data->mCmd = $2;
+                    break;
+ 
+                default:
+                    if (set_data_float(($1 | 0x20), (float) $2) == false) {
+                        g_data->decoded = false;
+                    }
+                    break;
             }
-
-            g_data->mCmd = i;
+        }
+        | CHAR FLOAT 
+        {
+            set_data_float(($1 | 0x20), $2);
+        }
+        | CHAR
+        {
+            // store coordinates
         }
         ;
+        
 
-params: param params | param;
+%%
 
-param:  T_COORD
-        {
-            QString s = &gcode_lval.s_val[1];
+bool set_data_int(char c, int n) {
+}
+
+
+bool set_data_float(char c, float f) {
+    switch (c){
+        case 'x':
+            g_data->baseCoord.setX(f);
+            break;
             
-            bool res;
-            float f = s.toFloat(&res);
-            if (res == false) {
-                g_data->decoded = false;
-            }
+        case 'y':
+            g_data->baseCoord.setY(f);
+            break;
             
-            if ((gcode_lval.s_val[0] | 0x20) == 'x'){
-                g_data->baseCoord.setX(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'y'){
-                g_data->baseCoord.setY(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'z'){
-                g_data->baseCoord.setZ(f);
-            }
-        }
-        | T_COORD_STORED
-        {
-            float f = 0; // TODO
-            if ((gcode_lval.s_val[0] | 0x20) == 'x'){
-                g_data->baseCoord.setX(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'y'){
-                g_data->baseCoord.setY(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'z'){
-                g_data->baseCoord.setZ(f);
-            }
-        }
-        | T_ANGLE
-        {
-            QString s = &gcode_lval.s_val[1];
-            bool res;
-            float f = s.toFloat(&res);
-            if (res == false) {
-                g_data->decoded = false;
-            }
+        case 'z':
+            g_data->baseCoord.setZ(f);
+            break;
             
-            g_data->useExtCoord = ABC;
-            if ((gcode_lval.s_val[0] | 0x20) == 'a'){
-                g_data->extCoord.setX(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'b'){
-                g_data->extCoord.setY(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'c'){
-                g_data->extCoord.setZ(f);
-            }
-        }
-        | T_ANGLE_STORED
-        {
-            float f = 0; // TODO
-            g_data->useExtCoord = ABC;
-            if ((gcode_lval.s_val[0] | 0x20) == 'a'){
-                g_data->extCoord.setX(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'b'){
-                g_data->extCoord.setY(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'c'){
-                g_data->extCoord.setZ(f);
-            }
-        }
-        | T_PAUSESEC
-        {
-            QString s = &gcode_lval.s_val[1];
-            bool res;
-            float f = s.toFloat(&res);
-            if (res == false) {
-                g_data->decoded = false;
-            }
+        case 'i':
+            g_data->useExtCoord = IJK; // TODO check conflicts
+            g_data->extCoord.setX(f);
+            break;
+            
+        case 'j':
+            g_data->useExtCoord = IJK; // TODO check conflicts
+            g_data->extCoord.setY(f);
+            break;
+            
+        case 'k':
+            g_data->useExtCoord = IJK; // TODO check conflicts
+            g_data->extCoord.setZ(f);
+            break;
+            
+        case 'a':
+            g_data->useExtCoord = ABC; // TODO check conflicts
+            g_data->extCoord.setX(f);
+            break;
+            
+        case 'b':
+            g_data->useExtCoord = ABC; // TODO check conflicts
+            g_data->extCoord.setY(f);
+            break;
+            
+        case 'c':
+            g_data->useExtCoord = ABC; // TODO check conflicts
+            g_data->extCoord.setZ(f);
+            break;
+            
+        case 'r': // radius
+            g_data->radius = f;
+            break;
+            
+        case 's': // pause sec
             if (g_data->gCmd == 4){
                 g_data->pauseMSec = f*1000.0;
             }
-        }
-        | T_PAUSE
-        {
-            QString s = &gcode_lval.s_val[1];
-            bool res;
-            float f = s.toFloat(&res);
-            if (res == false) {
-                g_data->decoded = false;
-            }
+            break;
+            
+        case 'p': // pause msec
             if (g_data->gCmd == 4){
                 g_data->pauseMSec = f;
             }
-        }
-        | T_DIAMETER
-        {
-            QString s = &gcode_lval.s_val[1];
-            bool res;
-            float f = s.toFloat(&res);
-            if (res == false) {
-                g_data->decoded = false;
-            }
+            break;
+            
+        case 'f': // feed
+            g_data->rapidVelo = f;
+            break;
+            
+        case 'd': // diameter
             g_data->toolDiameter = f;
-        }
-        | T_CHANGETOOL
-        {
-            QString s = &gcode_lval.s_val[1];
-            bool res;
-            float f = s.toFloat(&res);
-            if (res == false) {
-                g_data->decoded = false;
-            }
+            break;
+            
+        case 't': // change tool
             g_data->toolChange = true;
             g_data->toolNumber = f;
-        }
-        | T_FEED
-        {
-            QString s = &gcode_lval.s_val[1];
-            bool res;
-            float f = s.toFloat(&res);
-            if (res == false) {
-                g_data->decoded = false;
-            }
-            g_data->rapidVelo = f;
-        }
-        | T_RADIUS
-        {
-            QString s = &gcode_lval.s_val[1];
-            bool res;
-            float f = s.toFloat(&res);
-            if (res == false) {
-                g_data->decoded = false;
-            }
-            g_data->radius = f;
-        }
-        | T_ARC 
-        {
-            QString s = &gcode_lval.s_val[1];
-            bool res;
-            float f = s.toFloat(&res);
-            if (res == false) {
-                g_data->decoded = false;
-            }
+            break;
             
-            g_data->useExtCoord = IJK;
-            if ((gcode_lval.s_val[0] | 0x20) == 'i'){
-                g_data->extCoord.setX(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'j'){
-                g_data->extCoord.setY(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'k'){
-                g_data->extCoord.setZ(f);
-            }
-        }
-        | T_ARC_STORED
-        {
-            float f = 0; // TODO
-            g_data->useExtCoord = IJK;
-            if ((gcode_lval.s_val[0] | 0x20) == 'i'){
-                g_data->extCoord.setX(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'j'){
-                g_data->extCoord.setY(f);
-            }
-            if ((gcode_lval.s_val[0] | 0x20) == 'k'){
-                g_data->extCoord.setZ(f);
-            }
-        }
-        ;
+        default:
+            g_data->decoded = false;
+            printf("not decoded char %c, line %d\n", c, gcode_lineno);
+            return false;
+            break;
+    }
+    return true;
+}
 
-comment: T_COMMENT
-        {
-            qInfo() << "comment";
-        }
-        | T_COMMENT Strg
-        {
-            qInfo() << "comment" << $2;
-            free ($2);
-        }
-        | '(' Strg ')'
-        {
-            qInfo() << "comment" << $2;
-            free ($2);
-        }
-        ;
-
-%%
 
 int gcode_error (const char * error) {
   fprintf (stderr, "line %d: %s\n", gcode_lineno, error);

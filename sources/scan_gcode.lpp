@@ -54,6 +54,7 @@
 # define strrchr rindex
 #endif
 
+#include "Settings.h"
 #include "GCode.h"
 
 // this generated header file from parse_gcode.ypp
@@ -69,9 +70,10 @@ extern int gcode_lineno;
 
 WSPACE   [ \t\r]+
 DIGIT    [0-9]
+COMMENT  .*\(.+\)
 EXPONENT [Ee][+-]?{DIGIT}+
 INT      [+-]?{DIGIT}+
-REAL     [+-]?{DIGIT}+("."{DIGIT}+)?{EXPONENT}?
+REAL     [+-]?{DIGIT}+([.,]{DIGIT}+)?{EXPONENT}?
 DECIMAL  {DIGIT}+
 DIGITS   {DIGIT}+
 Eol      \n
@@ -83,33 +85,40 @@ Eol      \n
 %%
 
 
-G{DIGITS}     { gcode_lval.s_val = strdup(gcode_text); return T_GCMD; }
-M{DIGITS}     { gcode_lval.s_val = strdup(gcode_text); return T_MCMD; }
+^[A-Z]   { 
+    gcode_lval.c_val = gcode_text[0]; 
+    return NL_CHAR;
+}
 
-F{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_FEED; }
-R{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_RADIUS; }
-D{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_DIAMETER; }
-T{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_CHANGETOOL; }
-P{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_PAUSE; }
-S{REAL}       { gcode_lval.s_val = strdup(gcode_text); return T_PAUSESEC; }
-N{DIGITS}     { gcode_lval.s_val = strdup(gcode_text); return T_LABEL; }
+[A-Z]    { 
+    gcode_lval.c_val = gcode_text[0]; 
+    return CHAR; 
+}
 
-[XYZ]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_COORD; }
-[IJK]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_ARC; }
-[ABC]{REAL}   { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE; }
+{DIGITS} { 
+    gcode_lval.i_val = atoi(gcode_text); 
+    return INT; 
+}
 
-[XYZ]{WSPACE} { gcode_lval.s_val = strdup(gcode_text); return T_COORD_STORED; }
-[IJK]{WSPACE} { gcode_lval.s_val = strdup(gcode_text); return T_ARC_STORED; }
-[ABC]{WSPACE} { gcode_lval.s_val = strdup(gcode_text); return T_ANGLE_STORED; }
+{REAL}   { 
+    std::string s = gcode_text; 
+//     std::replace( s.begin(), s.end(), Settings::fromDecimalPoint.toLatin1(), Settings::toDecimalPoint.toLatin1());
+    std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
+    gcode_lval.f_val = atof(s.c_str());
+    
+    return FLOAT;
+}
 
 
-"(".*")" { /* ignore comments, do nothing */ }
+{Eol}         { gcode_lineno++;  /*gcode_lval.s_val = strdup(gcode_text); return NEW_LINE;*/ }
+
+
+{COMMENT} { /*printf ("ignore comment %s in line %d\n", gcode_text, gcode_lineno); ignore comments, do nothing */ }
 
 "%".*{Eol}* { /* ignore comments, do nothing */ }
 
 ";".*{Eol}* { /* ignore comments, do nothing */ }
 
-\n { gcode_lineno++; }
 
 <*>{WSPACE}  { /* skip end of line and spaces */ }
 

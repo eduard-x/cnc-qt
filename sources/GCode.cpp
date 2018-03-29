@@ -75,7 +75,7 @@ GCodeData::GCodeData()
     extCoord = { 0.0, 0.0, 0.0 };
 
     plane = None;
-    
+
     labelNum = -1;
 
     radius = 0.0;
@@ -126,7 +126,7 @@ GCodeData::GCodeData(GCodeData *d)
     plane = d->plane;
 
     rapidVelo = d->rapidVelo; // ???
-    
+
     labelNum = -1;
 
     vectorCoeff = 0.0;
@@ -143,7 +143,7 @@ GCodeData::GCodeData(GCodeData *d)
 
     stepsCounter = 0; // should be calculated
 
-    movingCode = NO_CODE;
+    movingCode = d->movingCode;
 
     numberLine = d->numberLine;
     commandNum = 0;
@@ -222,9 +222,9 @@ void GCodeParser::gcodeChecker()
 
     QVector3D origin(0, 0, 0);
     QVector3D current_pos(0, 0, 0);
-    
+
     // TODO home pos
-    // goodList has the text for table 
+    // goodList has the text for table
     g0Points << GCodeOptim {QVector3D(0, 0, 0), goodList.count(), -1, gCodeList.count(), -1};
 
     // the first pos (cur = 0) is 0 or home
@@ -232,13 +232,13 @@ void GCodeParser::gcodeChecker()
         GCodeData d = gCodeList.at(cur);
 
         if (d.decoded == false) {
-//             emit logMessage(QString().sprintf("Not decoded line %d", d.numberLine));
+            //             emit logMessage(QString().sprintf("Not decoded line %d", d.numberLine));
             continue;
         }
 
-//         if (d.gCmd == -1 && d.mCmd == -1){
-//             continue;
-//         }
+        //         if (d.gCmd == -1 && d.mCmd == -1){
+        //             continue;
+        //         }
 
         if (d.gCmd >= 0) {
             detectMinMax(d);
@@ -246,7 +246,7 @@ void GCodeParser::gcodeChecker()
             switch (d.gCmd) {
                 case 0: {
                     QVector3D delta_pos;
-                    d.movingCode = RAPID_LINE_CODE;
+                    //                     d.movingCode = RAPID_LINE_CODE;
 
                     delta_pos = d.baseCoord - gCodeList.at(cur - 1).baseCoord;
 
@@ -255,7 +255,7 @@ void GCodeParser::gcodeChecker()
 
                     d.typeMoving = GCodeData::Line;
 
-                    d.movingCode = RAPID_LINE_CODE;
+                    //                     d.movingCode = RAPID_LINE_CODE;
                     d.plane = currentPlane;
                     d.rapidVelo = 0.0;
 
@@ -439,22 +439,26 @@ void GCodeParser::gcodeChecker()
                 }
 
                 default: {
-//                     qInfo() << "g is not decoded" <<  d.gCmd << d.numberLine;
+                    //                     qInfo() << "g is not decoded" <<  d.gCmd << d.numberLine;
                     emit logMessage(QString().sprintf("Not decoded line %d G command %d", d.numberLine, d.gCmd));
                     d.decoded = false;
                     break;
                 }
             }
-        } // end of g decoding 
+        }
+
+        // end of g decoding
+
+        // the m
         {
             switch (d.mCmd) {
                 case 0: {
                     d.pauseMSec = 0; // waiting
                     break;
                 }
-                
+
                 case 2: {
-//                     d.spindelOn = true;
+                    //                     d.spindelOn = true;
                     break;
                 }
 
@@ -527,8 +531,8 @@ void GCodeParser::gcodeChecker()
                 }
 
                 default: {
-//                     qInfo() << "m is not decoded" <<  d.gCmd << d.numberLine;
-//                     emit logMessage(QString().sprintf("Not decoded line %d, M command %d", d.numberLine, d.mCmd));
+                    //                     qInfo() << "m is not decoded" <<  d.gCmd << d.numberLine;
+                    //                     emit logMessage(QString().sprintf("Not decoded line %d, M command %d", d.numberLine, d.mCmd));
                     d.decoded = false;
                     break;
                 }
@@ -604,16 +608,113 @@ bool GCodeParser::readGCode(char *indata)
     gcodeDestroy();
 
     emit logMessage(QString().sprintf("Parse gcode, flex/bison. Time elapsed: %d ms", tMess.elapsed()));
-  // the parsed data is in gCodeList
+    // the parsed data is in gCodeList
     qInfo() << "file parsed" << tMess.elapsed() << "msec";
-    
+
     tMess.restart();
-    
+
     gcodeChecker();
 
     emit logMessage(QString().sprintf("Data was converted. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), goodList.count()));
 
+
+    if (Settings::optimizeRapidWays == true) {
+        QTime t;
+        t.start();
+        //             g0points = getRapidPoints();
+        QVector<int> ant = calculateAntPath();
+
+        if (ant.count() > 2) {
+            qDebug() << ant;
+
+            sortGCode(ant);
+        }
+
+        emit logMessage(QString().sprintf("Read gcode, Ant optimization. Time elapsed: %d ms, cities: %d", t.elapsed(), ant.count()));
+        //     qDebug() << "read gcode end";
+        t.restart();
+    }
+
     return true;
+}
+
+
+const QVector<int> GCodeParser::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
+{
+    int points = g0Points.count();
+
+    path.clear();
+
+    if (points <= 2) {
+        return path;
+    }
+
+    path.resize(points);
+
+    if (distance.size() > 0) {
+        for (int i = 0; i < distance.size(); ++i) {
+            distance[i].clear();
+        }
+
+        distance.clear();
+    }
+
+    distance.resize(points);
+
+    for (int i = 0; i < distance.size(); ++i) {
+        distance[i].resize(points);
+    }
+
+    // two dimensional array for distances between the points
+    for (int i = 0; i < points; i++) {
+        path[i] = i;
+
+        for (int j = 0; j < points; j++) {
+            distance[i][j] = g0Points.at(j).coord.distanceToPoint(g0Points.at(i).coord);
+        }
+    }
+
+    antColonyOptimization();
+
+    return path;
+}
+
+/**
+ * @brief
+ *
+ * @see Ant Colony Optimization algorithm
+ * @link https://hackaday.io/project/4955-g-code-optimization
+ */
+void GCodeParser::antColonyOptimization()
+{
+    int points = g0Points.count();
+
+    int maxDepth = points;
+
+    if (maxDepth > Settings::maxAntSearchDepth) {
+        maxDepth = Settings::maxAntSearchDepth;
+    }
+
+    for (int i = 0; i < maxDepth - 2; i++) {
+        for (int j = i + 2; j < points - 1; j++) {
+            float swap_length = distance[path[i]][path[j]] + distance[path[i + 1]][path[j + 1]];
+            float old_length = distance[path[i]][path[i + 1]] + distance[path[j]][path[j + 1]];
+
+            if (swap_length < old_length) {
+                // Make the new and shorter path.
+                for (int x = 0; x < (j - i) / 2; x++) {
+                    // swap
+                    int temp = path[i + 1 + x];
+                    path[i + 1 + x] = path[j - x];
+                    path[j - x] = temp;
+                }
+
+                // recursively
+                antColonyOptimization();
+                //  say no to goto! ;) // goto START;
+            }
+        }
+    }
 }
 
 

@@ -94,8 +94,8 @@ short Settings::fontSize = 10;
 short Settings::maxAntSearchDepth = 20;
 
 QStringList Settings::lastFiles = QStringList("");
-QChar Settings::toDecimalPoint = '.';
-QChar Settings::fromDecimalPoint = ';';
+char Settings::toDecimalPoint = '.';
+char Settings::fromDecimalPoint = ',';
 bool Settings::DEMO_DEVICE = false;
 int  Settings::splitsPerMm = 10;
 float Settings::maxLookaheadAngle = 170.0;

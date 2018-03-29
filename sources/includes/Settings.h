@@ -128,8 +128,8 @@ class Settings : public QSettings
         static quint8 bb16;
         static quint8 bb19;
 
-        static QChar fromDecimalPoint;
-        static QChar toDecimalPoint;
+        static char fromDecimalPoint;
+        static char toDecimalPoint;
 
         static QColor colorSettings[COLOR_ENTRIES];
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2

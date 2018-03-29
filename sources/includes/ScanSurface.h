@@ -75,8 +75,6 @@ class ScanSurfaceDialog : public QDialog, public Ui::ScanSurfaceDialog,  public 
     private:
         QTimer taskTimer;
         ScanThread *scanThread;
-        //         QChar fromDecimalPoint;
-        //         QChar toDecimalPoint;
 
     public:
         MainWindow* parent;

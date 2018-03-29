@@ -179,23 +179,6 @@ bool Reader::readFile(const QString &fileName)
         TypeFile = GCODE;
         bool res = readGCode(arr.data());
 
-        if (Settings::optimizeRapidWays == true) {
-            QTime t;
-            t.start();
-            //             g0points = getRapidPoints();
-            QVector<int> ant = calculateAntPath();
-
-            if (ant.count() > 2) {
-                qDebug() << ant;
-
-                sortGCode(ant);
-            }
-
-            emit logMessage(QString().sprintf("Read gcode, Ant optimization. Time elapsed: %d ms, cities: %d", t.elapsed(), ant.count()));
-            //     qDebug() << "read gcode end";
-            t.restart();
-        }
-
         return res;
     }
 
@@ -629,84 +612,6 @@ void Reader::BresenhamLine(QVector<QVector<quint8> > &arrayPoint, int x0, int y0
     }
 }
 
-
-const QVector<int> Reader::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
-{
-    int points = g0Points.count();
-
-    path.clear();
-
-    if (points <= 2) {
-        return path;
-    }
-
-    path.resize(points);
-
-    if (distance.size() > 0) {
-        for (int i = 0; i < distance.size(); ++i) {
-            distance[i].clear();
-        }
-
-        distance.clear();
-    }
-
-    distance.resize(points);
-
-    for (int i = 0; i < distance.size(); ++i) {
-        distance[i].resize(points);
-    }
-
-    // two dimensional array for distances between the points
-    for (int i = 0; i < points; i++) {
-        path[i] = i;
-
-        for (int j = 0; j < points; j++) {
-            distance[i][j] = g0Points.at(j).coord.distanceToPoint(g0Points.at(i).coord);
-        }
-    }
-
-    antColonyOptimization();
-
-    return path;
-}
-
-/**
- * @brief
- *
- * @see Ant Colony Optimization algorithm
- * @link https://hackaday.io/project/4955-g-code-optimization
- */
-void Reader::antColonyOptimization()
-{
-    int points = g0Points.count();
-
-    int maxDepth = points;
-
-    if (maxDepth > Settings::maxAntSearchDepth) {
-        maxDepth = Settings::maxAntSearchDepth;
-    }
-
-    for (int i = 0; i < maxDepth - 2; i++) {
-        for (int j = i + 2; j < points - 1; j++) {
-            float swap_length = distance[path[i]][path[j]] + distance[path[i + 1]][path[j + 1]];
-            float old_length = distance[path[i]][path[i + 1]] + distance[path[j]][path[j + 1]];
-
-            if (swap_length < old_length) {
-                // Make the new and shorter path.
-                for (int x = 0; x < (j - i) / 2; x++) {
-                    // swap
-                    int temp = path[i + 1 + x];
-                    path[i + 1 + x] = path[j - x];
-                    path[j - x] = temp;
-                }
-
-                // recursively
-                antColonyOptimization();
-                //  say no to goto! ;) // goto START;
-            }
-        }
-    }
-}
 
 //
 // gerber reader

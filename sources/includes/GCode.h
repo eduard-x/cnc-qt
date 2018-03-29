@@ -197,12 +197,17 @@ class GCodeParser : public QObject
 
     protected:
         void sortGCode(const QVector<int> &antdata);
+        void antColonyOptimization();
+        const QVector<int> calculateAntPath(/*const QVector<GCodeOptim> &v*/);
 
     signals:
         void logMessage(const QString &l);
 
     protected:
         QMutex mut;
+        QVector<int> path;
+        QVector<int> occup;
+        QVector <QVector <float> > distance;
 
         QVector<GCodeOptim> g0Points;
         QVector<QString> goodList; // only decoded G-code
