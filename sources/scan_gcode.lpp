@@ -72,7 +72,7 @@ WSPACE   [ \t\r]+
 DIGIT    [0-9]
 COMMENT  .*\(.+\)
 EXPONENT [Ee][+-]?{DIGIT}+
-INT      [+-]?{DIGIT}+
+INTEGER  [+-]?{DIGIT}+
 REAL     [+-]?{DIGIT}+([.,]{DIGIT}+)?{EXPONENT}?
 DECIMAL  {DIGIT}+
 DIGITS   {DIGIT}+
@@ -100,9 +100,8 @@ Eol      \n
     return INT; 
 }
 
-{REAL}   { 
-    std::string s = gcode_text; 
-//     std::replace( s.begin(), s.end(), Settings::fromDecimalPoint.toLatin1(), Settings::toDecimalPoint.toLatin1());
+{REAL}   {
+    std::string s = gcode_text;
     std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
     gcode_lval.f_val = atof(s.c_str());
     

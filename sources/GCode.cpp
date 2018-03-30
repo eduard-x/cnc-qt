@@ -47,7 +47,7 @@
 #define DEBUG_ARC 0
 
 /**
- * @brief consructor
+ * @brief consructor 
  *
  */
 GCodeData::GCodeData()
@@ -74,17 +74,16 @@ GCodeData::GCodeData()
 
     extCoord = { 0.0, 0.0, 0.0 };
 
-    plane = None;
+    plane = XY;
 
     labelNum = -1;
 
     radius = 0.0;
+    
     vectorCoeff = 0.0;
     // end of arc
 
     rapidVelo = 0.0;
-
-    typeMoving = NoType;
 
     movingCode =  NO_CODE;
 
@@ -130,8 +129,6 @@ GCodeData::GCodeData(GCodeData *d)
     labelNum = -1;
 
     vectorCoeff = 0.0;
-
-    typeMoving = d->typeMoving;
 
     spindelOn = d->spindelOn;
     mistOn = d->mistOn;
@@ -217,8 +214,8 @@ void GCodeParser::gcodeChecker()
     bool b_absolute = true;
     float coef = 1.0; // 1 or 24.5
 
-    PlaneEnum currentPlane;
-    currentPlane = XY;
+//     PlaneEnum currentPlane;
+//     currentPlane = XY;
 
     QVector3D origin(0, 0, 0);
     QVector3D current_pos(0, 0, 0);
@@ -246,17 +243,12 @@ void GCodeParser::gcodeChecker()
             switch (d.gCmd) {
                 case 0: {
                     QVector3D delta_pos;
-                    //                     d.movingCode = RAPID_LINE_CODE;
 
                     delta_pos = d.baseCoord - gCodeList.at(cur - 1).baseCoord;
 
                     if (Settings::filterRepeat == true) { // TODO
                     }
 
-                    d.typeMoving = GCodeData::Line;
-
-                    //                     d.movingCode = RAPID_LINE_CODE;
-                    d.plane = currentPlane;
                     d.rapidVelo = 0.0;
 
                     if (b_absolute) {
@@ -267,7 +259,7 @@ void GCodeParser::gcodeChecker()
 
                     // TODO move to separate subroutine
                     // for the way optimizing
-                    switch (currentPlane) {
+                    switch (d.plane) {
                         case XY: {
                             // xy moving
                             if (delta_pos.z() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.y() != 0.0)) {
@@ -341,12 +333,8 @@ void GCodeParser::gcodeChecker()
                 }
 
                 case 1: {
-                    d.movingCode = FEED_LINE_CODE;
-                    d.typeMoving = GCodeData::Line;
                     d.toolChange = false;
                     d.pauseMSec = -1; // no pause
-
-                    d.plane = currentPlane;
 
                     if (b_absolute) {
                         current_pos = d.baseCoord + origin;
@@ -361,14 +349,6 @@ void GCodeParser::gcodeChecker()
 
                 case 2:
                 case 3: {
-                    if (d.gCmd == 2) {
-                        d.typeMoving = GCodeData::ArcCW;
-                    } else {
-                        d.typeMoving = GCodeData::ArcCCW;
-                    }
-
-                    d.movingCode = FEED_LINE_CODE;
-
                     if (b_absolute) {
                         current_pos = d.baseCoord + origin;
                     } else {
@@ -384,21 +364,11 @@ void GCodeParser::gcodeChecker()
                     break;
                 }
 
-                case 17: {
-                    currentPlane = XY;
+                case 17:
+                case 18:
+                case 19:
                     break;
-                }
-
-                case 18: {
-                    currentPlane = YZ;
-                    break;
-                }
-
-                case 19: {
-                    currentPlane = ZX;
-                    break;
-                }
-
+                    
                 case 20: {
                     coef = 25.4;
                     break;
@@ -458,7 +428,6 @@ void GCodeParser::gcodeChecker()
                 }
 
                 case 2: {
-                    //                     d.spindelOn = true;
                     break;
                 }
 
@@ -617,7 +586,7 @@ bool GCodeParser::readGCode(char *indata)
 
     emit logMessage(QString().sprintf("Data was converted. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), goodList.count()));
 
-
+#if 0
     if (Settings::optimizeRapidWays == true) {
         QTime t;
         t.start();
@@ -634,7 +603,7 @@ bool GCodeParser::readGCode(char *indata)
         //     qDebug() << "read gcode end";
         t.restart();
     }
-
+#endif
     return true;
 }
 
@@ -907,7 +876,7 @@ void GCodeParser::convertArcToLines(GCodeData &d)
         return;
     }
 
-    if (!(d.typeMoving == GCodeData::ArcCW || d.typeMoving == GCodeData::ArcCCW) ) { // it's not arc
+    if (!(d.gCmd == 2 || d.gCmd == 3) ) { // it's not arc
         return;
     }
 
@@ -991,7 +960,7 @@ void GCodeParser::convertArcToLines(GCodeData &d)
     alpha_beg = determineAngle (beginPos, posC, d.plane);
     alpha_end = determineAngle (endPos, posC, d.plane);
 
-    if (d.typeMoving == GCodeData::ArcCW) {
+    if (d.gCmd == 2) {
         if (alpha_beg == alpha_end) {
             alpha_beg += 2.0 * PI;
         }
@@ -1029,7 +998,7 @@ void GCodeParser::convertArcToLines(GCodeData &d)
 
     deltaPos = deltaPos / n;
 
-    if (d.typeMoving == GCodeData::ArcCW) {
+    if (d.gCmd == 3) {
         dAlpha = -dAlpha;
     }
 

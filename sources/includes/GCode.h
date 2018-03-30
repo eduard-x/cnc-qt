@@ -87,14 +87,6 @@ enum CoordEnum {
 class GCodeData
 {
     public:
-        enum MovingType {
-            NoType,
-            Line,
-            ArcCW,
-            ArcCCW
-        };
-
-    public:
         int   gCmd;
         int   mCmd;
 
@@ -121,6 +113,8 @@ class GCodeData
         bool decoded;
 
         PlaneEnum plane; // XY, YZ, ZX
+        
+        QString lineComment;
 
         int   vectSpeed; // telegr CA offset
         float vectorCoeff; // for the max from dH / dX of dH / dY ratio, in case XY plane
@@ -138,9 +132,6 @@ class GCodeData
         bool  coolantOn;
 
         int   numberLine;     // from g-code file
-
-        // TODO to remove this?
-        MovingType typeMoving; // NONE, LINE, ARC_CW, ARC_CCW
 
         // TODO local data for calculations?
         float angle; // angle between two lines around the actual point

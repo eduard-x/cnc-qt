@@ -60,7 +60,6 @@ static int gcodecharno = 0;
 
 
 bool set_data_float(char c, float f);
-bool set_data_int(char c, int n);
 
 // gcode_lineno = 0;
 
@@ -128,6 +127,7 @@ glines: gline glines
 gline:  NL_CHAR INT
         {
             // the new line, create new object
+            // for cases, when line begins with g, m command or n: label
             GCodeParser::gCodeList << g_data;
             g_data =  new GCodeData(g_data);
             g_data->numberLine = gcode_lineno;
@@ -138,12 +138,29 @@ gline:  NL_CHAR INT
                     break;
 
                 case 'g' :
-                    g_data->gCmd = $2; 
-                    if ($2 == 1 || $2 == 2 || $2 == 3) {
-                        g_data->movingCode = FEED_LINE_CODE;
-                    }
-                    if ($2 == 0) {
-                        g_data->movingCode = RAPID_LINE_CODE;
+                    g_data->gCmd = $2;
+                    switch ($2){
+                        case 0:
+                            g_data->movingCode = RAPID_LINE_CODE;
+                            break;
+                            
+                        case 1:
+                        case 2:
+                        case 3:
+                            g_data->movingCode = FEED_LINE_CODE;
+                            break;
+                            
+                        case 17:
+                            g_data->plane = XY;
+                            break;
+                            
+                        case 18:
+                            g_data->plane = YZ;
+                            break;
+                            
+                        case 19:
+                            g_data->plane = ZX;
+                            break;
                     }
                     break;
 
@@ -152,6 +169,7 @@ gline:  NL_CHAR INT
                     break;
  
                 default:
+                    // not decoded, it's possible other code? 
                     if (set_data_float(($1 | 0x20), (float) $2) == false) {
                         g_data->decoded = false;
                         printf("not decoded char %c, line %d\n", $1, gcode_lineno);
@@ -161,6 +179,7 @@ gline:  NL_CHAR INT
         }
         | NL_CHAR FLOAT
         {
+            // when line begins with coordinates 
             // the new line, create new object
             GCodeParser::gCodeList << g_data;
             g_data =  new GCodeData(g_data);
@@ -214,8 +233,6 @@ gline:  NL_CHAR INT
 
 %%
 
-bool set_data_int(char c, int n) {
-}
 
 
 bool set_data_float(char c, float f) {
