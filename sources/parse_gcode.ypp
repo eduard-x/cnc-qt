@@ -66,30 +66,14 @@ bool set_data_float(char c, float f);
 // init of first gcode data
 GCodeData *g_data = new GCodeData();
 
-
 %}
 
 %name-prefix "gcode_"
 
-%token GCOMMAND
-%token MCOMMAND
-%token ANGLE
-%token ANGLE_STORED
-%token FEED
-%token RADIUS
-%token LABEL
-%token ARC
-%token ARC_STORED
-%token COORD
-%token COORD_STORED
-%token COMMENT
-%token CHANGETOOL
-%token DIAMETER
-%token PAUSE
-%token PAUSESEC
 
 %token NL_CHAR
 %token CHAR
+%token COMMENTAR
 %token INT
 %token FLOAT
 %token NEW_LINE
@@ -102,12 +86,14 @@ GCodeData *g_data = new GCodeData();
     int       i_val;
     float     f_val;
     char      c_val;
+    char*     s_val;
 }
 
 
 %type <i_val> INT
 %type <f_val> FLOAT
 %type <c_val> NL_CHAR CHAR
+%type <s_val> COMMENTAR
 
 
 %start parse_gcode
@@ -228,8 +214,12 @@ gline:  NL_CHAR INT
         {
             // store coordinates
         }
+        | COMMENTAR 
+        {
+           g_data->lineComment = QString($1).simplified();
+           free($1);
+        }
         ;
-        
 
 %%
 

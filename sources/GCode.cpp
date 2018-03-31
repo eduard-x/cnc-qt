@@ -547,6 +547,7 @@ bool GCodeParser::readGCode(char *indata)
     int ret = true;
 
     gCodeList.clear();
+    
     goodList.clear();
 
     mut.lock();

@@ -70,7 +70,7 @@ extern int gcode_lineno;
 
 WSPACE   [ \t\r]+
 DIGIT    [0-9]
-COMMENT  .*\(.+\)
+COMMENT  \(.+\)
 EXPONENT [Ee][+-]?{DIGIT}+
 INTEGER  [+-]?{DIGIT}+
 REAL     [+-]?{DIGIT}+([.,]{DIGIT}+)?{EXPONENT}?
@@ -95,6 +95,7 @@ Eol      \n
     return CHAR; 
 }
 
+
 {DIGITS} { 
     gcode_lval.i_val = atoi(gcode_text); 
     return INT; 
@@ -112,7 +113,10 @@ Eol      \n
 {Eol}         { gcode_lineno++;  /*gcode_lval.s_val = strdup(gcode_text); return NEW_LINE;*/ }
 
 
-{COMMENT} { /*printf ("ignore comment %s in line %d\n", gcode_text, gcode_lineno); ignore comments, do nothing */ }
+^{COMMENT}{Eol}* { /* new line commentar */}
+
+
+<*>{COMMENT}{Eol}* { gcode_lval.s_val = strdup(gcode_text); return COMMENTAR; }
 
 "%".*{Eol}* { /* ignore comments, do nothing */ }
 
