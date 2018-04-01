@@ -64,7 +64,7 @@ bool set_data_float(char c, float f);
 // gcode_lineno = 0;
 
 // init of first gcode data
-GCodeData *g_data = new GCodeData();
+GCodeData *g_data;// = new GCodeData();
 
 %}
 
@@ -114,7 +114,12 @@ gline:  NL_CHAR INT
         {
             // the new line, create new object
             // for cases, when line begins with g, m command or n: label
-            g_data =  new GCodeData(g_data);
+            if (GCodeParser::gCodeVector.count() == 0){
+                g_data =  new GCodeData();
+            }
+            else {
+                g_data =  new GCodeData(g_data);
+            }
             g_data->numberLine = gcode_lineno;
 
             switch ($1 | 0x20){
