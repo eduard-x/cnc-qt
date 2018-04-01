@@ -54,7 +54,7 @@ GCodeData::GCodeData()
 {
     toolChange = false;
     toolNumber = 0;
-    commandNum = 0;
+    commandNum = 0; // is the command number for sending to mk1
     numberLine = 0;
     decoded = true;
 
@@ -75,6 +75,8 @@ GCodeData::GCodeData()
     extCoord = { 0.0, 0.0, 0.0 };
 
     plane = XY;
+    
+    lineComment = "";
 
     labelNum = -1;
 
@@ -123,6 +125,8 @@ GCodeData::GCodeData(GCodeData *d)
     radius = d->radius; // got G02, G03
 
     plane = d->plane;
+    
+    lineComment = "";
 
     rapidVelo = d->rapidVelo; // ???
 
@@ -156,7 +160,7 @@ GCodeData::GCodeData(GCodeData *d)
 };
 
 // is static
-QVector<GCodeData> GCodeParser::gCodeList;
+QVector<GCodeData> GCodeParser::gCodeVector;
 
 /**
  * @brief constructor
@@ -173,8 +177,9 @@ GCodeParser::GCodeParser()
  */
 GCodeParser::~GCodeParser()
 {
-    gCodeList.clear();
+    gCodeVector.clear();
     g0Points.clear();
+    goodList.clear();
 }
 
 /**
@@ -214,40 +219,48 @@ void GCodeParser::gcodeChecker()
     bool b_absolute = true;
     float coef = 1.0; // 1 or 24.5
 
-//     PlaneEnum currentPlane;
-//     currentPlane = XY;
-
     QVector3D origin(0, 0, 0);
     QVector3D current_pos(0, 0, 0);
 
     // TODO home pos
     // goodList has the text for table
-    g0Points << GCodeOptim {QVector3D(0, 0, 0), goodList.count(), -1, gCodeList.count(), -1};
+    g0Points << GCodeOptim {QVector3D(0, 0, 0), goodList.count(), -1, gCodeVector.count(), -1};
 
     // the first pos (cur = 0) is 0 or home
-    for(int cur = 1; cur < gCodeList.count(); cur++) {
-        GCodeData d = gCodeList.at(cur);
+    for(int cur = 1; cur < gCodeVector.count(); cur++) {
+        GCodeData d = gCodeVector.at(cur);
 
         if (d.decoded == false) {
-            //             emit logMessage(QString().sprintf("Not decoded line %d", d.numberLine));
+            qInfo() << "not decoded line" << d.numberLine;
             continue;
         }
-
-        //         if (d.gCmd == -1 && d.mCmd == -1){
-        //             continue;
-        //         }
+      
+        QString line;
 
         if (d.gCmd >= 0) {
             detectMinMax(d);
+            
+            line = QString().sprintf("G%02d ", d.gCmd);
+            if (Settings::filterRepeat == true) { // TODO
+                if (gCodeVector.at(cur-1).baseCoord.x() != d.baseCoord.x()){
+                    line += QString().sprintf("X%g ", d.baseCoord.x());
+                }
+                if (gCodeVector.at(cur-1).baseCoord.y() != d.baseCoord.y()){
+                    line += QString().sprintf("Y%g ", d.baseCoord.y());
+                }
+                if (gCodeVector.at(cur-1).baseCoord.z() != d.baseCoord.z()){
+                    line += QString().sprintf("Z%g ", d.baseCoord.z());
+                }
+            }
+            else {
+                line += QString().sprintf("X%g Y%g Z%g ", d.baseCoord.x(), d.baseCoord.y(), d.baseCoord.z());
+            }
 
             switch (d.gCmd) {
                 case 0: {
                     QVector3D delta_pos;
 
-                    delta_pos = d.baseCoord - gCodeList.at(cur - 1).baseCoord;
-
-                    if (Settings::filterRepeat == true) { // TODO
-                    }
+                    delta_pos = d.baseCoord - gCodeVector.at(cur - 1).baseCoord;
 
                     d.rapidVelo = 0.0;
 
@@ -263,7 +276,7 @@ void GCodeParser::gcodeChecker()
                         case XY: {
                             // xy moving
                             if (delta_pos.z() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.y() != 0.0)) {
-                                if (gCodeList.at(cur - 1).movingCode == RAPID_LINE_CODE) {
+                                if (gCodeVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
                                     g0Points.last().lineEnd = (goodList.count() - 1 );
                                     g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
                                 }
@@ -273,7 +286,7 @@ void GCodeParser::gcodeChecker()
 
                             // z moving
                             if (delta_pos.z() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.y() == 0.0)) {
-                                if (gCodeList.at(cur - 1).movingCode != RAPID_LINE_CODE) {
+                                if (gCodeVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
                                     g0Points.last().gcodeEnd = (cur);
                                 }
                             }
@@ -284,7 +297,7 @@ void GCodeParser::gcodeChecker()
                         case YZ: {
                             if (delta_pos.x() == 0.0 && (delta_pos.y() != 0.0 || delta_pos.z() != 0.0)) {
                                 // yz moving
-                                if (gCodeList.at(cur - 1).movingCode == RAPID_LINE_CODE) {
+                                if (gCodeVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
                                     g0Points.last().lineEnd = (goodList.count() - 1 );
                                     g0Points.last().gcodeEnd = (cur - 1);
                                     g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
@@ -295,7 +308,7 @@ void GCodeParser::gcodeChecker()
 
                             // x moving
                             if (delta_pos.x() != 0.0 && (delta_pos.y() == 0.0 && delta_pos.z() == 0.0)) {
-                                if (gCodeList.at(cur - 1).movingCode != RAPID_LINE_CODE) {
+                                if (gCodeVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
                                     g0Points.last().gcodeEnd = (cur);
                                 }
                             }
@@ -306,7 +319,7 @@ void GCodeParser::gcodeChecker()
                         case ZX: {
                             if (delta_pos.y() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.z() != 0.0)) {
                                 // zx moving
-                                if (gCodeList.at(cur - 1).movingCode == RAPID_LINE_CODE) {
+                                if (gCodeVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
                                     g0Points.last().lineEnd = (goodList.count() - 1 );
                                     g0Points.last().gcodeEnd = (cur - 1);
                                     g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
@@ -317,7 +330,7 @@ void GCodeParser::gcodeChecker()
 
                             // y moving
                             if (delta_pos.y() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.z() == 0.0)) {
-                                if (gCodeList.at(cur - 1).movingCode != RAPID_LINE_CODE) {
+                                if (gCodeVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
                                     g0Points.last().gcodeEnd = (cur);
                                 }
                             }
@@ -335,7 +348,7 @@ void GCodeParser::gcodeChecker()
                 case 1: {
                     d.toolChange = false;
                     d.pauseMSec = -1; // no pause
-
+                 
                     if (b_absolute) {
                         current_pos = d.baseCoord + origin;
                     } else {
@@ -354,7 +367,14 @@ void GCodeParser::gcodeChecker()
                     } else {
                         current_pos += d.baseCoord;
                     }
-
+        
+                    if (d.useExtCoord == IJK) { //
+                        line += QString().sprintf("I%g J%g K%g ", d.extCoord.x(), d.extCoord.y(), d.extCoord.z());
+                    }
+                    if (d.radius > 0){
+                        line += QString().sprintf("R%g ", d.radius);
+                    }
+                    
                     convertArcToLines(d);
 
                     break;
@@ -394,7 +414,7 @@ void GCodeParser::gcodeChecker()
                 }
 
                 case 92: {
-                    origin = gCodeList.at(cur - 1).baseCoord - d.baseCoord;
+                    origin = gCodeVector.at(cur - 1).baseCoord - d.baseCoord;
                     break;
                 }
 
@@ -409,18 +429,17 @@ void GCodeParser::gcodeChecker()
                 }
 
                 default: {
-                    //                     qInfo() << "g is not decoded" <<  d.gCmd << d.numberLine;
                     emit logMessage(QString().sprintf("Not decoded line %d G command %d", d.numberLine, d.gCmd));
                     d.decoded = false;
                     break;
                 }
             }
-        }
+        } // end of g decoding
 
-        // end of g decoding
-
-        // the m
-        {
+        // the m part
+        if (d.mCmd >=0 ){
+            line += QString().sprintf("M%d ", d.mCmd);
+            
             switch (d.mCmd) {
                 case 0: {
                     d.pauseMSec = 0; // waiting
@@ -500,12 +519,22 @@ void GCodeParser::gcodeChecker()
                 }
 
                 default: {
-                    //                     qInfo() << "m is not decoded" <<  d.gCmd << d.numberLine;
-                    //                     emit logMessage(QString().sprintf("Not decoded line %d, M command %d", d.numberLine, d.mCmd));
+                    emit logMessage(QString().sprintf("Not decoded line %d, M command %d", d.numberLine, d.mCmd));
                     d.decoded = false;
                     break;
                 }
             }
+//             if (d.decoded == true) {
+//                 line += QString().sprintf("M%d ", d.mCmd);
+//             }
+        }
+        
+        if (d.lineComment.length()){
+            line += d.lineComment;
+        }
+        
+        if (line.length()) {
+            goodList << line;
         }
     }
 }
@@ -546,7 +575,7 @@ bool GCodeParser::readGCode(char *indata)
 {
     int ret = true;
 
-    gCodeList.clear();
+    gCodeVector.clear();
     
     goodList.clear();
 
@@ -711,7 +740,7 @@ void GCodeParser::sortGCode(const QVector<int> &citydata)
         endNum = g0Points.at(pos).gcodeEnd;
 
         for (int j = startNum; j <= endNum; j++) {
-            tmpGCodeList << gCodeList.at(j);
+            tmpGCodeList << gCodeVector.at(j);
         }
 
         //         qDebug() << "pos" << pos << "lines:" << startNum << ".." << endNum - 1 << goodList.at(endNum) << g0Points.at(citydata.at(n)).coord;
@@ -724,9 +753,9 @@ void GCodeParser::sortGCode(const QVector<int> &citydata)
 
     goodList = tmpList;
 
-    gCodeList.clear();
+    gCodeVector.clear();
 
-    gCodeList = tmpGCodeList;
+    gCodeVector = tmpGCodeList;
 
     mut.unlock();
     //     for  (int n = 0; n < citydata.size(); n++) {
@@ -833,23 +862,23 @@ float GCodeParser::determineAngle(const QVector3D &pos1, const QVector3D &pos2, 
  */
 void GCodeParser::calcAngleOfLines(int pos)
 {
-    if (pos < 1 || pos > gCodeList.count() - 1) {
+    if (pos < 1 || pos > gCodeVector.count() - 1) {
         return;
     }
 
-    switch (gCodeList.at(pos).plane) {
+    switch (gCodeVector.at(pos).plane) {
         case XY: {
-            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).baseCoord.y() - gCodeList.at(pos - 1).baseCoord.y(), gCodeList.at(pos).baseCoord.x() - gCodeList.at(pos - 1).baseCoord.x());
+            gCodeVector[pos].angle = qAtan2(gCodeVector.at(pos).baseCoord.y() - gCodeVector.at(pos - 1).baseCoord.y(), gCodeVector.at(pos).baseCoord.x() - gCodeVector.at(pos - 1).baseCoord.x());
             break;
         }
 
         case YZ: {
-            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).baseCoord.z() - gCodeList.at(pos - 1).baseCoord.z(), gCodeList.at(pos).baseCoord.y() - gCodeList.at(pos - 1).baseCoord.y());
+            gCodeVector[pos].angle = qAtan2(gCodeVector.at(pos).baseCoord.z() - gCodeVector.at(pos - 1).baseCoord.z(), gCodeVector.at(pos).baseCoord.y() - gCodeVector.at(pos - 1).baseCoord.y());
             break;
         }
 
         case ZX: {
-            gCodeList[pos].angle = qAtan2(gCodeList.at(pos).baseCoord.x() - gCodeList.at(pos - 1).baseCoord.x(), gCodeList.at(pos).baseCoord.z() - gCodeList.at(pos - 1).baseCoord.z());
+            gCodeVector[pos].angle = qAtan2(gCodeVector.at(pos).baseCoord.x() - gCodeVector.at(pos - 1).baseCoord.x(), gCodeVector.at(pos).baseCoord.z() - gCodeVector.at(pos - 1).baseCoord.z());
             break;
         }
 
@@ -859,8 +888,8 @@ void GCodeParser::calcAngleOfLines(int pos)
         }
     }
 
-    if (gCodeList[pos].angle < 0.0) {
-        gCodeList[pos].angle += 2.0 * PI;
+    if (gCodeVector[pos].angle < 0.0) {
+        gCodeVector[pos].angle += 2.0 * PI;
     }
 }
 
@@ -873,7 +902,7 @@ void GCodeParser::calcAngleOfLines(int pos)
  */
 void GCodeParser::convertArcToLines(GCodeData &d)
 {
-    if (gCodeList.count() == 0) {
+    if (gCodeVector.count() == 0) {
         return;
     }
 
@@ -881,7 +910,7 @@ void GCodeParser::convertArcToLines(GCodeData &d)
         return;
     }
 
-    GCodeData &begData = gCodeList.last();
+    GCodeData &begData = gCodeVector.last();
     // arcs
     // translate points to arc
     float r = 0.0; // length of sides
@@ -1214,7 +1243,7 @@ void GCodeParser::convertArcToLines(GCodeData &d)
         tmpList[0].splits = n;
     }
 
-    gCodeList += (tmpList);
+    gCodeVector += (tmpList);
 
     tmpList.clear();
 
@@ -1252,6 +1281,6 @@ QVector <GCodeOptim> GCodeParser::getRapidPoints()
 QVector<GCodeData> GCodeParser::getGCodeData()
 {
     //     qDebug() << "return gcode data" << gCodeList.count();
-    return gCodeList;
+    return gCodeVector;
 }
 

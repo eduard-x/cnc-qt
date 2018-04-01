@@ -74,9 +74,9 @@ GCodeData *g_data = new GCodeData();
 %token NL_CHAR
 %token CHAR
 %token COMMENTAR
+%token NEW_LINE
 %token INT
 %token FLOAT
-%token NEW_LINE
 
 %token InvalidCharacter
 
@@ -114,7 +114,6 @@ gline:  NL_CHAR INT
         {
             // the new line, create new object
             // for cases, when line begins with g, m command or n: label
-            GCodeParser::gCodeList << g_data;
             g_data =  new GCodeData(g_data);
             g_data->numberLine = gcode_lineno;
 
@@ -151,6 +150,7 @@ gline:  NL_CHAR INT
                     break;
 
                 case 'm' :
+                    g_data->gCmd = -1;
                     g_data->mCmd = $2;
                     break;
  
@@ -166,8 +166,6 @@ gline:  NL_CHAR INT
         | NL_CHAR FLOAT
         {
             // when line begins with coordinates 
-            // the new line, create new object
-            GCodeParser::gCodeList << g_data;
             g_data =  new GCodeData(g_data);
             g_data->numberLine = gcode_lineno;
             
@@ -179,14 +177,14 @@ gline:  NL_CHAR INT
         }
         | CHAR INT 
         {
-            // new command in line, create new object
-            GCodeParser::gCodeList << g_data;
-            g_data =  new GCodeData(g_data);
-            g_data->numberLine = gcode_lineno;
-            
             switch ($1 | 0x20){
-                case 'g' :
+                case 'g' : {
+                    // new command in line, create new object
+                    GCodeParser::gCodeVector << *g_data;
+                    g_data =  new GCodeData(g_data);
+                    g_data->numberLine = gcode_lineno;
                     g_data->gCmd = $2; 
+                    
                     if ($2 == 1 || $2 == 2 || $2 == 3) {
                         g_data->movingCode = FEED_LINE_CODE;
                     }
@@ -194,10 +192,12 @@ gline:  NL_CHAR INT
                         g_data->movingCode = RAPID_LINE_CODE;
                     }
                     break;
+                }
 
-                case 'm' :
+                case 'm' : {
                     g_data->mCmd = $2;
                     break;
+                }
  
                 default:
                     if (set_data_float(($1 | 0x20), (float) $2) == false) {
@@ -218,6 +218,10 @@ gline:  NL_CHAR INT
         {
            g_data->lineComment = QString($1).simplified();
            free($1);
+        }
+        | NEW_LINE
+        {
+            GCodeParser::gCodeVector << *g_data;
         }
         ;
 

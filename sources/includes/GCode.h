@@ -172,7 +172,7 @@ class GCodeParser : public QObject
         bool readGCode(char *indata);
 
     public:
-        static QVector<GCodeData> gCodeList;
+        static QVector<GCodeData> gCodeVector;
 
     private:
         float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);

@@ -109,18 +109,19 @@ Eol      \n
     return FLOAT;
 }
 
+^{Eol} { /* nothing*/ }
 
-{Eol}         { gcode_lineno++;  /*gcode_lval.s_val = strdup(gcode_text); return NEW_LINE;*/ }
-
-
-^{COMMENT}{Eol}* { /* new line commentar */}
+{Eol} { return NEW_LINE; /* call NEW_LINE: push decoded data to vector */ }
 
 
-<*>{COMMENT}{Eol}* { gcode_lval.s_val = strdup(gcode_text); return COMMENTAR; }
+^{COMMENT}{Eol}+ { /* new line commentar */}
 
-"%".*{Eol}* { /* ignore comments, do nothing */ }
 
-";".*{Eol}* { /* ignore comments, do nothing */ }
+{COMMENT} { gcode_lval.s_val = strdup(gcode_text); return COMMENTAR; }
+
+"%".*{Eol}+ { /* ignore comments, do nothing */ }
+
+";".*{Eol}+ { /* ignore comments, do nothing */ }
 
 
 <*>{WSPACE}  { /* skip end of line and spaces */ }
