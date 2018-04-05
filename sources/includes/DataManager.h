@@ -102,6 +102,18 @@ class GCodeParser;
 
 
 
+/**
+ * for ant sorting function
+ */
+struct GCodeOptim {
+    QVector3D coord;
+    int lineBeg;
+    int lineEnd;
+    int gcodeBeg;
+    int gcodeEnd;
+};
+
+
 enum Apertures {
     C_circle,
     R_rectangle,
@@ -260,7 +272,7 @@ class cDataManager : public GData // , public cTranslator
         //         bool parserGCodeLine(const QString &value);
 
         void writeFile(const QString &fileName);
-        
+
         void fixGCodeList();
 
     public:
@@ -271,6 +283,7 @@ class cDataManager : public GData // , public cTranslator
         //         std::vector<Vec3f> cached_points;
         //         std::vector<Vec3f> cached_color;
 
+        QVector<QString> *stringList();
         //         QString lastDir;
 
         //             signals:
@@ -290,10 +303,22 @@ class cDataManager : public GData // , public cTranslator
         };
 
     private:
+        bool addLine(GCodeData* param);
+        bool addArc(GCodeData* param);
+        void gcodeChecker();
+
+        QVector <GCodeOptim> getRapidPoints();
+
         void Swap(int &p1, int &p2);
-        
+
+        float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);
+        void convertArcToLines(GCodeData &d);
+        void calcAngleOfLines(int pos);
+
         int  calculateMinAngleSteps(int pos);
         void patchSpeedAndAccelCode(int begPos, int endPos);
+
+        void detectMinMax(const GCodeData &d);
 
         //         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );
@@ -303,10 +328,24 @@ class cDataManager : public GData // , public cTranslator
         bool readEPS( const QByteArray &gcode );
         bool readPLT( const QByteArray &gcode );
 
+    protected:
+        void sortGCode(const QVector<int> &antdata);
+        void antColonyOptimization();
+        const QVector<int> calculateAntPath(/*const QVector<GCodeOptim> &v*/);
+
         //         GCode_resultParse parseStringGCode(const QString &value);
 
     private:
-        QByteArray arr; 
+        QByteArray arr;
+
+        QVector<QString> goodList; // only decoded G-code
+
+        QVector<int> path;
+        QVector<int> occup;
+        QVector <QVector <float> > distance;
+
+        QVector<GCodeOptim> g0Points;
+
         float maxLookaheadAngleRad;
         typeFileLoad TypeFile;// = typeFileLoad.None;
 };

@@ -5,7 +5,7 @@
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -149,17 +149,6 @@ class GCodeData
 };
 
 
-/**
- * for ant sorting function
- */
-struct GCodeOptim {
-    QVector3D coord;
-    int lineBeg;
-    int lineEnd;
-    int gcodeBeg;
-    int gcodeEnd;
-};
-
 
 class GData : public QObject
 {
@@ -168,45 +157,21 @@ class GData : public QObject
         explicit GData(); // constructor
         ~GData(); // destructor
 
-        QVector<QString> *stringList();
         QVector<GCodeData> *dataVector();
-        QVector <GCodeOptim> getRapidPoints();
         bool readGCode(char *indata);
-        
-
-    public:
-        static QVector<GCodeData> gCodeVector;
-        
-    private:
-        float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);
-        void convertArcToLines(GCodeData &d);
-        void calcAngleOfLines(int pos);
-        bool addLine(GCodeData* param);
-        bool addArc(GCodeData* param);
-        void detectMinMax(const GCodeData &d);
-        void gcodeInit();
-        void gcodeChecker();
-        void gcodeDestroy();
         void resetSoftLimits();
- 
-        
 
-    protected:
-        void sortGCode(const QVector<int> &antdata);
-        void antColonyOptimization();
-        const QVector<int> calculateAntPath(/*const QVector<GCodeOptim> &v*/);
+    private:
+        void gcodeInit();
+        void gcodeDestroy();
+
 
     signals:
         void logMessage(const QString &l);
 
-    private:
+    public:
+        static QVector<GCodeData> gCodeVector;
         QMutex mut;
-        QVector<int> path;
-        QVector<int> occup;
-        QVector <QVector <float> > distance;
-
-        QVector<GCodeOptim> g0Points;
-        QVector<QString> goodList; // only decoded G-code
 };
 
 

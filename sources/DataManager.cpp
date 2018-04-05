@@ -126,6 +126,9 @@ cDataManager::cDataManager()
 // destructor
 cDataManager::~cDataManager()
 {
+    g0Points.clear();
+
+    goodList.clear();
 }
 
 // void cDataManager::lock() const
@@ -140,6 +143,356 @@ cDataManager::~cDataManager()
 // }
 
 
+
+QVector <GCodeOptim> cDataManager::getRapidPoints()
+{
+    return g0Points;
+}
+
+/**
+ * @brief
+ *
+ */
+QVector<QString> *cDataManager::stringList()
+{
+    return &goodList;
+}
+
+void cDataManager::gcodeChecker()
+{
+    // for Ant optimization
+    g0Points.clear();
+
+    goodList.clear();
+
+    resetSoftLimits();
+
+    bool b_absolute = true;
+    float coef = 1.0; // 1 or 24.5
+
+    QVector3D origin(0, 0, 0);
+    QVector3D current_pos(0, 0, 0);
+
+    // TODO home pos
+    // goodList has the text for table
+    g0Points << GCodeOptim {QVector3D(0, 0, 0), goodList.count(), -1, gCodeVector.count(), -1};
+
+    // the first pos (cur = 0) is 0 or home
+    for(int cur = 1; cur < gCodeVector.count(); cur++) {
+        GCodeData d = gCodeVector.at(cur);
+
+        if (d.decoded == false) {
+            qInfo() << "not decoded line" << d.numberLine;
+            continue;
+        }
+
+        QString line;
+
+        if (d.gCmd >= 0) {
+            detectMinMax(d);
+
+            line = QString().sprintf("G%02d ", d.gCmd);
+
+            if (Settings::filterRepeat == true) { // TODO
+                if (gCodeVector.at(cur - 1).baseCoord.x() != d.baseCoord.x()) {
+                    line += QString().sprintf("X%g ", d.baseCoord.x());
+                }
+
+                if (gCodeVector.at(cur - 1).baseCoord.y() != d.baseCoord.y()) {
+                    line += QString().sprintf("Y%g ", d.baseCoord.y());
+                }
+
+                if (gCodeVector.at(cur - 1).baseCoord.z() != d.baseCoord.z()) {
+                    line += QString().sprintf("Z%g ", d.baseCoord.z());
+                }
+            } else {
+                line += QString().sprintf("X%g Y%g Z%g ", d.baseCoord.x(), d.baseCoord.y(), d.baseCoord.z());
+            }
+
+            switch (d.gCmd) {
+                case 0: {
+                    QVector3D delta_pos;
+
+                    delta_pos = d.baseCoord - gCodeVector.at(cur - 1).baseCoord;
+
+                    d.rapidVelo = 0.0;
+
+                    if (b_absolute) {
+                        current_pos = d.baseCoord + origin;
+                    } else {
+                        current_pos += d.baseCoord;
+                    }
+
+                    // TODO move to separate subroutine
+                    // for the way optimizing
+                    switch (d.plane) {
+                        case XY: {
+                            // xy moving
+                            if (delta_pos.z() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.y() != 0.0)) {
+                                if (gCodeVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
+                                    g0Points.last().lineEnd = (goodList.count() - 1 );
+                                    g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
+                                }
+
+                                break;
+                            }
+
+                            // z moving
+                            if (delta_pos.z() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.y() == 0.0)) {
+                                if (gCodeVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
+                                    g0Points.last().gcodeEnd = (cur);
+                                }
+                            }
+
+                            break;
+                        }
+
+                        case YZ: {
+                            if (delta_pos.x() == 0.0 && (delta_pos.y() != 0.0 || delta_pos.z() != 0.0)) {
+                                // yz moving
+                                if (gCodeVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
+                                    g0Points.last().lineEnd = (goodList.count() - 1 );
+                                    g0Points.last().gcodeEnd = (cur - 1);
+                                    g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
+                                }
+
+                                break;
+                            }
+
+                            // x moving
+                            if (delta_pos.x() != 0.0 && (delta_pos.y() == 0.0 && delta_pos.z() == 0.0)) {
+                                if (gCodeVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
+                                    g0Points.last().gcodeEnd = (cur);
+                                }
+                            }
+
+                            break;
+                        }
+
+                        case ZX: {
+                            if (delta_pos.y() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.z() != 0.0)) {
+                                // zx moving
+                                if (gCodeVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
+                                    g0Points.last().lineEnd = (goodList.count() - 1 );
+                                    g0Points.last().gcodeEnd = (cur - 1);
+                                    g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
+                                }
+
+                                break;
+                            }
+
+                            // y moving
+                            if (delta_pos.y() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.z() == 0.0)) {
+                                if (gCodeVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
+                                    g0Points.last().gcodeEnd = (cur);
+                                }
+                            }
+
+                            break;
+                        }
+
+                        default:
+                            break;
+                    }
+
+                    break;
+                }
+
+                case 1: {
+                    d.toolChange = false;
+                    d.pauseMSec = -1; // no pause
+
+                    if (b_absolute) {
+                        current_pos = d.baseCoord + origin;
+                    } else {
+                        current_pos += d.baseCoord;
+                    }
+
+                    calcAngleOfLines(cur - 1);
+
+                    break;
+                }
+
+                case 2:
+                case 3: {
+                    if (b_absolute) {
+                        current_pos = d.baseCoord + origin;
+                    } else {
+                        current_pos += d.baseCoord;
+                    }
+
+                    if (d.useExtCoord == IJK) { //
+                        line += QString().sprintf("I%g J%g K%g ", d.extCoord.x(), d.extCoord.y(), d.extCoord.z());
+                    }
+
+                    if (d.radius > 0) {
+                        line += QString().sprintf("R%g ", d.radius);
+                    }
+
+                    convertArcToLines(d);
+
+                    break;
+                }
+
+                case 4: {
+                    break;
+                }
+
+                case 17:
+                case 18:
+                case 19:
+                    break;
+
+                case 20: {
+                    coef = 25.4;
+                    break;
+                }
+
+                case 21: {
+                    coef = 1.0;
+                    break;
+                }
+
+                case 28: {
+                    break;
+                }
+
+                case 90: {
+                    b_absolute = true;
+                    break;
+                }
+
+                case 91: {
+                    b_absolute = false;
+                    break;
+                }
+
+                case 92: {
+                    origin = gCodeVector.at(cur - 1).baseCoord - d.baseCoord;
+                    break;
+                }
+
+                // Home axes to minimum
+                case 161: {
+                    break;
+                }
+
+                // Home axes to maximum
+                case 162: {
+                    break;
+                }
+
+                default: {
+                    emit logMessage(QString().sprintf("Not decoded line %d G command %d", d.numberLine, d.gCmd));
+                    d.decoded = false;
+                    break;
+                }
+            }
+        } // end of g decoding
+
+        // the m part
+        if (d.mCmd >= 0 ) {
+            line += QString().sprintf("M%d ", d.mCmd);
+
+            switch (d.mCmd) {
+                case 0: {
+                    d.pauseMSec = 0; // waiting
+                    break;
+                }
+
+                case 2: {
+                    break;
+                }
+
+                case 3: {
+                    d.spindelOn = true;
+                    break;
+                }
+
+                case 5: {
+                    d.spindelOn = false;
+                    break;
+                }
+
+                case 6: { // TODO with two params
+                    break;
+                }
+
+                // Disable all stepper motors
+                case 18: {
+                    break;
+                }
+
+                // Turn extruder 1 on (Forward), Undo Retraction
+                case 101: {
+                    break;
+                }
+
+                // Turn extruder 1 on (Reverse)
+                case 102: {
+                    break;
+                }
+
+                // Turn all extruders off, Extruder Retraction
+                case 103: {
+                    break;
+                }
+
+                // Set Extruder Temperature
+                case 104: {
+                    break;
+                }
+
+                // Get Extruder Temperature
+                case 105: {
+                    break;
+                }
+
+                // Set Extruder Speed (BFB)
+                case 108: {
+                    break;
+                }
+
+                // Set Extruder Temperature and Wait
+                case 109: {
+                    break;
+                }
+
+                // Set Extruder PWM
+                case 113: {
+                    break;
+                }
+
+                //
+                case 132: {
+                    break;
+                }
+
+                case 206: {
+                    break;
+                }
+
+                default: {
+                    emit logMessage(QString().sprintf("Not decoded line %d, M command %d", d.numberLine, d.mCmd));
+                    d.decoded = false;
+                    break;
+                }
+            }
+
+            //             if (d.decoded == true) {
+            //                 line += QString().sprintf("M%d ", d.mCmd);
+            //             }
+        }
+
+        if (d.lineComment.length()) {
+            line += d.lineComment;
+        }
+
+        if (line.length()) {
+            goodList << line;
+        }
+    }
+}
 
 
 /**
@@ -417,6 +770,646 @@ int cDataManager::calculateMinAngleSteps(int startPos)
 }
 
 
+const QVector<int> cDataManager::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
+{
+    int points = g0Points.count();
+
+    path.clear();
+
+    if (points <= 2) {
+        return path;
+    }
+
+    path.resize(points);
+
+    if (distance.size() > 0) {
+        for (int i = 0; i < distance.size(); ++i) {
+            distance[i].clear();
+        }
+
+        distance.clear();
+    }
+
+    distance.resize(points);
+
+    for (int i = 0; i < distance.size(); ++i) {
+        distance[i].resize(points);
+    }
+
+    // two dimensional array for distances between the points
+    for (int i = 0; i < points; i++) {
+        path[i] = i;
+
+        for (int j = 0; j < points; j++) {
+            distance[i][j] = g0Points.at(j).coord.distanceToPoint(g0Points.at(i).coord);
+        }
+    }
+
+    antColonyOptimization();
+
+    return path;
+}
+
+/**
+ * @brief
+ *
+ * @see Ant Colony Optimization algorithm
+ * @link https://hackaday.io/project/4955-g-code-optimization
+ */
+void cDataManager::antColonyOptimization()
+{
+    int points = g0Points.count();
+
+    int maxDepth = points;
+
+    if (maxDepth > Settings::maxAntSearchDepth) {
+        maxDepth = Settings::maxAntSearchDepth;
+    }
+
+    for (int i = 0; i < maxDepth - 2; i++) {
+        for (int j = i + 2; j < points - 1; j++) {
+            float swap_length = distance[path[i]][path[j]] + distance[path[i + 1]][path[j + 1]];
+            float old_length = distance[path[i]][path[i + 1]] + distance[path[j]][path[j + 1]];
+
+            if (swap_length < old_length) {
+                // Make the new and shorter path.
+                for (int x = 0; x < (j - i) / 2; x++) {
+                    // swap
+                    int temp = path[i + 1 + x];
+                    path[i + 1 + x] = path[j - x];
+                    path[j - x] = temp;
+                }
+
+                // recursively
+                antColonyOptimization();
+                //  say no to goto! ;) // goto START;
+            }
+        }
+    }
+}
+
+
+/**
+ *
+ *
+ */
+void cDataManager::sortGCode(const QVector<int> &citydata)
+{
+    QVector<QString> tmpList; // for the display list
+    QVector<GCodeData> tmpGCodeList; // for the visualisation
+
+
+    for(int n = 0; n < citydata.size(); n++) {
+        int pos = citydata.at(n);
+        int startNum = g0Points.at(pos).lineBeg;
+        int endNum = g0Points.at(pos).lineEnd;
+
+        for (int j = startNum; j <= endNum; j++) {
+            tmpList << goodList.at(j);
+        }
+
+        startNum = g0Points.at(pos).gcodeBeg;
+        endNum = g0Points.at(pos).gcodeEnd;
+
+        for (int j = startNum; j <= endNum; j++) {
+            tmpGCodeList << gCodeVector.at(j);
+        }
+
+        //         qDebug() << "pos" << pos << "lines:" << startNum << ".." << endNum - 1 << goodList.at(endNum) << g0Points.at(citydata.at(n)).coord;
+        //         startNum = endNum;
+    }
+
+    mut.lock();
+
+    goodList.clear();
+
+    goodList = tmpList;
+
+    gCodeVector.clear();
+
+    gCodeVector = tmpGCodeList;
+
+    mut.unlock();
+    //     for  (int n = 0; n < citydata.size(); n++) {
+    //         int ln = g0Points.at(citydata.at(n)).line;
+    //         endNum =
+    //         qDebug() << "line:" << ln << goodList.at(ln) << g0Points.at(citydata.at(n)).coord;
+    //     }
+}
+
+
+/**
+ * @brief
+ *
+ */
+bool cDataManager::addLine(GCodeData *c)
+{
+}
+
+
+/**
+ * @brief
+ *
+ */
+bool cDataManager::addArc(GCodeData *c)
+{
+}
+
+/**
+ * @brief detect the min and max ranges
+ *
+ * @param[in] pos actual index in GCode data list, if pos is 0: init of min/max
+ *
+ */
+void cDataManager::detectMinMax(const GCodeData &d)
+{
+    if (d.baseCoord.x() > Settings::coord[X].softLimitMax) {
+        Settings::coord[X].softLimitMax = d.baseCoord.x();
+    }
+
+    if (d.baseCoord.x() < Settings::coord[X].softLimitMin) {
+        Settings::coord[X].softLimitMin = d.baseCoord.x();
+    }
+
+    if (d.baseCoord.y() > Settings::coord[Y].softLimitMax) {
+        Settings::coord[Y].softLimitMax = d.baseCoord.y();
+    }
+
+    if (d.baseCoord.y() < Settings::coord[Y].softLimitMin) {
+        Settings::coord[Y].softLimitMin = d.baseCoord.y();
+    }
+
+    if (d.baseCoord.z() > Settings::coord[Z].softLimitMax) {
+        Settings::coord[Z].softLimitMax = d.baseCoord.z();
+    }
+
+    if (d.baseCoord.z() < Settings::coord[Z].softLimitMin) {
+        Settings::coord[Z].softLimitMin = d.baseCoord.z();
+    }
+}
+
+
+/**
+ * @brief calculate angle between two points
+ *
+ * @param[in] pos1 first point
+ * @param[in] pos2 second point
+ *
+ */
+float cDataManager::determineAngle(const QVector3D &pos1, const QVector3D &pos2, PlaneEnum pl)
+{
+    float radians = 0.0;
+
+    switch (pl) {
+        case XY: {
+            if (pos1[X] == pos2[X] && pos1[Y] == pos2[Y]) { // if diff is 0
+                return 0.0;
+            }
+
+            radians = qAtan2(pos1[Y] - pos2[Y], pos1[X] - pos2[X]);
+
+            break;
+        }
+
+        case YZ: {
+            if (pos1[Y] == pos2[Y] && pos1[Z] == pos2[Z]) {
+                return 0.0;
+            }
+
+            radians = qAtan2(pos1[Z] - pos2[Z], pos1[Y] - pos2[Y]);
+
+            break;
+        }
+
+        case ZX: {
+            if (pos1[Z] == pos2[Z] && pos1[X] == pos2[X]) {
+                return 0.0;
+            }
+
+            radians = qAtan2(pos1[X] - pos2[X], pos1[Z] - pos2[Z]);
+
+            break;
+        }
+
+        default:
+            qDebug() << "not defined plane of arc";
+            break;
+    }
+
+    if (radians < 0.0) {
+        radians += 2.0 * PI;
+    }
+
+    return radians;
+}
+
+
+/**
+ * @brief calculates the angle diffenerce between two points
+ *
+ * @param[in] pos the actual position
+ *
+ */
+void cDataManager::calcAngleOfLines(int pos)
+{
+    if (pos < 1 || pos > gCodeVector.count() - 1) {
+        return;
+    }
+
+    switch (gCodeVector.at(pos).plane) {
+        case XY: {
+            gCodeVector[pos].angle = qAtan2(gCodeVector.at(pos).baseCoord.y() - gCodeVector.at(pos - 1).baseCoord.y(), gCodeVector.at(pos).baseCoord.x() - gCodeVector.at(pos - 1).baseCoord.x());
+            break;
+        }
+
+        case YZ: {
+            gCodeVector[pos].angle = qAtan2(gCodeVector.at(pos).baseCoord.z() - gCodeVector.at(pos - 1).baseCoord.z(), gCodeVector.at(pos).baseCoord.y() - gCodeVector.at(pos - 1).baseCoord.y());
+            break;
+        }
+
+        case ZX: {
+            gCodeVector[pos].angle = qAtan2(gCodeVector.at(pos).baseCoord.x() - gCodeVector.at(pos - 1).baseCoord.x(), gCodeVector.at(pos).baseCoord.z() - gCodeVector.at(pos - 1).baseCoord.z());
+            break;
+        }
+
+        default: {
+            qDebug() << "calcAngleOfLines(): no plane information";
+            break;
+        }
+    }
+
+    if (gCodeVector[pos].angle < 0.0) {
+        gCodeVector[pos].angle += 2.0 * PI;
+    }
+}
+
+
+/**
+ * @brief this function converts the arc to short lines: mk1 do not support the arc commands
+ *
+ * @param d pointer to the list with decoded coordinates of endpoint
+ *
+ */
+void cDataManager::convertArcToLines(GCodeData &d)
+{
+    if (gCodeVector.count() == 0) {
+        return;
+    }
+
+    if (!(d.gCmd == 2 || d.gCmd == 3) ) { // it's not arc
+        return;
+    }
+
+    GCodeData &begData = gCodeVector.last();
+    // arcs
+    // translate points to arc
+    float r = 0.0; // length of sides
+    //     float x2, x1, y2, y1, z2, z1;
+    QVector3D beginPos, endPos;
+
+    beginPos = begData.baseCoord;
+    endPos = d.baseCoord;
+
+    float i, j, k;
+    i = d.extCoord.x(); // IJK
+    j = d.extCoord.y();
+    k = d.extCoord.z();
+
+    //     QVector3D pos1 = begData; //(x1, y1, z1);
+    //     QVector3D pos2(x2, y2, z2);
+
+    float deltaPos = 0.0;
+    float begPos = 0.0;
+
+    switch (d.plane) {
+        case XY: {
+            if (d.radius == 0.0) {
+                r = qSqrt(qPow(beginPos.x() - i, 2) + qPow(beginPos.y() - j, 2));
+            } else {
+                r = d.radius;
+                // compute i, j
+                //                 float a = determineAngle (pos1, pos2, d.plane) + PI;
+                //                 qDebug() << "radius " << r << "alpha" << a << "xy point 1" << x1 << y1 << "xy point 2" << x2 << y2;
+            }
+
+            deltaPos = endPos.z() - beginPos.z();
+            begPos = beginPos.z();
+        }
+        break;
+
+        case YZ: {
+            if (d.radius == 0.0) {
+                r = qSqrt(qPow(beginPos.y() - j, 2) + qPow(beginPos.z() - k, 2));
+            } else {
+                r = d.radius;
+                // compute j, k
+            }
+
+            deltaPos = endPos.x() - beginPos.x();
+            begPos = beginPos.x();
+        }
+        break;
+
+        case ZX: {
+            if (d.radius == 0.0) {
+                r = qSqrt(qPow(beginPos.z() - k, 2) + qPow(beginPos.x() - i, 2));
+            } else {
+                r = d.radius;
+                // compute k, i
+            }
+
+            deltaPos = endPos.y() - beginPos.y();
+            begPos = beginPos.y();
+        }
+        break;
+
+        default:
+            break;
+    }
+
+    float alpha = 0.0;
+    float alpha_beg, alpha_end;
+
+    if (r == 0.0) {
+        qDebug() << "wrong, r = 0";
+        return;
+    }
+
+    QVector3D posC(i, j, k);
+
+    alpha_beg = determineAngle (beginPos, posC, d.plane);
+    alpha_end = determineAngle (endPos, posC, d.plane);
+
+    if (d.gCmd == 2) {
+        if (alpha_beg == alpha_end) {
+            alpha_beg += 2.0 * PI;
+        }
+
+        alpha = alpha_beg - alpha_end;
+
+        if (alpha_beg < alpha_end) {
+            alpha = qFabs(alpha_beg + (2.0 * PI - alpha_end));
+        }
+
+    } else {
+        if (alpha_beg == alpha_end) {
+            alpha_end += 2.0 * PI;
+        }
+
+        alpha = alpha_end - alpha_beg;
+
+        if (alpha_beg > alpha_end) {
+            alpha = qFabs(alpha_end + (2.0 * PI - alpha_beg));
+        }
+    }
+
+    float bLength = r * alpha;
+
+    float n = (bLength * Settings::splitsPerMm)/* - 1*/; // num segments of arc per mm
+    float splitLen = 1.0 / (float)Settings::splitsPerMm;
+
+    if ( n <= 1.0) {
+        n++;
+        qDebug() << "warning, n = " << n << alpha_beg << alpha_end << bLength << r << alpha << beginPos.x() << beginPos.y() << endPos.x() << endPos.y();
+        //         return;
+    }
+
+    float dAlpha = alpha / n;
+
+    deltaPos = deltaPos / n;
+
+    if (d.gCmd == 3) {
+        dAlpha = -dAlpha;
+    }
+
+#if DEBUG_ARC
+    QString dbg;
+#endif
+    float angle = alpha_beg;
+    float loopPos = begPos;
+
+    // copy of parsed endpoint
+    GCodeData *ncommand = new GCodeData(d);
+
+#if DEBUG_ARC
+    qDebug() << "arc from " << begData.X << begData.Y << begData.Z  << "to" << d.X << d.Y << d.Z << "splits: " << n;
+#endif
+
+    QVector<GCodeData> tmpList;
+
+    ncommand->baseCoord = begData.baseCoord;
+    ncommand->extCoord = begData.extCoord; // ABC
+    //     ncommand.Z = begData.Z;
+    //     ncommand.A = begData.A;
+
+    detectMinMax(ncommand);
+
+    ncommand->splits = n;
+    ncommand->movingCode = ACCELERAT_CODE;
+
+    // now split
+    switch (d.plane) {
+        case XY: {
+            for (int step = 0; step < n; ++step) {
+                //coordinates of next arc point
+                angle += dAlpha;
+                loopPos += deltaPos;
+
+                float c = qCos(angle);
+                float s = qSin(angle);
+
+                float x_new = i + r * c;
+                float y_new = j + r * s;
+
+                float angle = qAtan2(y_new - ncommand->baseCoord.y(), x_new - ncommand->baseCoord.x());
+
+                if (angle < 0.0) {
+                    angle += 2.0 * PI;
+                }
+
+                ncommand->angle = angle;
+                ncommand->baseCoord = {x_new, y_new, loopPos};
+
+                detectMinMax(ncommand);
+#if DEBUG_ARC
+                dbg += QString().sprintf("n=%d x=%f y=%f angle=%f qSin=%f qCos=%f\n", step, x_new, y_new, angle, s, c);
+#endif
+
+                /** detection of end because of rounding */
+                if (qSqrt((x_new - d.baseCoord.x()) * (x_new - d.baseCoord.x()) + (y_new - d.baseCoord.y()) * (y_new - d.baseCoord.y())) <= splitLen) {
+                    float t_angle = qAtan2(y_new - d.baseCoord.y(), x_new - d.baseCoord.x());
+
+                    if (t_angle < 0.0) {
+                        t_angle += 2.0 * PI;
+                    }
+
+                    ncommand->angle = t_angle;
+
+                    ncommand->baseCoord = d.baseCoord;
+                    //                     ncommand.Y = d.Y;
+                    //                     ncommand.Z = d.Z;
+
+                    detectMinMax(ncommand);
+
+                    n = step;
+
+                    tmpList << *ncommand;
+
+                    break;
+                }
+
+                tmpList << *ncommand;
+                ncommand = new GCodeData(*ncommand);
+
+                ncommand->movingCode = CONSTSPEED_CODE;
+                ncommand->splits = 0;
+            }
+        }
+        break;
+
+        case YZ: {
+            for (int step = 0; step < n; ++step) {
+                //coordinates of next arc point
+                angle += dAlpha;
+                loopPos += deltaPos;
+
+                float c = qCos(angle);
+                float s = qSin(angle);
+
+                float y_new = j + r * c;
+                float z_new = k + r * s;
+
+                float angle = qAtan2(z_new - ncommand->baseCoord.z(), y_new - ncommand->baseCoord.y());
+
+                if (angle < 0.0) {
+                    angle += 2.0 * PI;
+                }
+
+                ncommand->angle = angle;
+                ncommand->baseCoord = {loopPos, y_new, z_new};
+                //                 ncommand->X = loopPos;
+
+                detectMinMax(ncommand);
+#if DEBUG_ARC
+                dbg += QString().sprintf("n=%d y=%f z=%f angle=%f qSin=%f qCos=%f\n", step, y_new, z_new, angle, s, c);
+#endif
+
+                /** detection of end because of rounding */
+                if (qSqrt((y_new - d.baseCoord.y()) * (y_new - d.baseCoord.y()) + (z_new - d.baseCoord.z()) * (z_new - d.baseCoord.z())) <= splitLen) {
+                    float t_angle = qAtan2(z_new - d.baseCoord.z(), y_new - d.baseCoord.y());
+
+                    if (t_angle < 0.0) {
+                        t_angle += 2.0 * PI;
+                    }
+
+                    ncommand->angle = t_angle;
+
+                    ncommand->baseCoord = d.baseCoord;
+
+                    detectMinMax(ncommand);
+
+                    n = step;
+
+                    tmpList << *ncommand;
+
+                    break;
+                }
+
+                tmpList << *ncommand;
+                ncommand = new GCodeData(*ncommand);
+
+                ncommand->movingCode = CONSTSPEED_CODE;
+                ncommand->splits = 0;
+            }
+        }
+        break;
+
+        case ZX: {
+            for (int step = 0; step < n; ++step) {
+                //coordinates of next arc point
+                angle += dAlpha;
+                loopPos += deltaPos;
+
+                float c = qCos(angle);
+                float s = qSin(angle);
+
+                float z_new = k + r * c;
+                float x_new = i + r * s;
+
+                float angle = qAtan2(x_new - ncommand->baseCoord.x(), z_new - ncommand->baseCoord.z());
+
+                if (angle < 0.0) {
+                    angle += 2.0 * PI;
+                }
+
+                ncommand->angle = angle;
+                ncommand->baseCoord = {x_new, loopPos, z_new};
+                //                 ncommand->X = x_new;
+                //                 ncommand->Y = loopPos;
+
+                detectMinMax(ncommand);
+#if DEBUG_ARC
+                dbg += QString().sprintf("n=%d z=%f x=%f angle=%f qSin=%f qCos=%f\n", step, z_new, x_new, angle, s, c);
+#endif
+
+                /** detection of end because of rounding */
+                if (qSqrt((x_new - d.baseCoord.x()) * (x_new - d.baseCoord.x()) + (z_new - d.baseCoord.z()) * (z_new - d.baseCoord.z())) <= splitLen) {
+                    float t_angle = qAtan2(x_new - d.baseCoord.x(), z_new - d.baseCoord.z());
+
+                    if (t_angle < 0.0) {
+                        t_angle += 2.0 * PI;
+                    }
+
+                    ncommand->angle = t_angle;
+
+                    ncommand->baseCoord = d.baseCoord;
+
+                    detectMinMax(ncommand);
+
+                    n = step;
+
+                    tmpList << *ncommand;
+
+                    break;
+                }
+
+                tmpList << *ncommand;
+
+                ncommand = new GCodeData(*ncommand);
+                ncommand->movingCode = CONSTSPEED_CODE;
+                ncommand->splits = 0;
+            }
+        }
+        break;
+
+        default:
+            qDebug() << "no plane info!";
+            break;
+    }
+
+
+    if (tmpList.length() > 0) {
+        tmpList[tmpList.length() - 1].movingCode = DECELERAT_CODE;
+        tmpList[0].splits = n;
+    }
+
+    gCodeVector += (tmpList);
+
+    tmpList.clear();
+
+#if DEBUG_ARC
+
+    if ((qFabs (x2 - gCodeList.last().X) > (bLength / splitsPerMm)) || (qFabs (y2 - gCodeList.last().Y) > (bLength / splitsPerMm))) { // wenn zu weit vom ziel...
+        qDebug() << "begin: " << x1 << y1 << "end" << x2 << y2 << "center" << i << j;
+        qDebug() << "bogen " << bLength << "mm" << "r" << r << "a" << a << "triangle alpha" << alpha;
+        qDebug() << "alpha:" << alpha_beg << "->" << alpha_end << "d alpha: " << dAlpha; // rad
+        qDebug() << dbg;
+    }
+
+#endif
+}
+
+
 
 void cDataManager::writeFile(const QString &fileName)
 {
@@ -451,11 +1444,21 @@ bool cDataManager::readFile(const QString &fileName)
 
     TypeFile = None;
 
-    qDebug() << fileName;
-
     if ((detectArray.indexOf("G0") >= 0) || (detectArray.indexOf("G1") >= 0)) { // G-Code program detect
         TypeFile = GCODE;
+        QTime tMess;
+        tMess.start();
+
         bool res = readGCode(arr.data());
+
+        emit logMessage(QString().sprintf("Parse gcode, flex/bison. Time elapsed: %d ms", tMess.elapsed()));
+        // the parsed data is in gCodeList
+
+        tMess.restart();
+
+        gcodeChecker();
+
+        emit logMessage(QString().sprintf("Data post processed. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), goodList.count()));
 
         return res;
     }

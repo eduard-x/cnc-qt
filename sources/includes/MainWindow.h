@@ -325,7 +325,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
 
     private:
         libusb_context *context;
-        
+
         cDataManager *dMan;
         Task::StatusTask currentStatus;
         QGraphicsScene *sceneCoordinates;
