@@ -40,6 +40,8 @@
 #include <QVector>
 #include <QVector3D>
 
+// #include "Reader.h"
+
 // #include <deque>
 // #include <utility>
 // #include "vec.h"
@@ -113,7 +115,7 @@ class GCodeData
         bool decoded;
 
         PlaneEnum plane; // XY, YZ, ZX
-        
+
         QString lineComment;
 
         int   vectSpeed; // telegr CA offset
@@ -159,21 +161,22 @@ struct GCodeOptim {
 };
 
 
-class GCodeParser : public QObject
+class GData : public QObject
 {
         Q_OBJECT
     public:
-        GCodeParser(); // constructor
-        ~GCodeParser(); // destructor
+        explicit GData(); // constructor
+        ~GData(); // destructor
 
-        QVector<QString> getGoodList();
-        QVector<GCodeData> getGCodeData();
+        QVector<QString> *stringList();
+        QVector<GCodeData> *dataVector();
         QVector <GCodeOptim> getRapidPoints();
         bool readGCode(char *indata);
+        
 
     public:
         static QVector<GCodeData> gCodeVector;
-
+        
     private:
         float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);
         void convertArcToLines(GCodeData &d);
@@ -185,6 +188,8 @@ class GCodeParser : public QObject
         void gcodeChecker();
         void gcodeDestroy();
         void resetSoftLimits();
+ 
+        
 
     protected:
         void sortGCode(const QVector<int> &antdata);
@@ -194,7 +199,7 @@ class GCodeParser : public QObject
     signals:
         void logMessage(const QString &l);
 
-    protected:
+    private:
         QMutex mut;
         QVector<int> path;
         QVector<int> occup;

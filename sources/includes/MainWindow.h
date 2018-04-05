@@ -71,7 +71,7 @@ class GLWidget;
 
 class mk1Controller;
 class cTranslator;
-class Reader;
+class cDataManager;
 
 
 class MessageTimerBox: public QMessageBox
@@ -208,7 +208,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
 
         //         QVector<speedSettings> veloSettings[4];
 
-        QVector<GCodeData> gCodeData;
+        QVector<GCodeData> *gCodeData;
 
 
 
@@ -299,9 +299,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
         void drawWorkbench();
         //
         void reloadRecentList();
-        int  calculateMinAngleSteps(int pos);
-        void patchSpeedAndAccelCode(int begPos, int endPos);
-        void fixGCodeList();
 
         void runNextCommand();
         void fillListWidget(QVector<QString> listCode);
@@ -328,7 +325,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
 
     private:
         libusb_context *context;
-        Reader *reader;
+        
+        cDataManager *dMan;
         Task::StatusTask currentStatus;
         QGraphicsScene *sceneCoordinates;
         //
@@ -347,7 +345,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
         QActionGroup* langGroup;
         QActionGroup* filesGroup;
 
-        float maxLookaheadAngleRad;
         //         QString programStyleSheet;
         QStringList langFiles;
 

@@ -822,7 +822,7 @@ void GLWidget::surfaceReloaded()
     for (int i = 0; i < figure.count(); i++) {
         if (parent->deltaFeed) {
             //             QVector3D p;
-            QVector3D point = parent->gCodeData.at(i).baseCoord;
+            QVector3D point = parent->gCodeData->at(i).baseCoord;
             //             float pointY = parent->gCodeData.at(i).Y;
             //             float pointZ = parent->gCodeData.at(i).Z;
 
@@ -855,8 +855,8 @@ void GLWidget::loadFigure()
 {
     figure.clear();
 
-    if (parent->gCodeData.count() > 1) {
-        foreach (const GCodeData vv, parent->gCodeData) {
+    if (parent->gCodeData->count() > 1) {
+        foreach (const GCodeData vv, *parent->gCodeData) {
             QColor cl;
 
             if (vv.movingCode == RAPID_LINE_CODE) {

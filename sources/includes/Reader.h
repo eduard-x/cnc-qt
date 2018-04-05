@@ -30,8 +30,8 @@
  ****************************************************************************/
 
 
-#ifndef READER_H
-#define READER_H
+#ifndef DATAMANAGER_H
+#define DATAMANAGER_H
 
 #include <QObject>
 #include <QFile>
@@ -242,15 +242,15 @@ class GerberData
 
 // class for reading of different formats
 
-class Reader : public GCodeParser// , public cTranslator
+class cDataManager : public GData // , public cTranslator
 {
     public:
-        Reader();
-        ~Reader();
-
+        cDataManager();
+        ~cDataManager();
+#if 1
         void BresenhamLine(QVector<QVector<quint8> > &p, int x0, int y0, int x1, int y1, typeSpline _Splane);
         void BresenhamCircle(QVector<QVector<quint8> > &p,  int x0, int y0, int radius, quint8 setvalue = 4, bool needFill = false);
-
+#endif
         bool readFile( const QString &fileName);
 
         //         void loadGCode(const QString &filename);
@@ -260,6 +260,8 @@ class Reader : public GCodeParser// , public cTranslator
         //         bool parserGCodeLine(const QString &value);
 
         void writeFile(const QString &fileName);
+        
+        void fixGCodeList();
 
     public:
         QList<DataCollections> data;
@@ -289,7 +291,9 @@ class Reader : public GCodeParser// , public cTranslator
 
     private:
         void Swap(int &p1, int &p2);
-
+        
+        int  calculateMinAngleSteps(int pos);
+        void patchSpeedAndAccelCode(int begPos, int endPos);
 
         //         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );
@@ -298,11 +302,14 @@ class Reader : public GCodeParser// , public cTranslator
         bool readSVG( const QByteArray &gcode );
         bool readEPS( const QByteArray &gcode );
         bool readPLT( const QByteArray &gcode );
+
         //         GCode_resultParse parseStringGCode(const QString &value);
 
     private:
+        QByteArray arr; 
+        float maxLookaheadAngleRad;
         typeFileLoad TypeFile;// = typeFileLoad.None;
 };
 
 
-#endif // READER_H
+#endif // DATAMANAGER_H

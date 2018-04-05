@@ -218,7 +218,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     Settings::fontSize = sysFont.pointSize();
 
-    reader = new Reader();
+    dMan = new cDataManager();
 
     labelTask->setText("");
 
@@ -450,7 +450,7 @@ void MainWindow::addConnections()
     connect(actionSave, SIGNAL(triggered()), this, SLOT(onSaveFile()));
     connect(actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
 
-    connect(reader, SIGNAL(logMessage(const QString&)), this, SLOT(logMessage(const QString&)));
+    connect(dMan, SIGNAL(logMessage(const QString&)), this, SLOT(logMessage(const QString&)));
 
     //     connect(actionOpenGL, SIGNAL(triggered()), this, SLOT(on3dSettings()));
     connect(actionProgram, SIGNAL(triggered()), this, SLOT(onSettings()));
@@ -968,7 +968,7 @@ bool MainWindow::OpenFile(QString &fileName)
     qInfo() << "open " << name;
 
     if (name.length() > 0) {
-        bool f = reader->readFile(name);
+        bool f = dMan->readFile(name);
 
         if (f == true) {
             QFileInfo fi(name);
@@ -978,10 +978,10 @@ bool MainWindow::OpenFile(QString &fileName)
 
             reloadRecentList();
 
-            QVector<QString> l = reader->getGoodList();
-            fillListWidget(l);
+            QVector<QString> *l = dMan->stringList();
+            fillListWidget(*l);
 
-            gCodeData = reader->getGCodeData();
+            gCodeData = dMan->dataVector();
 
 
 
@@ -997,7 +997,7 @@ bool MainWindow::OpenFile(QString &fileName)
             //         }
             //     }
 
-            if (gCodeData.count() > 0) {
+            if (gCodeData->count() > 0) {
                 name.replace(QDir::homePath(), QString("~"));
                 AddLog("File loaded: " + name );
             }
@@ -1112,7 +1112,7 @@ MainWindow::~MainWindow()
 {
     //     emit mk1Disconnected();
     //
-    delete reader;
+    delete dMan;
     //     libusb_exit(context);
     //
     //     hotplugTimer->stop();
@@ -1332,7 +1332,7 @@ void MainWindow::onStartTask()
         return;
     }
 
-    if (gCodeData.count() == 0) {
+    if (gCodeData->count() == 0) {
         // no data
         MessageBox::exec(this, translate(ID_ERR), translate(ID_MSG_NO_DATA), QMessageBox::Critical);
         return;
@@ -1403,7 +1403,7 @@ void MainWindow::onStartTask()
 
 #endif
 
-    qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd /*<< "code" << Task::instructionStart << Task::instructionEnd*/ << "size of code" << gCodeData.count();
+    qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd /*<< "code" << Task::instructionStart << Task::instructionEnd*/ << "size of code" << gCodeData->count();
     QString s = translate(ID_FROM_TO).arg( Task::lineCodeStart + 1).arg( Task::lineCodeEnd + 1);
     labelTask->setText( s );
 
@@ -1562,8 +1562,8 @@ void MainWindow::runNextCommand()
 #endif
     GCodeData gcodeNow;
 
-    if (Task::instrCounter < gCodeData.count()) {
-        gcodeNow = gCodeData.at(Task::instrCounter);
+    if (Task::instrCounter < gCodeData->count()) {
+        gcodeNow = gCodeData->at(Task::instrCounter);
     } else {
         currentStatus = Task::Stop;
     }
@@ -1799,8 +1799,8 @@ void MainWindow::runNextCommand()
 
             mk1->packCA(&mParams); // move to init position
 
-            if (Task::instrCounter < gCodeData.count()) {
-                gcodeNow = gCodeData.at(Task::instrCounter);
+            if (Task::instrCounter < gCodeData->count()) {
+                gcodeNow = gCodeData->at(Task::instrCounter);
             } else {
                 currentStatus = Task::Stop;
                 break;
@@ -2339,7 +2339,7 @@ void  MainWindow::refreshElementsForms()
             int lineNum = 0;
 
             // TODO to link with line number
-            foreach (const GCodeData v, gCodeData) {
+            foreach (const GCodeData v, *gCodeData) {
                 if (v.commandNum > complectaed) {
                     break;
                 }
@@ -2457,282 +2457,7 @@ void MainWindow::fillListWidget(QVector<QString> listCode)
     statusProgress->setRange(0, listGCodeWidget->rowCount());
     statusProgress->setValue(0);
 
-    fixGCodeList();
-}
-
-
-/**
- * @brief function patches the data list before sending to mk1
- *
- * the data list will be patched dependend from current user settings:
- * speed, steps per mm and other. we need to patch data in case of settings changing
- */
-void MainWindow::fixGCodeList()
-{
-    if (gCodeData.count() < 2) {
-        return;
-    }
-
-    // grad to rad
-    maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;
-
-    // calculate the number of steps in one direction, if exists
-    for (int idx = 0; idx < gCodeData.size(); idx++) {
-        if (gCodeData[idx].movingCode == RAPID_LINE_CODE) {
-            continue;
-        }
-
-        int endPos = calculateMinAngleSteps(idx); // and update the pos
-
-        if (endPos >= 1) {
-            patchSpeedAndAccelCode(idx, endPos);
-            idx = endPos;
-            continue;
-        }
-    }
-
-#if 0
-
-    // now debug
-    foreach (const GCodeData d, gCodeList) {
-        qDebug() << "line:" << d.numberLine << "accel:" << (hex) << d.movingCode << (dec) << "max coeff:" << d.vectorCoeff << "splits:" <<  d.splits
-                 << "steps:" << d.stepsCounter << "vector speed:" << d.vectSpeed << "coords:" << d.X << d.Y << "delta angle:" << d.deltaAngle;
-    }
-
-    qDebug() << "max delta angle: " << PI - maxLookaheadAngleRad;
-#endif
-}
-
-
-/**
- * @brief function set the vector speed and acceleration code before sending data to controller
- *
- * before sending data to microcontroller we need to calculate the vector speed and acceleration code
- * acceleration codes: ACCELERAT_CODE, DECELERAT_CODE, CONSTSPEED_CODE or FEED_LINE_CODE
- *
- * gCodeData [begPos .. endPos]
- *
- * @param[in] begPos from this position in gcode list
- * @param[in] endPos inclusively end position
- *
- */
-void MainWindow::patchSpeedAndAccelCode(int begPos, int endPos)
-{
-    if (begPos < 1 || begPos >= gCodeData.count() - 1) {
-        qDebug() << "wrong position number patchSpeedAndAccelCode()" << begPos;
-        return;
-    }
-
-    if (begPos == endPos) {
-        return;
-    }
-
-    int sumSteps = 0;
-
-    float dnewSpdX  = 3600; // 3584?
-    float dnewSpdY  = 3600; // 3584?
-    float dnewSpdZ  = 3600; // 3584?
-
-    // TODO to calculate this only after settings changing
-    if ((Settings::coord[X].maxVeloLimit != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
-        dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVeloLimit * Settings::coord[X].pulsePerMm);
-    }
-
-    if ((Settings::coord[Y].maxVeloLimit != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
-        dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVeloLimit * Settings::coord[Y].pulsePerMm);
-    }
-
-    if ((Settings::coord[Z].maxVeloLimit != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
-        dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVeloLimit * Settings::coord[Z].pulsePerMm);
-    }
-
-    switch (gCodeData[begPos].plane) {
-        case XY: {
-            //* this loop is in the switch statement because of optimisation
-            for (int i = begPos; i <= endPos; i++) {
-
-                float dX = qFabs(gCodeData.at(i - 1).baseCoord.x() - gCodeData.at(i).baseCoord.x());
-                float dY = qFabs(gCodeData.at(i - 1).baseCoord.y() - gCodeData.at(i).baseCoord.y());
-                float dH = qSqrt(dX * dX + dY * dY);
-                float coeff = 1.0;
-
-                if (dX > dY) {
-                    if (dX != 0.0) {
-                        coeff = dH / dX;
-                    }
-
-                    // calculation of vect speed
-                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdX); //
-                    gCodeData[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
-                } else {
-                    if (dY != 0.0) {
-                        coeff = dH / dY;
-                    }
-
-                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdY); //
-                    gCodeData[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
-                }
-
-                sumSteps += gCodeData[i].stepsCounter;
-
-                gCodeData[i].vectorCoeff = coeff;
-            }
-
-            break;
-        }
-
-        case YZ: {
-            //* this loop is in the switch statement because of optimisation
-            for (int i = begPos; i <= endPos; i++) {
-                float dY = qFabs(gCodeData.at(i - 1).baseCoord.y() - gCodeData.at(i).baseCoord.y());
-                float dZ = qFabs(gCodeData.at(i - 1).baseCoord.z() - gCodeData.at(i).baseCoord.z());
-                float dH = qSqrt(dZ * dZ + dY * dY);
-                float coeff = 1.0;
-
-                if (dY > dZ) {
-                    if (dY != 0.0) {
-                        coeff = dH / dY;
-                    }
-
-                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdY); //
-                    gCodeData[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
-                } else {
-                    if (dZ != 0.0) {
-                        coeff = dH / dZ;
-                    }
-
-                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdZ); //
-                    gCodeData[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
-                }
-
-                sumSteps += gCodeData[i].stepsCounter;
-
-                gCodeData[i].vectorCoeff = coeff;
-            }
-
-            break;
-        }
-
-        case ZX: {
-            //* this loop is in the switch statement because of optimisation
-            for (int i = begPos; i <= endPos; i++) {
-                float dZ = qFabs(gCodeData.at(i - 1).baseCoord.z() - gCodeData.at(i).baseCoord.z());
-                float dX = qFabs(gCodeData.at(i - 1).baseCoord.x() - gCodeData.at(i).baseCoord.x());
-                float dH = qSqrt(dX * dX + dZ * dZ);
-                float coeff = 1.0;
-
-                if (dZ > dX) {
-                    if (dZ != 0.0) {
-                        coeff = dH / dZ;
-                    }
-
-                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdZ); //
-                    gCodeData[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
-                } else {
-                    if (dX != 0.0) {
-                        coeff = dH / dX;
-                    }
-
-                    gCodeData[i].vectSpeed = (int)(coeff * dnewSpdX); //
-                    gCodeData[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
-                }
-
-                sumSteps += gCodeData[i].stepsCounter;
-
-                gCodeData[i].vectorCoeff = coeff;
-            }
-
-            break;
-        }
-
-        default: {
-            qDebug() << "no plane information: pos " << begPos << "x" << gCodeData[begPos].baseCoord.x() << "y" << gCodeData[begPos].baseCoord.y() << "z" << gCodeData[begPos].baseCoord.z();
-        }
-    }
-
-    if (sumSteps > 0) {
-        // now for steps
-        for (int i = begPos; i < endPos; i++) {
-            int tmpStps;
-            tmpStps = gCodeData[i].stepsCounter;
-            gCodeData[i].stepsCounter = sumSteps;
-            sumSteps -= tmpStps;
-            gCodeData[i].movingCode = CONSTSPEED_CODE;
-        }
-
-        gCodeData[begPos].movingCode = ACCELERAT_CODE;
-        gCodeData[endPos].movingCode = DECELERAT_CODE;
-    }
-}
-
-
-/**
- * @brief function determines, how many steps from actual position the g-code object has to the last point with angle up to maxLookaheadAngleRad
- *
- * the angle maxLookaheadAngle is recommended from 150 to 179 grad. it well be converted to radians
- *
- * @param[in] startPos begin pos of searching
- *
- * @return the end position of polygon with angle difference less than maxLookaheadAngle
- */
-int MainWindow::calculateMinAngleSteps(int startPos)
-{
-    int idx = startPos;
-
-    if (startPos > gCodeData.count() - 1 || startPos < 1) {
-        qDebug() << "steps counter bigger than list";
-        return -1;
-    }
-
-#if 1
-
-    if (gCodeData.at(startPos).splits > 0) { // it's arc, splits inforamtion already calculated
-        idx += gCodeData.at(startPos).splits;
-        return idx;
-    }
-
-#endif
-
-    // or for lines
-    for (idx = startPos; idx < gCodeData.count() - 1; idx++) {
-#if 1
-
-        if (gCodeData.at(idx).movingCode == ACCELERAT_CODE && gCodeData.at(idx).splits > 0) {
-            idx += gCodeData.at(idx).splits;
-            return idx;
-        }
-
-#endif
-
-        if (gCodeData.at(idx + 1).movingCode == RAPID_LINE_CODE) {
-            return idx;
-        }
-
-#if 0
-        qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).movingCode << gCodeList[idx + 1].movingCode
-                 << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx + 1].X << gCodeList[idx + 1].Y;
-#endif
-
-        float a1 = gCodeData.at(idx).angle;
-        float a2 = gCodeData.at(idx + 1).angle;
-
-        gCodeData[idx].deltaAngle = (a1 - a2);
-
-        if (qFabs(gCodeData[idx].deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
-            break;
-        }
-    }
-
-#if 0
-
-    if ((idx - startPos) != 0) {
-        gCodeList[startPos].splits = idx - startPos;
-        qDebug() << "found in pos:" << startPos << ", steps: " << idx - startPos << " from" << gCodeList[startPos].X << gCodeList[startPos].Y  << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
-    }
-
-#endif
-
-    return idx;
+    dMan->fixGCodeList();
 }
 
 

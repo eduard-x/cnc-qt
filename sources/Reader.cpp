@@ -46,7 +46,7 @@
 
 
 /******************************************************************************
-** Reader
+** cDataManager
 */
 
 //
@@ -116,7 +116,7 @@ void GerberData::CalculateGatePoints(int _accuracy)
 
 
 // constructor
-Reader::Reader()
+cDataManager::cDataManager()
 {
     TypeFile = None;
 
@@ -124,28 +124,306 @@ Reader::Reader()
 }
 
 // destructor
-Reader::~Reader()
+cDataManager::~cDataManager()
 {
 }
 
-// void Reader::lock() const
+// void cDataManager::lock() const
 // {
 //  mutex.lock();
 // }
 //
 //
-// void Reader::unlock() const
+// void cDataManager::unlock() const
 // {
 //  mutex.unlock();
 // }
 
 
-void Reader::writeFile(const QString &fileName)
+
+
+/**
+ * @brief function patches the data list before sending to mk1
+ *
+ * the data list will be patched dependend from current user settings:
+ * speed, steps per mm and other. we need to patch data in case of settings changing
+ */
+void cDataManager::fixGCodeList()
+{
+    if (gCodeVector.count() < 2) {
+        return;
+    }
+
+    // grad to rad
+    maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;
+
+    // calculate the number of steps in one direction, if exists
+    for (int idx = 0; idx < gCodeVector.size(); idx++) {
+        if (gCodeVector[idx].movingCode == RAPID_LINE_CODE) {
+            continue;
+        }
+
+        int endPos = calculateMinAngleSteps(idx); // and update the pos
+
+        if (endPos >= 1) {
+            patchSpeedAndAccelCode(idx, endPos);
+            idx = endPos;
+            continue;
+        }
+    }
+
+#if 0
+
+    // now debug
+    foreach (const GCodeData d, gCodeList) {
+        qDebug() << "line:" << d.numberLine << "accel:" << (hex) << d.movingCode << (dec) << "max coeff:" << d.vectorCoeff << "splits:" <<  d.splits
+                 << "steps:" << d.stepsCounter << "vector speed:" << d.vectSpeed << "coords:" << d.X << d.Y << "delta angle:" << d.deltaAngle;
+    }
+
+    qDebug() << "max delta angle: " << PI - maxLookaheadAngleRad;
+#endif
+}
+
+
+/**
+ * @brief function set the vector speed and acceleration code before sending data to controller
+ *
+ * before sending data to microcontroller we need to calculate the vector speed and acceleration code
+ * acceleration codes: ACCELERAT_CODE, DECELERAT_CODE, CONSTSPEED_CODE or FEED_LINE_CODE
+ *
+ * gCodeVector [begPos .. endPos]
+ *
+ * @param[in] begPos from this position in gcode list
+ * @param[in] endPos inclusively end position
+ *
+ */
+void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
+{
+    if (begPos < 1 || begPos >= gCodeVector.count() - 1) {
+        qDebug() << "wrong position number patchSpeedAndAccelCode()" << begPos;
+        return;
+    }
+
+    if (begPos == endPos) {
+        return;
+    }
+
+    int sumSteps = 0;
+
+    float dnewSpdX  = 3600; // 3584?
+    float dnewSpdY  = 3600; // 3584?
+    float dnewSpdZ  = 3600; // 3584?
+
+    // TODO to calculate this only after settings changing
+    if ((Settings::coord[X].maxVeloLimit != 0.0) && (Settings::coord[X].pulsePerMm != 0.0)) {
+        dnewSpdX = 7.2e8 / ((float)Settings::coord[X].maxVeloLimit * Settings::coord[X].pulsePerMm);
+    }
+
+    if ((Settings::coord[Y].maxVeloLimit != 0.0) && (Settings::coord[Y].pulsePerMm != 0.0)) {
+        dnewSpdY = 7.2e8 / ((float)Settings::coord[Y].maxVeloLimit * Settings::coord[Y].pulsePerMm);
+    }
+
+    if ((Settings::coord[Z].maxVeloLimit != 0.0) && (Settings::coord[Z].pulsePerMm != 0.0)) {
+        dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVeloLimit * Settings::coord[Z].pulsePerMm);
+    }
+
+    switch (gCodeVector.at(begPos).plane) {
+        case XY: {
+            //* this loop is in the switch statement because of optimisation
+            for (int i = begPos; i <= endPos; i++) {
+
+                float dX = qFabs(gCodeVector.at(i - 1).baseCoord.x() - gCodeVector.at(i).baseCoord.x());
+                float dY = qFabs(gCodeVector.at(i - 1).baseCoord.y() - gCodeVector.at(i).baseCoord.y());
+                float dH = qSqrt(dX * dX + dY * dY);
+                float coeff = 1.0;
+
+                if (dX > dY) {
+                    if (dX != 0.0) {
+                        coeff = dH / dX;
+                    }
+
+                    // calculation of vect speed
+                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdX); //
+                    gCodeVector[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
+                } else {
+                    if (dY != 0.0) {
+                        coeff = dH / dY;
+                    }
+
+                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdY); //
+                    gCodeVector[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
+                }
+
+                sumSteps += gCodeVector[i].stepsCounter;
+
+                gCodeVector[i].vectorCoeff = coeff;
+            }
+
+            break;
+        }
+
+        case YZ: {
+            //* this loop is in the switch statement because of optimisation
+            for (int i = begPos; i <= endPos; i++) {
+                float dY = qFabs(gCodeVector.at(i - 1).baseCoord.y() - gCodeVector.at(i).baseCoord.y());
+                float dZ = qFabs(gCodeVector.at(i - 1).baseCoord.z() - gCodeVector.at(i).baseCoord.z());
+                float dH = qSqrt(dZ * dZ + dY * dY);
+                float coeff = 1.0;
+
+                if (dY > dZ) {
+                    if (dY != 0.0) {
+                        coeff = dH / dY;
+                    }
+
+                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdY); //
+                    gCodeVector[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
+                } else {
+                    if (dZ != 0.0) {
+                        coeff = dH / dZ;
+                    }
+
+                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdZ); //
+                    gCodeVector[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
+                }
+
+                sumSteps += gCodeVector[i].stepsCounter;
+
+                gCodeVector[i].vectorCoeff = coeff;
+            }
+
+            break;
+        }
+
+        case ZX: {
+            //* this loop is in the switch statement because of optimisation
+            for (int i = begPos; i <= endPos; i++) {
+                float dZ = qFabs(gCodeVector.at(i - 1).baseCoord.z() - gCodeVector.at(i).baseCoord.z());
+                float dX = qFabs(gCodeVector.at(i - 1).baseCoord.x() - gCodeVector.at(i).baseCoord.x());
+                float dH = qSqrt(dX * dX + dZ * dZ);
+                float coeff = 1.0;
+
+                if (dZ > dX) {
+                    if (dZ != 0.0) {
+                        coeff = dH / dZ;
+                    }
+
+                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdZ); //
+                    gCodeVector[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
+                } else {
+                    if (dX != 0.0) {
+                        coeff = dH / dX;
+                    }
+
+                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdX); //
+                    gCodeVector[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
+                }
+
+                sumSteps += gCodeVector[i].stepsCounter;
+
+                gCodeVector[i].vectorCoeff = coeff;
+            }
+
+            break;
+        }
+
+        default: {
+            qDebug() << "no plane information: pos " << begPos << "x" << gCodeVector[begPos].baseCoord.x() << "y" << gCodeVector[begPos].baseCoord.y() << "z" << gCodeVector[begPos].baseCoord.z();
+        }
+    }
+
+    if (sumSteps > 0) {
+        // now for steps
+        for (int i = begPos; i < endPos; i++) {
+            int tmpStps;
+            tmpStps = gCodeVector[i].stepsCounter;
+            gCodeVector[i].stepsCounter = sumSteps;
+            sumSteps -= tmpStps;
+            gCodeVector[i].movingCode = CONSTSPEED_CODE;
+        }
+
+        gCodeVector[begPos].movingCode = ACCELERAT_CODE;
+        gCodeVector[endPos].movingCode = DECELERAT_CODE;
+    }
+}
+
+
+/**
+ * @brief function determines, how many steps from actual position the g-code object has to the last point with angle up to maxLookaheadAngleRad
+ *
+ * the angle maxLookaheadAngle is recommended from 150 to 179 grad. it well be converted to radians
+ *
+ * @param[in] startPos begin pos of searching
+ *
+ * @return the end position of polygon with angle difference less than maxLookaheadAngle
+ */
+int cDataManager::calculateMinAngleSteps(int startPos)
+{
+    int idx = startPos;
+
+    if (startPos > gCodeVector.count() - 1 || startPos < 1) {
+        qDebug() << "steps counter bigger than list";
+        return -1;
+    }
+
+#if 1
+
+    if (gCodeVector.at(startPos).splits > 0) { // it's arc, splits inforamtion already calculated
+        idx += gCodeVector.at(startPos).splits;
+        return idx;
+    }
+
+#endif
+
+    // or for lines
+    for (idx = startPos; idx < gCodeVector.count() - 1; idx++) {
+#if 1
+
+        if (gCodeVector.at(idx).movingCode == ACCELERAT_CODE && gCodeVector.at(idx).splits > 0) {
+            idx += gCodeVector.at(idx).splits;
+            return idx;
+        }
+
+#endif
+
+        if (gCodeVector.at(idx + 1).movingCode == RAPID_LINE_CODE) {
+            return idx;
+        }
+
+#if 0
+        qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).movingCode << gCodeList[idx + 1].movingCode
+                 << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx + 1].X << gCodeList[idx + 1].Y;
+#endif
+
+        float a1 = gCodeVector.at(idx).angle;
+        float a2 = gCodeVector.at(idx + 1).angle;
+
+        gCodeVector[idx].deltaAngle = (a1 - a2);
+
+        if (qFabs(gCodeVector.at(idx).deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
+            break;
+        }
+    }
+
+#if 0
+
+    if ((idx - startPos) != 0) {
+        gCodeList[startPos].splits = idx - startPos;
+        qDebug() << "found in pos:" << startPos << ", steps: " << idx - startPos << " from" << gCodeList[startPos].X << gCodeList[startPos].Y  << "to" << gCodeList[idx].X << gCodeList[idx].Y;// << dbg;
+    }
+
+#endif
+
+    return idx;
+}
+
+
+
+void cDataManager::writeFile(const QString &fileName)
 {
 }
 
 
-bool Reader::readFile(const QString &fileName)
+bool cDataManager::readFile(const QString &fileName)
 {
     int pointPos = fileName.lastIndexOf(".");
 
@@ -186,14 +464,12 @@ bool Reader::readFile(const QString &fileName)
         TypeFile = PLT;
         bool res = readPLT(arr);
 
-
         return res;
     }
 
     if ( detectArray.indexOf("<svg") >= 0 ) { // svg
         TypeFile = SVG;
         bool res = readSVG(arr);
-
 
         return res;
     }
@@ -202,14 +478,12 @@ bool Reader::readFile(const QString &fileName)
         TypeFile = EPS;
         bool res = readEPS(arr);
 
-
         return res;
     }
 
     if ( detectArray.indexOf("") >= 0 ) { // polylines
         TypeFile = DXF;
         bool res = readDXF(arr);
-
 
         return res;
     }
@@ -239,9 +513,9 @@ bool Reader::readFile(const QString &fileName)
 }
 
 
+#if 1
 
-
-bool Reader::readPLT( const QByteArray &arr )
+bool cDataManager::readPLT( const QByteArray &arr )
 {
     QList<Point> points;// = new QList<Point>();
 
@@ -349,31 +623,31 @@ bool Reader::readPLT( const QByteArray &arr )
 }
 
 
-bool Reader::readSVG( const QByteArray &arr)
+bool cDataManager::readSVG( const QByteArray &arr)
 {
     return true;
 }
 
 
-bool Reader::readEPS( const QByteArray &arr)
+bool cDataManager::readEPS( const QByteArray &arr)
 {
     return true;
 }
 
 
-bool Reader::readDXF( const QByteArray &arr)
+bool cDataManager::readDXF( const QByteArray &arr)
 {
     return true;
 }
 
 
-bool Reader::readDRL( const QByteArray &arr)
+bool cDataManager::readDRL( const QByteArray &arr)
 {
     data.clear();
 
     QList<Point> points;
 
-    //  StreamReader fs = new StreamReader(tbFile.Text);
+    //  StreamcDataManager fs = new StreamcDataManager(tbFile.Text);
     //  QString s = fs.ReadLine();
 
     bool isDataDrill = false; //определение того какие сейчас данные, всё что до строки с % параметры инструментов, после - дырки для сверлений
@@ -452,7 +726,7 @@ bool Reader::readDRL( const QByteArray &arr)
 
 }
 
-void Reader::Swap(int &p1, int &p2)
+void cDataManager::Swap(int &p1, int &p2)
 {
     int p = p1;
     p1 = p2;
@@ -470,7 +744,7 @@ void Reader::Swap(int &p1, int &p2)
 // парам: setvalue какое значение записывать в матрицу, если необходимо нарисовать точку окружности
 // парам: needFill необходимость заполнить внутренность круга
 //
-void Reader::BresenhamCircle(QVector<QVector< quint8 > > &arrayPoint,  int x0, int y0, int radius, quint8 setvalue, bool needFill)
+void cDataManager::BresenhamCircle(QVector<QVector< quint8 > > &arrayPoint,  int x0, int y0, int radius, quint8 setvalue, bool needFill)
 {
     int tmpradius = radius;
 
@@ -505,7 +779,7 @@ void Reader::BresenhamCircle(QVector<QVector< quint8 > > &arrayPoint,  int x0, i
 }
 
 
-void Reader::BresenhamLine(QVector<QVector<quint8> > &arrayPoint, int x0, int y0, int x1, int y1, typeSpline _Splane)
+void cDataManager::BresenhamLine(QVector<QVector<quint8> > &arrayPoint, int x0, int y0, int x1, int y1, typeSpline _Splane)
 {
     //матрицу сплайна
     //  byte[,] spArray = new byte[1, 1];
@@ -616,7 +890,7 @@ void Reader::BresenhamLine(QVector<QVector<quint8> > &arrayPoint, int x0, int y0
 //
 // gerber reader
 //
-bool Reader::readGBR( const QByteArray &arr)
+bool cDataManager::readGBR( const QByteArray &arr)
 {
     GerberData grb;
 
@@ -872,4 +1146,4 @@ bool Reader::readGBR( const QByteArray &arr)
     //proc.WaitForExit();//и ждем, когда он завершит свою работу
 }
 
-
+#endif
