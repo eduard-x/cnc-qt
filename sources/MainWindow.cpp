@@ -49,7 +49,7 @@
 
 #include "includes/SettingsDialog.h"
 #include "includes/About.h"
-#include "includes/Reader.h"
+#include "includes/DataManager.h"
 #include "includes/EditGCode.h"
 #include "includes/ScanSurface.h"
 

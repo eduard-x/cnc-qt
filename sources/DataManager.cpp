@@ -41,7 +41,7 @@
 
 #include "includes/Settings.h"
 #include "includes/GCode.h"
-#include "includes/Reader.h"
+#include "includes/DataManager.h"
 // #include "includes/MainWindow.h"
 
 

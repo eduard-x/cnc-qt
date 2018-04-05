@@ -59,7 +59,7 @@
 #include "GLWidget.h"
 
 #include "GCode.h"
-#include "Reader.h"
+#include "DataManager.h"
 #include "mk1Controller.h"
 #include "Geometry.h"
 #include "Translator.h"

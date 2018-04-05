@@ -19,7 +19,7 @@ SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Settings.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/SettingsDialog.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/GCode.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/Reader.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/DataManager.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/About.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Geometry.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/EditGCode.cpp
@@ -48,7 +48,7 @@ SET(MOC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
 SET(MAIN_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/Geometry.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Settings.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Translator.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/Reader.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/DataManager.h
                  PARENT_SCOPE)
 
 # 
