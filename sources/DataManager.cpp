@@ -1460,6 +1460,20 @@ bool cDataManager::readFile(const QString &fileName)
 
         emit logMessage(QString().sprintf("Data post processed. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), goodList.count()));
 
+        if (Settings::optimizeRapidWays == true) {
+            tMess.restart();
+            //             g0points = getRapidPoints();
+            QVector<int> ant = calculateAntPath();
+
+            if (ant.count() > 2) {
+                qDebug() << ant;
+
+                sortGCode(ant);
+            }
+
+            emit logMessage(QString().sprintf("Read gcode, Ant optimization. Time elapsed: %d ms, cities: %d", tMess.elapsed(), ant.count()));
+        }
+
         return res;
     }
 

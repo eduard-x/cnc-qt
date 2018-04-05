@@ -251,29 +251,6 @@ bool GData::readGCode(char *indata)
 
     gcodeDestroy();
 
-
-
-
-#if 0
-
-    if (Settings::optimizeRapidWays == true) {
-        QTime t;
-        t.start();
-        //             g0points = getRapidPoints();
-        QVector<int> ant = calculateAntPath();
-
-        if (ant.count() > 2) {
-            qDebug() << ant;
-
-            sortGCode(ant);
-        }
-
-        emit logMessage(QString().sprintf("Read gcode, Ant optimization. Time elapsed: %d ms, cities: %d", t.elapsed(), ant.count()));
-        //     qDebug() << "read gcode end";
-        t.restart();
-    }
-
-#endif
     return true;
 }
 
