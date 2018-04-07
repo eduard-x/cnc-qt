@@ -278,6 +278,21 @@ bool set_data_float(char c, float f) {
             g_data->extCoord.setZ(f);
             break;
             
+        case 'u':
+            g_data->useExtCoord = UVW; // TODO check conflicts
+            g_data->extCoord.setX(f);
+            break;
+            
+        case 'v':
+            g_data->useExtCoord = UVW; // TODO check conflicts
+            g_data->extCoord.setY(f);
+            break;
+            
+        case 'w':
+            g_data->useExtCoord = UVW; // TODO check conflicts
+            g_data->extCoord.setZ(f);
+            break;
+            
         case 'r': // radius
             g_data->radius = f;
             break;

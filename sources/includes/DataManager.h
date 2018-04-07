@@ -307,6 +307,8 @@ class cDataManager : public GData // , public cTranslator
         bool addArc(GCodeData* param);
         void gcodeChecker();
 
+        void resetSoftLimits();
+        
         QVector <GCodeOptim> getRapidPoints();
 
         void Swap(int &p1, int &p2);

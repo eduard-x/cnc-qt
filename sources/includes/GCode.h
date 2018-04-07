@@ -159,7 +159,6 @@ class GData : public QObject
 
         QVector<GCodeData> *dataVector();
         bool readGCode(char *indata);
-        void resetSoftLimits();
 
     private:
         void gcodeInit();

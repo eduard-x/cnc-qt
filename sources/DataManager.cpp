@@ -1530,6 +1530,18 @@ bool cDataManager::readFile(const QString &fileName)
 }
 
 
+
+void cDataManager::resetSoftLimits()
+{
+    Settings::coord[X].softLimitMax = 0;
+    Settings::coord[X].softLimitMin = 0;
+    Settings::coord[Y].softLimitMax = 0;
+    Settings::coord[Y].softLimitMin = 0;
+    Settings::coord[Z].softLimitMax = 0;
+    Settings::coord[Z].softLimitMin = 0;
+}
+
+
 #if 1
 
 bool cDataManager::readPLT( const QByteArray &arr )

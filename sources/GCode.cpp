@@ -204,17 +204,6 @@ void GData::gcodeDestroy()
 }
 
 
-void GData::resetSoftLimits()
-{
-    Settings::coord[X].softLimitMax = 0;
-    Settings::coord[X].softLimitMin = 0;
-    Settings::coord[Y].softLimitMax = 0;
-    Settings::coord[Y].softLimitMin = 0;
-    Settings::coord[Z].softLimitMax = 0;
-    Settings::coord[Z].softLimitMin = 0;
-}
-
-
 /**
  * @brief read and parse into GCodeData list and OpenGL list
  * @see for the optimizations see https://blog.qt.io/blog/2014/06/13/qt-weekly-13-qstringliteral/
