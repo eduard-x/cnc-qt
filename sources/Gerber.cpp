@@ -38,43 +38,47 @@
 #include <QtCore/qmath.h>
 
 #include "includes/Settings.h"
-#include "includes/GCode.h"
+#include "includes/Gerber.h"
 #include "includes/MainWindow.h"
 
 
+#include "includes/GData.h"
+
 #if 0
-extern FILE * gcode_in;
-void gcode_restart (FILE *);
+extern FILE * gerber_in;
+void gerber_restart (FILE *);
 
 __BEGIN_DECLS
 
 /* Available functions of the checker. */
-extern int gcode_parse (void);
-extern int gcode_error (const char *);
-extern int gcode_lex (void);
-extern int gcode_lex_destroy (void);
+extern int gerber_parse (void);
+extern void gerber_error (const char *);
+extern int gerber_lex (void);
+extern int gerber_lex_destroy (void);
+// int gerber_check (qucs::dataset *);
 
-// static int gcode_lineno = 0;
+// static int gerber_lineno = 0;
 
 __END_DECLS
 #endif
 
-#include "includes/GData.h"
+#include "parse_gerber.h"
+#include "scan_gerber.h"
 
-#include "parse_gcode.h"
+// #include "includes/GData.h"
 
-#include "scan_gcode.h"
 
 #define DEBUG_ARC 0
 
+
 // is static
-QVector<GCodeData> GData::gCodeVector;
+QVector<GCodeData> Gerber::gCodeVector;
 
 /**
  * @brief constructor
  *
  */
-GData::GData()
+Gerber::Gerber()
 {
 }
 
@@ -82,23 +86,23 @@ GData::GData()
  * @brief destructor
  *
  */
-GData::~GData()
+Gerber::~Gerber()
 {
     gCodeVector.clear();
 }
 
 
-void GData::gcodeInit()
+void Gerber::gerberInit()
 {
-    gcode_lineno = 0;
-    //      gcode_result = NULL;
-    //   gcode_vector = NULL;
-    //   gcode_header = NULL;
+    gerber_lineno = 0;
+    //      gerber_result = NULL;
+    //   gerber_vector = NULL;
+    //   gerber_header = NULL;
 }
 
 
 
-void GData::gcodeDestroy()
+void Gerber::gerberDestroy()
 {
     //      if (csv_result != NULL) {
     //     // delete associated dataset
@@ -118,7 +122,7 @@ void GData::gcodeDestroy()
  * TODO convert QString to QStringLiteral
  *
  */
-bool GData::readGCode(char *indata)
+bool Gerber::readGCode(char *indata)
 {
     int ret = true;
 
@@ -126,27 +130,27 @@ bool GData::readGCode(char *indata)
 
     mut.lock();
 
-    gcodeInit();
+    gerberInit();
 
     /* because the data in already in buffer 'indata' */
 
-    YY_BUFFER_STATE bs = gcode__scan_string(indata);
-    gcode__switch_to_buffer(bs);
+    YY_BUFFER_STATE bs = gerber__scan_string(indata);
+    gerber__switch_to_buffer(bs);
 
-    if ( gcode_parse() != 0) {
+    if ( gerber_parse() != 0) {
         ret = false;
     }
 
-    gcode_lex_destroy();
+    gerber_lex_destroy();
 
     mut.unlock();
 
     if (!ret) {
-        gcodeDestroy();
+        gerberDestroy();
         return false;
     }
 
-    gcodeDestroy();
+    gerberDestroy();
 
     return true;
 }
@@ -157,9 +161,9 @@ bool GData::readGCode(char *indata)
  * @brief
  *
  */
-QVector<GCodeData> *GData::dataVector()
+QVector<GCodeData> *Gerber::dataVector()
 {
-    //     qDebug() << "return gcode data" << gCodeList.count();
+    //     qDebug() << "return gerber data" << gCodeList.count();
     return &gCodeVector;
 }
 

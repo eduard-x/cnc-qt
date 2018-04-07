@@ -2,7 +2,7 @@
 
 %{
 /*
- * scan_gcode.lpp - scanner for a GCODE data file
+ * scan_gerber.lpp - scanner for a Gerber data file
  *
  * Copyright (C) 2018 Eduard Kalinowski <eduard_kalinowski@yahoo.de>
  *
@@ -55,18 +55,14 @@
 #endif
 
 
+// this generated header file from parse_gerber.ypp
+#include "parse_gerber.h"
 
-// this generated header file from parse_gcode.ypp
-#include "parse_gcode.h"
 
 #include "Settings.h"
-#include "GCode.h"
+#include "Gerber.h"
 
-// extern void gcode_error (const char *);
-// extern int gcode_lex (void);
-// extern int gcode_lex_destroy (void);
-
-extern int gcode_lineno;
+extern int gerber_lineno;
 
 
 %}
@@ -83,32 +79,32 @@ DIGITS   {DIGIT}+
 Eol      \n
 
 
-%option caseless yylineno noyywrap nounput noinput prefix="gcode_"
+%option caseless yylineno noyywrap nounput noinput prefix="gerber_"
 
 
 %%
 
 
 ^[A-Z]   { 
-    gcode_lval.c_val = gcode_text[0]; 
+    gerber_lval.c_val = gerber_text[0]; 
     return NL_CHAR;
 }
 
 [A-Z]    { 
-    gcode_lval.c_val = gcode_text[0]; 
+    gerber_lval.c_val = gerber_text[0]; 
     return CHAR; 
 }
 
 
 {DIGITS} { 
-    gcode_lval.i_val = atoi(gcode_text); 
+    gerber_lval.i_val = atoi(gerber_text); 
     return INT; 
 }
 
 {REAL}   {
-    std::string s = gcode_text;
+    std::string s = gerber_text;
     std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
-    gcode_lval.f_val = atof(s.c_str());
+    gerber_lval.f_val = atof(s.c_str());
     
     return FLOAT;
 }
@@ -121,7 +117,7 @@ Eol      \n
 ^{COMMENT}{Eol}+ { /* new line commentar */}
 
 
-{COMMENT} { gcode_lval.s_val = strdup(gcode_text); return COMMENTAR; }
+{COMMENT} { gerber_lval.s_val = strdup(gerber_text); return COMMENTAR; }
 
 "%".*{Eol}+ { /* ignore comments, do nothing */ }
 
@@ -133,7 +129,7 @@ Eol      \n
 <*>. { /* any other character is invalid */
   fprintf (stderr,
 	   "line %d: syntax error, unrecognized character: `%s'\n",
-	   gcode_lineno, gcode_text);
+	   gerber_lineno, gerber_text);
    return InvalidCharacter;
 }
 

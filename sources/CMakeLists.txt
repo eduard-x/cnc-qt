@@ -18,7 +18,9 @@ SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/sWorkbench.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Settings.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/SettingsDialog.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/GData.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/GCode.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/Gerber.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/DataManager.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/About.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Geometry.cpp
@@ -39,6 +41,8 @@ SET(MOC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/sWorkbench.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/SettingsDialog.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/GCode.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/GData.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/Gerber.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/About.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/EditGCode.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/MainWindow.h

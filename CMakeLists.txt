@@ -279,6 +279,7 @@ SET ( UI_SOURCES_DIR temp )
 #
 SET(ParserTypes
   gcode
+  gerber
 )
 
 # clear value

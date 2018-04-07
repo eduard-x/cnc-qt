@@ -63,13 +63,6 @@ class GCodeParser;
 
 
 
-#define NO_CODE         0x00
-#define CONSTSPEED_CODE 0x01
-#define ACCELERAT_CODE  0x11
-#define DECELERAT_CODE  0x21
-#define FEED_LINE_CODE  0x31
-#define RAPID_LINE_CODE 0x39
-
 
 //
 // result parsing of g-code

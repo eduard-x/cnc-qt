@@ -30,136 +30,50 @@
  ****************************************************************************/
 
 
-#include <QObject>
-#include <QRegExp>
-#include <QDebug>
+#ifndef GERBER_H
+#define GERBER_H
+
 #include <QString>
+#include <QMutex>
+#include <QList>
+#include <QObject>
+#include <QVector>
+#include <QVector3D>
 
-#include <QtCore/qmath.h>
+#include "GData.h"
 
-#include "includes/Settings.h"
-#include "includes/GCode.h"
-#include "includes/MainWindow.h"
+// #include "Reader.h"
+
+// #include <deque>
+// #include <utility>
+// #include "vec.h"
+
+/* Externalize variables used by the scanner and parser. */
 
 
-#if 0
-extern FILE * gcode_in;
-void gcode_restart (FILE *);
 
-__BEGIN_DECLS
-
-/* Available functions of the checker. */
-extern int gcode_parse (void);
-extern int gcode_error (const char *);
-extern int gcode_lex (void);
-extern int gcode_lex_destroy (void);
-
-// static int gcode_lineno = 0;
-
-__END_DECLS
-#endif
-
-#include "includes/GData.h"
-
-#include "parse_gcode.h"
-
-#include "scan_gcode.h"
-
-#define DEBUG_ARC 0
-
-// is static
-QVector<GCodeData> GData::gCodeVector;
-
-/**
- * @brief constructor
- *
- */
-GData::GData()
+class Gerber : public QObject
 {
-}
+        Q_OBJECT
+    public:
+        explicit Gerber(); // constructor
+        ~Gerber(); // destructor
 
-/**
- * @brief destructor
- *
- */
-GData::~GData()
-{
-    gCodeVector.clear();
-}
+        QVector<GCodeData> *dataVector();
+        bool readGCode(char *indata);
 
-
-void GData::gcodeInit()
-{
-    gcode_lineno = 0;
-    //      gcode_result = NULL;
-    //   gcode_vector = NULL;
-    //   gcode_header = NULL;
-}
+    private:
+        void gerberInit();
+        void gerberDestroy();
 
 
+    signals:
+        void logMessage(const QString &l);
 
-void GData::gcodeDestroy()
-{
-    //      if (csv_result != NULL) {
-    //     // delete associated dataset
-    //     delete csv_result;
-    //     csv_result = NULL;
-    //   }
-    //   if (csv_vector != NULL) {
-    //     csv_finalize ();
-    //     csv_vector = NULL;
-    //   }
-}
+    public:
+        static QVector<GCodeData> gCodeVector;
+        QMutex mut;
+};
 
 
-/**
- * @brief read and parse into GCodeData list and OpenGL list
- * @see for the optimizations see https://blog.qt.io/blog/2014/06/13/qt-weekly-13-qstringliteral/
- * TODO convert QString to QStringLiteral
- *
- */
-bool GData::readGCode(char *indata)
-{
-    int ret = true;
-
-    gCodeVector.clear();
-
-    mut.lock();
-
-    gcodeInit();
-
-    /* because the data in already in buffer 'indata' */
-
-    YY_BUFFER_STATE bs = gcode__scan_string(indata);
-    gcode__switch_to_buffer(bs);
-
-    if ( gcode_parse() != 0) {
-        ret = false;
-    }
-
-    gcode_lex_destroy();
-
-    mut.unlock();
-
-    if (!ret) {
-        gcodeDestroy();
-        return false;
-    }
-
-    gcodeDestroy();
-
-    return true;
-}
-
-
-
-/**
- * @brief
- *
- */
-QVector<GCodeData> *GData::dataVector()
-{
-    //     qDebug() << "return gcode data" << gCodeList.count();
-    return &gCodeVector;
-}
-
+#endif // GERBER_H

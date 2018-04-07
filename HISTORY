@@ -1,5 +1,8 @@
 Version history
 
+0.4.0   gcode parser based on flex/bison
+        gerber parser has been added
+        all postprocessing functions are moved to cDataManager class
 0.3.6   gcode parser: feed of G01 implemented
         OpenGL, Instrument as cone/cylinder
         small bugfixes in parser
