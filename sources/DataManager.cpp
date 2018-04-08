@@ -251,7 +251,16 @@ void cDataManager::dataChecker()
                     }
 
                     if (d.useExtCoord == IJK) { //
-                        line += QString().sprintf("I%g J%g K%g ", d.extCoord.x(), d.extCoord.y(), d.extCoord.z());
+                        if (d.extCoord.x() != 0.0) {
+                            line += QString().sprintf("I%g ", d.extCoord.x());
+                        }
+                        if (d.extCoord.y() != 0.0) {
+                            line += QString().sprintf("J%g ", d.extCoord.y());
+                        }
+                        if (d.extCoord.z() != 0.0) {
+                            line += QString().sprintf("K%g ", d.extCoord.z());
+                        }
+//                         line += QString().sprintf("I%g J%g K%g ", d.extCoord.x(), d.extCoord.y(), d.extCoord.z());
                     }
 
                     if (d.radius > 0) {
@@ -976,7 +985,7 @@ void cDataManager::calcAngleOfLines(int pos)
 /**
  * @brief this function converts the arc to short lines: mk1 do not support the arc commands
  *
- * @param p is the current position in vector
+ * @param p is the current position in data vector
  *
  */
 void cDataManager::convertArcToLines(int p)
@@ -1151,11 +1160,11 @@ void cDataManager::convertArcToLines(int p)
 
                 /** detection of end because of rounding */
                 if (qSqrt((x_new - endPos.x()) * (x_new - endPos.x()) + (y_new - endPos.y()) * (y_new - endPos.y())) <= splitLen) {
-                    float t_angle = qAtan2(y_new - endPos.y(), x_new - endPos.x());
-
-                    if (t_angle < 0.0) {
-                        t_angle += 2.0 * PI;
-                    }
+//                     float t_angle = qAtan2(y_new - endPos.y(), x_new - endPos.x());
+// 
+//                     if (t_angle < 0.0) {
+//                         t_angle += 2.0 * PI;
+//                     }
 
                     runCoord = endPos;
 
@@ -1200,11 +1209,11 @@ void cDataManager::convertArcToLines(int p)
 
                 /** detection of end because of rounding */
                 if (qSqrt((y_new - endPos.y()) * (y_new - endPos.y()) + (z_new - endPos.z()) * (z_new - endPos.z())) <= splitLen) {
-                    float t_angle = qAtan2(z_new - endPos.z(), y_new - endPos.y());
-
-                    if (t_angle < 0.0) {
-                        t_angle += 2.0 * PI;
-                    }
+//                     float t_angle = qAtan2(z_new - endPos.z(), y_new - endPos.y());
+// 
+//                     if (t_angle < 0.0) {
+//                         t_angle += 2.0 * PI;
+//                     }
 
                     runCoord = endPos;
 
@@ -1249,11 +1258,11 @@ void cDataManager::convertArcToLines(int p)
 
                 /** detection of end because of rounding */
                 if (qSqrt((x_new - endPos.x()) * (x_new - endPos.x()) + (z_new - endPos.z()) * (z_new - endPos.z())) <= splitLen) {
-                    float t_angle = qAtan2(x_new - endPos.x(), z_new - endPos.z());
-
-                    if (t_angle < 0.0) {
-                        t_angle += 2.0 * PI;
-                    }
+//                     float t_angle = qAtan2(x_new - endPos.x(), z_new - endPos.z());
+// 
+//                     if (t_angle < 0.0) {
+//                         t_angle += 2.0 * PI;
+//                     }
 
                     runCoord = endPos;
 
