@@ -42,13 +42,49 @@
 
 #include "GData.h"
 
-// #include "Reader.h"
-
-// #include <deque>
-// #include <utility>
-// #include "vec.h"
 
 /* Externalize variables used by the scanner and parser. */
+
+
+///
+/// class for gerber file
+///
+class GerberData
+{
+        ///
+        /// messure units, mm or inches
+    public:
+        QString UnitsType;
+
+        ///
+        /// spline types
+        ///
+        QList<typeSpline> typeSplines;
+
+        ///
+        /// points from file
+        ///
+        QList<grbPoint> points;
+
+        // length of number
+        int countDigitsX;
+        int countDigitsY;
+        // length of digs after dec.point
+        int countPdigX;
+        int countPdigY;
+
+        int X_min;
+        int X_max;
+
+        int Y_min;
+        int Y_max;
+
+    public:
+        GerberData();
+        void CalculateGatePoints(int _accuracy);
+
+};
+
 
 
 

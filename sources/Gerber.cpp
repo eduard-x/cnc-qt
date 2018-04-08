@@ -44,31 +44,69 @@
 
 #include "includes/GData.h"
 
-#if 0
-extern FILE * gerber_in;
-void gerber_restart (FILE *);
-
-__BEGIN_DECLS
-
-/* Available functions of the checker. */
-extern int gerber_parse (void);
-extern void gerber_error (const char *);
-extern int gerber_lex (void);
-extern int gerber_lex_destroy (void);
-// int gerber_check (qucs::dataset *);
-
-// static int gerber_lineno = 0;
-
-__END_DECLS
-#endif
-
 #include "parse_gerber.h"
 #include "scan_gerber.h"
 
-// #include "includes/GData.h"
-
 
 #define DEBUG_ARC 0
+
+
+GerberData::GerberData()
+{
+    UnitsType = "";
+
+    // длина всего числа
+    countDigitsX = 1;
+    // длина всего числа
+    countDigitsY = 1;
+    // длина дробной части
+    countPdigX = 0;
+    // длина дробной части
+    countPdigY = 0;
+
+    X_min = 100000;
+    X_max = -100000;
+
+    Y_min = 100000;
+    Y_max = -100000;
+}
+
+
+//
+// Вычисление размерности необходимого массива, для анализа
+//
+// accuracy: Коэфициент уменьшения размеров данных
+void GerberData::CalculateGatePoints(int _accuracy)
+{
+    // немного уменьшим значения
+    foreach (grbPoint VARIABLE, points) {
+        VARIABLE.X = VARIABLE.X / _accuracy;
+        VARIABLE.Y = VARIABLE.Y / _accuracy;
+    }
+
+    foreach (grbPoint VARIABLE, points) {
+        if (VARIABLE.X > X_max) {
+            X_max = VARIABLE.X;
+        }
+
+        if (VARIABLE.X < X_min) {
+            X_min = VARIABLE.X;
+        }
+
+        if (VARIABLE.Y > Y_max) {
+            Y_max = VARIABLE.Y;
+        }
+
+        if (VARIABLE.Y < Y_min) {
+            Y_min = VARIABLE.Y;
+        }
+    }
+
+    // Немного расширим границу
+    X_max += 500;
+    Y_max += 500;
+}
+
 
 
 // is static

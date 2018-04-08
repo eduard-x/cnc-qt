@@ -5,7 +5,7 @@
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -40,21 +40,11 @@
 #include <QString>
 #include <QStringList>
 #include <QMutexLocker>
-#include <QMutex>
+// #include <QMutex>
 #include <QPair>
 
-// #include <deque>
-// #include <utility>
-
 #include "GCode.h"
-// #include "MainWindow.h"
-// #include "Translator.h"
 
-
-// #define byte unsigned char
-
-// class MainWindow;
-// class cTranslator;
 class GCodeParser;
 
 
@@ -105,145 +95,6 @@ struct GCodeOptim {
     int gcodeBeg;
     int gcodeEnd;
 };
-
-
-enum Apertures {
-    C_circle,
-    R_rectangle,
-    O_obround,
-    P_polygon
-};
-
-// possible data types
-enum typeCollections {
-    Points,
-    Instruments,
-    Property,
-};
-
-
-struct typeSpline {
-    int number;
-    Apertures aperture;
-    float size1;
-    float size2;
-
-    //     public typeSpline(int _number, Apertures _aperture, float _size1 = 0, float _size2 = 0)
-    //     {
-    //         number = _number;
-    //         aperture = _aperture;
-    //         size1 = _size1;
-    //         size2 = _size2;
-    //     }
-};
-
-// gerber point descriptor
-struct grbPoint {
-    int X;
-    int Y;
-    QString typePoint; // D1 - видимое движение D2 - невидимое движение D3 - точка
-    int numberSplane;
-
-    //     public grbPoint(int _x, int _y, QString _typePoint, int _numberSplane)
-    //     {
-    //         X = _x;
-    //         Y = _y;
-    //         typePoint = _typePoint;
-    //         numberSplane = _numberSplane;
-    //     }
-};
-
-
-// point descriptor
-struct Point {
-    float X;
-    float Y;
-    bool visible; //data to view
-    int size; //line size
-
-    //     public Point(float _x, float _y, bool _visible = true, int _size = 1)
-    //     {
-    //         X = _x;
-    //         Y = _y;
-    //         visible = _visible;
-    //         size = _size;
-    //     }
-};
-
-// tool descriptor
-struct Instrument {
-    int Number;
-    float Diametr;
-
-    //     public Instrument(int _number, float _diametr)
-    //     {
-    //         Numer = _number;
-    //         Diametr = _diametr;
-    //     }
-};
-
-
-//
-class DataCollections
-{
-        ///
-        ///points
-    public:
-        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument)
-        {
-            0, 0.0
-        })
-        {
-            TypeData = Points;
-            points = _Points;
-            intrument = _intrument;
-        };
-    public:
-        typeCollections TypeData;
-        QList<Point> points;
-        Instrument intrument;
-};
-
-
-///
-/// class for gerber file
-///
-class GerberData
-{
-        ///
-        /// messure units, mm or inches
-    public:
-        QString UnitsType;
-
-        ///
-        /// spline types
-        ///
-        QList<typeSpline> typeSplines;
-
-        ///
-        /// points from file
-        ///
-        QList<grbPoint> points;
-
-        // length of number
-        int countDigitsX;
-        int countDigitsY;
-        // length of digs after dec.point
-        int countPdigX;
-        int countPdigY;
-
-        int X_min;
-        int X_max;
-
-        int Y_min;
-        int Y_max;
-
-    public:
-        GerberData();
-        void CalculateGatePoints(int _accuracy);
-
-};
-
 
 // class for reading of different formats
 
@@ -298,7 +149,7 @@ class cDataManager : public GData // , public cTranslator
     private:
         bool addLine(GCodeData* param);
         bool addArc(GCodeData* param);
-        void gcodeChecker();
+        void dataChecker();
 
         void resetSoftLimits();
 
@@ -307,13 +158,13 @@ class cDataManager : public GData // , public cTranslator
         void Swap(int &p1, int &p2);
 
         float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);
-        void convertArcToLines(GCodeData &d);
+        void convertArcToLines(int p);
         void calcAngleOfLines(int pos);
 
         int  calculateMinAngleSteps(int pos);
         void patchSpeedAndAccelCode(int begPos, int endPos);
 
-        void detectMinMax(const GCodeData &d);
+        void detectMinMax(const QVector3D& v);
 
         //         bool readGCode( const QByteArray &gcode );
         bool readGBR( const QByteArray &gcode );
@@ -331,7 +182,7 @@ class cDataManager : public GData // , public cTranslator
         //         GCode_resultParse parseStringGCode(const QString &value);
 
     private:
-        QByteArray arr;
+//         QByteArray arr;
 
         QVector<QString> goodList; // only decoded G-code
 

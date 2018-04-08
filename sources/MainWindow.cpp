@@ -5,7 +5,7 @@
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -981,7 +981,7 @@ bool MainWindow::OpenFile(QString &fileName)
             QVector<QString> *l = dMan->stringList();
             fillListWidget(*l);
 
-            gCodeData = dMan->dataVector();
+            gCodeData = dMan->getDataVector();
 
 
 
@@ -2456,8 +2456,6 @@ void MainWindow::fillListWidget(QVector<QString> listCode)
 
     statusProgress->setRange(0, listGCodeWidget->rowCount());
     statusProgress->setValue(0);
-
-    dMan->fixGCodeList();
 }
 
 

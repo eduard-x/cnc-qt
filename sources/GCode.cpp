@@ -42,23 +42,6 @@
 #include "includes/MainWindow.h"
 
 
-#if 0
-extern FILE * gcode_in;
-void gcode_restart (FILE *);
-
-__BEGIN_DECLS
-
-/* Available functions of the checker. */
-extern int gcode_parse (void);
-extern int gcode_error (const char *);
-extern int gcode_lex (void);
-extern int gcode_lex_destroy (void);
-
-// static int gcode_lineno = 0;
-
-__END_DECLS
-#endif
-
 #include "includes/GData.h"
 
 #include "parse_gcode.h"
@@ -68,7 +51,7 @@ __END_DECLS
 #define DEBUG_ARC 0
 
 // is static
-QVector<GCodeData> GData::gCodeVector;
+QVector<GCodeData> GData::dataVector;
 
 /**
  * @brief constructor
@@ -84,7 +67,7 @@ GData::GData()
  */
 GData::~GData()
 {
-    gCodeVector.clear();
+    dataVector.clear();
 }
 
 
@@ -122,7 +105,7 @@ bool GData::readGCode(char *indata)
 {
     int ret = true;
 
-    gCodeVector.clear();
+    dataVector.clear();
 
     mut.lock();
 
@@ -157,9 +140,9 @@ bool GData::readGCode(char *indata)
  * @brief
  *
  */
-QVector<GCodeData> *GData::dataVector()
+QVector<GCodeData> *GData::getDataVector()
 {
     //     qDebug() << "return gcode data" << gCodeList.count();
-    return &gCodeVector;
+    return &dataVector;
 }
 

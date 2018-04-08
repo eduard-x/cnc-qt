@@ -116,7 +116,7 @@ gline:  NL_CHAR INT
         {
             // the new line, create new object
             // for cases, when line begins with g, m command or n: label
-            if (GData::gCodeVector.count() == 0){
+            if (GData::dataVector.count() == 0){
                 gcode_data =  new GCodeData();
             }
             else {
@@ -187,7 +187,7 @@ gline:  NL_CHAR INT
             switch ($1 | 0x20){
                 case 'g' : {
                     // new command in line, create new object
-                    GData::gCodeVector << *gcode_data;
+                    GData::dataVector << *gcode_data;
                     gcode_data =  new GCodeData(gcode_data);
                     gcode_data->numberLine = gcode_lineno;
                     gcode_data->gCmd = $2; 
@@ -228,7 +228,7 @@ gline:  NL_CHAR INT
         }
         | NEW_LINE
         {
-            GData::gCodeVector << *gcode_data;
+            GData::dataVector << *gcode_data;
         }
         ;
 

@@ -1,6 +1,6 @@
 /****************************************************************************
  * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2017 by Sergey Zheigurov                              *
+ * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
  * Russia, Novy Urengoy                                                     *
  * zheigurov@gmail.com                                                      *
  *                                                                          *
@@ -844,6 +844,7 @@ void GLWidget::showFPS()
 
     fps = 0;
 }
+
 
 
 /**

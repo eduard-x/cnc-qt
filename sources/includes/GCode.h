@@ -55,7 +55,7 @@ class GData : public QObject
         explicit GData(); // constructor
         ~GData(); // destructor
 
-        QVector<GCodeData> *dataVector();
+        QVector<GCodeData> *getDataVector();
         bool readGCode(char *indata);
 
     private:
@@ -67,7 +67,7 @@ class GData : public QObject
         void logMessage(const QString &l);
 
     public:
-        static QVector<GCodeData> gCodeVector;
+        static QVector<GCodeData> dataVector;
         QMutex mut;
 };
 

@@ -5,7 +5,7 @@
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -31,7 +31,6 @@
 
 
 #include <QObject>
-// #include <QRegExp>
 #include <QDebug>
 #include <QTime>
 #include <QString>
@@ -42,77 +41,7 @@
 #include "includes/Settings.h"
 #include "includes/GCode.h"
 #include "includes/DataManager.h"
-// #include "includes/MainWindow.h"
 
-
-/******************************************************************************
-** cDataManager
-*/
-
-//
-// for debugging information of arc calculations
-// to disable seto to 0
-//
-
-// QMutex mutex(QMutex::Recursive);
-//
-// units of messure, mm or inches
-//
-GerberData::GerberData()
-{
-    UnitsType = "";
-
-    // длина всего числа
-    countDigitsX = 1;
-    // длина всего числа
-    countDigitsY = 1;
-    // длина дробной части
-    countPdigX = 0;
-    // длина дробной части
-    countPdigY = 0;
-
-    X_min = 100000;
-    X_max = -100000;
-
-    Y_min = 100000;
-    Y_max = -100000;
-}
-
-
-//
-// Вычисление размерности необходимого массива, для анализа
-//
-// accuracy: Коэфициент уменьшения размеров данных
-void GerberData::CalculateGatePoints(int _accuracy)
-{
-    // немного уменьшим значения
-    foreach (grbPoint VARIABLE, points) {
-        VARIABLE.X = VARIABLE.X / _accuracy;
-        VARIABLE.Y = VARIABLE.Y / _accuracy;
-    }
-
-    foreach (grbPoint VARIABLE, points) {
-        if (VARIABLE.X > X_max) {
-            X_max = VARIABLE.X;
-        }
-
-        if (VARIABLE.X < X_min) {
-            X_min = VARIABLE.X;
-        }
-
-        if (VARIABLE.Y > Y_max) {
-            Y_max = VARIABLE.Y;
-        }
-
-        if (VARIABLE.Y < Y_min) {
-            Y_min = VARIABLE.Y;
-        }
-    }
-
-    // Немного расширим границу
-    X_max += 500;
-    Y_max += 500;
-}
 
 
 // constructor
@@ -158,7 +87,7 @@ QVector<QString> *cDataManager::stringList()
     return &goodList;
 }
 
-void cDataManager::gcodeChecker()
+void cDataManager::dataChecker()
 {
     // for Ant optimization
     g0Points.clear();
@@ -175,11 +104,11 @@ void cDataManager::gcodeChecker()
 
     // TODO home pos
     // goodList has the text for table
-    g0Points << GCodeOptim {QVector3D(0, 0, 0), goodList.count(), -1, gCodeVector.count(), -1};
+    g0Points << GCodeOptim {QVector3D(0, 0, 0), goodList.count(), -1, dataVector.count(), -1};
 
     // the first pos (cur = 0) is 0 or home
-    for(int cur = 1; cur < gCodeVector.count(); cur++) {
-        GCodeData d = gCodeVector.at(cur);
+    for(int cur = 1; cur < dataVector.count(); cur++) {
+        GCodeData d = dataVector.at(cur);
 
         if (d.decoded == false) {
             qInfo() << "not decoded line" << d.numberLine;
@@ -189,20 +118,20 @@ void cDataManager::gcodeChecker()
         QString line;
 
         if (d.gCmd >= 0) {
-            detectMinMax(d);
+            detectMinMax(d.baseCoord);
 
             line = QString().sprintf("G%02d ", d.gCmd);
 
             if (Settings::filterRepeat == true) { // TODO
-                if (gCodeVector.at(cur - 1).baseCoord.x() != d.baseCoord.x()) {
+                if (dataVector.at(cur - 1).baseCoord.x() != d.baseCoord.x()) {
                     line += QString().sprintf("X%g ", d.baseCoord.x());
                 }
 
-                if (gCodeVector.at(cur - 1).baseCoord.y() != d.baseCoord.y()) {
+                if (dataVector.at(cur - 1).baseCoord.y() != d.baseCoord.y()) {
                     line += QString().sprintf("Y%g ", d.baseCoord.y());
                 }
 
-                if (gCodeVector.at(cur - 1).baseCoord.z() != d.baseCoord.z()) {
+                if (dataVector.at(cur - 1).baseCoord.z() != d.baseCoord.z()) {
                     line += QString().sprintf("Z%g ", d.baseCoord.z());
                 }
             } else {
@@ -213,7 +142,7 @@ void cDataManager::gcodeChecker()
                 case 0: {
                     QVector3D delta_pos;
 
-                    delta_pos = d.baseCoord - gCodeVector.at(cur - 1).baseCoord;
+                    delta_pos = d.baseCoord - dataVector.at(cur - 1).baseCoord;
 
                     d.rapidVelo = 0.0;
 
@@ -229,7 +158,7 @@ void cDataManager::gcodeChecker()
                         case XY: {
                             // xy moving
                             if (delta_pos.z() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.y() != 0.0)) {
-                                if (gCodeVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
+                                if (dataVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
                                     g0Points.last().lineEnd = (goodList.count() - 1 );
                                     g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
                                 }
@@ -239,7 +168,7 @@ void cDataManager::gcodeChecker()
 
                             // z moving
                             if (delta_pos.z() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.y() == 0.0)) {
-                                if (gCodeVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
+                                if (dataVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
                                     g0Points.last().gcodeEnd = (cur);
                                 }
                             }
@@ -250,7 +179,7 @@ void cDataManager::gcodeChecker()
                         case YZ: {
                             if (delta_pos.x() == 0.0 && (delta_pos.y() != 0.0 || delta_pos.z() != 0.0)) {
                                 // yz moving
-                                if (gCodeVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
+                                if (dataVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
                                     g0Points.last().lineEnd = (goodList.count() - 1 );
                                     g0Points.last().gcodeEnd = (cur - 1);
                                     g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
@@ -261,7 +190,7 @@ void cDataManager::gcodeChecker()
 
                             // x moving
                             if (delta_pos.x() != 0.0 && (delta_pos.y() == 0.0 && delta_pos.z() == 0.0)) {
-                                if (gCodeVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
+                                if (dataVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
                                     g0Points.last().gcodeEnd = (cur);
                                 }
                             }
@@ -272,7 +201,7 @@ void cDataManager::gcodeChecker()
                         case ZX: {
                             if (delta_pos.y() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.z() != 0.0)) {
                                 // zx moving
-                                if (gCodeVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
+                                if (dataVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
                                     g0Points.last().lineEnd = (goodList.count() - 1 );
                                     g0Points.last().gcodeEnd = (cur - 1);
                                     g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
@@ -283,7 +212,7 @@ void cDataManager::gcodeChecker()
 
                             // y moving
                             if (delta_pos.y() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.z() == 0.0)) {
-                                if (gCodeVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
+                                if (dataVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
                                     g0Points.last().gcodeEnd = (cur);
                                 }
                             }
@@ -329,7 +258,7 @@ void cDataManager::gcodeChecker()
                         line += QString().sprintf("R%g ", d.radius);
                     }
 
-                    convertArcToLines(d);
+                    convertArcToLines(cur);
 
                     break;
                 }
@@ -368,7 +297,7 @@ void cDataManager::gcodeChecker()
                 }
 
                 case 92: {
-                    origin = gCodeVector.at(cur - 1).baseCoord - d.baseCoord;
+                    origin = dataVector.at(cur - 1).baseCoord - d.baseCoord;
                     break;
                 }
 
@@ -503,7 +432,7 @@ void cDataManager::gcodeChecker()
  */
 void cDataManager::fixGCodeList()
 {
-    if (gCodeVector.count() < 2) {
+    if (dataVector.count() < 2) {
         return;
     }
 
@@ -511,8 +440,8 @@ void cDataManager::fixGCodeList()
     maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;
 
     // calculate the number of steps in one direction, if exists
-    for (int idx = 0; idx < gCodeVector.size(); idx++) {
-        if (gCodeVector[idx].movingCode == RAPID_LINE_CODE) {
+    for (int idx = 0; idx < dataVector.size(); idx++) {
+        if (dataVector[idx].movingCode == RAPID_LINE_CODE) {
             continue;
         }
 
@@ -544,7 +473,7 @@ void cDataManager::fixGCodeList()
  * before sending data to microcontroller we need to calculate the vector speed and acceleration code
  * acceleration codes: ACCELERAT_CODE, DECELERAT_CODE, CONSTSPEED_CODE or FEED_LINE_CODE
  *
- * gCodeVector [begPos .. endPos]
+ * dataVector [begPos .. endPos]
  *
  * @param[in] begPos from this position in gcode list
  * @param[in] endPos inclusively end position
@@ -552,7 +481,7 @@ void cDataManager::fixGCodeList()
  */
 void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
 {
-    if (begPos < 1 || begPos >= gCodeVector.count() - 1) {
+    if (begPos < 1 || begPos >= dataVector.count() - 1) {
         qDebug() << "wrong position number patchSpeedAndAccelCode()" << begPos;
         return;
     }
@@ -580,13 +509,13 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
         dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVeloLimit * Settings::coord[Z].pulsePerMm);
     }
 
-    switch (gCodeVector.at(begPos).plane) {
+    switch (dataVector.at(begPos).plane) {
         case XY: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
 
-                float dX = qFabs(gCodeVector.at(i - 1).baseCoord.x() - gCodeVector.at(i).baseCoord.x());
-                float dY = qFabs(gCodeVector.at(i - 1).baseCoord.y() - gCodeVector.at(i).baseCoord.y());
+                float dX = qFabs(dataVector.at(i - 1).baseCoord.x() - dataVector.at(i).baseCoord.x());
+                float dY = qFabs(dataVector.at(i - 1).baseCoord.y() - dataVector.at(i).baseCoord.y());
                 float dH = qSqrt(dX * dX + dY * dY);
                 float coeff = 1.0;
 
@@ -596,20 +525,20 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
                     }
 
                     // calculation of vect speed
-                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdX); //
-                    gCodeVector[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
+                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdX); //
+                    dataVector[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
                 } else {
                     if (dY != 0.0) {
                         coeff = dH / dY;
                     }
 
-                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdY); //
-                    gCodeVector[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
+                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdY); //
+                    dataVector[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
                 }
 
-                sumSteps += gCodeVector[i].stepsCounter;
+                sumSteps += dataVector[i].stepsCounter;
 
-                gCodeVector[i].vectorCoeff = coeff;
+                dataVector[i].vectorCoeff = coeff;
             }
 
             break;
@@ -618,8 +547,8 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
         case YZ: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                float dY = qFabs(gCodeVector.at(i - 1).baseCoord.y() - gCodeVector.at(i).baseCoord.y());
-                float dZ = qFabs(gCodeVector.at(i - 1).baseCoord.z() - gCodeVector.at(i).baseCoord.z());
+                float dY = qFabs(dataVector.at(i - 1).baseCoord.y() - dataVector.at(i).baseCoord.y());
+                float dZ = qFabs(dataVector.at(i - 1).baseCoord.z() - dataVector.at(i).baseCoord.z());
                 float dH = qSqrt(dZ * dZ + dY * dY);
                 float coeff = 1.0;
 
@@ -628,20 +557,20 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dY;
                     }
 
-                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdY); //
-                    gCodeVector[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
+                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdY); //
+                    dataVector[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
                 } else {
                     if (dZ != 0.0) {
                         coeff = dH / dZ;
                     }
 
-                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdZ); //
-                    gCodeVector[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
+                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdZ); //
+                    dataVector[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
                 }
 
-                sumSteps += gCodeVector[i].stepsCounter;
+                sumSteps += dataVector[i].stepsCounter;
 
-                gCodeVector[i].vectorCoeff = coeff;
+                dataVector[i].vectorCoeff = coeff;
             }
 
             break;
@@ -650,8 +579,8 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
         case ZX: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                float dZ = qFabs(gCodeVector.at(i - 1).baseCoord.z() - gCodeVector.at(i).baseCoord.z());
-                float dX = qFabs(gCodeVector.at(i - 1).baseCoord.x() - gCodeVector.at(i).baseCoord.x());
+                float dZ = qFabs(dataVector.at(i - 1).baseCoord.z() - dataVector.at(i).baseCoord.z());
+                float dX = qFabs(dataVector.at(i - 1).baseCoord.x() - dataVector.at(i).baseCoord.x());
                 float dH = qSqrt(dX * dX + dZ * dZ);
                 float coeff = 1.0;
 
@@ -660,27 +589,27 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dZ;
                     }
 
-                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdZ); //
-                    gCodeVector[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
+                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdZ); //
+                    dataVector[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
                 } else {
                     if (dX != 0.0) {
                         coeff = dH / dX;
                     }
 
-                    gCodeVector[i].vectSpeed = (int)(coeff * dnewSpdX); //
-                    gCodeVector[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
+                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdX); //
+                    dataVector[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
                 }
 
-                sumSteps += gCodeVector[i].stepsCounter;
+                sumSteps += dataVector[i].stepsCounter;
 
-                gCodeVector[i].vectorCoeff = coeff;
+                dataVector[i].vectorCoeff = coeff;
             }
 
             break;
         }
 
         default: {
-            qDebug() << "no plane information: pos " << begPos << "x" << gCodeVector[begPos].baseCoord.x() << "y" << gCodeVector[begPos].baseCoord.y() << "z" << gCodeVector[begPos].baseCoord.z();
+            qDebug() << "no plane information: pos " << begPos << "x" << dataVector[begPos].baseCoord.x() << "y" << dataVector[begPos].baseCoord.y() << "z" << dataVector[begPos].baseCoord.z();
         }
     }
 
@@ -688,14 +617,14 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
         // now for steps
         for (int i = begPos; i < endPos; i++) {
             int tmpStps;
-            tmpStps = gCodeVector[i].stepsCounter;
-            gCodeVector[i].stepsCounter = sumSteps;
+            tmpStps = dataVector[i].stepsCounter;
+            dataVector[i].stepsCounter = sumSteps;
             sumSteps -= tmpStps;
-            gCodeVector[i].movingCode = CONSTSPEED_CODE;
+            dataVector[i].movingCode = CONSTSPEED_CODE;
         }
 
-        gCodeVector[begPos].movingCode = ACCELERAT_CODE;
-        gCodeVector[endPos].movingCode = DECELERAT_CODE;
+        dataVector[begPos].movingCode = ACCELERAT_CODE;
+        dataVector[endPos].movingCode = DECELERAT_CODE;
     }
 }
 
@@ -713,32 +642,32 @@ int cDataManager::calculateMinAngleSteps(int startPos)
 {
     int idx = startPos;
 
-    if (startPos > gCodeVector.count() - 1 || startPos < 1) {
+    if (startPos > dataVector.count() - 1 || startPos < 1) {
         qDebug() << "steps counter bigger than list";
         return -1;
     }
 
 #if 1
 
-    if (gCodeVector.at(startPos).splits > 0) { // it's arc, splits inforamtion already calculated
-        idx += gCodeVector.at(startPos).splits;
+    if (dataVector.at(startPos).splits > 0) { // it's arc, splits inforamtion already calculated
+        idx += dataVector.at(startPos).splits;
         return idx;
     }
 
 #endif
 
     // or for lines
-    for (idx = startPos; idx < gCodeVector.count() - 1; idx++) {
+    for (idx = startPos; idx < dataVector.count() - 1; idx++) {
 #if 1
 
-        if (gCodeVector.at(idx).movingCode == ACCELERAT_CODE && gCodeVector.at(idx).splits > 0) {
-            idx += gCodeVector.at(idx).splits;
+        if (dataVector.at(idx).movingCode == ACCELERAT_CODE && dataVector.at(idx).splits > 0) {
+            idx += dataVector.at(idx).splits;
             return idx;
         }
 
 #endif
 
-        if (gCodeVector.at(idx + 1).movingCode == RAPID_LINE_CODE) {
+        if (dataVector.at(idx + 1).movingCode == RAPID_LINE_CODE) {
             return idx;
         }
 
@@ -747,12 +676,12 @@ int cDataManager::calculateMinAngleSteps(int startPos)
                  << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx + 1].X << gCodeList[idx + 1].Y;
 #endif
 
-        float a1 = gCodeVector.at(idx).angle;
-        float a2 = gCodeVector.at(idx + 1).angle;
+        float a1 = dataVector.at(idx).angle;
+        float a2 = dataVector.at(idx + 1).angle;
 
-        gCodeVector[idx].deltaAngle = (a1 - a2);
+        dataVector[idx].deltaAngle = (a1 - a2);
 
-        if (qFabs(gCodeVector.at(idx).deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
+        if (qFabs(dataVector.at(idx).deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
             break;
         }
     }
@@ -872,7 +801,7 @@ void cDataManager::sortGCode(const QVector<int> &citydata)
         endNum = g0Points.at(pos).gcodeEnd;
 
         for (int j = startNum; j <= endNum; j++) {
-            tmpGCodeList << gCodeVector.at(j);
+            tmpGCodeList << dataVector.at(j);
         }
 
         //         qDebug() << "pos" << pos << "lines:" << startNum << ".." << endNum - 1 << goodList.at(endNum) << g0Points.at(citydata.at(n)).coord;
@@ -885,9 +814,9 @@ void cDataManager::sortGCode(const QVector<int> &citydata)
 
     goodList = tmpList;
 
-    gCodeVector.clear();
+    dataVector.clear();
 
-    gCodeVector = tmpGCodeList;
+    dataVector = tmpGCodeList;
 
     mut.unlock();
     //     for  (int n = 0; n < citydata.size(); n++) {
@@ -921,30 +850,30 @@ bool cDataManager::addArc(GCodeData *c)
  * @param[in] pos actual index in GCode data list, if pos is 0: init of min/max
  *
  */
-void cDataManager::detectMinMax(const GCodeData &d)
+void cDataManager::detectMinMax(const QVector3D &v)
 {
-    if (d.baseCoord.x() > Settings::coord[X].softLimitMax) {
-        Settings::coord[X].softLimitMax = d.baseCoord.x();
+    if (v.x() > Settings::coord[X].softLimitMax) {
+        Settings::coord[X].softLimitMax = v.x();
     }
 
-    if (d.baseCoord.x() < Settings::coord[X].softLimitMin) {
-        Settings::coord[X].softLimitMin = d.baseCoord.x();
+    if (v.x() < Settings::coord[X].softLimitMin) {
+        Settings::coord[X].softLimitMin = v.x();
     }
 
-    if (d.baseCoord.y() > Settings::coord[Y].softLimitMax) {
-        Settings::coord[Y].softLimitMax = d.baseCoord.y();
+    if (v.y() > Settings::coord[Y].softLimitMax) {
+        Settings::coord[Y].softLimitMax = v.y();
     }
 
-    if (d.baseCoord.y() < Settings::coord[Y].softLimitMin) {
-        Settings::coord[Y].softLimitMin = d.baseCoord.y();
+    if (v.y() < Settings::coord[Y].softLimitMin) {
+        Settings::coord[Y].softLimitMin = v.y();
     }
 
-    if (d.baseCoord.z() > Settings::coord[Z].softLimitMax) {
-        Settings::coord[Z].softLimitMax = d.baseCoord.z();
+    if (v.z() > Settings::coord[Z].softLimitMax) {
+        Settings::coord[Z].softLimitMax = v.z();
     }
 
-    if (d.baseCoord.z() < Settings::coord[Z].softLimitMin) {
-        Settings::coord[Z].softLimitMin = d.baseCoord.z();
+    if (v.z() < Settings::coord[Z].softLimitMin) {
+        Settings::coord[Z].softLimitMin = v.z();
     }
 }
 
@@ -1012,23 +941,23 @@ float cDataManager::determineAngle(const QVector3D &pos1, const QVector3D &pos2,
  */
 void cDataManager::calcAngleOfLines(int pos)
 {
-    if (pos < 1 || pos > gCodeVector.count() - 1) {
+    if (pos < 1 || pos > dataVector.count() - 1) {
         return;
     }
 
-    switch (gCodeVector.at(pos).plane) {
+    switch (dataVector.at(pos).plane) {
         case XY: {
-            gCodeVector[pos].angle = qAtan2(gCodeVector.at(pos).baseCoord.y() - gCodeVector.at(pos - 1).baseCoord.y(), gCodeVector.at(pos).baseCoord.x() - gCodeVector.at(pos - 1).baseCoord.x());
+            dataVector[pos].angle = qAtan2(dataVector.at(pos).baseCoord.y() - dataVector.at(pos - 1).baseCoord.y(), dataVector.at(pos).baseCoord.x() - dataVector.at(pos - 1).baseCoord.x());
             break;
         }
 
         case YZ: {
-            gCodeVector[pos].angle = qAtan2(gCodeVector.at(pos).baseCoord.z() - gCodeVector.at(pos - 1).baseCoord.z(), gCodeVector.at(pos).baseCoord.y() - gCodeVector.at(pos - 1).baseCoord.y());
+            dataVector[pos].angle = qAtan2(dataVector.at(pos).baseCoord.z() - dataVector.at(pos - 1).baseCoord.z(), dataVector.at(pos).baseCoord.y() - dataVector.at(pos - 1).baseCoord.y());
             break;
         }
 
         case ZX: {
-            gCodeVector[pos].angle = qAtan2(gCodeVector.at(pos).baseCoord.x() - gCodeVector.at(pos - 1).baseCoord.x(), gCodeVector.at(pos).baseCoord.z() - gCodeVector.at(pos - 1).baseCoord.z());
+            dataVector[pos].angle = qAtan2(dataVector.at(pos).baseCoord.x() - dataVector.at(pos - 1).baseCoord.x(), dataVector.at(pos).baseCoord.z() - dataVector.at(pos - 1).baseCoord.z());
             break;
         }
 
@@ -1038,8 +967,8 @@ void cDataManager::calcAngleOfLines(int pos)
         }
     }
 
-    if (gCodeVector[pos].angle < 0.0) {
-        gCodeVector[pos].angle += 2.0 * PI;
+    if (dataVector[pos].angle < 0.0) {
+        dataVector[pos].angle += 2.0 * PI;
     }
 }
 
@@ -1047,24 +976,25 @@ void cDataManager::calcAngleOfLines(int pos)
 /**
  * @brief this function converts the arc to short lines: mk1 do not support the arc commands
  *
- * @param d pointer to the list with decoded coordinates of endpoint
+ * @param p is the current position in vector
  *
  */
-void cDataManager::convertArcToLines(GCodeData &d)
+void cDataManager::convertArcToLines(int p)
 {
-    if (gCodeVector.count() == 0) {
+    if (dataVector.count() == 0) {
         return;
     }
 
+    GCodeData &d = dataVector[p];
+    GCodeData &begData = dataVector[p-1];
+     
     if (!(d.gCmd == 2 || d.gCmd == 3) ) { // it's not arc
         return;
     }
-
-    GCodeData &begData = gCodeVector.last();
     // arcs
     // translate points to arc
     float r = 0.0; // length of sides
-    //     float x2, x1, y2, y1, z2, z1;
+    
     QVector3D beginPos, endPos;
 
     beginPos = begData.baseCoord;
@@ -1075,9 +1005,6 @@ void cDataManager::convertArcToLines(GCodeData &d)
     j = d.extCoord.y();
     k = d.extCoord.z();
 
-    //     QVector3D pos1 = begData; //(x1, y1, z1);
-    //     QVector3D pos2(x2, y2, z2);
-
     float deltaPos = 0.0;
     float begPos = 0.0;
 
@@ -1087,9 +1014,6 @@ void cDataManager::convertArcToLines(GCodeData &d)
                 r = qSqrt(qPow(beginPos.x() - i, 2) + qPow(beginPos.y() - j, 2));
             } else {
                 r = d.radius;
-                // compute i, j
-                //                 float a = determineAngle (pos1, pos2, d.plane) + PI;
-                //                 qDebug() << "radius " << r << "alpha" << a << "xy point 1" << x1 << y1 << "xy point 2" << x2 << y2;
             }
 
             deltaPos = endPos.z() - beginPos.z();
@@ -1102,7 +1026,6 @@ void cDataManager::convertArcToLines(GCodeData &d)
                 r = qSqrt(qPow(beginPos.y() - j, 2) + qPow(beginPos.z() - k, 2));
             } else {
                 r = d.radius;
-                // compute j, k
             }
 
             deltaPos = endPos.x() - beginPos.x();
@@ -1115,7 +1038,6 @@ void cDataManager::convertArcToLines(GCodeData &d)
                 r = qSqrt(qPow(beginPos.z() - k, 2) + qPow(beginPos.x() - i, 2));
             } else {
                 r = d.radius;
-                // compute k, i
             }
 
             deltaPos = endPos.y() - beginPos.y();
@@ -1150,7 +1072,6 @@ void cDataManager::convertArcToLines(GCodeData &d)
         if (alpha_beg < alpha_end) {
             alpha = qFabs(alpha_beg + (2.0 * PI - alpha_end));
         }
-
     } else {
         if (alpha_beg == alpha_end) {
             alpha_end += 2.0 * PI;
@@ -1188,25 +1109,20 @@ void cDataManager::convertArcToLines(GCodeData &d)
     float angle = alpha_beg;
     float loopPos = begPos;
 
-    // copy of parsed endpoint
-    GCodeData *ncommand = new GCodeData(d);
 
 #if DEBUG_ARC
     qDebug() << "arc from " << begData.X << begData.Y << begData.Z  << "to" << d.X << d.Y << d.Z << "splits: " << n;
 #endif
 
-    QVector<GCodeData> tmpList;
+    QVector3D runCoord = d.baseCoord;
+    
+    detectMinMax(runCoord);
 
-    ncommand->baseCoord = begData.baseCoord;
-    ncommand->extCoord = begData.extCoord; // ABC
-    //     ncommand.Z = begData.Z;
-    //     ncommand.A = begData.A;
+    d.splits = n;
+    d.movingCode = ACCELERAT_CODE;
 
-    detectMinMax(ncommand);
-
-    ncommand->splits = n;
-    ncommand->movingCode = ACCELERAT_CODE;
-
+    qInfo() << "splitlen" << splitLen << "n" << n;
+    
     // now split
     switch (d.plane) {
         case XY: {
@@ -1221,48 +1137,39 @@ void cDataManager::convertArcToLines(GCodeData &d)
                 float x_new = i + r * c;
                 float y_new = j + r * s;
 
-                float angle = qAtan2(y_new - ncommand->baseCoord.y(), x_new - ncommand->baseCoord.x());
+                float angle = qAtan2(y_new - runCoord.y(), x_new - runCoord.x());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
 
-                ncommand->angle = angle;
-                ncommand->baseCoord = {x_new, y_new, loopPos};
+                runCoord = {x_new, y_new, loopPos};
 
-                detectMinMax(ncommand);
+                detectMinMax(runCoord);
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d x=%f y=%f angle=%f qSin=%f qCos=%f\n", step, x_new, y_new, angle, s, c);
 #endif
 
                 /** detection of end because of rounding */
-                if (qSqrt((x_new - d.baseCoord.x()) * (x_new - d.baseCoord.x()) + (y_new - d.baseCoord.y()) * (y_new - d.baseCoord.y())) <= splitLen) {
-                    float t_angle = qAtan2(y_new - d.baseCoord.y(), x_new - d.baseCoord.x());
+                if (qSqrt((x_new - endPos.x()) * (x_new - endPos.x()) + (y_new - endPos.y()) * (y_new - endPos.y())) <= splitLen) {
+                    float t_angle = qAtan2(y_new - endPos.y(), x_new - endPos.x());
 
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
                     }
 
-                    ncommand->angle = t_angle;
+                    runCoord = endPos;
 
-                    ncommand->baseCoord = d.baseCoord;
-                    //                     ncommand.Y = d.Y;
-                    //                     ncommand.Z = d.Z;
-
-                    detectMinMax(ncommand);
+                    detectMinMax(runCoord);
 
                     n = step;
 
-                    tmpList << *ncommand;
+                    d.arcCoord << runCoord;
 
                     break;
                 }
 
-                tmpList << *ncommand;
-                ncommand = new GCodeData(*ncommand);
-
-                ncommand->movingCode = CONSTSPEED_CODE;
-                ncommand->splits = 0;
+                d.arcCoord << runCoord;
             }
         }
         break;
@@ -1279,47 +1186,39 @@ void cDataManager::convertArcToLines(GCodeData &d)
                 float y_new = j + r * c;
                 float z_new = k + r * s;
 
-                float angle = qAtan2(z_new - ncommand->baseCoord.z(), y_new - ncommand->baseCoord.y());
+                float angle = qAtan2(z_new - runCoord.z(), y_new - runCoord.y());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
 
-                ncommand->angle = angle;
-                ncommand->baseCoord = {loopPos, y_new, z_new};
-                //                 ncommand->X = loopPos;
+                runCoord = {loopPos, y_new, z_new};
 
-                detectMinMax(ncommand);
+                detectMinMax(runCoord);
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d y=%f z=%f angle=%f qSin=%f qCos=%f\n", step, y_new, z_new, angle, s, c);
 #endif
 
                 /** detection of end because of rounding */
-                if (qSqrt((y_new - d.baseCoord.y()) * (y_new - d.baseCoord.y()) + (z_new - d.baseCoord.z()) * (z_new - d.baseCoord.z())) <= splitLen) {
-                    float t_angle = qAtan2(z_new - d.baseCoord.z(), y_new - d.baseCoord.y());
+                if (qSqrt((y_new - endPos.y()) * (y_new - endPos.y()) + (z_new - endPos.z()) * (z_new - endPos.z())) <= splitLen) {
+                    float t_angle = qAtan2(z_new - endPos.z(), y_new - endPos.y());
 
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
                     }
 
-                    ncommand->angle = t_angle;
+                    runCoord = endPos;
 
-                    ncommand->baseCoord = d.baseCoord;
-
-                    detectMinMax(ncommand);
+                    detectMinMax(runCoord);
 
                     n = step;
 
-                    tmpList << *ncommand;
+                    d.arcCoord << runCoord;
 
                     break;
                 }
 
-                tmpList << *ncommand;
-                ncommand = new GCodeData(*ncommand);
-
-                ncommand->movingCode = CONSTSPEED_CODE;
-                ncommand->splits = 0;
+                d.arcCoord << runCoord;
             }
         }
         break;
@@ -1336,48 +1235,39 @@ void cDataManager::convertArcToLines(GCodeData &d)
                 float z_new = k + r * c;
                 float x_new = i + r * s;
 
-                float angle = qAtan2(x_new - ncommand->baseCoord.x(), z_new - ncommand->baseCoord.z());
+                float angle = qAtan2(x_new - runCoord.x(), z_new - runCoord.z());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
 
-                ncommand->angle = angle;
-                ncommand->baseCoord = {x_new, loopPos, z_new};
-                //                 ncommand->X = x_new;
-                //                 ncommand->Y = loopPos;
+                runCoord = {x_new, loopPos, z_new};
 
-                detectMinMax(ncommand);
+                detectMinMax(runCoord);
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d z=%f x=%f angle=%f qSin=%f qCos=%f\n", step, z_new, x_new, angle, s, c);
 #endif
 
                 /** detection of end because of rounding */
-                if (qSqrt((x_new - d.baseCoord.x()) * (x_new - d.baseCoord.x()) + (z_new - d.baseCoord.z()) * (z_new - d.baseCoord.z())) <= splitLen) {
-                    float t_angle = qAtan2(x_new - d.baseCoord.x(), z_new - d.baseCoord.z());
+                if (qSqrt((x_new - endPos.x()) * (x_new - endPos.x()) + (z_new - endPos.z()) * (z_new - endPos.z())) <= splitLen) {
+                    float t_angle = qAtan2(x_new - endPos.x(), z_new - endPos.z());
 
                     if (t_angle < 0.0) {
                         t_angle += 2.0 * PI;
                     }
 
-                    ncommand->angle = t_angle;
-
-                    ncommand->baseCoord = d.baseCoord;
-
-                    detectMinMax(ncommand);
+                    runCoord = endPos;
+                    
+                    detectMinMax(runCoord);
 
                     n = step;
 
-                    tmpList << *ncommand;
+                    d.arcCoord << runCoord;
 
                     break;
                 }
 
-                tmpList << *ncommand;
-
-                ncommand = new GCodeData(*ncommand);
-                ncommand->movingCode = CONSTSPEED_CODE;
-                ncommand->splits = 0;
+                d.arcCoord << runCoord;
             }
         }
         break;
@@ -1388,14 +1278,14 @@ void cDataManager::convertArcToLines(GCodeData &d)
     }
 
 
-    if (tmpList.length() > 0) {
-        tmpList[tmpList.length() - 1].movingCode = DECELERAT_CODE;
-        tmpList[0].splits = n;
-    }
+//     if (tmpList.length() > 0) {
+//         tmpList[tmpList.length() - 1].movingCode = DECELERAT_CODE;
+//         tmpList[0].splits = n;
+//     }
 
-    gCodeVector += (tmpList);
+//     dataVector += (tmpList);
 
-    tmpList.clear();
+//     tmpList.clear();
 
 #if DEBUG_ARC
 
@@ -1456,9 +1346,11 @@ bool cDataManager::readFile(const QString &fileName)
 
         tMess.restart();
 
-        gcodeChecker();
+        dataChecker();
 
         emit logMessage(QString().sprintf("Data post processed. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), goodList.count()));
+        
+        fixGCodeList();
 
         if (Settings::optimizeRapidWays == true) {
             tMess.restart();
@@ -1473,6 +1365,16 @@ bool cDataManager::readFile(const QString &fileName)
 
             emit logMessage(QString().sprintf("Read gcode, Ant optimization. Time elapsed: %d ms, cities: %d", tMess.elapsed(), ant.count()));
         }
+
+        arr.clear();
+        
+        return res;
+    }
+
+    if ((detectArray.indexOf("G04 ") >= 0) && (detectArray.indexOf("%MOMM*%") > 0 || detectArray.indexOf("%MOIN*%") > 0) ) { // extended gerber
+        TypeFile = GBR;
+        bool res = readGBR(arr);
+
 
         return res;
     }
@@ -1508,14 +1410,6 @@ bool cDataManager::readFile(const QString &fileName)
     if ( detectArray.indexOf("") >= 0 ) { // excellon
         TypeFile = DRL;
         bool res = readDRL(arr);
-
-
-        return res;
-    }
-
-    if ((detectArray.indexOf("G04 ") >= 0) && (detectArray.indexOf("%MOMM*%") > 0 || detectArray.indexOf("%MOIN*%") > 0) ) { // extended gerber
-        TypeFile = GBR;
-        bool res = readGBR(arr);
 
 
         return res;
@@ -1921,13 +1815,13 @@ void cDataManager::BresenhamLine(QVector<QVector<quint8> > &arrayPoint, int x0, 
 //
 bool cDataManager::readGBR( const QByteArray &arr)
 {
-    GerberData grb;
+//     GerberData grb;
 
     //
     int numberSplineNow = -1;
     int X = 0;
     int Y = 0;
-
+#if 0
     QTextStream stream(arr);
     stream.setLocale(QLocale("C"));
 
@@ -2170,7 +2064,7 @@ bool cDataManager::readGBR( const QByteArray &arr)
 
     return true;
     //  arrayPoint = null;
-
+#endif
     //System.Diagnostics.Process proc = System.Diagnostics.Process.Start("mspaint.exe", "d:\sample.bmp"); //Запускаем блокнот
     //proc.WaitForExit();//и ждем, когда он завершит свою работу
 }

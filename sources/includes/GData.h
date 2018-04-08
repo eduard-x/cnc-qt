@@ -5,7 +5,7 @@
  * zheigurov@gmail.com                                                      *
  *                                                                          *
  * C# to Qt portation, Linux developing                                     *
- * Copyright (C) 2015-2017 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *
@@ -42,6 +42,107 @@
 
 #ifndef GDATA_H
 #define GDATA_H
+
+
+enum Apertures {
+    C_circle,
+    R_rectangle,
+    O_obround,
+    P_polygon
+};
+
+// possible data types
+enum typeCollections {
+    Points,
+    Instruments,
+    Property,
+};
+
+
+struct typeSpline {
+    int number;
+    Apertures aperture;
+    float size1;
+    float size2;
+
+    //     public typeSpline(int _number, Apertures _aperture, float _size1 = 0, float _size2 = 0)
+    //     {
+    //         number = _number;
+    //         aperture = _aperture;
+    //         size1 = _size1;
+    //         size2 = _size2;
+    //     }
+};
+
+
+
+// gerber point descriptor
+struct grbPoint {
+    int X;
+    int Y;
+    QString typePoint; // D1 - видимое движение D2 - невидимое движение D3 - точка
+    int numberSplane;
+
+    //     public grbPoint(int _x, int _y, QString _typePoint, int _numberSplane)
+    //     {
+    //         X = _x;
+    //         Y = _y;
+    //         typePoint = _typePoint;
+    //         numberSplane = _numberSplane;
+    //     }
+};
+
+
+// point descriptor
+struct Point {
+    float X;
+    float Y;
+    bool visible; //data to view
+    int size; //line size
+
+    //     public Point(float _x, float _y, bool _visible = true, int _size = 1)
+    //     {
+    //         X = _x;
+    //         Y = _y;
+    //         visible = _visible;
+    //         size = _size;
+    //     }
+};
+
+// tool descriptor
+struct Instrument {
+    int Number;
+    float Diametr;
+
+    //     public Instrument(int _number, float _diametr)
+    //     {
+    //         Numer = _number;
+    //         Diametr = _diametr;
+    //     }
+};
+
+
+//
+class DataCollections
+{
+        ///
+        ///points
+    public:
+        DataCollections(const QList<Point> &_Points, Instrument _intrument = (Instrument)
+        {
+            0, 0.0
+        })
+        {
+            TypeData = Points;
+            points = _Points;
+            intrument = _intrument;
+        };
+    public:
+        typeCollections TypeData;
+        QList<Point> points;
+        Instrument intrument;
+};
+
 
 enum PlaneEnum {
     None = 0,
