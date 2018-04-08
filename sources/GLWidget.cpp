@@ -865,33 +865,65 @@ void GLWidget::loadFigure()
             } else {
                 cl = Settings::colorSettings[COLOR_WORK];
             }
+            
+            if (vv.arcCoord.count() > 0){
+                foreach (QVector3D a, vv.arcCoord) {
+                    // coordinates of next point
+                    float pointX = a.x();
+                    float pointY = a.y();
+                    float pointZ = a.z();
 
-            // coordinates of next point
-            float pointX = vv.baseCoord.x();
-            float pointY = vv.baseCoord.y();
-            float pointZ = vv.baseCoord.z();
+                    // moving in G-code
+                    if (parent->Correction) {
+                        // proportions
+                        pointX *= parent->coeffSizeX;
+                        pointY *= parent->coeffSizeY;
 
-            // moving in G-code
-            if (parent->Correction) {
-                // proportions
-                pointX *= parent->coeffSizeX;
-                pointY *= parent->coeffSizeY;
+                        // offset
+                        pointX += parent->deltaX;
+                        pointY += parent->deltaY;
+                        pointZ += parent->deltaZ;
 
-                // offset
-                pointX += parent->deltaX;
-                pointY += parent->deltaY;
-                pointZ += parent->deltaZ;
+                        // to use the scanned surface, z correcture
+                        if (parent->deltaFeed) {
+                            pointZ += parent->getDeltaZ(pointX, pointY);
+                        }
+                    }
 
-                // to use the scanned surface, z correcture
-                if (parent->deltaFeed) {
-                    pointZ += parent->getDeltaZ(pointX, pointY);
+                    figure << (VertexData) {
+                        QVector3D { pointX, pointY, pointZ},
+                                QVector3D(cl.redF(), cl.greenF(), cl.blueF())
+                    };
                 }
             }
+            else {
+                // coordinates of next point
+                float pointX = vv.baseCoord.x();
+                float pointY = vv.baseCoord.y();
+                float pointZ = vv.baseCoord.z();
 
-            figure << (VertexData) {
-                QVector3D { pointX, pointY, pointZ},
-                          QVector3D(cl.redF(), cl.greenF(), cl.blueF())
-            };
+                // moving in G-code
+                if (parent->Correction) {
+                    // proportions
+                    pointX *= parent->coeffSizeX;
+                    pointY *= parent->coeffSizeY;
+
+                    // offset
+                    pointX += parent->deltaX;
+                    pointY += parent->deltaY;
+                    pointZ += parent->deltaZ;
+
+                    // to use the scanned surface, z correcture
+                    if (parent->deltaFeed) {
+                        pointZ += parent->getDeltaZ(pointX, pointY);
+                    }
+                }
+
+                figure << (VertexData) {
+                    QVector3D { pointX, pointY, pointZ},
+                            QVector3D(cl.redF(), cl.greenF(), cl.blueF())
+                };
+            }
         }
     }
 

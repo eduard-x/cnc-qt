@@ -1061,7 +1061,7 @@ void cDataManager::convertArcToLines(int p)
 
     alpha_beg = determineAngle (beginPos, posC, d.plane);
     alpha_end = determineAngle (endPos, posC, d.plane);
-
+    
     if (d.gCmd == 2) {
         if (alpha_beg == alpha_end) {
             alpha_beg += 2.0 * PI;
@@ -1083,6 +1083,8 @@ void cDataManager::convertArcToLines(int p)
             alpha = qFabs(alpha_end + (2.0 * PI - alpha_beg));
         }
     }
+
+    qInfo() << "beg pos:" << beginPos << "end pos:" << endPos << "alphas:" << alpha_beg << alpha_end;
 
     float bLength = r * alpha;
 
@@ -1106,7 +1108,7 @@ void cDataManager::convertArcToLines(int p)
 #if DEBUG_ARC
     QString dbg;
 #endif
-    float angle = alpha_beg;
+    float runAngle = alpha_beg;
     float loopPos = begPos;
 
 
@@ -1120,19 +1122,17 @@ void cDataManager::convertArcToLines(int p)
 
     d.splits = n;
     d.movingCode = ACCELERAT_CODE;
-
-    qInfo() << "splitlen" << splitLen << "n" << n;
     
     // now split
     switch (d.plane) {
         case XY: {
             for (int step = 0; step < n; ++step) {
                 //coordinates of next arc point
-                angle += dAlpha;
+                runAngle += dAlpha;
                 loopPos += deltaPos;
 
-                float c = qCos(angle);
-                float s = qSin(angle);
+                float c = qCos(runAngle);
+                float s = qSin(runAngle);
 
                 float x_new = i + r * c;
                 float y_new = j + r * s;
@@ -1177,11 +1177,11 @@ void cDataManager::convertArcToLines(int p)
         case YZ: {
             for (int step = 0; step < n; ++step) {
                 //coordinates of next arc point
-                angle += dAlpha;
+                runAngle += dAlpha;
                 loopPos += deltaPos;
 
-                float c = qCos(angle);
-                float s = qSin(angle);
+                float c = qCos(runAngle);
+                float s = qSin(runAngle);
 
                 float y_new = j + r * c;
                 float z_new = k + r * s;
@@ -1226,11 +1226,11 @@ void cDataManager::convertArcToLines(int p)
         case ZX: {
             for (int step = 0; step < n; ++step) {
                 //coordinates of next arc point
-                angle += dAlpha;
+                runAngle += dAlpha;
                 loopPos += deltaPos;
 
-                float c = qCos(angle);
-                float s = qSin(angle);
+                float c = qCos(runAngle);
+                float s = qSin(runAngle);
 
                 float z_new = k + r * c;
                 float x_new = i + r * s;
@@ -1277,15 +1277,6 @@ void cDataManager::convertArcToLines(int p)
             break;
     }
 
-
-//     if (tmpList.length() > 0) {
-//         tmpList[tmpList.length() - 1].movingCode = DECELERAT_CODE;
-//         tmpList[0].splits = n;
-//     }
-
-//     dataVector += (tmpList);
-
-//     tmpList.clear();
 
 #if DEBUG_ARC
 
