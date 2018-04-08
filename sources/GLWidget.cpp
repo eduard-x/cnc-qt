@@ -865,8 +865,8 @@ void GLWidget::loadFigure()
             } else {
                 cl = Settings::colorSettings[COLOR_WORK];
             }
-            
-            if (vv.arcCoord.count() > 0){
+
+            if (vv.arcCoord.count() > 0) {
                 foreach (QVector3D a, vv.arcCoord) {
                     // coordinates of next point
                     float pointX = a.x();
@@ -892,11 +892,10 @@ void GLWidget::loadFigure()
 
                     figure << (VertexData) {
                         QVector3D { pointX, pointY, pointZ},
-                                QVector3D(cl.redF(), cl.greenF(), cl.blueF())
+                                  QVector3D(cl.redF(), cl.greenF(), cl.blueF())
                     };
                 }
-            }
-            else {
+            } else {
                 // coordinates of next point
                 float pointX = vv.baseCoord.x();
                 float pointY = vv.baseCoord.y();
@@ -921,7 +920,7 @@ void GLWidget::loadFigure()
 
                 figure << (VertexData) {
                     QVector3D { pointX, pointY, pointZ},
-                            QVector3D(cl.redF(), cl.greenF(), cl.blueF())
+                              QVector3D(cl.redF(), cl.greenF(), cl.blueF())
                 };
             }
         }

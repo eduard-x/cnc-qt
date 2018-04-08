@@ -182,7 +182,7 @@ class cDataManager : public GData // , public cTranslator
         //         GCode_resultParse parseStringGCode(const QString &value);
 
     private:
-//         QByteArray arr;
+        //         QByteArray arr;
 
         QVector<QString> goodList; // only decoded G-code
 

@@ -986,24 +986,25 @@ void cDataManager::convertArcToLines(int p)
     }
 
     GCodeData &d = dataVector[p];
-    GCodeData &begData = dataVector[p-1];
-     
+    GCodeData &begData = dataVector[p - 1];
+
     if (!(d.gCmd == 2 || d.gCmd == 3) ) { // it's not arc
         return;
     }
+
     // arcs
     // translate points to arc
     float r = 0.0; // length of sides
-    
+
     QVector3D beginPos, endPos;
 
     beginPos = begData.baseCoord;
     endPos = d.baseCoord;
 
     float i, j, k;
-    i = d.extCoord.x(); // IJK
-    j = d.extCoord.y();
-    k = d.extCoord.z();
+    i = beginPos.x() + d.extCoord.x(); // IJK
+    j = beginPos.y() + d.extCoord.y();
+    k = beginPos.z() + d.extCoord.z();
 
     float deltaPos = 0.0;
     float begPos = 0.0;
@@ -1061,7 +1062,7 @@ void cDataManager::convertArcToLines(int p)
 
     alpha_beg = determineAngle (beginPos, posC, d.plane);
     alpha_end = determineAngle (endPos, posC, d.plane);
-    
+
     if (d.gCmd == 2) {
         if (alpha_beg == alpha_end) {
             alpha_beg += 2.0 * PI;
@@ -1084,8 +1085,6 @@ void cDataManager::convertArcToLines(int p)
         }
     }
 
-    qInfo() << "beg pos:" << beginPos << "end pos:" << endPos << "alphas:" << alpha_beg << alpha_end;
-
     float bLength = r * alpha;
 
     float n = (bLength * Settings::splitsPerMm)/* - 1*/; // num segments of arc per mm
@@ -1101,7 +1100,7 @@ void cDataManager::convertArcToLines(int p)
 
     deltaPos = deltaPos / n;
 
-    if (d.gCmd == 3) {
+    if (d.gCmd == 2) {
         dAlpha = -dAlpha;
     }
 
@@ -1117,12 +1116,12 @@ void cDataManager::convertArcToLines(int p)
 #endif
 
     QVector3D runCoord = d.baseCoord;
-    
+
     detectMinMax(runCoord);
 
     d.splits = n;
     d.movingCode = ACCELERAT_CODE;
-    
+
     // now split
     switch (d.plane) {
         case XY: {
@@ -1257,7 +1256,7 @@ void cDataManager::convertArcToLines(int p)
                     }
 
                     runCoord = endPos;
-                    
+
                     detectMinMax(runCoord);
 
                     n = step;
@@ -1340,7 +1339,7 @@ bool cDataManager::readFile(const QString &fileName)
         dataChecker();
 
         emit logMessage(QString().sprintf("Data post processed. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), goodList.count()));
-        
+
         fixGCodeList();
 
         if (Settings::optimizeRapidWays == true) {
@@ -1358,7 +1357,7 @@ bool cDataManager::readFile(const QString &fileName)
         }
 
         arr.clear();
-        
+
         return res;
     }
 
@@ -1806,7 +1805,7 @@ void cDataManager::BresenhamLine(QVector<QVector<quint8> > &arrayPoint, int x0, 
 //
 bool cDataManager::readGBR( const QByteArray &arr)
 {
-//     GerberData grb;
+    //     GerberData grb;
 
     //
     int numberSplineNow = -1;
