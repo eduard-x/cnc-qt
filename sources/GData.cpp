@@ -107,7 +107,7 @@ GCodeData::GCodeData(GCodeData *d)
     gCmd = d->gCmd;
     mCmd = -1;
 
-    radius = d->radius; // got G02, G03
+    radius = 0.0; // got G02, G03
 
     plane = d->plane;
 

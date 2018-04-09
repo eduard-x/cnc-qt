@@ -48,7 +48,6 @@
 
 #include "scan_gcode.h"
 
-#define DEBUG_ARC 0
 
 // is static
 QVector<GCodeData> GData::dataVector;

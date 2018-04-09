@@ -44,6 +44,9 @@
 
 
 
+#define DEBUG_ARC 0
+
+
 // constructor
 cDataManager::cDataManager()
 {
@@ -1316,7 +1319,7 @@ bool cDataManager::readFile(const QString &fileName)
     QFile file(fileName);
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text) == false) {
-        qInfo() << "cannot open " << fileName;
+//         qInfo() << "cannot open " << fileName;
         return false;
     }
 
@@ -1349,8 +1352,6 @@ bool cDataManager::readFile(const QString &fileName)
 
         emit logMessage(QString().sprintf("Data post processed. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), goodList.count()));
 
-        fixGCodeList();
-
         if (Settings::optimizeRapidWays == true) {
             tMess.restart();
             //             g0points = getRapidPoints();
@@ -1365,6 +1366,8 @@ bool cDataManager::readFile(const QString &fileName)
             emit logMessage(QString().sprintf("Read gcode, Ant optimization. Time elapsed: %d ms, cities: %d", tMess.elapsed(), ant.count()));
         }
 
+        fixGCodeList();
+                
         arr.clear();
 
         return res;

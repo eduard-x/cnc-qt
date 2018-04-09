@@ -965,8 +965,6 @@ bool MainWindow::OpenFile(QString &fileName)
         name = fileName;
     }
 
-    qInfo() << "open " << name;
-
     if (name.length() > 0) {
         bool f = dMan->readFile(name);
 
@@ -982,8 +980,6 @@ bool MainWindow::OpenFile(QString &fileName)
             fillListWidget(*l);
 
             gCodeData = dMan->getDataVector();
-
-
 
             if (enableOpenGL == true) {
                 scene3d->loadFigure();
