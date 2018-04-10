@@ -128,7 +128,7 @@ Eol      \n
 ";".*{Eol}+ { /* ignore comments, do nothing */ }
 
 
-<*>{WSPACE}  { /* skip end of line and spaces */ }
+{WSPACE}+  { /* skip end of line and spaces */ }
 
 <*>. { /* any other character is invalid */
   fprintf (stderr,

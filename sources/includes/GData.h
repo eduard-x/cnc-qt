@@ -214,8 +214,8 @@ class GCodeData
         int   numberLine;     // from g-code file
 
         // TODO local data for calculations?
-        float angle; // angle between two lines around the actual point
-        float deltaAngle;
+//         float angle; // angle between two lines around the actual point
+//         float deltaAngle;
 
     public:
         //

@@ -76,10 +76,10 @@ cDataManager::~cDataManager()
 
 
 
-QVector <GCodeOptim> cDataManager::getRapidPoints()
-{
-    return g0Points;
-}
+// QVector <GCodeOptim> cDataManager::getRapidPoints()
+// {
+//     return g0Points;
+// }
 
 /**
  * @brief
@@ -240,7 +240,7 @@ void cDataManager::dataChecker()
                         current_pos += d.baseCoord;
                     }
 
-                    calcAngleOfLines(cur - 1);
+//                     calcAngleOfLines(cur - 1);
 
                     break;
                 }
@@ -263,7 +263,6 @@ void cDataManager::dataChecker()
                         if (d.extCoord.z() != 0.0) {
                             line += QString().sprintf("K%g ", d.extCoord.z());
                         }
-//                         line += QString().sprintf("I%g J%g K%g ", d.extCoord.x(), d.extCoord.y(), d.extCoord.z());
                     }
 
                     if (d.radius > 0) {
@@ -687,13 +686,19 @@ int cDataManager::calculateMinAngleSteps(int startPos)
         qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).movingCode << gCodeList[idx + 1].movingCode
                  << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx + 1].X << gCodeList[idx + 1].Y;
 #endif
+                 
+        // TODO here calculation
+//                  calcAngleOfLines();
 
-        float a1 = dataVector.at(idx).angle;
-        float a2 = dataVector.at(idx + 1).angle;
+//         float a1 = dataVector.at(idx).angle;
+//         float a2 = dataVector.at(idx + 1).angle;
 
-        dataVector[idx].deltaAngle = (a1 - a2);
-
-        if (qFabs(dataVector.at(idx).deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
+        float a1 = calcAngleOfLines(idx);
+        float a2 = calcAngleOfLines(idx+1);
+        
+        float deltaAngle = (a1 - a2);
+        
+        if (qFabs(deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
             break;
         }
     }
@@ -951,25 +956,27 @@ float cDataManager::determineAngle(const QVector3D &pos1, const QVector3D &pos2,
  * @param[in] pos the actual position
  *
  */
-void cDataManager::calcAngleOfLines(int pos)
+float cDataManager::calcAngleOfLines(int pos)
 {
     if (pos < 1 || pos > dataVector.count() - 1) {
-        return;
+        return 0.0;
     }
 
+    float angle; 
     switch (dataVector.at(pos).plane) {
         case XY: {
-            dataVector[pos].angle = qAtan2(dataVector.at(pos).baseCoord.y() - dataVector.at(pos - 1).baseCoord.y(), dataVector.at(pos).baseCoord.x() - dataVector.at(pos - 1).baseCoord.x());
+            angle = qAtan2(dataVector.at(pos).baseCoord.y() - dataVector.at(pos - 1).baseCoord.y(), dataVector.at(pos).baseCoord.x() - dataVector.at(pos - 1).baseCoord.x());
+            
             break;
         }
 
         case YZ: {
-            dataVector[pos].angle = qAtan2(dataVector.at(pos).baseCoord.z() - dataVector.at(pos - 1).baseCoord.z(), dataVector.at(pos).baseCoord.y() - dataVector.at(pos - 1).baseCoord.y());
+            angle = qAtan2(dataVector.at(pos).baseCoord.z() - dataVector.at(pos - 1).baseCoord.z(), dataVector.at(pos).baseCoord.y() - dataVector.at(pos - 1).baseCoord.y());
             break;
         }
 
         case ZX: {
-            dataVector[pos].angle = qAtan2(dataVector.at(pos).baseCoord.x() - dataVector.at(pos - 1).baseCoord.x(), dataVector.at(pos).baseCoord.z() - dataVector.at(pos - 1).baseCoord.z());
+            angle = qAtan2(dataVector.at(pos).baseCoord.x() - dataVector.at(pos - 1).baseCoord.x(), dataVector.at(pos).baseCoord.z() - dataVector.at(pos - 1).baseCoord.z());
             break;
         }
 
@@ -979,9 +986,11 @@ void cDataManager::calcAngleOfLines(int pos)
         }
     }
 
-    if (dataVector[pos].angle < 0.0) {
-        dataVector[pos].angle += 2.0 * PI;
+    if (angle < 0.0) {
+        angle += 2.0 * PI;
     }
+    
+    return angle;
 }
 
 
@@ -1163,12 +1172,6 @@ void cDataManager::convertArcToLines(int p)
 
                 /** detection of end because of rounding */
                 if (qSqrt((x_new - endPos.x()) * (x_new - endPos.x()) + (y_new - endPos.y()) * (y_new - endPos.y())) <= splitLen) {
-//                     float t_angle = qAtan2(y_new - endPos.y(), x_new - endPos.x());
-// 
-//                     if (t_angle < 0.0) {
-//                         t_angle += 2.0 * PI;
-//                     }
-
                     runCoord = endPos;
 
                     detectMinMax(runCoord);
@@ -1212,12 +1215,6 @@ void cDataManager::convertArcToLines(int p)
 
                 /** detection of end because of rounding */
                 if (qSqrt((y_new - endPos.y()) * (y_new - endPos.y()) + (z_new - endPos.z()) * (z_new - endPos.z())) <= splitLen) {
-//                     float t_angle = qAtan2(z_new - endPos.z(), y_new - endPos.y());
-// 
-//                     if (t_angle < 0.0) {
-//                         t_angle += 2.0 * PI;
-//                     }
-
                     runCoord = endPos;
 
                     detectMinMax(runCoord);
@@ -1261,12 +1258,6 @@ void cDataManager::convertArcToLines(int p)
 
                 /** detection of end because of rounding */
                 if (qSqrt((x_new - endPos.x()) * (x_new - endPos.x()) + (z_new - endPos.z()) * (z_new - endPos.z())) <= splitLen) {
-//                     float t_angle = qAtan2(x_new - endPos.x(), z_new - endPos.z());
-// 
-//                     if (t_angle < 0.0) {
-//                         t_angle += 2.0 * PI;
-//                     }
-
                     runCoord = endPos;
 
                     detectMinMax(runCoord);
@@ -1340,6 +1331,8 @@ bool cDataManager::readFile(const QString &fileName)
         TypeFile = GCODE;
         QTime tMess;
         tMess.start();
+        
+        dataVector.clear();
 
         bool res = readGCode(arr.data());
 

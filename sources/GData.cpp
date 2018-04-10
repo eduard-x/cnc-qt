@@ -78,8 +78,8 @@ GCodeData::GCodeData()
 
     stepsCounter = 0;
 
-    angle = 0.0;
-    deltaAngle = 0.0;
+//     angle = 0.0;
+//     deltaAngle = 0.0;
 
     spindelOn = false;
     mistOn = false;
@@ -134,9 +134,9 @@ GCodeData::GCodeData(GCodeData *d)
     numberLine = d->numberLine;
     commandNum = 0;
 
-    angle = 0.0; //d->angleVectors;
+//     angle = 0.0; //d->angleVectors;
 
-    deltaAngle = 0.0;
+//     deltaAngle = 0.0;
 
     toolChange = d->toolChange;
     toolNumber = d->toolNumber;

@@ -65,8 +65,7 @@ bool set_data_float(char c, float f);
 
 // gcode_lineno = 0;
 
-// init of first gcode data
-GCodeData *gcode_data;// = new GCodeData();
+GCodeData *gcode_data;
 
 %}
 

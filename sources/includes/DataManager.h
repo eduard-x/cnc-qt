@@ -153,13 +153,13 @@ class cDataManager : public GData // , public cTranslator
 
         void resetSoftLimits();
 
-        QVector <GCodeOptim> getRapidPoints();
+//         QVector <GCodeOptim> getRapidPoints();
 
         void Swap(int &p1, int &p2);
 
         float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);
         void convertArcToLines(int p);
-        void calcAngleOfLines(int pos);
+        float calcAngleOfLines(int pos);
 
         int  calculateMinAngleSteps(int pos);
         void patchSpeedAndAccelCode(int begPos, int endPos);
