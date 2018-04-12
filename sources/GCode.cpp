@@ -51,6 +51,7 @@
 
 // is static
 QVector<GCodeData> GData::dataVector;
+QMap<QString, float> GData::dataVaris;
 
 /**
  * @brief constructor

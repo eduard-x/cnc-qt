@@ -686,13 +686,8 @@ int cDataManager::calculateMinAngleSteps(int startPos)
         qDebug() << "found diff accel code" << startPos << idx << (hex) << gCodeList.at(idx).movingCode << gCodeList[idx + 1].movingCode
                  << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx + 1].X << gCodeList[idx + 1].Y;
 #endif
-                 
-        // TODO here calculation
-//                  calcAngleOfLines();
 
-//         float a1 = dataVector.at(idx).angle;
-//         float a2 = dataVector.at(idx + 1).angle;
-
+        // TODO arc !
         float a1 = calcAngleOfLines(idx);
         float a2 = calcAngleOfLines(idx+1);
         
@@ -1023,9 +1018,16 @@ void cDataManager::convertArcToLines(int p)
     endPos = d.baseCoord;
 
     float i, j, k;
-    i = beginPos.x() + d.extCoord.x(); // IJK
-    j = beginPos.y() + d.extCoord.y();
-    k = beginPos.z() + d.extCoord.z();
+    if (d.radius == 0) {
+        i = beginPos.x() + d.extCoord.x(); // IJK
+        j = beginPos.y() + d.extCoord.y();
+        k = beginPos.z() + d.extCoord.z();
+    }
+    else {
+        i = qSqrt(qPow(beginPos.x() - endPos.x(), 2) + qPow(d.radius, 2));
+        j = qSqrt(qPow(beginPos.y() - endPos.y(), 2) + qPow(d.radius, 2));
+        k = qSqrt(qPow(beginPos.z() - endPos.z(), 2) + qPow(d.radius, 2));
+    }
 
     float deltaPos = 0.0;
     float begPos = 0.0;

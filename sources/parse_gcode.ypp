@@ -75,13 +75,21 @@ GCodeData *gcode_data;
 %token NL_CHAR
 %token CHAR
 %token COMMENTAR
+%token VAR_DEF
+%token VARIABLE
 %token NEW_LINE
 %token INT
 %token FLOAT
+%token EQUAL 
+
 
 %token InvalidCharacter
 
+
 %token Eol
+
+%left '*' '/' 
+%left EQ NE GT LT GE LE
 
 %union {
     int       i_val;
@@ -94,7 +102,7 @@ GCodeData *gcode_data;
 %type <i_val> INT
 %type <f_val> FLOAT
 %type <c_val> NL_CHAR CHAR
-%type <s_val> COMMENTAR
+%type <s_val> COMMENTAR VAR_DEF VARIABLE expr
 
 
 %start parse_gcode
@@ -116,10 +124,10 @@ gline:  NL_CHAR INT
             // the new line, create new object
             // for cases, when line begins with g, m command or n: label
             if (GData::dataVector.count() == 0){
-                gcode_data =  new GCodeData();
+                gcode_data = new GCodeData();
             }
             else {
-                gcode_data =  new GCodeData(gcode_data);
+                gcode_data = new GCodeData(gcode_data);
             }
             gcode_data->numberLine = gcode_lineno;
 
@@ -172,10 +180,18 @@ gline:  NL_CHAR INT
         | NL_CHAR FLOAT
         {
             // when line begins with coordinates 
-            gcode_data =  new GCodeData(gcode_data);
+            gcode_data = new GCodeData(gcode_data);
             gcode_data->numberLine = gcode_lineno;
             
             set_data_float(($1 | 0x20), $2);
+        }
+        | NL_CHAR expr
+        {
+            // when line begins with coordinates 
+            gcode_data = new GCodeData(gcode_data);
+            gcode_data->numberLine = gcode_lineno;
+            
+            gcode_lval.c_val = $1;
         }
         | NL_CHAR
         {
@@ -187,7 +203,7 @@ gline:  NL_CHAR INT
                 case 'g' : {
                     // new command in line, create new object
                     GData::dataVector << *gcode_data;
-                    gcode_data =  new GCodeData(gcode_data);
+                    gcode_data = new GCodeData(gcode_data);
                     gcode_data->numberLine = gcode_lineno;
                     gcode_data->gCmd = $2; 
                     
@@ -212,13 +228,37 @@ gline:  NL_CHAR INT
                     break;
             }
         }
+        | VAR_DEF expr
+        {
+        }
         | CHAR FLOAT 
         {
             set_data_float(($1 | 0x20), $2);
         }
+        | CHAR expr
+        {
+            gcode_lval.c_val = $1;
+            qInfo() << "char vari" << $1 << $2;
+            /*if (GData::dataVaris.contains($5)) {
+                set_data_float(($1 | 0x20), $3 * GData::dataVaris[$5]);
+            }
+            else {
+                qCritical() << "definition of variable" << $5 << "not found";
+            }*/
+        }
         | CHAR
         {
             // store coordinates
+        }
+        |  VARIABLE '=' FLOAT
+        {
+            if (GData::dataVaris.contains($1)) {
+                qInfo() << "vari" << GData::dataVaris[$1];
+                return GData::dataVaris[$1];
+            }
+            else {
+                qCritical() << "definition of variable" << $1 << "not found";
+            }
         }
         | COMMENTAR 
         {
@@ -227,7 +267,35 @@ gline:  NL_CHAR INT
         }
         | NEW_LINE
         {
-            GData::dataVector << *gcode_data;
+            if (gcode_data) {
+                GData::dataVector << *gcode_data;
+            }
+        }
+        ;
+
+expr:   EQ FLOAT
+        {
+            qInfo() << $2;
+        }
+        | FLOAT '*' '#' '<' VARIABLE '>'
+        {
+            qInfo() <<"expr";
+            if (GData::dataVaris.contains($5)) {
+                set_data_float((gcode_lval.c_val | 0x20), $1 * GData::dataVaris[$5]);
+            }
+            else {
+                qCritical() << "definition of variable" << $1 << "not found";
+            }
+        }
+        | '#' '<' VARIABLE '>' '*' FLOAT 
+        {
+            qInfo() <<"other expr";
+            if (GData::dataVaris.contains($3)) {
+                set_data_float((gcode_lval.c_val | 0x20), $6 * GData::dataVaris[$3]);
+            }
+            else {
+                qCritical() << "definition of variable" << $3 << "not found";
+            }
         }
         ;
 

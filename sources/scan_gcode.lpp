@@ -78,27 +78,60 @@ COMMENT  \(.+\)
 EXPONENT [Ee][+-]?{DIGIT}+
 INTEGER  [+-]?{DIGIT}+
 REAL     [+-]?{DIGIT}+([.,]{DIGIT}+)?{EXPONENT}?
+VARI     [+-]?#<.+>
 DECIMAL  {DIGIT}+
 DIGITS   {DIGIT}+
 Eol      \n
+IGNR     [\*\/\[\]]
 
 
-%option caseless yylineno noyywrap nounput noinput prefix="gcode_"
+EQ       "EQ"
+GE       "GE"
+LE       "LE"
+GT       "GT"
+LT       "LT"
+IF       "IF"
+ELSE     "ELSE"
+ENDIF    "ENDIF"
+WHILE    "WHILE"
+ENDWHILE "ENDWHILE"
+POW      "**"
+SIN      "SIN"
+COS      "COS"
+SQRT     "SQRT"
+
+
+%option caseless yylineno noyywrap batch nounput noinput prefix="gcode_"
 
 
 %%
 
-
 ^[A-Z]   { 
+//     printf("char beg %s\n", gcode_text);
     gcode_lval.c_val = gcode_text[0]; 
     return NL_CHAR;
 }
 
-[A-Z]    { 
+[A-Z]  {
     gcode_lval.c_val = gcode_text[0]; 
     return CHAR; 
 }
 
+\= {
+    return EQ;
+}
+
+^{VARI} {
+    gcode_lval.s_val = strdup(gcode_text);
+    qInfo() << gcode_lval.s_val;
+    return VAR_DEF;
+}
+
+{VARI} {
+    gcode_lval.s_val = strdup(gcode_text);
+    qInfo() << gcode_lval.s_val;
+    return VARIABLE;
+}
 
 {DIGITS} { 
     gcode_lval.i_val = atoi(gcode_text); 
@@ -113,6 +146,8 @@ Eol      \n
     return FLOAT;
 }
 
+{IGNR} { /* nothing*/ }
+
 ^{Eol} { /* nothing*/ }
 
 {Eol} { return NEW_LINE; /* call NEW_LINE: push decoded data to vector */ }
@@ -121,7 +156,10 @@ Eol      \n
 ^{COMMENT}{Eol}+ { /* new line commentar */}
 
 
-{COMMENT} { gcode_lval.s_val = strdup(gcode_text); return COMMENTAR; }
+{COMMENT} { 
+    gcode_lval.s_val = strdup(gcode_text); 
+    return COMMENTAR;
+}
 
 "%".*{Eol}+ { /* ignore comments, do nothing */ }
 

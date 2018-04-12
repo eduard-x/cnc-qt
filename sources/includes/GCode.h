@@ -35,6 +35,7 @@
 
 #include <QString>
 #include <QMutex>
+#include <QMap>
 #include <QList>
 #include <QObject>
 #include <QVector>
@@ -68,6 +69,7 @@ class GData : public QObject
 
     public:
         static QVector<GCodeData> dataVector;
+        static QMap<QString, float> dataVaris;
         QMutex mut;
 };
 
