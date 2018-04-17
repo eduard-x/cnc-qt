@@ -48,7 +48,6 @@
 #include "GData.h"
 
 
-
 class GData : public QObject
 {
         Q_OBJECT

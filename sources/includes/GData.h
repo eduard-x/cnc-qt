@@ -43,6 +43,32 @@
 #ifndef GDATA_H
 #define GDATA_H
 
+class DataOperation 
+{
+    public :
+        DataOperation(int code = 0, QString name = "", float v = 0.0) {
+            opCode = code;
+            varName = name;
+            val = v;
+            op1 = 0;
+            op2 = 0;
+        }
+        ~DataOperation() {
+            if (op1) {
+                delete op1;
+            }
+            if (op2) {
+                delete op2;
+            }
+        }
+    int opCode; // + - / * and so 
+    QString varName;
+    float val;
+    class DataOperation* op1;
+    class DataOperation* op2;
+};
+
+
 
 enum Apertures {
     C_circle,
@@ -224,6 +250,7 @@ class GCodeData
 
         // constructor with copy from last data
         GCodeData(GCodeData *_cmd);
+        QVector<class DataOperation*> opVector;
 };
 
 

@@ -44,6 +44,7 @@
 #include <QString>
 #include <QChar>
 #include <QDebug>
+#include <QVector>
 
 
 #include "Settings.h"
@@ -65,6 +66,7 @@ bool set_data_float(char c, float f);
 
 // gcode_lineno = 0;
 
+
 GCodeData *gcode_data;
 
 %}
@@ -72,16 +74,32 @@ GCodeData *gcode_data;
 %name-prefix "gcode_"
 
 
-%token NL_CHAR
+%token PARAM_CHAR
 %token CHAR
+%token LABEL
+%token CMD_CHAR
 %token COMMENTAR
 %token VAR_DEF
 %token VARIABLE
 %token NEW_LINE
 %token INT
 %token FLOAT
+%token TERM
 %token EQUAL 
-
+%token EQ
+%token GE
+%token LE
+%token GT
+%token LT
+%token IF
+%token ELSE
+%token ENDIF
+%token WHILE
+%token ENDWHILE
+%token POW
+%token SIN
+%token COS
+%token SQRT
 
 %token InvalidCharacter
 
@@ -90,19 +108,23 @@ GCodeData *gcode_data;
 
 %left '*' '/' 
 %left EQ NE GT LT GE LE
+%left MINUS PLUS MUL DIV
+
 
 %union {
     int       i_val;
     float     f_val;
     char      c_val;
     char*     s_val;
+    class DataOperation* op;
 }
 
 
 %type <i_val> INT
 %type <f_val> FLOAT
-%type <c_val> NL_CHAR CHAR
-%type <s_val> COMMENTAR VAR_DEF VARIABLE expr
+%type <c_val> CMD_CHAR PARAM_CHAR CHAR LABEL
+%type <s_val> COMMENTAR VAR_DEF VARIABLE
+%type <op>    expr
 
 
 %start parse_gcode
@@ -119,7 +141,13 @@ glines: gline glines
         ;
 
 
-gline:  NL_CHAR INT
+gline:  VAR_DEF FLOAT
+        {
+            // TODO: check, variable exists?
+            qInfo() << $1 << $2;
+            GData::dataVaris.insert($1, $2);
+        }
+        | CMD_CHAR INT
         {
             // the new line, create new object
             // for cases, when line begins with g, m command or n: label
@@ -132,10 +160,6 @@ gline:  NL_CHAR INT
             gcode_data->numberLine = gcode_lineno;
 
             switch ($1 | 0x20){
-                case 'n' :
-                    gcode_data->labelNum = $2;
-                    break;
-
                 case 'g' :
                     gcode_data->gCmd = $2;
                     switch ($2){
@@ -170,95 +194,31 @@ gline:  NL_CHAR INT
  
                 default:
                     // not decoded, it's possible other code? 
+#if 0
                     if (set_data_float(($1 | 0x20), (float) $2) == false) {
                         gcode_data->decoded = false;
                         printf("not decoded char %c, line %d\n", $1, gcode_lineno);
                     }
+#endif
                     break;
             }
         }
-        | NL_CHAR FLOAT
+        | LABEL INT 
         {
-            // when line begins with coordinates 
-            gcode_data = new GCodeData(gcode_data);
-            gcode_data->numberLine = gcode_lineno;
-            
-            set_data_float(($1 | 0x20), $2);
+             gcode_data->labelNum = $2;
         }
-        | NL_CHAR expr
+        | PARAM_CHAR expr
         {
             // when line begins with coordinates 
+            qInfo() << $1;
             gcode_data = new GCodeData(gcode_data);
             gcode_data->numberLine = gcode_lineno;
             
             gcode_lval.c_val = $1;
-        }
-        | NL_CHAR
-        {
-            // store coordinates
-        }
-        | CHAR INT 
-        {
-            switch ($1 | 0x20){
-                case 'g' : {
-                    // new command in line, create new object
-                    GData::dataVector << *gcode_data;
-                    gcode_data = new GCodeData(gcode_data);
-                    gcode_data->numberLine = gcode_lineno;
-                    gcode_data->gCmd = $2; 
-                    
-                    if ($2 == 1 || $2 == 2 || $2 == 3) {
-                        gcode_data->movingCode = FEED_LINE_CODE;
-                    }
-                    if ($2 == 0) {
-                        gcode_data->movingCode = RAPID_LINE_CODE;
-                    }
-                    break;
-                }
-
-                case 'm' : {
-                    gcode_data->mCmd = $2;
-                    break;
-                }
- 
-                default:
-                    if (set_data_float(($1 | 0x20), (float) $2) == false) {
-                        gcode_data->decoded = false;
-                    }
-                    break;
-            }
-        }
-        | VAR_DEF expr
-        {
-        }
-        | CHAR FLOAT 
-        {
-            set_data_float(($1 | 0x20), $2);
-        }
-        | CHAR expr
-        {
-            gcode_lval.c_val = $1;
-            qInfo() << "char vari" << $1 << $2;
-            /*if (GData::dataVaris.contains($5)) {
-                set_data_float(($1 | 0x20), $3 * GData::dataVaris[$5]);
-            }
-            else {
-                qCritical() << "definition of variable" << $5 << "not found";
-            }*/
         }
         | CHAR
         {
             // store coordinates
-        }
-        |  VARIABLE '=' FLOAT
-        {
-            if (GData::dataVaris.contains($1)) {
-                qInfo() << "vari" << GData::dataVaris[$1];
-                return GData::dataVaris[$1];
-            }
-            else {
-                qCritical() << "definition of variable" << $1 << "not found";
-            }
         }
         | COMMENTAR 
         {
@@ -272,30 +232,89 @@ gline:  NL_CHAR INT
             }
         }
         ;
+        
+// EXPR:   TERM 
+//         | EXPR '+' TERM 
+//         | EXPR '-' TERM 
+//         ;
+//         
+// TERM:   FLOAT 
+//         | TERM '*' FLOAT 
+//         | TERM '/' FLOAT
+//         ;
 
-expr:   EQ FLOAT
+// exprs:  expr
+//         {
+//             $$ = $1;
+//         }
+//         | exprs expr
+//         {
+//             $$ << $1;
+//         }
+//         ;
+
+expr:   '[' expr ']'
         {
-            qInfo() << $2;
+            qInfo() << "klammer";
+            $$ = new DataOperation();
         }
-        | FLOAT '*' VARIABLE
+        | FLOAT
+        {
+            set_data_float((gcode_lval.c_val | 0x20), $1);
+            qInfo() << "expr float" << $1;
+//             $$->val = $1;
+        }
+        | VARIABLE
         {
             qInfo() <<"expr";
-            if (GData::dataVaris.contains($3)) {
-                set_data_float((gcode_lval.c_val | 0x20), $1 * GData::dataVaris[$3]);
+            if (GData::dataVaris.contains($1)) {
+                $$->val = GData::dataVaris[$1];
             }
             else {
                 qCritical() << "definition of variable" << $1 << "not found";
             }
         }
-        | VARIABLE '*' FLOAT 
+        | VARIABLE '=' expr
         {
-            qInfo() <<"other expr";
-            if (GData::dataVaris.contains($1)) {
-                set_data_float((gcode_lval.c_val | 0x20), $3 * GData::dataVaris[$1]);
+        }
+        | NEW_LINE
+        {
+            if (gcode_data) {
+                GData::dataVector << *gcode_data;
             }
-            else {
-                qCritical() << "definition of variable" << $1 << "not found";
-            }
+        }
+        | expr PLUS expr
+        {
+            qInfo() <<"plus";
+            $$->opCode = PLUS;
+            $$->op1 = $1;
+            $$->op2 = $3;
+            $$->val = $1->val + $3->val;
+        }
+        | expr MINUS expr
+        {
+            qInfo() <<"minus";
+            $$->opCode = MINUS;
+            $$->op1 = $1;
+            $$->op2 = $3;
+            $$->val = $1 - $3;
+        }
+        | expr MUL expr 
+        {
+            qInfo() <<"mul";
+            $$->opCode = MUL;
+            $$->op1 = $1;
+            $$->op2 = $3;
+            $$->val = $1->val * $3->val;
+        }
+        | expr DIV expr
+        {
+            qInfo() <<"div";
+            $$->opCode = DIV;
+            $$->op1 = $1;
+            $$->op2 = $3;
+            // TODO check $3 is zero?
+            $$->val = $1->val / $3->val;
         }
         ;
 

@@ -34,10 +34,13 @@
 # include <config.h>
 #endif
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+#include <QVector>
 
 #ifdef __MINGW32__
 #include <io.h>
@@ -81,8 +84,7 @@ REAL     [+-]?{DIGIT}+([.,]{DIGIT}+)?{EXPONENT}?
 VARI     [+-]?#<.+>
 DECIMAL  {DIGIT}+
 DIGITS   {DIGIT}+
-Eol      \n
-IGNR     [\*\/\[\]]
+Eol      \r?\n
 
 
 EQ       "EQ"
@@ -100,36 +102,41 @@ SIN      "SIN"
 COS      "COS"
 SQRT     "SQRT"
 
+MINUS    "-"
+PLUS     "+"
+MUL      "*"
+DIV      "/"
+
 
 %option caseless yylineno noyywrap batch nounput noinput prefix="gcode_"
 
 
 %%
 
-^[A-Z]   { 
-//     printf("char beg %s\n", gcode_text);
+[GM] { // commands
     gcode_lval.c_val = gcode_text[0]; 
-    return NL_CHAR;
+    gcode_lval.i_val = atoi(&gcode_text[1]); 
+    return CMD_CHAR;
 }
 
-[A-Z]  {
+[NO] { // label
     gcode_lval.c_val = gcode_text[0]; 
-    return CHAR; 
+    gcode_lval.i_val = atoi(&gcode_text[1]); 
+    return LABEL;
 }
 
-\= {
-    return EQ;
+[A-FH-MP-Z] { // params
+    gcode_lval.c_val = gcode_text[0]; 
+    return PARAM_CHAR; 
 }
 
-^{VARI} {
-    gcode_lval.s_val = strdup(gcode_text);
-    qInfo() << gcode_lval.s_val;
+{VARI}"=" {
+    gcode_lval.s_val = strndup(gcode_text, yyleng - 1);
     return VAR_DEF;
 }
 
 {VARI} {
     gcode_lval.s_val = strdup(gcode_text);
-    qInfo() << gcode_lval.s_val;
     return VARIABLE;
 }
 
@@ -138,15 +145,13 @@ SQRT     "SQRT"
     return INT; 
 }
 
-{REAL}   {
+{REAL} {
     std::string s = gcode_text;
     std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
     gcode_lval.f_val = atof(s.c_str());
     
     return FLOAT;
 }
-
-{IGNR} { /* nothing*/ }
 
 ^{Eol} { /* nothing*/ }
 
@@ -156,8 +161,8 @@ SQRT     "SQRT"
 ^{COMMENT}{Eol}+ { /* new line commentar */}
 
 
-{COMMENT} { 
-    gcode_lval.s_val = strdup(gcode_text); 
+<*>{COMMENT} { 
+    gcode_lval.s_val = strndup(&gcode_text[1], yyleng -2); 
     return COMMENTAR;
 }
 
@@ -166,13 +171,13 @@ SQRT     "SQRT"
 ";".*{Eol}+ { /* ignore comments, do nothing */ }
 
 
-{WSPACE}+  { /* skip end of line and spaces */ }
+<*>{WSPACE}+  { /* skip end of line and spaces */ }
 
 <*>. { /* any other character is invalid */
   fprintf (stderr,
 	   "line %d: syntax error, unrecognized character: `%s'\n",
 	   gcode_lineno, gcode_text);
-   return InvalidCharacter;
+  return InvalidCharacter;
 }
 
 %%
