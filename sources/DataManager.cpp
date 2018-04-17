@@ -1022,12 +1022,106 @@ void cDataManager::convertArcToLines(int p)
         i = beginPos.x() + d.extCoord.x(); // IJK
         j = beginPos.y() + d.extCoord.y();
         k = beginPos.z() + d.extCoord.z();
+    } else {
+        float abs_radius;            /* absolute value of given radius */
+        float half_length;           /* distance from M to end point   */
+        float mid_x;                 /* first coordinate of M          */
+        float mid_y;                 /* second coordinate of M         */
+        float mid_z;                 /* second coordinate of M         */
+        float offset;                /* distance from M to center      */
+        float theta;                 /* angle of line from M to center */
+        float turn2;                 /* absolute value of half of turn */
+
+        abs_radius = fabs(d.radius);
+
+        switch (d.plane) {
+            case XY: {
+                mid_x = (endPos.x() + beginPos.x()) / 2.0;
+                mid_y = (endPos.y() + beginPos.y()) / 2.0;
+                half_length = hypot((mid_x - endPos.x()), (mid_y - endPos.y()));
+#if 0
+
+                if ((half_length / abs_radius) > (1 - TINY)) {
+                    half_length = abs_radius;    /* allow a small error for semicircle */
+                }
+
+#endif
+
+                /* check needed before calling asin   */
+                if (((d.gCmd == 2) && (d.radius > 0)) || ((d.gCmd == 3) && (d.radius < 0))) {
+                    theta = qAtan2((endPos.y() - beginPos.y()), (endPos.x() - beginPos.x())) - M_PI_2l;
+                } else {
+                    theta = qAtan2((endPos.y() - beginPos.y()), (endPos.x() - beginPos.x())) + M_PI_2l;
+                }
+
+                turn2 = qAsin(half_length / abs_radius);
+                offset = abs_radius * qCos(turn2);
+                i = mid_x + (offset * qCos(theta));
+                j = mid_y + (offset * qSin(theta));
+
+                k = 0.0;
+                break;
+            }
+
+            case YZ: {
+                mid_y = (endPos.y() + beginPos.y()) / 2.0;
+                mid_z = (endPos.z() + beginPos.z()) / 2.0;
+                half_length = hypot((mid_y - endPos.y()), (mid_z - endPos.z()));
+#if 0
+
+                if ((half_length / abs_radius) > (1 - TINY)) {
+                    half_length = abs_radius;    /* allow a small error for semicircle */
+                }
+
+#endif
+
+                /* check needed before calling asin   */
+                if (((d.gCmd == 2) && (d.radius > 0)) || ((d.gCmd == 3) && (d.radius < 0))) {
+                    theta = qAtan2((endPos.z() - beginPos.z()), (endPos.y() - beginPos.y())) - M_PI_2l;
+                } else {
+                    theta = qAtan2((endPos.z() - beginPos.z()), (endPos.y() - beginPos.y())) + M_PI_2l;
+                }
+
+                turn2 = qAsin(half_length / abs_radius);
+                offset = abs_radius * qCos(turn2);
+                j = mid_y + (offset * qCos(theta));
+                k = mid_z + (offset * qSin(theta));
+
+                i = 0.0;
+                break;
+            }
+
+            case ZX: {
+                mid_z = (endPos.z() + beginPos.z()) / 2.0;
+                mid_x = (endPos.x() + beginPos.x()) / 2.0;
+                half_length = hypot((mid_z - endPos.z()), (mid_x - endPos.x()));
+#if 0
+
+                if ((half_length / abs_radius) > (1 - TINY)) {
+                    half_length = abs_radius;    /* allow a small error for semicircle */
+                }
+
+#endif
+
+                /* check needed before calling asin   */
+                if (((d.gCmd == 2) && (d.radius > 0)) || ((d.gCmd == 3) && (d.radius < 0))) {
+                    theta = qAtan2((endPos.x() - beginPos.x()), (endPos.z() - beginPos.z())) - M_PI_2l;
+                } else {
+                    theta = qAtan2((endPos.x() - beginPos.x()), (endPos.z() - beginPos.z())) + M_PI_2l;
+                }
+
+                turn2 = qAsin(half_length / abs_radius);
+                offset = abs_radius * qCos(turn2);
+                k = mid_z + (offset * qCos(theta));
+                i = mid_x + (offset * qSin(theta));
+
+                j = 0.0;
+                break;
+            }
+        }
     }
-    else {
-        i = qSqrt(qPow(beginPos.x() - endPos.x(), 2) + qPow(d.radius, 2));
-        j = qSqrt(qPow(beginPos.y() - endPos.y(), 2) + qPow(d.radius, 2));
-        k = qSqrt(qPow(beginPos.z() - endPos.z(), 2) + qPow(d.radius, 2));
-    }
+
+    QVector3D posCenter(i, j, k);
 
     float deltaPos = 0.0;
     float begPos = 0.0;
@@ -1035,7 +1129,7 @@ void cDataManager::convertArcToLines(int p)
     switch (d.plane) {
         case XY: {
             if (d.radius == 0.0) {
-                r = qSqrt(qPow(beginPos.x() - i, 2) + qPow(beginPos.y() - j, 2));
+                r = qSqrt(qPow(beginPos.x() - posCenter.x(), 2) + qPow(beginPos.y() - posCenter.y(), 2));
             } else {
                 r = d.radius;
             }
@@ -1047,7 +1141,7 @@ void cDataManager::convertArcToLines(int p)
 
         case YZ: {
             if (d.radius == 0.0) {
-                r = qSqrt(qPow(beginPos.y() - j, 2) + qPow(beginPos.z() - k, 2));
+                r = qSqrt(qPow(beginPos.y() - posCenter.y(), 2) + qPow(beginPos.z() - posCenter.z(), 2));
             } else {
                 r = d.radius;
             }
@@ -1059,7 +1153,7 @@ void cDataManager::convertArcToLines(int p)
 
         case ZX: {
             if (d.radius == 0.0) {
-                r = qSqrt(qPow(beginPos.z() - k, 2) + qPow(beginPos.x() - i, 2));
+                r = qSqrt(qPow(beginPos.z() - posCenter.z(), 2) + qPow(beginPos.x() - posCenter.x(), 2));
             } else {
                 r = d.radius;
             }
@@ -1081,10 +1175,9 @@ void cDataManager::convertArcToLines(int p)
         return;
     }
 
-    QVector3D posC(i, j, k);
 
-    alpha_beg = determineAngle (beginPos, posC, d.plane);
-    alpha_end = determineAngle (endPos, posC, d.plane);
+    alpha_beg = determineAngle (beginPos, posCenter, d.plane);
+    alpha_end = determineAngle (endPos, posCenter, d.plane);
 
     if (d.gCmd == 2) {
         if (alpha_beg == alpha_end) {
@@ -1156,8 +1249,8 @@ void cDataManager::convertArcToLines(int p)
                 float c = qCos(runAngle);
                 float s = qSin(runAngle);
 
-                float x_new = i + r * c;
-                float y_new = j + r * s;
+                float x_new = posCenter.x() + r * c;
+                float y_new = posCenter.y() + r * s;
 
                 float angle = qAtan2(y_new - runCoord.y(), x_new - runCoord.x());
 
@@ -1199,8 +1292,8 @@ void cDataManager::convertArcToLines(int p)
                 float c = qCos(runAngle);
                 float s = qSin(runAngle);
 
-                float y_new = j + r * c;
-                float z_new = k + r * s;
+                float y_new = posCenter.y() + r * c;
+                float z_new = posCenter.z() + r * s;
 
                 float angle = qAtan2(z_new - runCoord.z(), y_new - runCoord.y());
 
@@ -1242,8 +1335,8 @@ void cDataManager::convertArcToLines(int p)
                 float c = qCos(runAngle);
                 float s = qSin(runAngle);
 
-                float z_new = k + r * c;
-                float x_new = i + r * s;
+                float z_new = posCenter.z() + r * c;
+                float x_new = posCenter.x() + r * s;
 
                 float angle = qAtan2(x_new - runCoord.x(), z_new - runCoord.z());
 
