@@ -240,7 +240,7 @@ void cDataManager::dataChecker()
                         current_pos += d.baseCoord;
                     }
 
-//                     calcAngleOfLines(cur - 1);
+                    //                     calcAngleOfLines(cur - 1);
 
                     break;
                 }
@@ -257,9 +257,11 @@ void cDataManager::dataChecker()
                         if (d.extCoord.x() != 0.0) {
                             line += QString().sprintf("I%g ", d.extCoord.x());
                         }
+
                         if (d.extCoord.y() != 0.0) {
                             line += QString().sprintf("J%g ", d.extCoord.y());
                         }
+
                         if (d.extCoord.z() != 0.0) {
                             line += QString().sprintf("K%g ", d.extCoord.z());
                         }
@@ -452,7 +454,7 @@ void cDataManager::fixGCodeList()
 
     // calculate the number of steps in one direction, if exists
     for (int idx = 0; idx < dataVector.size(); idx++) {
-        if (dataVector[idx].movingCode == RAPID_LINE_CODE) {
+        if (dataVector[idx].movingCode == RAPID_LINE_CODE || dataVector[idx].movingCode == NO_CODE) {
             continue;
         }
 
@@ -524,7 +526,6 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
         case XY: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-
                 float dX = qFabs(dataVector.at(i - 1).baseCoord.x() - dataVector.at(i).baseCoord.x());
                 float dY = qFabs(dataVector.at(i - 1).baseCoord.y() - dataVector.at(i).baseCoord.y());
                 float dH = qSqrt(dX * dX + dY * dY);
@@ -654,7 +655,7 @@ int cDataManager::calculateMinAngleSteps(int startPos)
     int idx = startPos;
 
     if (startPos > dataVector.count() - 1 || startPos < 1) {
-        qDebug() << "steps counter bigger than list";
+        qDebug() << "steps counter bigger than list: " << startPos << dataVector.count();
         return -1;
     }
 
@@ -689,10 +690,10 @@ int cDataManager::calculateMinAngleSteps(int startPos)
 
         // TODO arc !
         float a1 = calcAngleOfLines(idx);
-        float a2 = calcAngleOfLines(idx+1);
-        
+        float a2 = calcAngleOfLines(idx + 1);
+
         float deltaAngle = (a1 - a2);
-        
+
         if (qFabs(deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
             break;
         }
@@ -957,11 +958,12 @@ float cDataManager::calcAngleOfLines(int pos)
         return 0.0;
     }
 
-    float angle; 
+    float angle;
+
     switch (dataVector.at(pos).plane) {
         case XY: {
             angle = qAtan2(dataVector.at(pos).baseCoord.y() - dataVector.at(pos - 1).baseCoord.y(), dataVector.at(pos).baseCoord.x() - dataVector.at(pos - 1).baseCoord.x());
-            
+
             break;
         }
 
@@ -984,7 +986,7 @@ float cDataManager::calcAngleOfLines(int pos)
     if (angle < 0.0) {
         angle += 2.0 * PI;
     }
-    
+
     return angle;
 }
 
@@ -1018,6 +1020,7 @@ void cDataManager::convertArcToLines(int p)
     endPos = d.baseCoord;
 
     float i, j, k;
+
     if (d.radius == 0) {
         i = beginPos.x() + d.extCoord.x(); // IJK
         j = beginPos.y() + d.extCoord.y();
@@ -1405,7 +1408,7 @@ bool cDataManager::readFile(const QString &fileName)
     QFile file(fileName);
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text) == false) {
-//         qInfo() << "cannot open " << fileName;
+        //         qInfo() << "cannot open " << fileName;
         return false;
     }
 
@@ -1416,7 +1419,7 @@ bool cDataManager::readFile(const QString &fileName)
     }
 
     QByteArray arr = file.readAll();
-    QByteArray detectArray = arr.left(1024); // first 1024 bytes for format detection
+    QByteArray detectArray = arr.left(4096); // first 4096 bytes for format detection
 
     file.close();
 
@@ -1426,7 +1429,7 @@ bool cDataManager::readFile(const QString &fileName)
         TypeFile = GCODE;
         QTime tMess;
         tMess.start();
-        
+
         dataVector.clear();
 
         bool res = readGCode(arr.data());
@@ -1455,7 +1458,7 @@ bool cDataManager::readFile(const QString &fileName)
         }
 
         fixGCodeList();
-                
+
         arr.clear();
 
         return res;

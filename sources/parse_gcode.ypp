@@ -1,29 +1,32 @@
 /* -*-c++-*- */
 
 %{
-/*
- * parse_gcode.ypp - parser for a GCODE data file
- *
- * Copyright (C) 2018 Eduard Kalinowski <eduard_kalinowski@yahoo.de>
- *
- * This is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this package; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $Id$
- *
- */
+/****************************************************************************
+ * C# to Qt portation, Linux developing                                     *
+ * flex/bison G-Code parser                                                 *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
+ * Germany, Lower Saxony, Hanover                                           *
+ * eduard_kalinowski@yahoo.de                                               *
+ *                                                                          *
+ * C# project CNC-controller-for-mk1                                        *
+ * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
+ *                                                                          *
+ * CNC-Qt is free software; may be distributed and/or modified under the    *
+ * terms of the GNU General Public License version 3 as published by the    *
+ * Free Software Foundation and appearing in the file LICENSE_GPLv3         *
+ * included in the packaging of this file.                                  *
+ *                                                                          *
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
+ *                                                                          *
+ * You should have received a copy of the GNU Lesser General Public         *
+ * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
+ ****************************************************************************/
 
 #if HAVE_CONFIG_H
 # include <config.h>
@@ -52,7 +55,6 @@
 
 #include "GCode.h"
 
-// // static int gcodelineno = 0;
 extern int gcode_lineno;
 static int gcodecharno = 0;
 
@@ -64,8 +66,6 @@ extern int gcode_lex_destroy (void);
 
 bool set_data_float(char c, float f);
 
-// gcode_lineno = 0;
-
 
 GCodeData *gcode_data;
 
@@ -74,28 +74,12 @@ GCodeData *gcode_data;
 %name-prefix "gcode_"
 
 
-%token PARAM_CHAR
-%token CHAR
-%token LABEL
-%token CMD_CHAR
-%token COMMENTAR
-%token VAR_DEF
-%token VARIABLE
 %token NEW_LINE
-%token INT
-%token FLOAT
-%token TERM
-%token EQUAL 
-%token EQ
-%token GE
-%token LE
-%token GT
-%token LT
 %token IF
-%token ELSE
 %token ENDIF
 %token WHILE
 %token ENDWHILE
+%token GOTO
 %token POW
 %token SIN
 %token COS
@@ -106,10 +90,6 @@ GCodeData *gcode_data;
 
 %token Eol
 
-%left '*' '/' 
-%left EQ NE GT LT GE LE
-%left MINUS PLUS MUL DIV
-
 
 %union {
     int       i_val;
@@ -117,15 +97,30 @@ GCodeData *gcode_data;
     char      c_val;
     char*     s_val;
     class DataOperation* op;
+    class GCodeData* g;
 }
 
 
-%type <i_val> INT
-%type <f_val> FLOAT
-%type <c_val> CMD_CHAR PARAM_CHAR CHAR LABEL
-%type <s_val> COMMENTAR VAR_DEF VARIABLE
-%type <op>    expr
+%token <f_val> FVAL
+%token <s_val> SVAL COMMENTAR TERM VARIABLE
+%token <i_val> IVAL
 
+%token <c_val> CMD_CHAR PARAM_CHAR LABEL
+
+%type <op>     EXPR
+
+%token SIN_FUNC COS_FUNC POW_FUNC SQRT_FUNC
+%token CMP_EQ CMP_LE CMP_GT CMP_LT CMP_GE CMP_NE
+
+%right '='
+%left  '-' '+'
+%left  '*' '/'
+%right '[' 
+%left  ']'
+%left  UMINUS
+
+
+%right ELSE 
 
 %start parse_gcode
 
@@ -136,21 +131,16 @@ parse_gcode:
         ;
 
 
-glines: gline glines
-        | gline
+glines: gline 
+        | glines gline 
         ;
 
 
-gline:  VAR_DEF FLOAT
-        {
-            // TODO: check, variable exists?
-            qInfo() << $1 << $2;
-            GData::dataVaris.insert($1, $2);
-        }
-        | CMD_CHAR INT
+gline:  CMD_CHAR IVAL
         {
             // the new line, create new object
             // for cases, when line begins with g, m command or n: label
+//             qInfo() << $1 << $2;
             if (GData::dataVector.count() == 0){
                 gcode_data = new GCodeData();
             }
@@ -162,6 +152,8 @@ gline:  VAR_DEF FLOAT
             switch ($1 | 0x20){
                 case 'g' :
                     gcode_data->gCmd = $2;
+                    gcode_data->mCmd = -1;
+                    
                     switch ($2){
                         case 0:
                             gcode_data->movingCode = RAPID_LINE_CODE;
@@ -188,42 +180,30 @@ gline:  VAR_DEF FLOAT
                     break;
 
                 case 'm' :
-                    gcode_data->gCmd = -1;
                     gcode_data->mCmd = $2;
                     break;
  
                 default:
                     // not decoded, it's possible other code? 
-#if 0
-                    if (set_data_float(($1 | 0x20), (float) $2) == false) {
-                        gcode_data->decoded = false;
-                        printf("not decoded char %c, line %d\n", $1, gcode_lineno);
-                    }
-#endif
+                    // TODO: not critical message 
                     break;
             }
         }
-        | LABEL INT 
+        | LABEL IVAL 
         {
              gcode_data->labelNum = $2;
         }
-        | PARAM_CHAR expr
-        {
-            // when line begins with coordinates 
-            qInfo() << $1;
-            gcode_data = new GCodeData(gcode_data);
-            gcode_data->numberLine = gcode_lineno;
-            
-            gcode_lval.c_val = $1;
-        }
-        | CHAR
-        {
-            // store coordinates
-        }
+        | params
+        | vardefs
         | COMMENTAR 
         {
-           gcode_data->lineComment = QString($1).simplified();
-           free($1);
+            if (gcode_data == 0){
+                gcode_data = new GCodeData();
+            }
+            if (strlen($1)) {
+                gcode_data->lineComment = QString($1).simplified();
+                free($1);
+            }
         }
         | NEW_LINE
         {
@@ -232,94 +212,147 @@ gline:  VAR_DEF FLOAT
             }
         }
         ;
+
+vardefs: vardef 
+        | vardefs vardef
+        ;
+
+
+vardef: VARIABLE '=' EXPR
+        {
+            // TODO: check, variable exists?
+            if ($3->varType == DATA::FVAL) {
+                GData::dataVaris.insert($1, $3->result);
+//                 float f = GData::dataVaris[$3->vName];
+//                 GData::dataVaris[$3->vName] = f;
+//                 qInfo() << "new definition" << $1;
+            }
+            if ($3->varType == DATA::SVAL) { // TODO
+//                 GData::dataVaris.insert($3->vName, $3->result);
+//                 qInfo() << $3->result;
+            }
+        }
+        ;
+
+
+params: param
+        | params param
+        ;
+
+
+param:  PARAM_CHAR EXPR
+        {
+            // when line begins with coordinates 
+//             qInfo() << $1 << $2->result;
+            
+            if (set_data_float(($1 | 0x20), $2->result) == false) {
+                gcode_data->decoded = false;
+                printf("not decoded char %c, line %d\n", $1, gcode_lineno);
+            }
         
-// EXPR:   TERM 
-//         | EXPR '+' TERM 
-//         | EXPR '-' TERM 
-//         ;
-//         
-// TERM:   FLOAT 
-//         | TERM '*' FLOAT 
-//         | TERM '/' FLOAT
-//         ;
-
-// exprs:  expr
-//         {
-//             $$ = $1;
-//         }
-//         | exprs expr
-//         {
-//             $$ << $1;
-//         }
-//         ;
-
-expr:   '[' expr ']'
-        {
-            qInfo() << "klammer";
-            $$ = new DataOperation();
+            if ($2) {
+                gcode_data->opVector << $2;
+            }
+//             gcode_data = new GCodeData(gcode_data);
+            gcode_data->numberLine = gcode_lineno;
+//             gcode_data-> new DataOperation();
+//             gcode_lval.c_val = $1;
         }
-        | FLOAT
+        | PARAM_CHAR
         {
-            set_data_float((gcode_lval.c_val | 0x20), $1);
-            qInfo() << "expr float" << $1;
-//             $$->val = $1;
+            // set the coords
         }
-        | VARIABLE
+        ;
+
+
+EXPR:   '[' EXPR ']' 
         {
-            qInfo() <<"expr";
-            if (GData::dataVaris.contains($1)) {
-                $$->val = GData::dataVaris[$1];
+            // root expression 
+            $$ = $2;
+        }
+        | '[' EXPR '*' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::MUL, DATA::FVAL);
+            $$->expr1 = $2;
+            $$->expr2 = $4;
+            $$->result = $2->result * $4->result;
+        }
+        | '[' EXPR '/' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::DIV, DATA::FVAL);
+            $$->expr1 = $2;
+            $$->expr2 = $4;
+            $$->result = $2->result / $4->result;
+        }
+        | '[' EXPR '+' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::PLUS, DATA::FVAL);
+            $$->expr1 = $2;
+            $$->expr2 = $4;
+            $$->result = $2->result + $4->result;
+        }
+        | '[' EXPR '-' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::MINUS, DATA::FVAL);
+            $$->expr1 = $2;
+            $$->expr2 = $4;
+            $$->result = $2->result - $4->result;
+        }
+        | '-' EXPR %prec UMINUS 
+        {
+            $$ = new DataOperation(EXP::NEG, DATA::FVAL);
+            $$->expr1 = $2; 
+            $$->result = (-$2->result);
+        }
+        | SIN_FUNC '[' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::SIN, DATA::FVAL);
+            $$->expr1 = $3; 
+            $$->result = qSin($3->result);
+        }
+        | COS_FUNC '[' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::COS, DATA::FVAL);
+            $$->expr1 = $3; 
+            $$->result = qCos($3->result);
+        }
+        | SQRT_FUNC '[' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::SQRT, DATA::FVAL);
+            $$->expr1 = $3; 
+            $$->result = qSqrt($3->result);
+        }
+        | '[' EXPR POW_FUNC EXPR ']'
+        {
+            $$ = new DataOperation(EXP::POW, DATA::FVAL);
+            $$->expr1 = $2;
+            $$->expr2 = $4;
+            $$->result = qPow($2->result, $4->result);
+        }
+        | IVAL 
+        {
+            $$ = new DataOperation(EXP::NONE, DATA::FVAL);
+            $$->result = (float)$1;
+        }
+        | FVAL 
+        {
+            $$ = new DataOperation(EXP::NONE, DATA::FVAL);
+            $$->result = $1;
+        }
+        | VARIABLE 
+        {
+            $$ = new DataOperation(EXP::NONE, DATA::SVAL);
+            
+            if (GData::dataVaris.contains($1)){
+                $$->vName = $1;
+                $$->result = GData::dataVaris[$1];
             }
             else {
-                qCritical() << "definition of variable" << $1 << "not found";
+                qInfo() << $1 << "was not defined";
             }
-        }
-        | VARIABLE '=' expr
-        {
-        }
-        | NEW_LINE
-        {
-            if (gcode_data) {
-                GData::dataVector << *gcode_data;
-            }
-        }
-        | expr PLUS expr
-        {
-            qInfo() <<"plus";
-            $$->opCode = PLUS;
-            $$->op1 = $1;
-            $$->op2 = $3;
-            $$->val = $1->val + $3->val;
-        }
-        | expr MINUS expr
-        {
-            qInfo() <<"minus";
-            $$->opCode = MINUS;
-            $$->op1 = $1;
-            $$->op2 = $3;
-            $$->val = $1 - $3;
-        }
-        | expr MUL expr 
-        {
-            qInfo() <<"mul";
-            $$->opCode = MUL;
-            $$->op1 = $1;
-            $$->op2 = $3;
-            $$->val = $1->val * $3->val;
-        }
-        | expr DIV expr
-        {
-            qInfo() <<"div";
-            $$->opCode = DIV;
-            $$->op1 = $1;
-            $$->op2 = $3;
-            // TODO check $3 is zero?
-            $$->val = $1->val / $3->val;
         }
         ;
-
 %%
-
 
 
 bool set_data_float(char c, float f) {

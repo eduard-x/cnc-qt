@@ -1,29 +1,32 @@
 /* -*-c-*- */
 
 %{
-/*
- * scan_gcode.lpp - scanner for a GCODE data file
- *
- * Copyright (C) 2018 Eduard Kalinowski <eduard_kalinowski@yahoo.de>
- *
- * This is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this package; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $Id$
- *
- */
+/****************************************************************************
+ * C# to Qt portation, Linux developing                                     *
+ * flex/bison G-Code parser                                                 *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
+ * Germany, Lower Saxony, Hanover                                           *
+ * eduard_kalinowski@yahoo.de                                               *
+ *                                                                          *
+ * C# project CNC-controller-for-mk1                                        *
+ * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
+ *                                                                          *
+ * CNC-Qt is free software; may be distributed and/or modified under the    *
+ * terms of the GNU General Public License version 3 as published by the    *
+ * Free Software Foundation and appearing in the file LICENSE_GPLv3         *
+ * included in the packaging of this file.                                  *
+ *                                                                          *
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
+ *                                                                          *
+ * You should have received a copy of the GNU Lesser General Public         *
+ * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
+ ****************************************************************************/
 
 #if defined(__clang__)
 #pragma clang diagnostic push
@@ -51,7 +54,6 @@
 #endif
 
 
-
 #if !HAVE_STRCHR
 # define strchr  index
 # define strrchr rindex
@@ -65,9 +67,6 @@
 #include "Settings.h"
 #include "GCode.h"
 
-// extern void gcode_error (const char *);
-// extern int gcode_lex (void);
-// extern int gcode_lex_destroy (void);
 
 extern int gcode_lineno;
 
@@ -76,19 +75,20 @@ extern int gcode_lineno;
 
 
 WSPACE   [ \t\r]+
-DIGIT    [0-9]
+DIGITS   [0-9]+
 COMMENT  \(.+\)
-EXPONENT [Ee][+-]?{DIGIT}+
-INTEGER  [+-]?{DIGIT}+
-REAL     [+-]?{DIGIT}+([.,]{DIGIT}+)?{EXPONENT}?
-VARI     [+-]?#<.+>
-DECIMAL  {DIGIT}+
-DIGITS   {DIGIT}+
-Eol      \r?\n
-
+PARAM    [A-FH-MP-Z]
+INTEGER  [+-]?{DIGITS}
+REAL1    [+-]?{DIGITS}?[.,]{DIGITS}
+REAL2    [+-]?{DIGITS}[.,]{DIGITS}?
+VARI     #<[A-Z_]+>
+COMMAND  [GM]
+EOL      [\n]+
+OPER     [\+\-\/\*\=\[\]]
 
 EQ       "EQ"
 GE       "GE"
+NE       "NE"
 LE       "LE"
 GT       "GT"
 LT       "LT"
@@ -97,15 +97,12 @@ ELSE     "ELSE"
 ENDIF    "ENDIF"
 WHILE    "WHILE"
 ENDWHILE "ENDWHILE"
+GOTO     "GOTO"
 POW      "**"
 SIN      "SIN"
 COS      "COS"
 SQRT     "SQRT"
 
-MINUS    "-"
-PLUS     "+"
-MUL      "*"
-DIV      "/"
 
 
 %option caseless yylineno noyywrap batch nounput noinput prefix="gcode_"
@@ -113,26 +110,63 @@ DIV      "/"
 
 %%
 
-[GM] { // commands
-    gcode_lval.c_val = gcode_text[0]; 
-    gcode_lval.i_val = atoi(&gcode_text[1]); 
+{COMMAND} { // commands
+    gcode_lval.c_val = gcode_text[0];
     return CMD_CHAR;
 }
 
+{POW} {
+    return POW_FUNC;
+}
+
+{SQRT} {
+    return SQRT_FUNC;
+}
+
+{SIN} {
+    return SIN_FUNC;
+}
+
+{COS} {
+    return COS_FUNC;
+}
+
+{EQ} {
+    return CMP_EQ;
+}
+
+{LE} {
+    return CMP_LE;
+}
+
+{NE} {
+    return CMP_NE;
+}
+
+{GT} {
+    return CMP_GT;
+}
+
+{LT} {
+    return CMP_LT;
+}
+
+{GE} {
+    return CMP_GE;
+}
+
 [NO] { // label
-    gcode_lval.c_val = gcode_text[0]; 
-    gcode_lval.i_val = atoi(&gcode_text[1]); 
+    gcode_lval.c_val = gcode_text[0];
     return LABEL;
 }
 
-[A-FH-MP-Z] { // params
-    gcode_lval.c_val = gcode_text[0]; 
-    return PARAM_CHAR; 
+{OPER} {
+    return gcode_text[0];
 }
 
-{VARI}"=" {
-    gcode_lval.s_val = strndup(gcode_text, yyleng - 1);
-    return VAR_DEF;
+{PARAM} { // params
+    gcode_lval.c_val = gcode_text[0]; 
+    return PARAM_CHAR; 
 }
 
 {VARI} {
@@ -140,38 +174,34 @@ DIV      "/"
     return VARIABLE;
 }
 
-{DIGITS} { 
+{INTEGER} {
     gcode_lval.i_val = atoi(gcode_text); 
-    return INT; 
+    return IVAL; 
 }
 
-{REAL} {
+{REAL1}|{REAL2} {
     std::string s = gcode_text;
     std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
     gcode_lval.f_val = atof(s.c_str());
-    
-    return FLOAT;
+    return FVAL;
 }
 
-^{Eol} { /* nothing*/ }
-
-{Eol} { return NEW_LINE; /* call NEW_LINE: push decoded data to vector */ }
+{EOL} { return NEW_LINE; }
 
 
-^{COMMENT}{Eol}+ { /* new line commentar */}
+^{COMMENT} { /* do nothing TODO */ }
 
-
-<*>{COMMENT} { 
-    gcode_lval.s_val = strndup(&gcode_text[1], yyleng -2); 
+{COMMENT} {
+    gcode_lval.s_val = strdup(gcode_text); 
     return COMMENTAR;
 }
 
-"%".*{Eol}+ { /* ignore comments, do nothing */ }
+"%".* { /* ignore comments, do nothing */ }
 
-";".*{Eol}+ { /* ignore comments, do nothing */ }
+";".* { /* ignore comments, do nothing */ }
 
 
-<*>{WSPACE}+  { /* skip end of line and spaces */ }
+{WSPACE}+  { /* ignore spaces */ }
 
 <*>. { /* any other character is invalid */
   fprintf (stderr,
@@ -182,4 +212,4 @@ DIV      "/"
 
 %%
 
-                  
+

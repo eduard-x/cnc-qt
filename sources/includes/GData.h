@@ -43,31 +43,78 @@
 #ifndef GDATA_H
 #define GDATA_H
 
-class DataOperation 
-{
-    public :
-        DataOperation(int code = 0, QString name = "", float v = 0.0) {
-            opCode = code;
-            varName = name;
-            val = v;
-            op1 = 0;
-            op2 = 0;
-        }
-        ~DataOperation() {
-            if (op1) {
-                delete op1;
-            }
-            if (op2) {
-                delete op2;
-            }
-        }
-    int opCode; // + - / * and so 
-    QString varName;
-    float val;
-    class DataOperation* op1;
-    class DataOperation* op2;
+
+/* enum class is C++11 feature */
+enum class EXP {
+    NONE = 0,
+    MUL,
+    DIV,
+    PLUS,
+    MINUS,
+    NEG,
+    POW,
+    SQRT,
+    SIN,
+    COS,
+    TAN,
+    EQ,
+    GE,
+    LE,
+    GT,
+    LT
 };
 
+enum class DATA {
+    NONE = 0,
+    SVAL,
+    FVAL,
+    IVAL
+};
+
+enum class CMD {
+    NOP =  0,
+    IF,
+    ELSE,
+    EIF,
+    WHILE,
+    EWHILE,
+    GOTO,
+    DELAY
+};
+
+
+class DataOperation
+{
+    public :
+        DataOperation(EXP code = EXP::NONE, DATA tp = DATA::NONE)
+        {
+            opCode = code;
+            varType = tp;
+            result = 0.0;
+            expr1 = 0; // pointer init
+            expr2 = 0; // pointer init
+        }
+        ~DataOperation()
+        {
+            if (expr1) {
+                delete expr1;
+            }
+
+            if (expr2) {
+                delete expr2;
+            }
+
+            if(varType == DATA::SVAL && vName.length()) {
+                vName.clear();
+            }
+        }
+        EXP   opCode; // mathematical operations + - / * , or variables FVAL, SVAL and so
+        DATA  varType;
+        float result; // in case of IVAL, FVAL or converted from SVAL
+        QString vName;
+        class DataOperation* expr1;
+        class DataOperation* expr2;
+};
 
 
 enum Apertures {
@@ -240,8 +287,8 @@ class GCodeData
         int   numberLine;     // from g-code file
 
         // TODO local data for calculations?
-//         float angle; // angle between two lines around the actual point
-//         float deltaAngle;
+        //         float angle; // angle between two lines around the actual point
+        //         float deltaAngle;
 
     public:
         //

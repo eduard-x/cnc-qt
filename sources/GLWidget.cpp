@@ -891,7 +891,7 @@ void GLWidget::loadFigure()
 
                 figure << (VertexData) {
                     QVector3D { pointX, pointY, pointZ},
-                                QVector3D(cl.redF(), cl.greenF(), cl.blueF())
+                              QVector3D(cl.redF(), cl.greenF(), cl.blueF())
                 };
             }
         } else {
@@ -919,7 +919,7 @@ void GLWidget::loadFigure()
 
             figure << (VertexData) {
                 QVector3D { pointX, pointY, pointZ},
-                            QVector3D(cl.redF(), cl.greenF(), cl.blueF())
+                          QVector3D(cl.redF(), cl.greenF(), cl.blueF())
             };
         }
     }

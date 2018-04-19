@@ -153,7 +153,7 @@ class cDataManager : public GData // , public cTranslator
 
         void resetSoftLimits();
 
-//         QVector <GCodeOptim> getRapidPoints();
+        //         QVector <GCodeOptim> getRapidPoints();
 
         void Swap(int &p1, int &p2);
 
