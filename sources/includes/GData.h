@@ -259,7 +259,6 @@ class GCodeData
         QVector3D extCoord;
 
         // if arc splitted, number of followed cuts.
-        int   splits; // TODO we need this?
         // for convertion from G02/G03 to G01
         QVector<QVector3D> arcCoord;
 

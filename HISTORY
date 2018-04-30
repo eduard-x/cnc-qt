@@ -1,6 +1,8 @@
 Version history
 
-0.4.0   gcode parser based on flex/bison
+0.4.0   G-Code parser based on flex/bison
+        G-Code has been extended with RS-274NGC (supporting of variables)
+        Prototype of advanced RS-274NGC implemented (mathematical functions) 
         all postprocessing functions are moved to cDataManager class
 0.3.6   gcode parser: feed of G01 implemented
         OpenGL, Instrument as cone/cylinder

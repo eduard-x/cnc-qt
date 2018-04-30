@@ -159,7 +159,7 @@ class cDataManager : public GData // , public cTranslator
 
         float determineAngle(const QVector3D &pos, const QVector3D &pos_center, PlaneEnum pl);
         void convertArcToLines(int p);
-        float calcAngleOfLines(int pos);
+        float calcAngleOfLines(const QVector3D &c1, const QVector3D &c2, int plane);
 
         int  calculateMinAngleSteps(int pos);
         void patchSpeedAndAccelCode(int begPos, int endPos);

@@ -471,7 +471,7 @@ void cDataManager::fixGCodeList()
 
     // now debug
     foreach (const GCodeData d, gCodeList) {
-        qDebug() << "line:" << d.numberLine << "accel:" << (hex) << d.movingCode << (dec) << "max coeff:" << d.vectorCoeff << "splits:" <<  d.splits
+        qDebug() << "line:" << d.numberLine << "accel:" << (hex) << d.movingCode << (dec) << "max coeff:" << d.vectorCoeff << "splits:" <<  d.arcSplits
                  << "steps:" << d.stepsCounter << "vector speed:" << d.vectSpeed << "coords:" << d.X << d.Y << "delta angle:" << d.deltaAngle;
     }
 
@@ -526,6 +526,9 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
         case XY: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
+                //                 if (dataVector.at(begPos).gCmd != 1) {
+                //                     break;
+                //                 }
                 float dX = qFabs(dataVector.at(i - 1).baseCoord.x() - dataVector.at(i).baseCoord.x());
                 float dY = qFabs(dataVector.at(i - 1).baseCoord.y() - dataVector.at(i).baseCoord.y());
                 float dH = qSqrt(dX * dX + dY * dY);
@@ -559,6 +562,9 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
         case YZ: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
+                //                     if (dataVector.at(begPos).gCmd != 1) {
+                //                         break;
+                //                     }
                 float dY = qFabs(dataVector.at(i - 1).baseCoord.y() - dataVector.at(i).baseCoord.y());
                 float dZ = qFabs(dataVector.at(i - 1).baseCoord.z() - dataVector.at(i).baseCoord.z());
                 float dH = qSqrt(dZ * dZ + dY * dY);
@@ -586,11 +592,15 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
             }
 
             break;
+
         }
 
         case ZX: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
+                //                     if (dataVector.at(begPos).gCmd != 1) {
+                //                         break;
+                //                     }
                 float dZ = qFabs(dataVector.at(i - 1).baseCoord.z() - dataVector.at(i).baseCoord.z());
                 float dX = qFabs(dataVector.at(i - 1).baseCoord.x() - dataVector.at(i).baseCoord.x());
                 float dH = qSqrt(dX * dX + dZ * dZ);
@@ -659,27 +669,31 @@ int cDataManager::calculateMinAngleSteps(int startPos)
         return -1;
     }
 
-#if 1
+#if 0
 
-    if (dataVector.at(startPos).splits > 0) { // it's arc, splits inforamtion already calculated
-        idx += dataVector.at(startPos).splits;
-        return idx;
+    if (dataVector.at(startPos).arcCoord.count() > 0) { // it's arc, splits inforamtion already calculated
+        //         qInfo() << "arc , pos" << startPos;
+        //         idx += dataVector.at(startPos).arcSplits;
+        return idx + 1;
     }
 
 #endif
 
     // or for lines
     for (idx = startPos; idx < dataVector.count() - 1; idx++) {
-#if 1
+#if 0
 
-        if (dataVector.at(idx).movingCode == ACCELERAT_CODE && dataVector.at(idx).splits > 0) {
-            idx += dataVector.at(idx).splits;
-            return idx;
+        // if ARC
+        if (dataVector.at(idx).arcCoord.count() > 0) {
+            //             qInfo() << "arc found , pos" << idx;
+            //             idx += dataVector.at(idx).arcSplits;
+            // TODO check the angles of enter and end points
+            return idx + 1;
         }
 
 #endif
 
-        if (dataVector.at(idx + 1).movingCode == RAPID_LINE_CODE) {
+        if (dataVector.at(idx + 1).gCmd == 0) {// RAPID_LINE_CODE) {
             return idx;
         }
 
@@ -688,14 +702,67 @@ int cDataManager::calculateMinAngleSteps(int startPos)
                  << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx + 1].X << gCodeList[idx + 1].Y;
 #endif
 
-        // TODO arc !
-        float a1 = calcAngleOfLines(idx);
-        float a2 = calcAngleOfLines(idx + 1);
+        // line to line
+        if ((dataVector.at(idx).gCmd == 1) && (dataVector.at(idx + 1).gCmd == 1)) {
+            qDebug() << "line to line, zeile" << dataVector.at(idx).numberLine << dataVector.at(idx - 1).baseCoord << dataVector.at(idx).baseCoord << dataVector.at(idx + 1).baseCoord;
+            float a1 = calcAngleOfLines(dataVector.at(idx - 1).baseCoord, dataVector.at(idx).baseCoord, dataVector.at(idx).plane);
+            float a2 = calcAngleOfLines(dataVector.at(idx).baseCoord, dataVector.at(idx + 1).baseCoord, dataVector.at(idx).plane);
 
-        float deltaAngle = (a1 - a2);
+            float deltaAngle = (a1 - a2);
 
-        if (qFabs(deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
-            break;
+            if (qFabs(deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
+                break;
+            }
+
+            continue;
+        }
+
+        // arc to line
+        if ((dataVector.at(idx).arcCoord.count() > 0) && (dataVector.at(idx + 1).gCmd == 1)) {
+            int lastPos = dataVector.at(idx).arcCoord.count() - 1;
+            qDebug() << "arc to line, zeile" << dataVector.at(idx).numberLine << dataVector.at(idx).arcCoord.at(lastPos - 1) << dataVector.at(idx).arcCoord.at(lastPos) << dataVector.at(idx + 1).baseCoord;
+            float a1 = calcAngleOfLines(dataVector.at(idx).arcCoord.at(lastPos - 1), dataVector.at(idx).arcCoord.at(lastPos), dataVector.at(idx).plane);
+            float a2 = calcAngleOfLines(dataVector.at(idx).arcCoord.at(lastPos), dataVector.at(idx + 1).baseCoord, dataVector.at(idx).plane);
+
+            float deltaAngle = (a1 - a2);
+
+            if (qFabs(deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
+                break;
+            }
+
+            continue;
+        }
+
+        // arc to arc
+        if ((dataVector.at(idx).arcCoord.count() > 0) && (dataVector.at(idx + 1).arcCoord.count() > 0)) {
+            int lastPos = dataVector.at(idx).arcCoord.count() - 1;
+            qDebug() << "arc to arc, zeile" << dataVector.at(idx).numberLine << dataVector.at(idx).arcCoord.at(lastPos - 1) << dataVector.at(idx).arcCoord.at(lastPos) << dataVector.at(idx + 1).arcCoord.at(0);
+            float a1 = calcAngleOfLines(dataVector.at(idx).arcCoord.at(lastPos - 1), dataVector.at(idx).arcCoord.at(lastPos), dataVector.at(idx).plane);
+            float a2 = calcAngleOfLines(dataVector.at(idx + 1).arcCoord.at(0), dataVector.at(idx + 1).arcCoord.at(1), dataVector.at(idx).plane);
+
+            float deltaAngle = (a1 - a2);
+
+            if (qFabs(deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
+                break;
+            }
+
+            continue;
+        }
+
+        // line to arc
+        if ((dataVector.at(idx).gCmd == 1) && (dataVector.at(idx + 1).arcCoord.count() > 0)) {
+            int lastPos = dataVector.at(idx).arcCoord.count() - 1;
+            qDebug() << "line to arc, zeile" << dataVector.at(idx).numberLine << dataVector.at(idx - 1).baseCoord << dataVector.at(idx).baseCoord << dataVector.at(idx + 1).arcCoord.at(0);
+            float a1 = calcAngleOfLines(dataVector.at(idx - 1).baseCoord, dataVector.at(idx).baseCoord, dataVector.at(idx).plane);
+            float a2 = calcAngleOfLines(dataVector.at(idx + 1).arcCoord.at(0), dataVector.at(idx + 1).arcCoord.at(1), dataVector.at(idx).plane);
+
+            float deltaAngle = (a1 - a2);
+
+            if (qFabs(deltaAngle) > qFabs(PI - maxLookaheadAngleRad)) {
+                break;
+            }
+
+            continue;
         }
     }
 
@@ -952,28 +1019,28 @@ float cDataManager::determineAngle(const QVector3D &pos1, const QVector3D &pos2,
  * @param[in] pos the actual position
  *
  */
-float cDataManager::calcAngleOfLines(int pos)
+float cDataManager::calcAngleOfLines(const QVector3D &c1, const QVector3D &c2, int plane)
 {
-    if (pos < 1 || pos > dataVector.count() - 1) {
-        return 0.0;
-    }
+    //     if (pos < 1 || pos > dataVector.count() - 1) {
+    //         return 0.0;
+    //     }
 
     float angle;
 
-    switch (dataVector.at(pos).plane) {
+    switch (plane) {
         case XY: {
-            angle = qAtan2(dataVector.at(pos).baseCoord.y() - dataVector.at(pos - 1).baseCoord.y(), dataVector.at(pos).baseCoord.x() - dataVector.at(pos - 1).baseCoord.x());
+            angle = qAtan2(c2.y() - c1.y(), c2.x() - c1.x());
 
             break;
         }
 
         case YZ: {
-            angle = qAtan2(dataVector.at(pos).baseCoord.z() - dataVector.at(pos - 1).baseCoord.z(), dataVector.at(pos).baseCoord.y() - dataVector.at(pos - 1).baseCoord.y());
+            angle = qAtan2(c2.z() - c1.z(), c2.y() - c1.y());
             break;
         }
 
         case ZX: {
-            angle = qAtan2(dataVector.at(pos).baseCoord.x() - dataVector.at(pos - 1).baseCoord.x(), dataVector.at(pos).baseCoord.z() - dataVector.at(pos - 1).baseCoord.z());
+            angle = qAtan2(c2.x() - c1.x(), c2.z() - c1.z());
             break;
         }
 
@@ -1209,8 +1276,8 @@ void cDataManager::convertArcToLines(int p)
     float n = (bLength * Settings::splitsPerMm)/* - 1*/; // num segments of arc per mm
     float splitLen = 1.0 / (float)Settings::splitsPerMm;
 
-    if ( n <= 1.0) {
-        n++;
+    if ( n <= 2.0) {
+        n = 3;
         qDebug() << "warning, n = " << n << alpha_beg << alpha_end << bLength << r << alpha << beginPos.x() << beginPos.y() << endPos.x() << endPos.y();
         //         return;
     }
@@ -1238,7 +1305,7 @@ void cDataManager::convertArcToLines(int p)
 
     detectMinMax(runCoord);
 
-    d.splits = n;
+    //     d.arcSplits = n;
     d.movingCode = ACCELERAT_CODE;
 
     // now split

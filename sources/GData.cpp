@@ -85,8 +85,6 @@ GCodeData::GCodeData()
     mistOn = false;
     coolantOn = false;
 
-    splits = 0; // init
-
     toolDiameter = 0.0;
 };
 
@@ -124,8 +122,6 @@ GCodeData::GCodeData(GCodeData *d)
     coolantOn = d->coolantOn;
 
     vectSpeed = d->vectSpeed;
-
-    splits = 0; // if arc, will be splitted, debug information only
 
     stepsCounter = 0; // should be calculated
 
