@@ -57,11 +57,7 @@
 #include "MainWindow.h"
 #include "Translator.h"
 
-
-struct VertexData {
-    QVector3D coord;
-    QVector3D color;
-};
+#include "DataManager.h"
 
 
 class cTranslator;

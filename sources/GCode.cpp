@@ -50,7 +50,7 @@
 
 
 // is static
-QVector<GCodeData> GData::dataVector;
+QVector<ParserData> GData::dataVector;
 QMap<QString, float> GData::dataVaris;
 
 /**
@@ -96,7 +96,7 @@ void GData::gcodeDestroy()
 
 
 /**
- * @brief read and parse into GCodeData list and OpenGL list
+ * @brief read and parse into ParserData list and OpenGL list
  * @see for the optimizations see https://blog.qt.io/blog/2014/06/13/qt-weekly-13-qstringliteral/
  * TODO convert QString to QStringLiteral
  *
@@ -134,15 +134,4 @@ bool GData::readGCode(char *indata)
     return true;
 }
 
-
-
-/**
- * @brief
- *
- */
-QVector<GCodeData> *GData::getDataVector()
-{
-    //     qDebug() << "return gcode data" << gCodeList.count();
-    return &dataVector;
-}
 

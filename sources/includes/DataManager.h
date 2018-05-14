@@ -83,17 +83,24 @@ class GCodeParser;
 //     All = UVW | ABC | XYZ,
 // };
 
-
+struct VertexData {
+    QVector3D coord;
+    QVector3D color;
+};
 
 /**
  * for ant sorting function
  */
 struct GCodeOptim {
     QVector3D coord;
-    int lineBeg;
-    int lineEnd;
-    int gcodeBeg;
-    int gcodeEnd;
+    int lineBegOrig;
+    int lineEndOrig;
+    int lineBegFilter;
+    int lineEndFilter;
+    int serialBeg;
+    int serialEnd;
+    int vertexBeg;
+    int vertexEnd;
 };
 
 // class for reading of different formats
@@ -127,7 +134,9 @@ class cDataManager : public GData // , public cTranslator
         //         std::vector<Vec3f> cached_points;
         //         std::vector<Vec3f> cached_color;
 
-        QVector<QString> *stringList();
+        QVector<SerialData*> *getSerialVector();
+        QVector<QString> *getOriginalList();
+        QVector<QString> *getFilteredList();
         //         QString lastDir;
 
         //             signals:
@@ -147,11 +156,12 @@ class cDataManager : public GData // , public cTranslator
         };
 
     private:
-        bool addLine(GCodeData* param);
-        bool addArc(GCodeData* param);
+        //         bool addLine(ParserData* param);
+        //         bool addArc(ParserData* param);
         void dataChecker();
 
         void resetSoftLimits();
+        void checkCity(const QVector3D &current_pos, int pos);
 
         //         QVector <GCodeOptim> getRapidPoints();
 
@@ -178,19 +188,27 @@ class cDataManager : public GData // , public cTranslator
         void sortGCode(const QVector<int> &antdata);
         void antColonyOptimization();
         const QVector<int> calculateAntPath(/*const QVector<GCodeOptim> &v*/);
+        void checkMCommand(const SerialData &s);
 
         //         GCode_resultParse parseStringGCode(const QString &value);
 
     private:
         //         QByteArray arr;
 
-        QVector<QString> goodList; // only decoded G-code
+        QVector<VertexData> vertexVector;
+        QVector<SerialData*> serialDataVector;
+        QVector<QString> filteredList; // only decoded G-code
+        QVector<QString> originalList; // only decoded G-code
+
+        // for the control data
+        MData *currentMCmd;
+
 
         QVector<int> path;
         QVector<int> occup;
         QVector <QVector <float> > distance;
 
-        QVector<GCodeOptim> g0Points;
+        QVector<GCodeOptim> gCities;
 
         float maxLookaheadAngleRad;
         typeFileLoad TypeFile;// = typeFileLoad.None;

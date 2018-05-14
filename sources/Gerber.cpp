@@ -110,7 +110,7 @@ void GerberData::CalculateGatePoints(int _accuracy)
 
 
 // is static
-QVector<GCodeData> Gerber::gCodeVector;
+QVector<ParserData> Gerber::gCodeVector;
 
 /**
  * @brief constructor
@@ -155,7 +155,7 @@ void Gerber::gerberDestroy()
 
 
 /**
- * @brief read and parse into GCodeData list and OpenGL list
+ * @brief read and parse into ParserData list and OpenGL list
  * @see for the optimizations see https://blog.qt.io/blog/2014/06/13/qt-weekly-13-qstringliteral/
  * TODO convert QString to QStringLiteral
  *
@@ -199,7 +199,7 @@ bool Gerber::readGCode(char *indata)
  * @brief
  *
  */
-QVector<GCodeData> *Gerber::dataVector()
+QVector<ParserData> *Gerber::dataVector()
 {
     //     qDebug() << "return gerber data" << gCodeList.count();
     return &gCodeVector;

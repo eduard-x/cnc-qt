@@ -66,7 +66,7 @@
 
 #include "ui_MainWindow.h"
 
-class GCodeData;
+class ParserData;
 class GLWidget;
 
 class mk1Controller;
@@ -208,7 +208,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
 
         //         QVector<speedSettings> veloSettings[4];
 
-        QVector<GCodeData> *gCodeData;
+        QVector<SerialData*> *serData;
 
 
 

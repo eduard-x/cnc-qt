@@ -58,9 +58,10 @@ cDataManager::cDataManager()
 // destructor
 cDataManager::~cDataManager()
 {
-    g0Points.clear();
+    gCities.clear();
 
-    goodList.clear();
+    filteredList.clear();
+    originalList.clear();
 }
 
 // void cDataManager::lock() const
@@ -78,24 +79,127 @@ cDataManager::~cDataManager()
 
 // QVector <GCodeOptim> cDataManager::getRapidPoints()
 // {
-//     return g0Points;
+//     return gCities;
 // }
 
 /**
  * @brief
  *
  */
-QVector<QString> *cDataManager::stringList()
+QVector<QString> *cDataManager::getFilteredList()
 {
-    return &goodList;
+    return &filteredList;
 }
 
+/**
+ * @brief
+ *
+ */
+QVector<QString> *cDataManager::getOriginalList()
+{
+    return &originalList;
+}
+
+
+QVector<SerialData*> *cDataManager::getSerialVector()
+{
+    return &serialDataVector;
+}
+
+void cDataManager::checkCity(const QVector3D &current_pos, int pos)
+{
+    ParserData d = dataVector.at(pos);
+    QVector3D delta_pos;
+    delta_pos = d.coord - dataVector.at(pos - 1).coord;
+
+    switch (currentMCmd->plane) {
+        case XY: {
+            // xy moving
+            if (delta_pos.z() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.y() != 0.0)) {
+                if (dataVector.at(pos - 1).gCmd == 0) {
+                    gCities.last().lineEndFilter = (filteredList.count() - 1 );
+                    gCities.last().lineEndOrig = (originalList.count() - 1 );
+                    gCities.last().serialEnd = (pos - 1);
+                    gCities << GCodeOptim {current_pos, originalList.count(), -1, filteredList.count(), -1, pos, -1};
+                }
+
+                break;
+            }
+
+            // z moving
+            if (delta_pos.z() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.y() == 0.0)) {
+                if (dataVector.at(pos - 1).gCmd != 0) {
+                    gCities.last().serialEnd = (pos);
+                }
+            }
+
+            break;
+        }
+
+        case YZ: {
+            if (delta_pos.x() == 0.0 && (delta_pos.y() != 0.0 || delta_pos.z() != 0.0)) {
+                // yz moving
+                if (dataVector.at(pos - 1).gCmd == 0) {
+                    gCities.last().lineEndFilter = (filteredList.count() - 1 );
+                    gCities.last().lineEndOrig = (originalList.count() - 1 );
+                    gCities.last().serialEnd = (pos - 1);
+                    gCities << GCodeOptim {current_pos, originalList.count(), -1, filteredList.count(), -1, pos, -1};
+                }
+
+                break;
+            }
+
+            // x moving
+            if (delta_pos.x() != 0.0 && (delta_pos.y() == 0.0 && delta_pos.z() == 0.0)) {
+                if (dataVector.at(pos - 1).gCmd != 0) {
+                    gCities.last().serialEnd = (pos);
+                }
+            }
+
+            break;
+        }
+
+        case ZX: {
+            if (delta_pos.y() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.z() != 0.0)) {
+                // zx moving
+                if (dataVector.at(pos - 1).gCmd == 0) {
+                    gCities.last().lineEndFilter = (filteredList.count() - 1 );
+                    gCities.last().lineEndOrig = (originalList.count() - 1 );
+                    gCities.last().serialEnd = (pos - 1);
+                    gCities << GCodeOptim {current_pos, originalList.count(), -1, filteredList.count(), -1, pos, -1};
+                }
+
+                break;
+            }
+
+            // y moving
+            if (delta_pos.y() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.z() == 0.0)) {
+                if (dataVector.at(pos - 1).gCmd != 0) {
+                    gCities.last().serialEnd = (pos);
+                }
+            }
+
+            break;
+        }
+
+        default:
+            break;
+    }
+}
+
+/**
+ * @brief check the parsed data and create the vector of SerialData
+ * with calculated data for sending to mk1
+ *
+ */
 void cDataManager::dataChecker()
 {
     // for Ant optimization
-    g0Points.clear();
+    gCities.clear();
 
-    goodList.clear();
+    filteredList.clear();
+    originalList.clear();
+    serialDataVector.clear();
 
     resetSoftLimits();
 
@@ -107,139 +211,92 @@ void cDataManager::dataChecker()
 
     // TODO home pos
     // goodList has the text for table
-    g0Points << GCodeOptim {QVector3D(0, 0, 0), goodList.count(), -1, dataVector.count(), -1};
+    gCities << GCodeOptim {QVector3D(0, 0, 0), originalList.count(), -1, filteredList.count(), -1, dataVector.count(), -1};
+
+    currentMCmd = new MData();
+
+    currentMCmd->plane = XY;
 
     // the first pos (cur = 0) is 0 or home
     for(int cur = 1; cur < dataVector.count(); cur++) {
-        GCodeData d = dataVector.at(cur);
+        ParserData d = dataVector.at(cur);
 
         if (d.decoded == false) {
             qInfo() << "not decoded line" << d.numberLine;
             continue;
         }
 
-        QString line;
+        QString filteredLine;
+        QString originalLine = d.originalLine;
+
+        SerialData *sTmp = 0;
 
         if (d.gCmd >= 0) {
-            detectMinMax(d.baseCoord);
+            sTmp = new SerialData(d.coord);
 
-            line = QString().sprintf("G%02d ", d.gCmd);
+            detectMinMax(sTmp->coord);
 
-            if (Settings::filterRepeat == true) { // TODO
-                if (dataVector.at(cur - 1).baseCoord.x() != d.baseCoord.x()) {
-                    line += QString().sprintf("X%g ", d.baseCoord.x());
+            filteredLine = QString().sprintf("G%02d ", d.gCmd);
+
+            // filter duplicates
+            if (Settings::filterRepeat == true) {
+                if (dataVector.at(cur - 1).coord.x() != sTmp->coord.x()) {
+                    filteredLine += QString().sprintf("X%g ", sTmp->coord.x());
                 }
 
-                if (dataVector.at(cur - 1).baseCoord.y() != d.baseCoord.y()) {
-                    line += QString().sprintf("Y%g ", d.baseCoord.y());
+                if (dataVector.at(cur - 1).coord.y() != sTmp->coord.y()) {
+                    filteredLine += QString().sprintf("Y%g ", sTmp->coord.y());
                 }
 
-                if (dataVector.at(cur - 1).baseCoord.z() != d.baseCoord.z()) {
-                    line += QString().sprintf("Z%g ", d.baseCoord.z());
+                if (dataVector.at(cur - 1).coord.z() != sTmp->coord.z()) {
+                    filteredLine += QString().sprintf("Z%g ", sTmp->coord.z());
                 }
             } else {
-                line += QString().sprintf("X%g Y%g Z%g ", d.baseCoord.x(), d.baseCoord.y(), d.baseCoord.z());
+                filteredLine += QString().sprintf("X%g Y%g Z%g ", sTmp->coord.x(), sTmp->coord.y(), sTmp->coord.z());
+            }
+
+            QVector3D delta_pos;
+            delta_pos = d.coord - dataVector.at(cur - 1).coord;
+
+            if (b_absolute) {
+                current_pos = d.coord + origin;
+            } else {
+                current_pos += d.coord;
             }
 
             switch (d.gCmd) {
                 case 0: {
-                    QVector3D delta_pos;
+                    sTmp->movingCode = RAPID_LINE_CODE;
 
-                    delta_pos = d.baseCoord - dataVector.at(cur - 1).baseCoord;
-
-                    d.rapidVelo = 0.0;
+                    //                     d.rapidVelo = 0.0;
+#if 0
 
                     if (b_absolute) {
-                        current_pos = d.baseCoord + origin;
+                        current_pos = d.coord + origin;
                     } else {
-                        current_pos += d.baseCoord;
+                        current_pos += d.coord;
                     }
 
-                    // TODO move to separate subroutine
+#endif
                     // for the way optimizing
-                    switch (d.plane) {
-                        case XY: {
-                            // xy moving
-                            if (delta_pos.z() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.y() != 0.0)) {
-                                if (dataVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
-                                    g0Points.last().lineEnd = (goodList.count() - 1 );
-                                    g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
-                                }
-
-                                break;
-                            }
-
-                            // z moving
-                            if (delta_pos.z() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.y() == 0.0)) {
-                                if (dataVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
-                                    g0Points.last().gcodeEnd = (cur);
-                                }
-                            }
-
-                            break;
-                        }
-
-                        case YZ: {
-                            if (delta_pos.x() == 0.0 && (delta_pos.y() != 0.0 || delta_pos.z() != 0.0)) {
-                                // yz moving
-                                if (dataVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
-                                    g0Points.last().lineEnd = (goodList.count() - 1 );
-                                    g0Points.last().gcodeEnd = (cur - 1);
-                                    g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
-                                }
-
-                                break;
-                            }
-
-                            // x moving
-                            if (delta_pos.x() != 0.0 && (delta_pos.y() == 0.0 && delta_pos.z() == 0.0)) {
-                                if (dataVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
-                                    g0Points.last().gcodeEnd = (cur);
-                                }
-                            }
-
-                            break;
-                        }
-
-                        case ZX: {
-                            if (delta_pos.y() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.z() != 0.0)) {
-                                // zx moving
-                                if (dataVector.at(cur - 1).movingCode == RAPID_LINE_CODE) {
-                                    g0Points.last().lineEnd = (goodList.count() - 1 );
-                                    g0Points.last().gcodeEnd = (cur - 1);
-                                    g0Points << GCodeOptim {current_pos, goodList.count(), -1, cur, -1};
-                                }
-
-                                break;
-                            }
-
-                            // y moving
-                            if (delta_pos.y() != 0.0 && (delta_pos.x() == 0.0 && delta_pos.z() == 0.0)) {
-                                if (dataVector.at(cur - 1).movingCode != RAPID_LINE_CODE) {
-                                    g0Points.last().gcodeEnd = (cur);
-                                }
-                            }
-
-                            break;
-                        }
-
-                        default:
-                            break;
-                    }
+                    checkCity(current_pos, cur);
 
                     break;
                 }
 
                 case 1: {
-                    d.toolChange = false;
-                    d.pauseMSec = -1; // no pause
+                    sTmp->movingCode = FEED_LINE_CODE;
+                    //                     d.toolChange = false;
+                    //                     d.pauseMSec = -1; // no pause
+#if 0
 
                     if (b_absolute) {
-                        current_pos = d.baseCoord + origin;
+                        current_pos = d.coord + origin;
                     } else {
-                        current_pos += d.baseCoord;
+                        current_pos += d.coord;
                     }
 
+#endif
                     //                     calcAngleOfLines(cur - 1);
 
                     break;
@@ -247,28 +304,33 @@ void cDataManager::dataChecker()
 
                 case 2:
                 case 3: {
+                    sTmp->movingCode = FEED_LINE_CODE;
+#if 0
+
                     if (b_absolute) {
-                        current_pos = d.baseCoord + origin;
+                        current_pos = d.coord + origin;
                     } else {
-                        current_pos += d.baseCoord;
+                        current_pos += d.coord;
                     }
+
+#endif
 
                     if (d.useExtCoord == IJK) { //
                         if (d.extCoord.x() != 0.0) {
-                            line += QString().sprintf("I%g ", d.extCoord.x());
+                            filteredLine += QString().sprintf("I%g ", d.extCoord.x());
                         }
 
                         if (d.extCoord.y() != 0.0) {
-                            line += QString().sprintf("J%g ", d.extCoord.y());
+                            filteredLine += QString().sprintf("J%g ", d.extCoord.y());
                         }
 
                         if (d.extCoord.z() != 0.0) {
-                            line += QString().sprintf("K%g ", d.extCoord.z());
+                            filteredLine += QString().sprintf("K%g ", d.extCoord.z());
                         }
                     }
 
-                    if (d.radius > 0) {
-                        line += QString().sprintf("R%g ", d.radius);
+                    if (d.paramName == 'r' && d.paramValue > 0) {
+                        filteredLine += QString().sprintf("R%g ", d.paramValue);
                     }
 
                     convertArcToLines(cur);
@@ -276,14 +338,33 @@ void cDataManager::dataChecker()
                     break;
                 }
 
-                case 4: {
+                case 4: { //
                     break;
                 }
 
-                case 17:
-                case 18:
-                case 19:
+                case 17: {
+                    MData *m = new MData();
+                    m->plane = XY;
+                    currentMCmd->plane = XY;
+                    sTmp->pMCommand = m;
                     break;
+                }
+
+                case 18: {
+                    MData *m = new MData();
+                    m->plane = YZ;
+                    currentMCmd->plane = YZ;
+                    sTmp->pMCommand = m;
+                    break;
+                }
+
+                case 19: {
+                    MData *m = new MData();
+                    m->plane = ZX;
+                    currentMCmd->plane = ZX;
+                    sTmp->pMCommand = m;
+                    break;
+                }
 
                 case 20: {
                     coef = 25.4;
@@ -310,7 +391,7 @@ void cDataManager::dataChecker()
                 }
 
                 case 92: {
-                    origin = dataVector.at(cur - 1).baseCoord - d.baseCoord;
+                    origin = dataVector.at(cur - 1).coord - d.coord;
                     break;
                 }
 
@@ -334,11 +415,17 @@ void cDataManager::dataChecker()
 
         // the m part
         if (d.mCmd >= 0 ) {
-            line += QString().sprintf("M%d ", d.mCmd);
+            filteredLine += QString().sprintf("M%d ", d.mCmd);
+
+            if (!sTmp) {
+                sTmp = new SerialData(d.coord);
+            }
+
+            sTmp->pMCommand = new MData();
 
             switch (d.mCmd) {
                 case 0: {
-                    d.pauseMSec = 0; // waiting
+                    //                     sTmp->pauseMSec = 0; // waiting
                     break;
                 }
 
@@ -347,12 +434,12 @@ void cDataManager::dataChecker()
                 }
 
                 case 3: {
-                    d.spindelOn = true;
+                    sTmp->pMCommand->spindelOn = 1;
                     break;
                 }
 
                 case 5: {
-                    d.spindelOn = false;
+                    sTmp->pMCommand->spindelOn = 0;
                     break;
                 }
 
@@ -426,12 +513,22 @@ void cDataManager::dataChecker()
             //             }
         }
 
-        if (d.lineComment.length()) {
-            line += d.lineComment;
-        }
+        if (d.decoded == true) {
+            if (sTmp) {
+                serialDataVector << sTmp;
+            }
 
-        if (line.length()) {
-            goodList << line;
+            if (d.lineComment.length()) {
+                filteredLine += d.lineComment;
+            }
+
+            if (filteredLine.length()) {
+                filteredList << filteredLine;
+            }
+
+            if (originalLine.length()) {
+                originalList << originalLine;
+            }
         }
     }
 }
@@ -445,16 +542,17 @@ void cDataManager::dataChecker()
  */
 void cDataManager::fixGCodeList()
 {
-    if (dataVector.count() < 2) {
+    if (serialDataVector.count() < 2) {
         return;
     }
 
     // grad to rad
     maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;
+    qInfo() << "fixGCodeList, list size" << serialDataVector.size();
 
     // calculate the number of steps in one direction, if exists
-    for (int idx = 0; idx < dataVector.size(); idx++) {
-        if (dataVector[idx].movingCode == RAPID_LINE_CODE || dataVector[idx].movingCode == NO_CODE) {
+    for (int idx = 0; idx < serialDataVector.size(); idx++) {
+        if (serialDataVector.at(idx)->movingCode == RAPID_LINE_CODE || serialDataVector.at(idx)->movingCode == NO_CODE) {
             continue;
         }
 
@@ -470,7 +568,7 @@ void cDataManager::fixGCodeList()
 #if 0
 
     // now debug
-    foreach (const GCodeData d, gCodeList) {
+    foreach (const ParserData d, gCodeList) {
         qDebug() << "line:" << d.numberLine << "accel:" << (hex) << d.movingCode << (dec) << "max coeff:" << d.vectorCoeff << "splits:" <<  d.arcSplits
                  << "steps:" << d.stepsCounter << "vector speed:" << d.vectSpeed << "coords:" << d.X << d.Y << "delta angle:" << d.deltaAngle;
     }
@@ -479,6 +577,45 @@ void cDataManager::fixGCodeList()
 #endif
 }
 
+/**
+ * @brief check pointer to MCommand struct
+ *        and check the changes in device management
+ */
+void cDataManager::checkMCommand(const SerialData &s)
+{
+    if (s.pMCommand == 0) {
+        return;
+    }
+
+    //
+    if(s.pMCommand->plane != None) {
+        currentMCmd->plane = s.pMCommand->plane;
+    }
+
+    if (s.pMCommand->coolantOn != -1) {
+        currentMCmd->coolantOn = s.pMCommand->coolantOn;
+    }
+
+    if (s.pMCommand->mistOn != -1) {
+        currentMCmd->mistOn = s.pMCommand->mistOn;
+    }
+
+    if (s.pMCommand->toolChange != -1) {
+        currentMCmd->toolChange = s.pMCommand->toolChange;
+    }
+
+    if (s.pMCommand->spindelOn != -1) {
+        currentMCmd->spindelOn = s.pMCommand->spindelOn;
+    }
+
+    if (s.pMCommand->toolNumber != s.pMCommand->toolNumber) {
+        currentMCmd->toolNumber = s.pMCommand->toolNumber;
+    }
+
+    if (s.pMCommand->toolDiameter != s.pMCommand->toolDiameter) {
+        currentMCmd->toolDiameter = s.pMCommand->toolDiameter;
+    }
+}
 
 /**
  * @brief function set the vector speed and acceleration code before sending data to controller
@@ -522,15 +659,14 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
         dnewSpdZ = 7.2e8 / ((float)Settings::coord[Z].maxVeloLimit * Settings::coord[Z].pulsePerMm);
     }
 
-    switch (dataVector.at(begPos).plane) {
+    checkMCommand(*serialDataVector[begPos]);
+
+    switch (currentMCmd->plane) {
         case XY: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                //                 if (dataVector.at(begPos).gCmd != 1) {
-                //                     break;
-                //                 }
-                float dX = qFabs(dataVector.at(i - 1).baseCoord.x() - dataVector.at(i).baseCoord.x());
-                float dY = qFabs(dataVector.at(i - 1).baseCoord.y() - dataVector.at(i).baseCoord.y());
+                float dX = qFabs(serialDataVector.at(i - 1)->coord.x() - serialDataVector.at(i)->coord.x());
+                float dY = qFabs(serialDataVector.at(i - 1)->coord.y() - serialDataVector.at(i)->coord.y());
                 float dH = qSqrt(dX * dX + dY * dY);
                 float coeff = 1.0;
 
@@ -540,20 +676,20 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
                     }
 
                     // calculation of vect speed
-                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdX); //
-                    dataVector[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
+                    serialDataVector[i]->vectSpeed = (int)(coeff * dnewSpdX); //
+                    serialDataVector[i]->stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
                 } else {
                     if (dY != 0.0) {
                         coeff = dH / dY;
                     }
 
-                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdY); //
-                    dataVector[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
+                    serialDataVector[i]->vectSpeed = (int)(coeff * dnewSpdY); //
+                    serialDataVector[i]->stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
                 }
 
-                sumSteps += dataVector[i].stepsCounter;
+                sumSteps += serialDataVector[i]->stepsCounter;
 
-                dataVector[i].vectorCoeff = coeff;
+                serialDataVector[i]->vectorCoeff = coeff;
             }
 
             break;
@@ -562,11 +698,8 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
         case YZ: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                //                     if (dataVector.at(begPos).gCmd != 1) {
-                //                         break;
-                //                     }
-                float dY = qFabs(dataVector.at(i - 1).baseCoord.y() - dataVector.at(i).baseCoord.y());
-                float dZ = qFabs(dataVector.at(i - 1).baseCoord.z() - dataVector.at(i).baseCoord.z());
+                float dY = qFabs(serialDataVector.at(i - 1)->coord.y() - serialDataVector.at(i)->coord.y());
+                float dZ = qFabs(serialDataVector.at(i - 1)->coord.z() - serialDataVector.at(i)->coord.z());
                 float dH = qSqrt(dZ * dZ + dY * dY);
                 float coeff = 1.0;
 
@@ -575,20 +708,20 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dY;
                     }
 
-                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdY); //
-                    dataVector[i].stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
+                    serialDataVector[i]->vectSpeed = (int)(coeff * dnewSpdY); //
+                    serialDataVector[i]->stepsCounter = qRound(dY * (float)Settings::coord[Y].pulsePerMm);
                 } else {
                     if (dZ != 0.0) {
                         coeff = dH / dZ;
                     }
 
-                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdZ); //
-                    dataVector[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
+                    serialDataVector[i]->vectSpeed = (int)(coeff * dnewSpdZ); //
+                    serialDataVector[i]->stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
                 }
 
-                sumSteps += dataVector[i].stepsCounter;
+                sumSteps += serialDataVector[i]->stepsCounter;
 
-                dataVector[i].vectorCoeff = coeff;
+                serialDataVector[i]->vectorCoeff = coeff;
             }
 
             break;
@@ -598,11 +731,8 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
         case ZX: {
             //* this loop is in the switch statement because of optimisation
             for (int i = begPos; i <= endPos; i++) {
-                //                     if (dataVector.at(begPos).gCmd != 1) {
-                //                         break;
-                //                     }
-                float dZ = qFabs(dataVector.at(i - 1).baseCoord.z() - dataVector.at(i).baseCoord.z());
-                float dX = qFabs(dataVector.at(i - 1).baseCoord.x() - dataVector.at(i).baseCoord.x());
+                float dZ = qFabs(serialDataVector.at(i - 1)->coord.z() - serialDataVector.at(i)->coord.z());
+                float dX = qFabs(serialDataVector.at(i - 1)->coord.x() - serialDataVector.at(i)->coord.x());
                 float dH = qSqrt(dX * dX + dZ * dZ);
                 float coeff = 1.0;
 
@@ -611,27 +741,27 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
                         coeff = dH / dZ;
                     }
 
-                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdZ); //
-                    dataVector[i].stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
+                    serialDataVector[i]->vectSpeed = (int)(coeff * dnewSpdZ); //
+                    serialDataVector[i]->stepsCounter = qRound(dZ * (float)Settings::coord[Z].pulsePerMm);
                 } else {
                     if (dX != 0.0) {
                         coeff = dH / dX;
                     }
 
-                    dataVector[i].vectSpeed = (int)(coeff * dnewSpdX); //
-                    dataVector[i].stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
+                    serialDataVector[i]->vectSpeed = (int)(coeff * dnewSpdX); //
+                    serialDataVector[i]->stepsCounter = qRound(dX * (float)Settings::coord[X].pulsePerMm);
                 }
 
-                sumSteps += dataVector[i].stepsCounter;
+                sumSteps += serialDataVector[i]->stepsCounter;
 
-                dataVector[i].vectorCoeff = coeff;
+                serialDataVector[i]->vectorCoeff = coeff;
             }
 
             break;
         }
 
         default: {
-            qDebug() << "no plane information: pos " << begPos << "x" << dataVector[begPos].baseCoord.x() << "y" << dataVector[begPos].baseCoord.y() << "z" << dataVector[begPos].baseCoord.z();
+            qDebug() << "no plane information: pos " << begPos << "x" << serialDataVector[begPos]->coord.x() << "y" << serialDataVector[begPos]->coord.y() << "z" << serialDataVector[begPos]->coord.z();
         }
     }
 
@@ -639,14 +769,14 @@ void cDataManager::patchSpeedAndAccelCode(int begPos, int endPos)
         // now for steps
         for (int i = begPos; i < endPos; i++) {
             int tmpStps;
-            tmpStps = dataVector[i].stepsCounter;
-            dataVector[i].stepsCounter = sumSteps;
+            tmpStps = serialDataVector[i]->stepsCounter;
+            serialDataVector[i]->stepsCounter = sumSteps;
             sumSteps -= tmpStps;
-            dataVector[i].movingCode = CONSTSPEED_CODE;
+            serialDataVector[i]->movingCode = CONSTSPEED_CODE;
         }
 
-        dataVector[begPos].movingCode = ACCELERAT_CODE;
-        dataVector[endPos].movingCode = DECELERAT_CODE;
+        serialDataVector[begPos]->movingCode = ACCELERAT_CODE;
+        serialDataVector[endPos]->movingCode = DECELERAT_CODE;
     }
 }
 
@@ -664,36 +794,36 @@ int cDataManager::calculateMinAngleSteps(int startPos)
 {
     int idx = startPos;
 
-    if (startPos > dataVector.count() - 1 || startPos < 1) {
-        qDebug() << "steps counter bigger than list: " << startPos << dataVector.count();
+    if (startPos > serialDataVector.count() - 1 || startPos < 1) {
+        qDebug() << "steps counter bigger than list: " << startPos << serialDataVector.count();
         return -1;
     }
 
 #if 0
 
-    if (dataVector.at(startPos).arcCoord.count() > 0) { // it's arc, splits inforamtion already calculated
+    if (serialDataVector.at(startPos).arcData.count() > 0) { // it's arc, splits inforamtion already calculated
         //         qInfo() << "arc , pos" << startPos;
-        //         idx += dataVector.at(startPos).arcSplits;
+        //         idx += serialDataVector.at(startPos).arcSplits;
         return idx + 1;
     }
 
 #endif
 
     // or for lines
-    for (idx = startPos; idx < dataVector.count() - 1; idx++) {
+    for (idx = startPos; idx < serialDataVector.count() - 1; idx++) {
 #if 0
 
         // if ARC
-        if (dataVector.at(idx).arcCoord.count() > 0) {
+        if (serialDataVector.at(idx).arcData.count() > 0) {
             //             qInfo() << "arc found , pos" << idx;
-            //             idx += dataVector.at(idx).arcSplits;
+            //             idx += serialDataVector.at(idx).arcSplits;
             // TODO check the angles of enter and end points
             return idx + 1;
         }
 
 #endif
 
-        if (dataVector.at(idx + 1).gCmd == 0) {// RAPID_LINE_CODE) {
+        if (serialDataVector.at(idx + 1)->movingCode == RAPID_LINE_CODE) {// RAPID_LINE_CODE) {
             return idx;
         }
 
@@ -702,11 +832,13 @@ int cDataManager::calculateMinAngleSteps(int startPos)
                  << "coordinates" << (dec) << gCodeList.at(idx).X << gCodeList.at(idx).Y << gCodeList[idx + 1].X << gCodeList[idx + 1].Y;
 #endif
 
+        checkMCommand(*serialDataVector[idx]);
+
         // line to line
-        if ((dataVector.at(idx).gCmd == 1) && (dataVector.at(idx + 1).gCmd == 1)) {
-            qDebug() << "line to line, zeile" << dataVector.at(idx).numberLine << dataVector.at(idx - 1).baseCoord << dataVector.at(idx).baseCoord << dataVector.at(idx + 1).baseCoord;
-            float a1 = calcAngleOfLines(dataVector.at(idx - 1).baseCoord, dataVector.at(idx).baseCoord, dataVector.at(idx).plane);
-            float a2 = calcAngleOfLines(dataVector.at(idx).baseCoord, dataVector.at(idx + 1).baseCoord, dataVector.at(idx).plane);
+        if ((serialDataVector.at(idx)->movingCode == RAPID_LINE_CODE) && (serialDataVector.at(idx + 1)->movingCode == RAPID_LINE_CODE)) {
+            qDebug() << "line to line" << idx << serialDataVector.at(idx - 1)->coord << serialDataVector.at(idx)->coord << serialDataVector.at(idx + 1)->coord;
+            float a1 = calcAngleOfLines(serialDataVector.at(idx - 1)->coord, serialDataVector.at(idx)->coord, currentMCmd->plane);
+            float a2 = calcAngleOfLines(serialDataVector.at(idx)->coord, serialDataVector.at(idx + 1)->coord, currentMCmd->plane);
 
             float deltaAngle = (a1 - a2);
 
@@ -717,12 +849,14 @@ int cDataManager::calculateMinAngleSteps(int startPos)
             continue;
         }
 
+#if 0
+
         // arc to line
-        if ((dataVector.at(idx).arcCoord.count() > 0) && (dataVector.at(idx + 1).gCmd == 1)) {
-            int lastPos = dataVector.at(idx).arcCoord.count() - 1;
-            qDebug() << "arc to line, zeile" << dataVector.at(idx).numberLine << dataVector.at(idx).arcCoord.at(lastPos - 1) << dataVector.at(idx).arcCoord.at(lastPos) << dataVector.at(idx + 1).baseCoord;
-            float a1 = calcAngleOfLines(dataVector.at(idx).arcCoord.at(lastPos - 1), dataVector.at(idx).arcCoord.at(lastPos), dataVector.at(idx).plane);
-            float a2 = calcAngleOfLines(dataVector.at(idx).arcCoord.at(lastPos), dataVector.at(idx + 1).baseCoord, dataVector.at(idx).plane);
+        if ((serialDataVector.at(idx).arcData.count() > 0) && (serialDataVector.at(idx + 1).gCmd == 1)) {
+            int lastPos = serialDataVector.at(idx).arcData.count() - 1;
+            qDebug() << "arc to line, zeile" << serialDataVector.at(idx).numberLine << serialDataVector.at(idx).arcData.at(lastPos - 1) << serialDataVector.at(idx).arcData.at(lastPos) << serialDataVector.at(idx + 1)->coord;
+            float a1 = calcAngleOfLines(serialDataVector.at(idx).arcData.at(lastPos - 1).coord, serialDataVector.at(idx).arcData.at(lastPos).coord, serialDataVector.at(idx).plane);
+            float a2 = calcAngleOfLines(serialDataVector.at(idx).arcData.at(lastPos).coord, serialDataVector.at(idx + 1)->coord, serialDataVector.at(idx).plane);
 
             float deltaAngle = (a1 - a2);
 
@@ -734,11 +868,11 @@ int cDataManager::calculateMinAngleSteps(int startPos)
         }
 
         // arc to arc
-        if ((dataVector.at(idx).arcCoord.count() > 0) && (dataVector.at(idx + 1).arcCoord.count() > 0)) {
-            int lastPos = dataVector.at(idx).arcCoord.count() - 1;
-            qDebug() << "arc to arc, zeile" << dataVector.at(idx).numberLine << dataVector.at(idx).arcCoord.at(lastPos - 1) << dataVector.at(idx).arcCoord.at(lastPos) << dataVector.at(idx + 1).arcCoord.at(0);
-            float a1 = calcAngleOfLines(dataVector.at(idx).arcCoord.at(lastPos - 1), dataVector.at(idx).arcCoord.at(lastPos), dataVector.at(idx).plane);
-            float a2 = calcAngleOfLines(dataVector.at(idx + 1).arcCoord.at(0), dataVector.at(idx + 1).arcCoord.at(1), dataVector.at(idx).plane);
+        if ((serialDataVector.at(idx).arcData.count() > 0) && (serialDataVector.at(idx + 1).arcData.count() > 0)) {
+            int lastPos = serialDataVector.at(idx).arcData.count() - 1;
+            qDebug() << "arc to arc, zeile" << serialDataVector.at(idx).numberLine << serialDataVector.at(idx).arcData.at(lastPos - 1) << serialDataVector.at(idx).arcData.at(lastPos) << serialDataVector.at(idx + 1).arcData.at(0);
+            float a1 = calcAngleOfLines(serialDataVector.at(idx).arcData.at(lastPos - 1).coord, serialDataVector.at(idx).arcData.at(lastPos).coord, serialDataVector.at(idx).plane);
+            float a2 = calcAngleOfLines(serialDataVector.at(idx + 1).arcData.at(0).coord, serialDataVector.at(idx + 1).arcData.at(1).coord, serialDataVector.at(idx).plane);
 
             float deltaAngle = (a1 - a2);
 
@@ -750,11 +884,11 @@ int cDataManager::calculateMinAngleSteps(int startPos)
         }
 
         // line to arc
-        if ((dataVector.at(idx).gCmd == 1) && (dataVector.at(idx + 1).arcCoord.count() > 0)) {
-            int lastPos = dataVector.at(idx).arcCoord.count() - 1;
-            qDebug() << "line to arc, zeile" << dataVector.at(idx).numberLine << dataVector.at(idx - 1).baseCoord << dataVector.at(idx).baseCoord << dataVector.at(idx + 1).arcCoord.at(0);
-            float a1 = calcAngleOfLines(dataVector.at(idx - 1).baseCoord, dataVector.at(idx).baseCoord, dataVector.at(idx).plane);
-            float a2 = calcAngleOfLines(dataVector.at(idx + 1).arcCoord.at(0), dataVector.at(idx + 1).arcCoord.at(1), dataVector.at(idx).plane);
+        if ((serialDataVector.at(idx).gCmd == 1) && (serialDataVector.at(idx + 1).arcData.count() > 0)) {
+            int lastPos = serialDataVector.at(idx).arcData.count() - 1;
+            qDebug() << "line to arc, zeile" << serialDataVector.at(idx).numberLine << serialDataVector.at(idx - 1)->coord << serialDataVector.at(idx)->coord << serialDataVector.at(idx + 1).arcData.at(0);
+            float a1 = calcAngleOfLines(serialDataVector.at(idx - 1)->coord, serialDataVector.at(idx)->coord, serialDataVector.at(idx).plane);
+            float a2 = calcAngleOfLines(serialDataVector.at(idx + 1).arcData.at(0).coord, serialDataVector.at(idx + 1).arcData.at(1).coord, serialDataVector.at(idx).plane);
 
             float deltaAngle = (a1 - a2);
 
@@ -764,6 +898,8 @@ int cDataManager::calculateMinAngleSteps(int startPos)
 
             continue;
         }
+
+#endif
     }
 
 #if 0
@@ -781,7 +917,7 @@ int cDataManager::calculateMinAngleSteps(int startPos)
 
 const QVector<int> cDataManager::calculateAntPath(/*const QVector<GCodeOptim> &v*/)
 {
-    int points = g0Points.count();
+    int points = gCities.count();
 
     path.clear();
 
@@ -810,7 +946,7 @@ const QVector<int> cDataManager::calculateAntPath(/*const QVector<GCodeOptim> &v
         path[i] = i;
 
         for (int j = 0; j < points; j++) {
-            distance[i][j] = g0Points.at(j).coord.distanceToPoint(g0Points.at(i).coord);
+            distance[i][j] = gCities.at(j).coord.distanceToPoint(gCities.at(i).coord);
         }
     }
 
@@ -827,7 +963,7 @@ const QVector<int> cDataManager::calculateAntPath(/*const QVector<GCodeOptim> &v
  */
 void cDataManager::antColonyOptimization()
 {
-    int points = g0Points.count();
+    int points = gCities.count();
 
     int maxDepth = points;
 
@@ -864,54 +1000,70 @@ void cDataManager::antColonyOptimization()
  */
 void cDataManager::sortGCode(const QVector<int> &citydata)
 {
-    QVector<QString> tmpList; // for the display list
-    QVector<GCodeData> tmpGCodeList; // for the visualisation
-
+    QVector<QString> tmpOrigList; // for the display list
+    QVector<QString> tmpFilteredList; // for the display list
+    QVector<ParserData> tmpGCodeList; // serial data
+    QVector<VertexData> tmpVertexVector; // for the visualisation
 
     for(int n = 0; n < citydata.size(); n++) {
         int pos = citydata.at(n);
-        int startNum = g0Points.at(pos).lineBeg;
-        int endNum = g0Points.at(pos).lineEnd;
+        int startNum = gCities.at(pos).lineBegOrig;
+        int endNum = gCities.at(pos).lineEndOrig;
 
         for (int j = startNum; j <= endNum; j++) {
-            tmpList << goodList.at(j);
+            tmpOrigList << originalList.at(j);
         }
 
-        startNum = g0Points.at(pos).gcodeBeg;
-        endNum = g0Points.at(pos).gcodeEnd;
+        startNum = gCities.at(pos).lineBegFilter;
+        endNum = gCities.at(pos).lineEndFilter;
+
+        for (int j = startNum; j <= endNum; j++) {
+            tmpFilteredList << filteredList.at(j);
+        }
+
+        startNum = gCities.at(pos).serialBeg;
+        endNum = gCities.at(pos).serialEnd;
 
         for (int j = startNum; j <= endNum; j++) {
             tmpGCodeList << dataVector.at(j);
         }
 
-        //         qDebug() << "pos" << pos << "lines:" << startNum << ".." << endNum - 1 << goodList.at(endNum) << g0Points.at(citydata.at(n)).coord;
+        startNum = gCities.at(pos).vertexBeg;
+        endNum = gCities.at(pos).vertexEnd;
+
+        //         for (int j = startNum; j <= endNum; j++) {
+        //             tmpVertexVector << vertexVector.at(j);
+        //         }
+
+        //         qDebug() << "pos" << pos << "lines:" << startNum << ".." << endNum - 1 << goodList.at(endNum) << gCities.at(citydata.at(n)).coord;
         //         startNum = endNum;
     }
 
     mut.lock();
 
-    goodList.clear();
+    filteredList.clear();
+    filteredList = tmpFilteredList;
 
-    goodList = tmpList;
+    originalList.clear();
+    originalList = tmpOrigList;
 
     dataVector.clear();
-
     dataVector = tmpGCodeList;
 
     mut.unlock();
     //     for  (int n = 0; n < citydata.size(); n++) {
-    //         int ln = g0Points.at(citydata.at(n)).line;
+    //         int ln = gCities.at(citydata.at(n)).line;
     //         endNum =
-    //         qDebug() << "line:" << ln << goodList.at(ln) << g0Points.at(citydata.at(n)).coord;
+    //         qDebug() << "line:" << ln << goodList.at(ln) << gCities.at(citydata.at(n)).coord;
     //     }
 }
 
-
+#if 0
 /**
  * @brief
  *
  */
-bool cDataManager::addLine(GCodeData *c)
+bool cDataManager::addLine(ParserData *c)
 {
 }
 
@@ -920,9 +1072,10 @@ bool cDataManager::addLine(GCodeData *c)
  * @brief
  *
  */
-bool cDataManager::addArc(GCodeData *c)
+bool cDataManager::addArc(ParserData *c)
 {
 }
+#endif
 
 /**
  * @brief detect the min and max ranges
@@ -1070,8 +1223,8 @@ void cDataManager::convertArcToLines(int p)
         return;
     }
 
-    GCodeData &d = dataVector[p];
-    GCodeData &begData = dataVector[p - 1];
+    ParserData &d = dataVector[p];
+    ParserData &begData = dataVector[p - 1];
 
     if (!(d.gCmd == 2 || d.gCmd == 3) ) { // it's not arc
         return;
@@ -1083,12 +1236,18 @@ void cDataManager::convertArcToLines(int p)
 
     QVector3D beginPos, endPos;
 
-    beginPos = begData.baseCoord;
-    endPos = d.baseCoord;
+    beginPos = begData.coord;
+    endPos = d.coord;
 
     float i, j, k;
 
-    if (d.radius == 0) {
+    float radius = 0.0;
+
+    if (d.paramName == 'r' && d.paramValue > 0) {
+        radius = d.paramValue;
+    }
+
+    if (radius == 0) {
         i = beginPos.x() + d.extCoord.x(); // IJK
         j = beginPos.y() + d.extCoord.y();
         k = beginPos.z() + d.extCoord.z();
@@ -1102,9 +1261,9 @@ void cDataManager::convertArcToLines(int p)
         float theta;                 /* angle of line from M to center */
         float turn2;                 /* absolute value of half of turn */
 
-        abs_radius = fabs(d.radius);
+        abs_radius = fabs(radius);
 
-        switch (d.plane) {
+        switch (currentMCmd->plane) {
             case XY: {
                 mid_x = (endPos.x() + beginPos.x()) / 2.0;
                 mid_y = (endPos.y() + beginPos.y()) / 2.0;
@@ -1118,7 +1277,7 @@ void cDataManager::convertArcToLines(int p)
 #endif
 
                 /* check needed before calling asin   */
-                if (((d.gCmd == 2) && (d.radius > 0)) || ((d.gCmd == 3) && (d.radius < 0))) {
+                if (((d.gCmd == 2) && (radius > 0)) || ((d.gCmd == 3) && (radius < 0))) {
                     theta = qAtan2((endPos.y() - beginPos.y()), (endPos.x() - beginPos.x())) - M_PI_2l;
                 } else {
                     theta = qAtan2((endPos.y() - beginPos.y()), (endPos.x() - beginPos.x())) + M_PI_2l;
@@ -1146,7 +1305,7 @@ void cDataManager::convertArcToLines(int p)
 #endif
 
                 /* check needed before calling asin   */
-                if (((d.gCmd == 2) && (d.radius > 0)) || ((d.gCmd == 3) && (d.radius < 0))) {
+                if (((d.gCmd == 2) && (radius > 0)) || ((d.gCmd == 3) && (radius < 0))) {
                     theta = qAtan2((endPos.z() - beginPos.z()), (endPos.y() - beginPos.y())) - M_PI_2l;
                 } else {
                     theta = qAtan2((endPos.z() - beginPos.z()), (endPos.y() - beginPos.y())) + M_PI_2l;
@@ -1174,7 +1333,7 @@ void cDataManager::convertArcToLines(int p)
 #endif
 
                 /* check needed before calling asin   */
-                if (((d.gCmd == 2) && (d.radius > 0)) || ((d.gCmd == 3) && (d.radius < 0))) {
+                if (((d.gCmd == 2) && (radius > 0)) || ((d.gCmd == 3) && (radius < 0))) {
                     theta = qAtan2((endPos.x() - beginPos.x()), (endPos.z() - beginPos.z())) - M_PI_2l;
                 } else {
                     theta = qAtan2((endPos.x() - beginPos.x()), (endPos.z() - beginPos.z())) + M_PI_2l;
@@ -1196,12 +1355,12 @@ void cDataManager::convertArcToLines(int p)
     float deltaPos = 0.0;
     float begPos = 0.0;
 
-    switch (d.plane) {
+    switch (currentMCmd->plane) {
         case XY: {
-            if (d.radius == 0.0) {
+            if (radius == 0.0) {
                 r = qSqrt(qPow(beginPos.x() - posCenter.x(), 2) + qPow(beginPos.y() - posCenter.y(), 2));
             } else {
-                r = d.radius;
+                r = radius;
             }
 
             deltaPos = endPos.z() - beginPos.z();
@@ -1210,10 +1369,10 @@ void cDataManager::convertArcToLines(int p)
         break;
 
         case YZ: {
-            if (d.radius == 0.0) {
+            if (radius == 0.0) {
                 r = qSqrt(qPow(beginPos.y() - posCenter.y(), 2) + qPow(beginPos.z() - posCenter.z(), 2));
             } else {
-                r = d.radius;
+                r = radius;
             }
 
             deltaPos = endPos.x() - beginPos.x();
@@ -1222,10 +1381,10 @@ void cDataManager::convertArcToLines(int p)
         break;
 
         case ZX: {
-            if (d.radius == 0.0) {
+            if (radius == 0.0) {
                 r = qSqrt(qPow(beginPos.z() - posCenter.z(), 2) + qPow(beginPos.x() - posCenter.x(), 2));
             } else {
-                r = d.radius;
+                r = radius;
             }
 
             deltaPos = endPos.y() - beginPos.y();
@@ -1246,8 +1405,8 @@ void cDataManager::convertArcToLines(int p)
     }
 
 
-    alpha_beg = determineAngle (beginPos, posCenter, d.plane);
-    alpha_end = determineAngle (endPos, posCenter, d.plane);
+    alpha_beg = determineAngle (beginPos, posCenter, currentMCmd->plane);
+    alpha_end = determineAngle (endPos, posCenter, currentMCmd->plane);
 
     if (d.gCmd == 2) {
         if (alpha_beg == alpha_end) {
@@ -1273,13 +1432,12 @@ void cDataManager::convertArcToLines(int p)
 
     float bLength = r * alpha;
 
-    float n = (bLength * Settings::splitsPerMm)/* - 1*/; // num segments of arc per mm
+    float n = (bLength * Settings::splitsPerMm + 0.5); // num steps for arc
     float splitLen = 1.0 / (float)Settings::splitsPerMm;
 
-    if ( n <= 2.0) {
-        n = 3;
+    if ( n < 2.0) { // arc is too short
+        n = 2.0;
         qDebug() << "warning, n = " << n << alpha_beg << alpha_end << bLength << r << alpha << beginPos.x() << beginPos.y() << endPos.x() << endPos.y();
-        //         return;
     }
 
     float dAlpha = alpha / n;
@@ -1301,15 +1459,15 @@ void cDataManager::convertArcToLines(int p)
     qDebug() << "arc from " << begData.X << begData.Y << begData.Z  << "to" << d.X << d.Y << d.Z << "splits: " << n;
 #endif
 
-    QVector3D runCoord = d.baseCoord;
+    SerialData *runSerial = new SerialData(d.coord);
 
-    detectMinMax(runCoord);
+    detectMinMax(runSerial->coord);
 
     //     d.arcSplits = n;
-    d.movingCode = ACCELERAT_CODE;
+    runSerial->movingCode = ACCELERAT_CODE;
 
     // now split
-    switch (d.plane) {
+    switch (currentMCmd->plane) {
         case XY: {
             for (int step = 0; step < n; ++step) {
                 //coordinates of next arc point
@@ -1322,33 +1480,33 @@ void cDataManager::convertArcToLines(int p)
                 float x_new = posCenter.x() + r * c;
                 float y_new = posCenter.y() + r * s;
 
-                float angle = qAtan2(y_new - runCoord.y(), x_new - runCoord.x());
+                float angle = qAtan2(y_new - runSerial->coord.y(), x_new - runSerial->coord.x());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
 
-                runCoord = {x_new, y_new, loopPos};
+                runSerial = new SerialData(QVector3D(x_new, y_new, loopPos));
 
-                detectMinMax(runCoord);
+                detectMinMax(runSerial->coord);
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d x=%f y=%f angle=%f qSin=%f qCos=%f\n", step, x_new, y_new, angle, s, c);
 #endif
 
                 /** detection of end because of rounding */
                 if (qSqrt((x_new - endPos.x()) * (x_new - endPos.x()) + (y_new - endPos.y()) * (y_new - endPos.y())) <= splitLen) {
-                    runCoord = endPos;
+                    runSerial = new SerialData(endPos);
 
-                    detectMinMax(runCoord);
+                    detectMinMax(runSerial->coord);
 
                     n = step;
 
-                    d.arcCoord << runCoord;
+                    serialDataVector << runSerial;
 
                     break;
                 }
 
-                d.arcCoord << runCoord;
+                serialDataVector << runSerial;
             }
         }
         break;
@@ -1365,33 +1523,33 @@ void cDataManager::convertArcToLines(int p)
                 float y_new = posCenter.y() + r * c;
                 float z_new = posCenter.z() + r * s;
 
-                float angle = qAtan2(z_new - runCoord.z(), y_new - runCoord.y());
+                float angle = qAtan2(z_new - runSerial->coord.z(), y_new - runSerial->coord.y());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
 
-                runCoord = {loopPos, y_new, z_new};
+                runSerial = new SerialData(QVector3D(loopPos, y_new, z_new));
 
-                detectMinMax(runCoord);
+                detectMinMax(runSerial->coord);
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d y=%f z=%f angle=%f qSin=%f qCos=%f\n", step, y_new, z_new, angle, s, c);
 #endif
 
                 /** detection of end because of rounding */
                 if (qSqrt((y_new - endPos.y()) * (y_new - endPos.y()) + (z_new - endPos.z()) * (z_new - endPos.z())) <= splitLen) {
-                    runCoord = endPos;
+                    runSerial = new SerialData( endPos);
 
-                    detectMinMax(runCoord);
+                    detectMinMax(runSerial->coord);
 
                     n = step;
 
-                    d.arcCoord << runCoord;
+                    serialDataVector << runSerial;
 
                     break;
                 }
 
-                d.arcCoord << runCoord;
+                serialDataVector << runSerial;
             }
         }
         break;
@@ -1408,33 +1566,33 @@ void cDataManager::convertArcToLines(int p)
                 float z_new = posCenter.z() + r * c;
                 float x_new = posCenter.x() + r * s;
 
-                float angle = qAtan2(x_new - runCoord.x(), z_new - runCoord.z());
+                float angle = qAtan2(x_new - runSerial->coord.x(), z_new - runSerial->coord.z());
 
                 if (angle < 0.0) {
                     angle += 2.0 * PI;
                 }
 
-                runCoord = {x_new, loopPos, z_new};
+                runSerial = new SerialData(QVector3D(x_new, loopPos, z_new));
 
-                detectMinMax(runCoord);
+                detectMinMax(runSerial->coord);
 #if DEBUG_ARC
                 dbg += QString().sprintf("n=%d z=%f x=%f angle=%f qSin=%f qCos=%f\n", step, z_new, x_new, angle, s, c);
 #endif
 
                 /** detection of end because of rounding */
                 if (qSqrt((x_new - endPos.x()) * (x_new - endPos.x()) + (z_new - endPos.z()) * (z_new - endPos.z())) <= splitLen) {
-                    runCoord = endPos;
+                    runSerial = new SerialData( endPos);
 
-                    detectMinMax(runCoord);
+                    detectMinMax(runSerial->coord);
 
                     n = step;
 
-                    d.arcCoord << runCoord;
+                    serialDataVector << runSerial;
 
                     break;
                 }
 
-                d.arcCoord << runCoord;
+                serialDataVector << runSerial;
             }
         }
         break;
@@ -1508,11 +1666,11 @@ bool cDataManager::readFile(const QString &fileName)
 
         dataChecker();
 
-        emit logMessage(QString().sprintf("Data post processed. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), goodList.count()));
+        emit logMessage(QString().sprintf("Data post processed. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), originalList.count()));
 
         if (Settings::optimizeRapidWays == true) {
             tMess.restart();
-            //             g0points = getRapidPoints();
+            //             g0points = geRapidPoints();
             QVector<int> ant = calculateAntPath();
 
             if (ant.count() > 2) {

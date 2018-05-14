@@ -68,7 +68,7 @@ static int gerbercharno = 0;
 // gerber_lineno = 0;
 
 // init of first gerber data
-GCodeData *gerber_data;// = new GerberData();
+ParserData *gerber_data;// = new GerberData();
 
 %}
 
@@ -119,10 +119,10 @@ gline:  NL_CHAR INT
             // the new line, create new object
             // for cases, when line begins with g, m command or n: label
             if (GData::dataVector.count() == 0){
-                gerber_data =  new GCodeData();
+                gerber_data =  new ParserData();
             }
             else {
-                gerber_data =  new GCodeData(gerber_data);
+                gerber_data =  new ParserData(gerber_data);
             }
             gerber_data->numberLine = gerber_lineno;
 
@@ -135,25 +135,25 @@ gline:  NL_CHAR INT
                     gerber_data->gCmd = $2;
                     switch ($2){
                         case 0:
-                            gerber_data->movingCode = RAPID_LINE_CODE;
+//                             gerber_data->baseData.movingCode = RAPID_LINE_CODE;
                             break;
                             
                         case 1:
                         case 2:
                         case 3:
-                            gerber_data->movingCode = FEED_LINE_CODE;
+//                             gerber_data->baseData.movingCode = FEED_LINE_CODE;
                             break;
                             
                         case 17:
-                            gerber_data->plane = XY;
+//                             gerber_data->plane = XY;
                             break;
                             
                         case 18:
-                            gerber_data->plane = YZ;
+//                             gerber_data->plane = YZ;
                             break;
                             
                         case 19:
-                            gerber_data->plane = ZX;
+//                             gerber_data->plane = ZX;
                             break;
                     }
                     break;
@@ -175,7 +175,7 @@ gline:  NL_CHAR INT
         | NL_CHAR FLOAT
         {
             // when line begins with coordinates 
-            gerber_data =  new GCodeData(gerber_data);
+            gerber_data =  new ParserData(gerber_data);
             gerber_data->numberLine = gerber_lineno;
             
 //             set_data_float(($1 | 0x20), $2);
@@ -190,15 +190,15 @@ gline:  NL_CHAR INT
                 case 'g' : {
                     // new command in line, create new object
                     GData::dataVector << *gerber_data;
-                    gerber_data =  new GCodeData(gerber_data);
+                    gerber_data =  new ParserData(gerber_data);
                     gerber_data->numberLine = gerber_lineno;
                     gerber_data->gCmd = $2; 
                     
                     if ($2 == 1 || $2 == 2 || $2 == 3) {
-                        gerber_data->movingCode = FEED_LINE_CODE;
+//                         gerber_data->baseData.movingCode = FEED_LINE_CODE;
                     }
                     if ($2 == 0) {
-                        gerber_data->movingCode = RAPID_LINE_CODE;
+//                         gerber_data->baseData.movingCode = RAPID_LINE_CODE;
                     }
                     break;
                 }

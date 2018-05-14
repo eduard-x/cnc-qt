@@ -95,7 +95,7 @@ class Gerber : public QObject
         explicit Gerber(); // constructor
         ~Gerber(); // destructor
 
-        QVector<GCodeData> *dataVector();
+        QVector<ParserData> *dataVector();
         bool readGCode(char *indata);
 
     private:
@@ -107,7 +107,7 @@ class Gerber : public QObject
         void logMessage(const QString &l);
 
     public:
-        static QVector<GCodeData> gCodeVector;
+        static QVector<ParserData> gCodeVector;
         QMutex mut;
 };
 

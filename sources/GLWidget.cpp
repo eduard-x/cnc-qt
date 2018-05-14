@@ -822,9 +822,9 @@ void GLWidget::surfaceReloaded()
     for (int i = 0; i < figure.count(); i++) {
         if (parent->deltaFeed) {
             //             QVector3D p;
-            QVector3D point = parent->gCodeData->at(i).baseCoord;
-            //             float pointY = parent->gCodeData.at(i).Y;
-            //             float pointZ = parent->gCodeData.at(i).Z;
+            QVector3D point = parent->serData->at(i)->coord;
+            //             float pointY = parent->parseData.at(i).Y;
+            //             float pointZ = parent->parseData.at(i).Z;
 
             point.setZ( point.z() + parent->getDeltaZ(point.x(), point.y()));
 
@@ -856,21 +856,23 @@ void GLWidget::loadFigure()
 {
     figure.clear();
 
-    foreach (const GCodeData vv, *parent->gCodeData) {
+    foreach (const SerialData *vv, *parent->serData) {
         QColor cl;
 
-        if (vv.movingCode == RAPID_LINE_CODE) {
+        if (vv->movingCode == RAPID_LINE_CODE) {
             cl = Settings::colorSettings[COLOR_RAPID];
         } else {
             cl = Settings::colorSettings[COLOR_WORK];
         }
 
-        if (vv.arcCoord.count() > 0) {
-            foreach (QVector3D a, vv.arcCoord) {
+#if 0
+
+        if (vv.arcData.count() > 0) {
+            foreach (SerializedData s, vv.arcData) {
                 // coordinates of next point
-                float pointX = a.x();
-                float pointY = a.y();
-                float pointZ = a.z();
+                float pointX = s.coord.x();
+                float pointY = s.coord.y();
+                float pointZ = s.coord.z();
 
                 // moving in G-code
                 if (parent->Correction) {
@@ -895,10 +897,11 @@ void GLWidget::loadFigure()
                 };
             }
         } else {
+#endif
             // coordinates of next point
-            float pointX = vv.baseCoord.x();
-            float pointY = vv.baseCoord.y();
-            float pointZ = vv.baseCoord.z();
+            float pointX = vv->coord.x();
+            float pointY = vv->coord.y();
+            float pointZ = vv->coord.z();
 
             // moving in G-code
             if (parent->Correction) {
@@ -921,7 +924,10 @@ void GLWidget::loadFigure()
                 QVector3D { pointX, pointY, pointZ},
                           QVector3D(cl.redF(), cl.greenF(), cl.blueF())
             };
+#if 0
         }
+
+#endif
     }
 
     initStaticElements();

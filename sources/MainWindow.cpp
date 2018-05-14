@@ -976,10 +976,11 @@ bool MainWindow::OpenFile(QString &fileName)
 
             reloadRecentList();
 
-            QVector<QString> *l = dMan->stringList();
+            QVector<QString> *l = dMan->getOriginalList();
+            // TODO as option load the dMan->getFilteredList();
             fillListWidget(*l);
 
-            gCodeData = dMan->getDataVector();
+            serData = dMan->getSerialVector();
 
             if (enableOpenGL == true) {
                 scene3d->loadFigure();
@@ -993,7 +994,7 @@ bool MainWindow::OpenFile(QString &fileName)
             //         }
             //     }
 
-            if (gCodeData->count() > 0) {
+            if (serData->count() > 0) {
                 name.replace(QDir::homePath(), QString("~"));
                 AddLog("File loaded: " + name );
             }
@@ -1328,7 +1329,7 @@ void MainWindow::onStartTask()
         return;
     }
 
-    if (gCodeData->count() == 0) {
+    if (serData->count() == 0) {
         // no data
         MessageBox::exec(this, translate(ID_ERR), translate(ID_MSG_NO_DATA), QMessageBox::Critical);
         return;
@@ -1383,7 +1384,7 @@ void MainWindow::onStartTask()
     Task::instructionStart = -1;
     Task::instructionNow = -1;
 
-    foreach (const GCodeData c, gCodeList) {
+    foreach (const ParserData c, gCodeList) {
         if(c.numberLine == Task::lineCodeStart && Task::instructionStart == -1) { // get the first only
             Task::instructionStart = c.numberInstruct;
         }
@@ -1399,7 +1400,7 @@ void MainWindow::onStartTask()
 
 #endif
 
-    qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd /*<< "code" << Task::instructionStart << Task::instructionEnd*/ << "size of code" << gCodeData->count();
+    qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd /*<< "code" << Task::instructionStart << Task::instructionEnd*/ << "size of code" << serData->count();
     QString s = translate(ID_FROM_TO).arg( Task::lineCodeStart + 1).arg( Task::lineCodeEnd + 1);
     labelTask->setText( s );
 
@@ -1556,10 +1557,10 @@ void MainWindow::runNextCommand()
     }
 
 #endif
-    GCodeData gcodeNow;
+    SerialData *gcodeNow;
 
-    if (Task::instrCounter < gCodeData->count()) {
-        gcodeNow = gCodeData->at(Task::instrCounter);
+    if (Task::instrCounter < serData->count()) {
+        gcodeNow = serData->at(Task::instrCounter);
     } else {
         currentStatus = Task::Stop;
     }
@@ -1660,9 +1661,11 @@ void MainWindow::runNextCommand()
 
         mk1->packCA(&mParams); // move to init position
 
-        mParams.pos.X = gcodeNow.baseCoord.x();
-        mParams.pos.Y = gcodeNow.baseCoord.y();
-        mParams.pos.Z = gcodeNow.baseCoord.z() + 10.0;
+        mParams.pos.X = gcodeNow->coord.x();
+        mParams.pos.Y = gcodeNow->coord.y();
+        mParams.pos.Z = gcodeNow->coord.z() + 10.0;
+        mParams.pos.A = 0.0; // TODO
+#if 0
 
         if (gcodeNow.useExtCoord == ABC) {
             mParams.pos.A = gcodeNow.extCoord.x();    //, userSpeedG0;
@@ -1670,9 +1673,10 @@ void MainWindow::runNextCommand()
             mParams.pos.A = 0.0;
         }
 
-        mParams.speed = gcodeNow.vectSpeed;
-        mParams.movingCode = gcodeNow.movingCode;
-        mParams.restPulses = gcodeNow.stepsCounter;
+#endif
+        mParams.speed = gcodeNow->vectSpeed;
+        mParams.movingCode = gcodeNow->movingCode;
+        mParams.restPulses = gcodeNow->stepsCounter;
         mParams.numberInstruction = Task::instrCounter;
 
         mk1->packCA(&mParams); // move to init position
@@ -1716,29 +1720,33 @@ void MainWindow::runNextCommand()
     //     qDebug() << "buff size free: " << mk1->availableBufferSize() - 3 << "current instruction: " << Task::instrCounter << "compleate instructions: " << mk1->numberCompleatedInstructions();
 
     //command G4 or M0
-    if (gcodeNow.pauseMSec != -1) {
-        if (gcodeNow.pauseMSec == 0) { // M0 - waiting command
+    if (gcodeNow->pMCommand) {
+        MData *m = gcodeNow->pMCommand;
+
+        if (m->pauseMSec != -1) {
+            if (m->pauseMSec == 0) { // M0 - waiting command
+                currentStatus = Task::Paused;
+
+                //pause before user click
+                MessageBox::exec(this, translate(ID_PAUSE), translate(ID_RECIEVED_M0), QMessageBox::Information);
+            } else {
+                QString msg = translate(ID_PAUSE_G4);
+                statusLabel2->setText( msg.arg(QString::number(m->pauseMSec)));
+
+                QThread().wait(m->pauseMSec); // pause in msec
+
+                statusLabel2->setText( "" );
+            }
+        }
+
+        //replace instrument
+        if (m->toolChange) {
             currentStatus = Task::Paused;
 
             //pause before user click
-            MessageBox::exec(this, translate(ID_PAUSE), translate(ID_RECIEVED_M0), QMessageBox::Information);
-        } else {
-            QString msg = translate(ID_PAUSE_G4);
-            statusLabel2->setText( msg.arg(QString::number(gcodeNow.pauseMSec)));
-
-            QThread().wait(gcodeNow.pauseMSec); // pause in msec
-
-            statusLabel2->setText( "" );
+            QString msg = translate(ID_PAUSE_ACTIVATED);
+            MessageBox::exec(this, translate(ID_PAUSE), msg.arg(QString::number(m->toolNumber)).arg(QString::number(m->toolDiameter)), QMessageBox::Information);
         }
-    }
-
-    //replace instrument
-    if (gcodeNow.toolChange) {
-        currentStatus = Task::Paused;
-
-        //pause before user click
-        QString msg = translate(ID_PAUSE_ACTIVATED);
-        MessageBox::exec(this, translate(ID_PAUSE), msg.arg(QString::number(gcodeNow.toolNumber)).arg(QString::number(gcodeNow.toolDiameter)), QMessageBox::Information);
     }
 
     int commands = 1;
@@ -1749,16 +1757,20 @@ void MainWindow::runNextCommand()
     }
 
     for (int i = 0; i < commands; i++) {
-        float pointX = gcodeNow.baseCoord.x();
-        float pointY = gcodeNow.baseCoord.y();
-        float pointZ = gcodeNow.baseCoord.z();
-        float pointA = 0.0;
+        float pointX = gcodeNow->coord.x();
+        float pointY = gcodeNow->coord.y();
+        float pointZ = gcodeNow->coord.z();
+        float pointA = 0.0; // TODO
+#if 0
 
         if (gcodeNow.useExtCoord == ABC) {
             pointA = gcodeNow.extCoord.x();
         }
 
-        Task::lineCodeNow = gcodeNow.numberLine;
+#endif
+
+        // TODO settings to select original or filtered list
+        Task::lineCodeNow = gcodeNow->filteredLineNum;
 
         //moving in G-code
         if (Correction) {
@@ -1785,18 +1797,18 @@ void MainWindow::runNextCommand()
             mParams.pos.Y = pointY;
             mParams.pos.Z = pointZ;
             mParams.pos.A = pointA;//, userSpeedG0;
-            mParams.speed = gcodeNow.vectSpeed;
-            mParams.movingCode = gcodeNow.movingCode; //
-            mParams.restPulses = gcodeNow.stepsCounter;//
+            mParams.speed = gcodeNow->vectSpeed;
+            mParams.movingCode = gcodeNow->movingCode; //
+            mParams.restPulses = gcodeNow->stepsCounter;//
 
             mParams.numberInstruction = Task::instrCounter++;
 
-            gcodeNow.commandNum = mParams.numberInstruction;
+            gcodeNow->commandNum = mParams.numberInstruction;
 
             mk1->packCA(&mParams); // move to init position
 
-            if (Task::instrCounter < gCodeData->count()) {
-                gcodeNow = gCodeData->at(Task::instrCounter);
+            if (Task::instrCounter < serData->count()) {
+                gcodeNow = serData->at(Task::instrCounter);
             } else {
                 currentStatus = Task::Stop;
                 break;
@@ -2331,16 +2343,17 @@ void  MainWindow::refreshElementsForms()
         }
 
         if (currentStatus == Task::Working) {
-            int complectaed = mk1->numberCompleatedInstructions();
+            int complecated = mk1->numberCompleatedInstructions();
             int lineNum = 0;
 
             // TODO to link with line number
-            foreach (const GCodeData v, *gCodeData) {
-                if (v.commandNum > complectaed) {
+            foreach (const SerialData *v, *serData) {
+                if (v->commandNum > complecated) {
                     break;
                 }
 
-                lineNum = v.numberLine;
+                // TODO settings to select original or filtered list
+                lineNum = v->filteredLineNum;
             }
 
             statusProgress->setValue( lineNum );

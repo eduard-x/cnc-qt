@@ -30,6 +30,7 @@
  ****************************************************************************/
 
 #include <QVector3D>
+#include <QColor>
 #include <QVector>
 
 #define NO_CODE         0x00
@@ -234,54 +235,156 @@ enum CoordEnum {
     UVW
 };
 
-//
-// g-code instruction
-//
-class GCodeData
+/**
+ * @brief class for manadgement of processing
+ *
+ */
+class MData
 {
     public:
-        int   gCmd;
-        int   mCmd;
+        MData()
+        {
+            toolChange = -1;
+            toolNumber = 0;
+            toolDiameter = 0.0;
+            spindelOn = -1;
+            mistOn = -1;
+            coolantOn = -1;
+            plane = None;
+            pauseMSec = -1;
+            rapidVelo = 0.0;
+            radius = 0.0;
+        }
+        int   toolNumber;   // собственно номер tool
+        float toolDiameter; // diameter of tool
 
+        short  toolChange;  // to change the tool
+        short  spindelOn;   // spinle on
+        short  mistOn;
+        short  coolantOn;
+        PlaneEnum plane;
+        int   pauseMSec;    // if waiting = 0, no pause = -1. other pause in milliseconds
+
+        float rapidVelo;    // for F commands
+        float radius;       // for G02, G03 commands
+};
+
+/**
+ * @brief class for sending data (mk1 telegram):
+ *
+ *              coordinates
+ *              vector speed
+ *              vector coefficient for diagonal moving
+ *              moving code (rapid, feed moving, acceleration, const speed, deceleration)
+ *              steps counter
+ *              number of sending command
+ *              optional pointer to management data class
+ */
+class SerialData
+{
+    public:
+        SerialData(const QVector3D &c = QVector3D())
+        {
+            coord = c;
+
+            vectSpeed = 0;
+            stepsCounter = 0;
+            vectorCoeff = 0;
+            commandNum = 0;
+            movingCode = NO_CODE;
+            filteredLineNum = -1;
+            originalLineNum = -1;
+            pMCommand = 0; // pointer
+        }
+        ~SerialData()
+        {
+            if (pMCommand) {
+                delete pMCommand;
+            };
+        }
+
+        // coordinates
+        QVector3D coord;
+
+        // calculated data for sending to MK1
+        int   vectSpeed;
+        int   stepsCounter;
+        int   commandNum; // is the command number for sending to mk1
+        float vectorCoeff;
+        int   movingCode; // acceleration deceleration and other
+        int   filteredLineNum; // pos in filtered list
+        int   originalLineNum; // pos in original list
+
+        MData   *pMCommand;
+};
+
+
+// class for OpenGL visualisation
+class VisualData
+{
+        QVector3D coord;
+        QColor    color;
+};
+
+//
+// parsed data
+//
+class ParserData
+{
+    public:
+        short gCmd;
+        short gExtCmd;
+
+        short mCmd;
+        short mExtCmd;
+
+        int   mParam;
+#if 0
         bool  toolChange; // to change the tool
         int   toolNumber; // собственно номер tool
         float toolDiameter; // diameter of tool
 
-        int   commandNum; // set it, if instuction was sent
+        bool  spindelOn;      // spinle on
+        bool  mistOn;
+        bool  coolantOn;
 
+
+        PlaneEnum plane;
+#endif
+        //
         int   labelNum;
 
-        int   pauseMSec;  // if waiting = 0, no pause = -1. other pause in milliseconds
-        //
-        // coordinates in mm
+        // coordinates in mm and data for mk1 controller
+        int   serialDataPos;
+        //         SerialData baseData;
+#if 0
         QVector3D baseCoord; // XYZ
+        int   vectSpeed; // telegr CA offset
+        float vectorCoeff; // for the max from dH / dX of dH / dY ratio, in case XY plane
+
+        int   movingCode;
+        int   stepsCounter; // number of steps in current direction
+#endif
+
+        QVector3D coord;
         CoordEnum useExtCoord;
         QVector3D extCoord;
 
         // if arc splitted, number of followed cuts.
         // for convertion from G02/G03 to G01
-        QVector<QVector3D> arcCoord;
+        //         QVector<SerializedData> arcData;
+        //         QVector<QVector3D> arcCoord;
+        char  paramName;
+        float paramValue;
 
         bool decoded;
 
-        PlaneEnum plane; // XY, YZ, ZX
-
         QString lineComment;
+        QString originalLine;
 
-        int   vectSpeed; // telegr CA offset
-        float vectorCoeff; // for the max from dH / dX of dH / dY ratio, in case XY plane
 
-        float rapidVelo;
-
-        int   movingCode;
-        int   stepsCounter; // number of steps in current direction
-
-        float radius;
         // end of curves
 
-        bool  spindelOn;      // spinle on
-        bool  mistOn;
-        bool  coolantOn;
 
         int   numberLine;     // from g-code file
 
@@ -292,10 +395,10 @@ class GCodeData
     public:
         //
         // null constructor
-        GCodeData();
+        ParserData();
 
         // constructor with copy from last data
-        GCodeData(GCodeData *_cmd);
+        ParserData(ParserData *_cmd);
         QVector<class DataOperation*> opVector;
 };
 

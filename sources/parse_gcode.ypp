@@ -67,7 +67,7 @@ extern int gcode_lex_destroy (void);
 bool set_data_float(char c, float f);
 
 
-GCodeData *gcode_data;
+ParserData *gcode_data;
 
 %}
 
@@ -97,7 +97,7 @@ GCodeData *gcode_data;
     char      c_val;
     char*     s_val;
     class DataOperation* op;
-    class GCodeData* g;
+    class ParserData* g;
 }
 
 
@@ -142,45 +142,42 @@ gline:  CMD_CHAR IVAL
             // for cases, when line begins with g, m command or n: label
 //             qInfo() << $1 << $2;
             if (GData::dataVector.count() == 0){
-                gcode_data = new GCodeData();
+                gcode_data = new ParserData();
             }
             else {
-                gcode_data = new GCodeData(gcode_data);
+                gcode_data = new ParserData(gcode_data);
             }
             gcode_data->numberLine = gcode_lineno;
 
             switch ($1 | 0x20){
                 case 'g' :
-                    gcode_data->gCmd = $2;
-                    gcode_data->mCmd = -1;
-                    
-                    switch ($2){
-                        case 0:
-                            gcode_data->movingCode = RAPID_LINE_CODE;
+                    gcode_data->gCmd = (short)$2;
+                    // add only commands to the list
+                    // which will be interpretated
+                    switch ($2){ // commands are known 
+                        case 0:  // rapid moving
+                        case 1:  // linear moving
+                        case 2:  // clockwise arc
+                        case 3:  // counter-clockwise arc
+                        case 17: // XY plane
+                        case 18: // YZ plane
+                        case 19: // ZX plane
+                        case 20: // units: inches
+                        case 21: // units: millimeters
+                        case 28: // go to home pos
+                        case 40: // compensation off
+                        case 90: // set to absolute positioning 
+                        case 91: // set to relative positioning
                             break;
-                            
-                        case 1:
-                        case 2:
-                        case 3:
-                            gcode_data->movingCode = FEED_LINE_CODE;
-                            break;
-                            
-                        case 17:
-                            gcode_data->plane = XY;
-                            break;
-                            
-                        case 18:
-                            gcode_data->plane = YZ;
-                            break;
-                            
-                        case 19:
-                            gcode_data->plane = ZX;
+                       
+                        default:
+                            qWarning() << "G-Code is not decoded:" << $2;
                             break;
                     }
                     break;
 
                 case 'm' :
-                    gcode_data->mCmd = $2;
+                    gcode_data->mCmd = (short)$2;
                     break;
  
                 default:
@@ -188,6 +185,11 @@ gline:  CMD_CHAR IVAL
                     // TODO: not critical message 
                     break;
             }
+        }
+        | CMD_CHAR FVAL
+        {
+            // TODO extended, with point G or M command
+            qWarning() << $1 << "-Code is not decoded:" << $2;
         }
         | LABEL IVAL 
         {
@@ -198,7 +200,7 @@ gline:  CMD_CHAR IVAL
         | COMMENTAR 
         {
             if (gcode_data == 0){
-                gcode_data = new GCodeData();
+                gcode_data = new ParserData();
             }
             if (strlen($1)) {
                 gcode_data->lineComment = QString($1).simplified();
@@ -243,8 +245,6 @@ params: param
 param:  PARAM_CHAR EXPR
         {
             // when line begins with coordinates 
-//             qInfo() << $1 << $2->result;
-            
             if (set_data_float(($1 | 0x20), $2->result) == false) {
                 gcode_data->decoded = false;
                 printf("not decoded char %c, line %d\n", $1, gcode_lineno);
@@ -253,10 +253,8 @@ param:  PARAM_CHAR EXPR
             if ($2) {
                 gcode_data->opVector << $2;
             }
-//             gcode_data = new GCodeData(gcode_data);
+            
             gcode_data->numberLine = gcode_lineno;
-//             gcode_data-> new DataOperation();
-//             gcode_lval.c_val = $1;
         }
         | PARAM_CHAR
         {
@@ -358,15 +356,15 @@ EXPR:   '[' EXPR ']'
 bool set_data_float(char c, float f) {
     switch (c){
         case 'x':
-            gcode_data->baseCoord.setX(f);
+            gcode_data->coord.setX(f);
             break;
             
         case 'y':
-            gcode_data->baseCoord.setY(f);
+            gcode_data->coord.setY(f);
             break;
             
         case 'z':
-            gcode_data->baseCoord.setZ(f);
+            gcode_data->coord.setZ(f);
             break;
             
         case 'i':
@@ -415,32 +413,13 @@ bool set_data_float(char c, float f) {
             break;
             
         case 'r': // radius
-            gcode_data->radius = f;
-            break;
-            
         case 's': // pause sec
-            if (gcode_data->gCmd == 4){
-                gcode_data->pauseMSec = f*1000.0;
-            }
-            break;
-            
         case 'p': // pause msec
-            if (gcode_data->gCmd == 4){
-                gcode_data->pauseMSec = f;
-            }
-            break;
-            
         case 'f': // feed
-            gcode_data->rapidVelo = f;
-            break;
-            
         case 'd': // diameter
-            gcode_data->toolDiameter = f;
-            break;
-            
         case 't': // change tool
-            gcode_data->toolChange = true;
-            gcode_data->toolNumber = f;
+            gcode_data->paramName = c;
+            gcode_data->paramValue = f;
             break;
             
         default:
