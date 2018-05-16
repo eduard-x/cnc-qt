@@ -124,7 +124,7 @@ class cDataManager : public GData // , public cTranslator
 
         void writeFile(const QString &fileName);
 
-        void fixGCodeList();
+        void fixSerialList();
 
     public:
         QList<DataCollections> data;

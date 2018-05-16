@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>711</width>
-    <height>661</height>
+    <width>734</width>
+    <height>664</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -2695,8 +2695,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>711</width>
-     <height>26</height>
+     <width>734</width>
+     <height>25</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -2761,7 +2761,13 @@
     </property>
     <addaction name="actionProgram"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuView"/>
    <addaction name="menuSettings"/>
    <addaction name="menuController"/>
    <addaction name="menuHelp"/>

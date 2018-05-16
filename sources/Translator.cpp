@@ -303,6 +303,10 @@ QString cTranslator::engText[] = {
     "Control",
     "Line:",
     "Max ant search depth:",
+    "View",
+    "Display original G-Code",
+    "Display filtered G-Code",
+    "Visualization",
     ""
 };
 

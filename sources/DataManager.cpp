@@ -540,7 +540,7 @@ void cDataManager::dataChecker()
  * the data list will be patched dependend from current user settings:
  * speed, steps per mm and other. we need to patch data in case of settings changing
  */
-void cDataManager::fixGCodeList()
+void cDataManager::fixSerialList()
 {
     if (serialDataVector.count() < 2) {
         return;
@@ -548,7 +548,8 @@ void cDataManager::fixGCodeList()
 
     // grad to rad
     maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;
-    qInfo() << "fixGCodeList, list size" << serialDataVector.size();
+    
+    qInfo() << "fixSerialList, list size" << serialDataVector.size();
 
     // calculate the number of steps in one direction, if exists
     for (int idx = 0; idx < serialDataVector.size(); idx++) {
@@ -1682,7 +1683,7 @@ bool cDataManager::readFile(const QString &fileName)
             emit logMessage(QString().sprintf("Read gcode, Ant optimization. Time elapsed: %d ms, cities: %d", tMess.elapsed(), ant.count()));
         }
 
-        fixGCodeList();
+        fixSerialList();
 
         arr.clear();
 
