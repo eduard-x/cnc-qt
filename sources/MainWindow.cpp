@@ -985,9 +985,17 @@ bool MainWindow::OpenFile(QString &fileName)
 
             reloadRecentList();
 
-            QVector<QString> *l = dMan->getOriginalList();
-            // TODO as option load the dMan->getFilteredList();
-            fillListWidget(*l);
+            if (Settings::viewOriginalGode) {
+                QVector<QString> *l = dMan->getOriginalList();
+                // TODO as option load the dMan->getFilteredList();
+                fillListWidget(*l);
+            }
+            else {
+                QVector<QString> *l = dMan->getFilteredList();
+                // TODO as option load the dMan->getFilteredList();
+                fillListWidget(*l);
+            }
+        
 
             serData = dMan->getSerialVector();
 
@@ -1202,6 +1210,16 @@ void MainWindow::onFilter()
     }
 
     // TODO reload the list
+    if (!Settings::viewOriginalGode) {
+        QVector<QString> *l = dMan->getFilteredList();
+        // TODO as option load the dMan->getFilteredList();
+        fillListWidget(*l);
+    }
+    else {
+        QVector<QString> *l = dMan->getOriginalList();
+        // TODO as option load the dMan->getFilteredList();
+        fillListWidget(*l);
+    }
 
     connect(actionFiltered, SIGNAL(triggered()), this, SLOT(onFilter()));
     connect(actionOriginal, SIGNAL(triggered()), this, SLOT(onFilter()));

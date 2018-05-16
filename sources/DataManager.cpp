@@ -524,10 +524,12 @@ void cDataManager::dataChecker()
 
             if (filteredLine.length()) {
                 filteredList << filteredLine;
+                filteredLine.clear();
             }
 
             if (originalLine.length()) {
                 originalList << originalLine;
+                originalLine.clear();
             }
         }
     }
@@ -1657,8 +1659,10 @@ bool cDataManager::readFile(const QString &fileName)
         tMess.start();
 
         dataVector.clear();
-
+        
         bool res = readGCode(arr.data());
+        
+        originalList.clear();
 
         emit logMessage(QString().sprintf("Parse gcode, flex/bison. Time elapsed: %d ms", tMess.elapsed()));
         // the parsed data is in gCodeList

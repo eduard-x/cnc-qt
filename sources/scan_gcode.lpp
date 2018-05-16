@@ -186,7 +186,9 @@ SQRT     "SQRT"
     return FVAL;
 }
 
-{EOL} { return NEW_LINE; }
+{EOL} {
+    return NEW_LINE;
+}
 
 
 ^{COMMENT} { /* do nothing TODO */ }
