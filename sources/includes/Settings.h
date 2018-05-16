@@ -134,6 +134,9 @@ class Settings : public QSettings
         static QColor colorSettings[COLOR_ENTRIES];
         //         QVector<axis> mk2[9]; // array of 9 axis for mk2
 
+        static bool viewOriginalGode;
+        static bool viewVisualization;
+
         static int depthSum;
         static int repeatTimes;
         static bool optimizeRapidWays;

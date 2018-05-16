@@ -100,6 +100,10 @@ bool Settings::DEMO_DEVICE = false;
 int  Settings::splitsPerMm = 10;
 float Settings::maxLookaheadAngle = 170.0;
 
+
+bool Settings::viewOriginalGode = false;
+bool Settings::viewVisualization = true;
+
 int Settings::pointSize = 1;
 int Settings::lineWidth = 3;
 bool Settings::smoothMoving = false;
@@ -306,6 +310,12 @@ bool Settings::saveSettings()
     s->setValue("SmoothMoving", (bool)smoothMoving);
     s->setValue("ShowTraverse", (bool)showTraverse);
     s->setValue("ShowWorkbench", (bool)showWorkbench);
+
+    s->endGroup();
+
+    s->beginGroup("View");
+    s->setValue("OriginalGCode", (bool)viewOriginalGode);
+    s->setValue("Visualize", (bool)viewVisualization);
 
     s->endGroup();
 
@@ -576,6 +586,11 @@ bool Settings::readSettings()
 
     s->endGroup();
     //     }
+
+    s->beginGroup("View");
+    viewOriginalGode = s->value("OriginalGCode", false).toBool();
+    viewVisualization = s->value("Visualize", true).toBool();
+    s->endGroup();
 
     bool res;
 

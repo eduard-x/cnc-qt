@@ -273,13 +273,11 @@ MainWindow::MainWindow(QWidget *parent)
     //     enableOpenGL = false;
 
     // OpenGL area
+    scene3d = new GLWidget(this);
+    scrollArea->setWidget(scene3d);
+    OpenGL_preview->addWidget(scrollArea, 0, 0);
+
     if (enableOpenGL == true) {
-        scene3d = new GLWidget(this);
-
-        scrollArea->setWidget(scene3d);
-
-        OpenGL_preview->addWidget(scrollArea, 0, 0);
-
         QPalette palette = statusLabel2->palette();
         //  palette.setColor(statusLabel2->backgroundRole(), Qt::yellow);
         palette.setColor(statusLabel2->foregroundRole(), Qt::darkBlue);
@@ -288,14 +286,12 @@ MainWindow::MainWindow(QWidget *parent)
 
         // OpenGL is placed in widget
     } else {
-        scene3d = 0;
-
         QPalette palette = statusLabel2->palette();
         //  palette.setColor(statusLabel2->backgroundRole(), Qt::yellow);
         palette.setColor(statusLabel2->foregroundRole(), Qt::red);
         statusLabel2->setPalette(palette);
         statusLabel2->setText( "OpenGL " + translate(ID_DISABLED) );
-        tabWidget->removeTab(1);
+        tabWidget->widget(1)->setHidden(true);
     }
 
     tabWidget->setCurrentIndex(0);
@@ -449,6 +445,19 @@ void MainWindow::addConnections()
     connect(actionOpen, SIGNAL(triggered()), this, SLOT(onOpenFile()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(onSaveFile()));
     connect(actionExit, SIGNAL(triggered()), this, SLOT(onExit()));
+
+    connect(actionVisualization, SIGNAL(toggled(bool)), this, SLOT(onVisualize(bool)));
+    actionVisualization->setChecked(Settings::viewVisualization);
+
+    connect(actionFiltered, SIGNAL(toggled(bool)), this, SLOT(onFilter()));
+    connect(actionOriginal, SIGNAL(toggled(bool)), this, SLOT(onFilter()));
+
+    QActionGroup *listGCodeGroup = new QActionGroup(this);
+
+    listGCodeGroup->addAction(actionFiltered);
+    listGCodeGroup->addAction(actionOriginal);
+
+    actionFiltered->setChecked(!Settings::viewOriginalGode);
 
     connect(dMan, SIGNAL(logMessage(const QString&)), this, SLOT(logMessage(const QString&)));
 
@@ -1160,6 +1169,43 @@ void MainWindow::closeEvent(QCloseEvent* ce)
     QCoreApplication::quit();
 }
 
+/**
+ * @brief enable/disable 3d visualisation of data
+ *
+ */
+void MainWindow::onVisualize(bool displ)
+{
+    tabWidget->setTabEnabled(1, displ);
+    Settings::viewVisualization = displ;
+}
+
+/**
+ * @brief set displaying of original or filtered/converted G-Code
+ */
+void MainWindow::onFilter()
+{
+    QAction* a  = static_cast<QAction*>(sender());
+
+    disconnect(actionFiltered, SIGNAL(triggered()), this, SLOT(onFilter()));
+    disconnect(actionOriginal, SIGNAL(triggered()), this, SLOT(onFilter()));
+
+    if (a == actionFiltered) {
+        bool fltrd = actionFiltered->isChecked();
+        actionOriginal->setChecked(!fltrd);
+        Settings::viewOriginalGode = !fltrd;
+    }
+
+    if (a == actionOriginal) {
+        bool fltrd = actionOriginal->isChecked();
+        actionFiltered->setChecked(!fltrd);
+        Settings::viewOriginalGode = fltrd;
+    }
+
+    // TODO reload the list
+
+    connect(actionFiltered, SIGNAL(triggered()), this, SLOT(onFilter()));
+    connect(actionOriginal, SIGNAL(triggered()), this, SLOT(onFilter()));
+}
 
 /**
  * @brief slot from "exit" menu element
@@ -1237,22 +1283,12 @@ void MainWindow::translateGUI()
     labelPWMVelo->setText(translate(ID_VELO_PWM));
     labelPWMCHan->setText(translate(ID_CHAN_PWM));
 
-    if (enableOpenGL == true) {
-        tabWidget->setTabText(0, translate(ID_DATA));
-        tabWidget->setTabText(1, translate(ID_3D_VIEW));
-        //         tabWidget->setTabText(2, translate(ID_WORKBENCH));
-        tabWidget->setTabText(2, translate(ID_DIAGNOSTIC));
-        tabWidget->setTabText(3, translate(ID_ADDITIONAL));
-        tabWidget->setTabText(4, translate(ID_SIGNAL));
-        tabWidget->setTabText(5, translate(ID_LOG));
-    } else {
-        tabWidget->setTabText(0, translate(ID_DATA));
-        //         tabWidget->setTabText(1, translate(ID_WORKBENCH));
-        tabWidget->setTabText(1, translate(ID_DIAGNOSTIC));
-        tabWidget->setTabText(2, translate(ID_ADDITIONAL));
-        tabWidget->setTabText(3, translate(ID_SIGNAL));
-        tabWidget->setTabText(4, translate(ID_LOG));
-    }
+    tabWidget->setTabText(0, translate(ID_DATA));
+    tabWidget->setTabText(1, translate(ID_3D_VIEW));
+    tabWidget->setTabText(2, translate(ID_DIAGNOSTIC));
+    tabWidget->setTabText(3, translate(ID_ADDITIONAL));
+    tabWidget->setTabText(4, translate(ID_SIGNAL));
+    tabWidget->setTabText(5, translate(ID_LOG));
 
     labelRunFrom->setText(translate(ID_LINE));
 
@@ -1288,11 +1324,15 @@ void MainWindow::translateGUI()
     labelNumVelo->setText(translate(ID_VELO));
 
     menuFile->setTitle(translate(ID_FILE));
+    menuView->setTitle(translate(ID_VIEW));
     menuSettings->setTitle(translate(ID_SETTINGS));
     menuController->setTitle(translate(ID_CONTROLLER));
     menuHelp->setTitle(translate(ID_HELP));
 
     actionOpen->setText(translate(ID_OPEN_FILE));
+    actionVisualization->setText(translate(ID_VISUALIZE_ON));
+    actionOriginal->setText(translate(ID_VIEW_ORIGINAL));
+    actionFiltered->setText(translate(ID_VIEW_FILTERED));
 
     if (filesMenu != 0) {
         filesMenu->setTitle( translate(ID_RECENTFILES));

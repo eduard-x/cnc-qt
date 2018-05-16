@@ -226,6 +226,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
 
     private slots:
         void onExit();
+
+        void onVisualize(bool b);
+        void onFilter();
+
         void onManualControlDialog();
 
         void onOpenFile();

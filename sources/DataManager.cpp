@@ -548,7 +548,7 @@ void cDataManager::fixSerialList()
 
     // grad to rad
     maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;
-    
+
     qInfo() << "fixSerialList, list size" << serialDataVector.size();
 
     // calculate the number of steps in one direction, if exists

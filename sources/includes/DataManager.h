@@ -195,8 +195,9 @@ class cDataManager : public GData // , public cTranslator
     private:
         //         QByteArray arr;
 
-        QVector<VertexData> vertexVector;
+        //         QVector<VertexData> vertexVector;
         QVector<SerialData*> serialDataVector;
+
         QVector<QString> filteredList; // only decoded G-code
         QVector<QString> originalList; // only decoded G-code
 
