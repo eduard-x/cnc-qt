@@ -253,6 +253,17 @@ void cDataManager::dataChecker()
             } else {
                 filteredLine += QString().sprintf("X%g Y%g Z%g ", sTmp->coord.x(), sTmp->coord.y(), sTmp->coord.z());
             }
+            
+            if (d.vParams.count() > 0) {
+                foreach(addParam p, d.vParams) {
+                    if (p.hasValue == false) {
+                        filteredLine += QString().sprintf("%c ", (p.name & ~0x20));
+                    }
+                    else {
+                        filteredLine += QString().sprintf("%c%g ", (p.name & ~0x20), p.value);
+                    }
+                }
+            }
 
             QVector3D delta_pos;
             delta_pos = d.coord - dataVector.at(cur - 1).coord;

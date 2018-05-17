@@ -163,6 +163,7 @@ gline:  CMD_CHAR IVAL
                         case 1:  // linear moving
                         case 2:  // clockwise arc
                         case 3:  // counter-clockwise arc
+                        case 4:
                         case 17: // XY plane
                         case 18: // YZ plane
                         case 19: // ZX plane
@@ -172,6 +173,9 @@ gline:  CMD_CHAR IVAL
                         case 40: // compensation off
                         case 90: // set to absolute positioning 
                         case 91: // set to relative positioning
+                        case 92:
+                        case 161:
+                        case 162:
                             break;
                        
                         default:
