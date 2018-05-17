@@ -59,7 +59,8 @@ cDataManager::cDataManager()
 cDataManager::~cDataManager()
 {
     gCities.clear();
-
+    
+    dataVector.clear();
     filteredList.clear();
     originalList.clear();
 }
@@ -118,9 +119,9 @@ void cDataManager::checkCity(const QVector3D &current_pos, int pos)
             if (delta_pos.z() == 0.0 && (delta_pos.x() != 0.0 || delta_pos.y() != 0.0)) {
                 if (dataVector.at(pos - 1).gCmd == 0) {
                     gCities.last().lineEndFilter = (filteredList.count() - 1 );
-                    gCities.last().lineEndOrig = (originalList.count() - 1 );
+                    gCities.last().lineEndOrig = (d.numberLine - 1 );
                     gCities.last().serialEnd = (pos - 1);
-                    gCities << GCodeOptim {current_pos, originalList.count(), -1, filteredList.count(), -1, pos, -1};
+                    gCities << GCodeOptim {current_pos, d.numberLine, -1, filteredList.count(), -1, pos, -1};
                 }
 
                 break;
@@ -141,9 +142,9 @@ void cDataManager::checkCity(const QVector3D &current_pos, int pos)
                 // yz moving
                 if (dataVector.at(pos - 1).gCmd == 0) {
                     gCities.last().lineEndFilter = (filteredList.count() - 1 );
-                    gCities.last().lineEndOrig = (originalList.count() - 1 );
+                    gCities.last().lineEndOrig = (d.numberLine - 1 );
                     gCities.last().serialEnd = (pos - 1);
-                    gCities << GCodeOptim {current_pos, originalList.count(), -1, filteredList.count(), -1, pos, -1};
+                    gCities << GCodeOptim {current_pos, d.numberLine, -1, filteredList.count(), -1, pos, -1};
                 }
 
                 break;
@@ -164,9 +165,9 @@ void cDataManager::checkCity(const QVector3D &current_pos, int pos)
                 // zx moving
                 if (dataVector.at(pos - 1).gCmd == 0) {
                     gCities.last().lineEndFilter = (filteredList.count() - 1 );
-                    gCities.last().lineEndOrig = (originalList.count() - 1 );
+                    gCities.last().lineEndOrig = (d.numberLine - 1 );
                     gCities.last().serialEnd = (pos - 1);
-                    gCities << GCodeOptim {current_pos, originalList.count(), -1, filteredList.count(), -1, pos, -1};
+                    gCities << GCodeOptim {current_pos, d.numberLine, -1, filteredList.count(), -1, pos, -1};
                 }
 
                 break;
@@ -198,7 +199,6 @@ void cDataManager::dataChecker()
     gCities.clear();
 
     filteredList.clear();
-    originalList.clear();
     serialDataVector.clear();
 
     resetSoftLimits();
@@ -211,7 +211,7 @@ void cDataManager::dataChecker()
 
     // TODO home pos
     // goodList has the text for table
-    gCities << GCodeOptim {QVector3D(0, 0, 0), originalList.count(), -1, filteredList.count(), -1, dataVector.count(), -1};
+    gCities << GCodeOptim {QVector3D(0, 0, 0), 0/*originalList.count()*/, -1, filteredList.count(), -1, dataVector.count(), -1};
 
     currentMCmd = new MData();
 
@@ -227,7 +227,7 @@ void cDataManager::dataChecker()
         }
 
         QString filteredLine;
-        QString originalLine = d.originalLine;
+//         QString originalLine = d.originalLine;
 
         SerialData *sTmp = 0;
 
@@ -527,10 +527,10 @@ void cDataManager::dataChecker()
                 filteredLine.clear();
             }
 
-            if (originalLine.length()) {
-                originalList << originalLine;
-                originalLine.clear();
-            }
+//             if (originalLine.length()) {
+//                 originalList << originalLine;
+//                 originalLine.clear();
+//             }
         }
     }
 }
@@ -1663,6 +1663,7 @@ bool cDataManager::readFile(const QString &fileName)
         bool res = readGCode(arr.data());
         
         originalList.clear();
+        originalList = QString(arr).split("\n").toVector();
 
         emit logMessage(QString().sprintf("Parse gcode, flex/bison. Time elapsed: %d ms", tMess.elapsed()));
         // the parsed data is in gCodeList
