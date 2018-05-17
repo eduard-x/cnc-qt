@@ -253,13 +253,12 @@ void cDataManager::dataChecker()
             } else {
                 filteredLine += QString().sprintf("X%g Y%g Z%g ", sTmp->coord.x(), sTmp->coord.y(), sTmp->coord.z());
             }
-            
+
             if (d.vParams.count() > 0) {
                 foreach(addParam p, d.vParams) {
                     if (p.hasValue == false) {
                         filteredLine += QString().sprintf("%c ", (p.name & ~0x20));
-                    }
-                    else {
+                    } else {
                         filteredLine += QString().sprintf("%c%g ", (p.name & ~0x20), p.value);
                     }
                 }
@@ -593,15 +592,15 @@ void cDataManager::checkMCommand(const SerialData &s)
     if (s.pMCommand->toolDiameter != s.pMCommand->toolDiameter) {
         currentMCmd->toolDiameter = s.pMCommand->toolDiameter;
     }
-    
+
     if (s.pMCommand->rapidVelo != s.pMCommand->rapidVelo) {
         currentMCmd->rapidVelo = s.pMCommand->rapidVelo;
     }
-    
+
     if (s.pMCommand->pauseMSec >= 0) {
         currentMCmd->pauseMSec = s.pMCommand->pauseMSec;
     }
-    
+
 }
 
 /**
@@ -1236,9 +1235,10 @@ void cDataManager::convertArcToLines(int p)
             break;
         }
     }
-//     if (d.paramName == 'r' && d.paramValue > 0) {
-//         radius = d.paramValue;
-//     }
+
+    //     if (d.paramName == 'r' && d.paramValue > 0) {
+    //         radius = d.paramValue;
+    //     }
 
     if (radius == 0) {
         i = beginPos.x() + d.extCoord.x(); // IJK

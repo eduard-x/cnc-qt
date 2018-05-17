@@ -68,7 +68,8 @@ bool set_data_float(char c, float f);
 
 // extern struct addParam;
 
-ParserData *gcode_data;
+// initializing for vector
+ParserData *gcode_data = new ParserData();
 
 %}
 
@@ -141,15 +142,9 @@ gline:  CMD_CHAR IVAL
         {
             // the new line, create new object
             // for cases, when line begins with g, m command or n: label
-//             qInfo() << $1 << $2;
-            if (GData::dataVector.count() == 0){ // init
-                gcode_data = new ParserData();
-            }
-            else {
-                // has already command data
-                if (gcode_data->gCmd >= 0) {
-                    gcode_data = new ParserData(gcode_data);
-                }
+            // has already command data
+            if (gcode_data->gCmd >= 0) {
+                gcode_data = new ParserData(gcode_data);
             }
             gcode_data->numberLine = gcode_lineno;
 
@@ -213,9 +208,6 @@ gline:  CMD_CHAR IVAL
         | vardefs
         | COMMENTAR 
         {
-            if (gcode_data == 0){
-                gcode_data = new ParserData();
-            }
             if (strlen($1)) {
                 gcode_data->lineComment = QString($1).simplified();
                 gcode_data->numberLine = gcode_lineno;
@@ -224,11 +216,9 @@ gline:  CMD_CHAR IVAL
         }
         | NEW_LINE
         {
-            if (gcode_data) {
-                GData::dataVector << *gcode_data;
-                gcode_data = new ParserData(gcode_data);
-                gcode_data->numberLine = (gcode_lineno+1); // for init
-            }
+            GData::dataVector << *gcode_data;
+            gcode_data = new ParserData(gcode_data);
+            gcode_data->numberLine = (gcode_lineno+1); // for init
         }
         ;
 
@@ -439,10 +429,8 @@ bool set_data_float(char c, float f) {
         case 'd': // diameter
         case 't': {// change tool
             gcode_data->vParams << addParam {c, true, f};
-//             gcode_data->paramName = c;
-//             gcode_data->paramValue = f;
             break;
-            }
+        }
             
         default:
             gcode_data->decoded = false;

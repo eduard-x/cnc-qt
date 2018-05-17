@@ -359,8 +359,8 @@ class ParserData
         QVector3D extCoord;
 
         QVector<addParam> vParams;
-//         char  paramName;
-//         float paramValue;
+        //         char  paramName;
+        //         float paramValue;
 
         bool decoded;
 
