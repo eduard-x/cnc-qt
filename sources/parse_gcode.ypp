@@ -66,6 +66,7 @@ extern int gcode_lex_destroy (void);
 
 bool set_data_float(char c, float f);
 
+// extern struct addParam;
 
 ParserData *gcode_data;
 
@@ -270,7 +271,10 @@ param:  PARAM_CHAR EXPR
         }
         | PARAM_CHAR
         {
-            // set the coords
+            // parameters without values
+            if (gcode_data) {
+                gcode_data->vParams << addParam { $1, false, 0 };
+            }
         }
         ;
 
@@ -429,10 +433,12 @@ bool set_data_float(char c, float f) {
         case 'p': // pause msec
         case 'f': // feed
         case 'd': // diameter
-        case 't': // change tool
-            gcode_data->paramName = c;
-            gcode_data->paramValue = f;
+        case 't': {// change tool
+            gcode_data->vParams << addParam {c, true, f};
+//             gcode_data->paramName = c;
+//             gcode_data->paramValue = f;
             break;
+            }
             
         default:
             gcode_data->decoded = false;

@@ -328,6 +328,13 @@ class VisualData
         QColor    color;
 };
 
+
+struct addParam {
+    char  name;
+    bool  hasValue;
+    float value;
+};
+
 //
 // parsed data
 //
@@ -351,8 +358,9 @@ class ParserData
         CoordEnum useExtCoord; // ABC, IJK, UWV
         QVector3D extCoord;
 
-        char  paramName;
-        float paramValue;
+        QVector<addParam> vParams;
+//         char  paramName;
+//         float paramValue;
 
         bool decoded;
 

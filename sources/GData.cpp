@@ -48,8 +48,8 @@ ParserData::ParserData()
 
     coord = QVector3D(0.0, 0.0, 0.0); // X, Y, Z
 
-    paramName = 0x0;
-    paramValue = 0.0;
+//     paramName = 0x0;
+//     paramValue = 0.0;
 
     useExtCoord = NoEXT;
 
@@ -80,8 +80,8 @@ ParserData::ParserData(ParserData *d)
     decoded = true;
 
     // for M commands
-    paramName = 0x0;
-    paramValue = 0.0;
+//     paramName = 0x0;
+//     paramValue = 0.0;
 
     lineComment = "";
 

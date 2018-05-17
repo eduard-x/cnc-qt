@@ -328,9 +328,15 @@ void cDataManager::dataChecker()
                         }
                     }
 
-                    if (d.paramName == 'r' && d.paramValue > 0) {
-                        filteredLine += QString().sprintf("R%g ", d.paramValue);
+                    foreach(addParam p, d.vParams) {
+                        if (p.name == 'r') {
+                            filteredLine += QString().sprintf("R%g ", p.value);
+                            break;
+                        }
                     }
+//                     if (d.paramName == 'r' && d.paramValue > 0) {
+//                         filteredLine += QString().sprintf("R%g ", d.paramValue);
+//                     }
 
                     convertArcToLines(cur);
 
@@ -506,10 +512,6 @@ void cDataManager::dataChecker()
                     break;
                 }
             }
-
-            //             if (d.decoded == true) {
-            //                 line += QString().sprintf("M%d ", d.mCmd);
-            //             }
         }
 
         if (d.decoded == true) {
@@ -527,11 +529,6 @@ void cDataManager::dataChecker()
                 filteredList << filteredLine;
                 filteredLine.clear();
             }
-
-            //             if (originalLine.length()) {
-            //                 originalList << originalLine;
-            //                 originalLine.clear();
-            //             }
         }
     }
 }
@@ -1247,9 +1244,15 @@ void cDataManager::convertArcToLines(int p)
 
     float radius = 0.0;
 
-    if (d.paramName == 'r' && d.paramValue > 0) {
-        radius = d.paramValue;
+    foreach(addParam p, d.vParams) {
+        if (p.name == 'r' && p.value > 0) {
+            radius = p.value;
+            break;
+        }
     }
+//     if (d.paramName == 'r' && d.paramValue > 0) {
+//         radius = d.paramValue;
+//     }
 
     if (radius == 0) {
         i = beginPos.x() + d.extCoord.x(); // IJK
