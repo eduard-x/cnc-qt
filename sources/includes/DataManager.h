@@ -190,11 +190,7 @@ class cDataManager : public GData // , public cTranslator
         const QVector<int> calculateAntPath(/*const QVector<GCodeOptim> &v*/);
         void checkMCommand(const SerialData &s);
 
-        //         GCode_resultParse parseStringGCode(const QString &value);
-
     private:
-        //         QByteArray arr;
-
         //         QVector<VertexData> vertexVector;
         QVector<SerialData*> serialDataVector;
 

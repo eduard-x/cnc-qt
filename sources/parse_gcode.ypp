@@ -172,12 +172,14 @@ gline:  CMD_CHAR IVAL
                        
                         default:
                             qWarning() << "G-Code is not decoded:" << $2;
+                            gcode_data->decoded = false;
                             break;
                     }
                     break;
 
                 case 'm' :
                     gcode_data->mCmd = (short)$2;
+                    // TODO only for known codes
                     break;
  
                 default:
@@ -204,6 +206,7 @@ gline:  CMD_CHAR IVAL
             }
             if (strlen($1)) {
                 gcode_data->lineComment = QString($1).simplified();
+                gcode_data->numberLine = gcode_lineno;
                 free($1);
             }
         }
@@ -211,6 +214,7 @@ gline:  CMD_CHAR IVAL
         {
             if (gcode_data) {
                 GData::dataVector << *gcode_data;
+                gcode_data = new ParserData(gcode_data);
             }
         }
         ;

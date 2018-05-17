@@ -191,8 +191,6 @@ SQRT     "SQRT"
 }
 
 
-^{COMMENT} { /* do nothing TODO */ }
-
 {COMMENT} {
     gcode_lval.s_val = strdup(gcode_text); 
     return COMMENTAR;

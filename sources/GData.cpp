@@ -38,9 +38,6 @@
  */
 ParserData::ParserData()
 {
-    //     toolChange = false;
-    //     toolNumber = 0;
-    //     commandNum = 0; // is the command number for sending to mk1
     numberLine = 0;
     decoded = true;
 
@@ -49,49 +46,18 @@ ParserData::ParserData()
     mCmd = -1;
     mExtCmd = -1;
 
-    /** @var pauseMSec
-     * no pause: -1
-     * waiting: 0
-     * pause > 0 in milliseconds
-     */
-    //     pauseMSec = -1; // no pause
-
     coord = QVector3D(0.0, 0.0, 0.0); // X, Y, Z
 
     paramName = 0x0;
     paramValue = 0.0;
 
-    //     movingCode =  NO_CODE;
-    //     vectSpeed = 0.0;
-    //     stepsCounter = 0;
-    //     vectorCoeff = 0.0;
-
     useExtCoord = NoEXT;
 
     extCoord = { 0.0, 0.0, 0.0 };
 
-    //     plane = XY;
-
     lineComment = "";
 
     labelNum = -1;
-
-    //     radius = 0.0;
-
-    // end of arc
-
-    //     rapidVelo = 0.0;
-
-
-
-    //     angle = 0.0;
-    //     deltaAngle = 0.0;
-
-    //     spindelOn = false;
-    //     mistOn = false;
-    //     coolantOn = false;
-
-    //     toolDiameter = 0.0;
 };
 
 
@@ -101,7 +67,7 @@ ParserData::ParserData()
  */
 ParserData::ParserData(ParserData *d)
 {
-    gCmd = d->gCmd;
+    gCmd = -1;
     gExtCmd = -1;
     mCmd = -1;
     mExtCmd = -1;
@@ -109,42 +75,18 @@ ParserData::ParserData(ParserData *d)
     coord = d->coord;
     useExtCoord = NoEXT;
 
-    //     vectSpeed = d->vectSpeed;
-    //     vectorCoeff = 0.0;
-    //     stepsCounter = 0; // should be calculated
-    //     movingCode = d->movingCode;
-
     extCoord = { 0.0, 0.0, 0.0 }; // for ABC, IJK, UVW
 
     decoded = true;
 
+    // for M commands
     paramName = 0x0;
     paramValue = 0.0;
 
-    //     radius = 0.0; // got G02, G03
-
-    //     plane = d->plane;
-
     lineComment = "";
-
-    //     rapidVelo = d->rapidVelo; // ???
 
     labelNum = -1;
 
-    //     spindelOn = d->spindelOn;
-    //     mistOn = d->mistOn;
-    //     coolantOn = d->coolantOn;
-
     numberLine = d->numberLine;
-    //     commandNum = 0;
-
-    //     angle = 0.0; //d->angleVectors;
-
-    //     deltaAngle = 0.0;
-
-    //     toolChange = d->toolChange;
-    //     toolNumber = d->toolNumber;
-    //     pauseMSec = d->pauseMSec;
-    //     toolDiameter = d->toolDiameter;
 };
 

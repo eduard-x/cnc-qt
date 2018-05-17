@@ -320,6 +320,8 @@ class SerialData
 
 
 // class for OpenGL visualisation
+// TODO create this vector in DataManager?
+// what is about correction?
 class VisualData
 {
         QVector3D coord;
@@ -337,60 +339,26 @@ class ParserData
 
         short mCmd;
         short mExtCmd;
-
         int   mParam;
-#if 0
-        bool  toolChange; // to change the tool
-        int   toolNumber; // собственно номер tool
-        float toolDiameter; // diameter of tool
-
-        bool  spindelOn;      // spinle on
-        bool  mistOn;
-        bool  coolantOn;
-
-
-        PlaneEnum plane;
-#endif
-        //
+        
+        // in case of labels for WHILE, IF...
         int   labelNum;
 
         // coordinates in mm and data for mk1 controller
         int   serialDataPos;
-        //         SerialData baseData;
-#if 0
-        QVector3D baseCoord; // XYZ
-        int   vectSpeed; // telegr CA offset
-        float vectorCoeff; // for the max from dH / dX of dH / dY ratio, in case XY plane
-
-        int   movingCode;
-        int   stepsCounter; // number of steps in current direction
-#endif
-
+        
         QVector3D coord;
-        CoordEnum useExtCoord;
+        CoordEnum useExtCoord; // ABC, IJK, UWV
         QVector3D extCoord;
 
-        // if arc splitted, number of followed cuts.
-        // for convertion from G02/G03 to G01
-        //         QVector<SerializedData> arcData;
-        //         QVector<QVector3D> arcCoord;
         char  paramName;
         float paramValue;
 
         bool decoded;
 
         QString lineComment;
-        QString originalLine;
-
-
-        // end of curves
-
 
         int   numberLine;     // from g-code file
-
-        // TODO local data for calculations?
-        //         float angle; // angle between two lines around the actual point
-        //         float deltaAngle;
 
     public:
         //
@@ -399,6 +367,8 @@ class ParserData
 
         // constructor with copy from last data
         ParserData(ParserData *_cmd);
+        
+        // for mathematical operations and other
         QVector<class DataOperation*> opVector;
 };
 

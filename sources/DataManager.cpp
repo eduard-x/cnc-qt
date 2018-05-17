@@ -227,8 +227,7 @@ void cDataManager::dataChecker()
         }
 
         QString filteredLine;
-//         QString originalLine = d.originalLine;
-
+        
         SerialData *sTmp = 0;
 
         if (d.gCmd >= 0) {
