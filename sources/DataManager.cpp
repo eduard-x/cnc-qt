@@ -59,7 +59,7 @@ cDataManager::cDataManager()
 cDataManager::~cDataManager()
 {
     gCities.clear();
-    
+
     dataVector.clear();
     filteredList.clear();
     originalList.clear();
@@ -227,7 +227,7 @@ void cDataManager::dataChecker()
         }
 
         QString filteredLine;
-        
+
         SerialData *sTmp = 0;
 
         if (d.gCmd >= 0) {
@@ -518,7 +518,9 @@ void cDataManager::dataChecker()
             }
 
             if (d.lineComment.length()) {
-                filteredLine += d.lineComment;
+                if (Settings::filterRepeat == false) {
+                    filteredLine += d.lineComment;
+                }
             }
 
             if (filteredLine.length()) {
@@ -526,10 +528,10 @@ void cDataManager::dataChecker()
                 filteredLine.clear();
             }
 
-//             if (originalLine.length()) {
-//                 originalList << originalLine;
-//                 originalLine.clear();
-//             }
+            //             if (originalLine.length()) {
+            //                 originalList << originalLine;
+            //                 originalLine.clear();
+            //             }
         }
     }
 }
@@ -1658,9 +1660,9 @@ bool cDataManager::readFile(const QString &fileName)
         tMess.start();
 
         dataVector.clear();
-        
+
         bool res = readGCode(arr.data());
-        
+
         originalList.clear();
         originalList = QString(arr).split("\n").toVector();
 

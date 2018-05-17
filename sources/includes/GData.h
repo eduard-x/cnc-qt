@@ -340,13 +340,13 @@ class ParserData
         short mCmd;
         short mExtCmd;
         int   mParam;
-        
+
         // in case of labels for WHILE, IF...
         int   labelNum;
 
         // coordinates in mm and data for mk1 controller
         int   serialDataPos;
-        
+
         QVector3D coord;
         CoordEnum useExtCoord; // ABC, IJK, UWV
         QVector3D extCoord;
@@ -367,7 +367,7 @@ class ParserData
 
         // constructor with copy from last data
         ParserData(ParserData *_cmd);
-        
+
         // for mathematical operations and other
         QVector<class DataOperation*> opVector;
 };

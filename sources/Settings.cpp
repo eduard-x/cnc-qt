@@ -110,6 +110,7 @@ bool Settings::smoothMoving = false;
 bool Settings::showTraverse = false;
 bool Settings::showWorkbench = false;
 bool Settings::filterRepeat = true;
+bool Settings::withoutComments = true;
 float Settings::PosZoom = 1.0;
 int Settings::PosAngleX = 1;
 int Settings::PosAngleY = 1;
@@ -220,6 +221,7 @@ bool Settings::saveSettings()
     s->setValue("ToolRPM", toolRPM);
 
     s->setValue("FilterRepeatData", filterRepeat);
+    s->setValue("FilterComments", withoutComments);
 
     s->setValue("CuttedMaterial", cuttedMaterial);
 
@@ -419,7 +421,7 @@ bool Settings::readSettings()
     toolRPM = s->value("ToolRPM", 10000).toInt();
 
     filterRepeat = s->value("FilterRepeatData", true).toBool();
-
+    withoutComments = s->value("FilterComments", true).toBool();
 
     QMapIterator<QString, Qt::Key> imap(userKeys);
 

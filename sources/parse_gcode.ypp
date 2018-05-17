@@ -141,11 +141,14 @@ gline:  CMD_CHAR IVAL
             // the new line, create new object
             // for cases, when line begins with g, m command or n: label
 //             qInfo() << $1 << $2;
-            if (GData::dataVector.count() == 0){
+            if (GData::dataVector.count() == 0){ // init
                 gcode_data = new ParserData();
             }
             else {
-                gcode_data = new ParserData(gcode_data);
+                // has already command data
+                if (gcode_data->gCmd >= 0) {
+                    gcode_data = new ParserData(gcode_data);
+                }
             }
             gcode_data->numberLine = gcode_lineno;
 
@@ -178,6 +181,10 @@ gline:  CMD_CHAR IVAL
                     break;
 
                 case 'm' :
+                    // has already M command
+                    if (gcode_data->mCmd >= 0) {
+                        gcode_data = new ParserData(gcode_data);
+                    }
                     gcode_data->mCmd = (short)$2;
                     // TODO only for known codes
                     break;
@@ -215,6 +222,7 @@ gline:  CMD_CHAR IVAL
             if (gcode_data) {
                 GData::dataVector << *gcode_data;
                 gcode_data = new ParserData(gcode_data);
+                gcode_data->numberLine = (gcode_lineno+1); // for init
             }
         }
         ;

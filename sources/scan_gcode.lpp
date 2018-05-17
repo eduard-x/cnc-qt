@@ -190,15 +190,20 @@ SQRT     "SQRT"
     return NEW_LINE;
 }
 
-
 {COMMENT} {
     gcode_lval.s_val = strdup(gcode_text); 
     return COMMENTAR;
 }
 
-"%".* { /* ignore comments, do nothing */ }
+"%".* {
+    gcode_lval.s_val = strdup(gcode_text); 
+    return COMMENTAR;
+}
 
-";".* { /* ignore comments, do nothing */ }
+";".* {
+    gcode_lval.s_val = strdup(gcode_text); 
+    return COMMENTAR;
+}
 
 
 {WSPACE}+  { /* ignore spaces */ }

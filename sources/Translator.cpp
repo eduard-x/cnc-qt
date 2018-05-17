@@ -307,6 +307,7 @@ QString cTranslator::engText[] = {
     "Display original G-Code",
     "Display filtered G-Code",
     "Visualization",
+    "Don't display commentars",
     ""
 };
 

@@ -144,6 +144,7 @@ class Settings : public QSettings
         //
         //         static bool Estop;
         static bool filterRepeat;
+        static bool withoutComments;
         // for virtual controller
         static bool DEMO_DEVICE;
         static    bool unitMm;

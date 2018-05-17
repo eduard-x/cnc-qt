@@ -989,13 +989,12 @@ bool MainWindow::OpenFile(QString &fileName)
                 QVector<QString> *l = dMan->getOriginalList();
                 // TODO as option load the dMan->getFilteredList();
                 fillListWidget(*l);
-            }
-            else {
+            } else {
                 QVector<QString> *l = dMan->getFilteredList();
                 // TODO as option load the dMan->getFilteredList();
                 fillListWidget(*l);
             }
-        
+
 
             serData = dMan->getSerialVector();
 
@@ -1214,8 +1213,7 @@ void MainWindow::onFilter()
         QVector<QString> *l = dMan->getFilteredList();
         // TODO as option load the dMan->getFilteredList();
         fillListWidget(*l);
-    }
-    else {
+    } else {
         QVector<QString> *l = dMan->getOriginalList();
         // TODO as option load the dMan->getFilteredList();
         fillListWidget(*l);
