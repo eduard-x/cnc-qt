@@ -278,16 +278,6 @@ void cDataManager::dataChecker()
                 case 0: {
                     sTmp->movingCode = RAPID_LINE_CODE;
 
-                    //                     d.rapidVelo = 0.0;
-#if 0
-
-                    if (b_absolute) {
-                        current_pos = d.coord + origin;
-                    } else {
-                        current_pos += d.coord;
-                    }
-
-#endif
                     // for the way optimizing
                     checkCity(current_pos, cur);
 
@@ -296,18 +286,6 @@ void cDataManager::dataChecker()
 
                 case 1: {
                     sTmp->movingCode = FEED_LINE_CODE;
-                    //                     d.toolChange = false;
-                    //                     d.pauseMSec = -1; // no pause
-#if 0
-
-                    if (b_absolute) {
-                        current_pos = d.coord + origin;
-                    } else {
-                        current_pos += d.coord;
-                    }
-
-#endif
-                    //                     calcAngleOfLines(cur - 1);
 
                     break;
                 }
@@ -315,15 +293,6 @@ void cDataManager::dataChecker()
                 case 2:
                 case 3: {
                     sTmp->movingCode = FEED_LINE_CODE;
-#if 0
-
-                    if (b_absolute) {
-                        current_pos = d.coord + origin;
-                    } else {
-                        current_pos += d.coord;
-                    }
-
-#endif
 
                     if (d.useExtCoord == IJK) { //
                         if (d.extCoord.x() != 0.0) {
@@ -345,9 +314,6 @@ void cDataManager::dataChecker()
                             break;
                         }
                     }
-//                     if (d.paramName == 'r' && d.paramValue > 0) {
-//                         filteredLine += QString().sprintf("R%g ", d.paramValue);
-//                     }
 
                     convertArcToLines(cur);
 
@@ -599,7 +565,7 @@ void cDataManager::checkMCommand(const SerialData &s)
         return;
     }
 
-    //
+    // plane to change?
     if(s.pMCommand->plane != None) {
         currentMCmd->plane = s.pMCommand->plane;
     }
@@ -627,6 +593,15 @@ void cDataManager::checkMCommand(const SerialData &s)
     if (s.pMCommand->toolDiameter != s.pMCommand->toolDiameter) {
         currentMCmd->toolDiameter = s.pMCommand->toolDiameter;
     }
+    
+    if (s.pMCommand->rapidVelo != s.pMCommand->rapidVelo) {
+        currentMCmd->rapidVelo = s.pMCommand->rapidVelo;
+    }
+    
+    if (s.pMCommand->pauseMSec >= 0) {
+        currentMCmd->pauseMSec = s.pMCommand->pauseMSec;
+    }
+    
 }
 
 /**
