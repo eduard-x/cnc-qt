@@ -71,6 +71,8 @@ bool set_data_float(char c, float f);
 // initializing for vector
 ParserData *gcode_data = new ParserData();
 
+short lastGCode = -1;
+
 %}
 
 %name-prefix "gcode_"
@@ -151,6 +153,7 @@ gline:  CMD_CHAR IVAL
             switch ($1 | 0x20){
                 case 'g' :
                     gcode_data->gCmd = (short)$2;
+                    lastGCode = (short)$2;
                     // add only commands to the list
                     // which will be interpretated
                     switch ($2){ // commands are known 
@@ -259,6 +262,11 @@ param:  PARAM_CHAR EXPR
         
             if ($2) {
                 gcode_data->opVector << $2;
+            }
+            if (gcode_data->gCmd == -1) { // in case, corrdinates without g code
+                if (lastGCode == 0 || lastGCode == 1) {
+                    gcode_data->gCmd = lastGCode;
+                }
             }
             
             gcode_data->numberLine = gcode_lineno;
