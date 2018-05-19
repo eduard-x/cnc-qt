@@ -1,0 +1,342 @@
+/* -*-c++-*- */
+
+%{
+/*
+ * parse_svg.ypp - parser for a Gerber data file
+ *
+ * Copyright (C) 2018 Eduard Kalinowski <eduard_kalinowski@yahoo.de>
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this package; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ *
+ * $Id$
+ *
+ */
+
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define YYERROR_VERBOSE 42
+#define YYDEBUG 1
+#define YYMAXDEPTH 1000000
+
+#define __NOEXTENSIONS__ 1
+
+
+#include <QString>
+#include <QChar>
+#include <QDebug>
+
+
+#include "Settings.h"
+
+#include "Gerber.h"
+
+/*
+
+
+// static int svglineno = 0;*/
+extern int svg_parse (void);
+extern void svg_error (const char *c);
+extern int svg_lex (void);
+extern int svg_lex_destroy (void);
+
+extern int svg_lineno;
+static int svgcharno = 0;
+
+
+// bool set_data_float(char c, float f);
+
+// svg_lineno = 0;
+
+// init of first svg data
+ParserData *svg_data;// = new GerberData();
+
+%}
+
+%name-prefix "svg_"
+
+
+%token NL_CHAR
+%token CHAR
+%token COMMENTAR
+%token NEW_LINE
+%token INT
+%token FLOAT
+
+%token InvalidCharacter
+
+%token Eol
+
+%union {
+    int       i_val;
+    float     f_val;
+    char      c_val;
+    char*     s_val;
+}
+
+
+%type <i_val> INT
+%type <f_val> FLOAT
+%type <c_val> NL_CHAR CHAR
+%type <s_val> COMMENTAR
+
+
+%start parse_svg
+
+%%
+
+parse_svg: 
+        | glines
+        ;
+
+
+glines: gline glines
+        | gline
+        ;
+
+
+gline:  NL_CHAR INT
+        {
+            // the new line, create new object
+            // for cases, when line begins with g, m command or n: label
+            if (GData::dataVector.count() == 0){
+                svg_data =  new ParserData();
+            }
+            else {
+                svg_data =  new ParserData(svg_data);
+            }
+            svg_data->numberLine = svg_lineno;
+
+            switch ($1 | 0x20){
+                case 'n' :
+                    svg_data->labelNum = $2;
+                    break;
+
+                case 'g' :
+                    svg_data->gCmd = $2;
+                    switch ($2){
+                        case 0:
+//                             svg_data->baseData.movingCode = RAPID_LINE_CODE;
+                            break;
+                            
+                        case 1:
+                        case 2:
+                        case 3:
+//                             svg_data->baseData.movingCode = FEED_LINE_CODE;
+                            break;
+                            
+                        case 17:
+//                             svg_data->plane = XY;
+                            break;
+                            
+                        case 18:
+//                             svg_data->plane = YZ;
+                            break;
+                            
+                        case 19:
+//                             svg_data->plane = ZX;
+                            break;
+                    }
+                    break;
+
+                case 'm' :
+                    svg_data->gCmd = -1;
+                    svg_data->mCmd = $2;
+                    break;
+ 
+                default:
+                    // not decoded, it's possible other code? 
+//                     if (set_data_float(($1 | 0x20), (float) $2) == false) {
+//                         svg_data->decoded = false;
+//                         printf("not decoded char %c, line %d\n", $1, svg_lineno);
+//                     }
+                    break;
+            }
+        }
+        | NL_CHAR FLOAT
+        {
+            // when line begins with coordinates 
+            svg_data =  new ParserData(svg_data);
+            svg_data->numberLine = svg_lineno;
+            
+//             set_data_float(($1 | 0x20), $2);
+        }
+        | NL_CHAR
+        {
+            // store coordinates
+        }
+        | CHAR INT 
+        {
+            switch ($1 | 0x20){
+                case 'g' : {
+                    // new command in line, create new object
+                    GData::dataVector << *svg_data;
+                    svg_data =  new ParserData(svg_data);
+                    svg_data->numberLine = svg_lineno;
+                    svg_data->gCmd = $2; 
+                    
+                    if ($2 == 1 || $2 == 2 || $2 == 3) {
+//                         svg_data->baseData.movingCode = FEED_LINE_CODE;
+                    }
+                    if ($2 == 0) {
+//                         svg_data->baseData.movingCode = RAPID_LINE_CODE;
+                    }
+                    break;
+                }
+
+                case 'm' : {
+                    svg_data->mCmd = $2;
+                    break;
+                }
+ 
+                default:
+//                     if (set_data_float(($1 | 0x20), (float) $2) == false) {
+//                         svg_data->decoded = false;
+//                     }
+                    break;
+            }
+        }
+        | CHAR FLOAT 
+        {
+//             set_data_float(($1 | 0x20), $2);
+        }
+        | CHAR
+        {
+            // store coordinates
+        }
+        | COMMENTAR 
+        {
+           svg_data->lineComment = QString($1).simplified();
+           free($1);
+        }
+        | NEW_LINE
+        {
+            GData::dataVector << *svg_data;
+        }
+        ;
+
+%%
+
+
+#if 0
+bool set_data_float(char c, float f) {
+    switch (c){
+        case 'x':
+            svg_data->baseCoord.setX(f);
+            break;
+            
+        case 'y':
+            svg_data->baseCoord.setY(f);
+            break;
+            
+        case 'z':
+            svg_data->baseCoord.setZ(f);
+            break;
+            
+        case 'i':
+            svg_data->useExtCoord = IJK; // TODO check conflicts
+            svg_data->extCoord.setX(f);
+            break;
+            
+        case 'j':
+            svg_data->useExtCoord = IJK; // TODO check conflicts
+            svg_data->extCoord.setY(f);
+            break;
+            
+        case 'k':
+            svg_data->useExtCoord = IJK; // TODO check conflicts
+            svg_data->extCoord.setZ(f);
+            break;
+            
+        case 'a':
+            svg_data->useExtCoord = ABC; // TODO check conflicts
+            svg_data->extCoord.setX(f);
+            break;
+            
+        case 'b':
+            svg_data->useExtCoord = ABC; // TODO check conflicts
+            svg_data->extCoord.setY(f);
+            break;
+            
+        case 'c':
+            svg_data->useExtCoord = ABC; // TODO check conflicts
+            svg_data->extCoord.setZ(f);
+            break;
+            
+        case 'u':
+            svg_data->useExtCoord = UVW; // TODO check conflicts
+            svg_data->extCoord.setX(f);
+            break;
+            
+        case 'v':
+            svg_data->useExtCoord = UVW; // TODO check conflicts
+            svg_data->extCoord.setY(f);
+            break;
+            
+        case 'w':
+            svg_data->useExtCoord = UVW; // TODO check conflicts
+            svg_data->extCoord.setZ(f);
+            break;
+            
+        case 'r': // radius
+            svg_data->radius = f;
+            break;
+            
+        case 's': // pause sec
+            if (svg_data->gCmd == 4){
+                svg_data->pauseMSec = f*1000.0;
+            }
+            break;
+            
+        case 'p': // pause msec
+            if (svg_data->gCmd == 4){
+                svg_data->pauseMSec = f;
+            }
+            break;
+            
+        case 'f': // feed
+            svg_data->rapidVelo = f;
+            break;
+            
+        case 'd': // diameter
+            svg_data->toolDiameter = f;
+            break;
+            
+        case 't': // change tool
+            svg_data->toolChange = true;
+            svg_data->toolNumber = f;
+            break;
+            
+        default:
+            svg_data->decoded = false;
+            printf("not decoded char %c, line %d\n", c, svg_lineno);
+            return false;
+            break;
+    }
+    return true;
+}
+#endif
+
+void svg_error (const char * error) {
+  fprintf (stderr, "line %d: %s\n", svg_lineno, error);
+//   return 0;
+}

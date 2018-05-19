@@ -565,7 +565,7 @@ void cDataManager::checkMCommand(const SerialData &s)
     }
 
     // plane to change?
-    if(s.pMCommand->plane != None) {
+    if(s.pMCommand->plane != PlaneEnum::None) {
         currentMCmd->plane = s.pMCommand->plane;
     }
 
@@ -585,15 +585,15 @@ void cDataManager::checkMCommand(const SerialData &s)
         currentMCmd->spindelOn = s.pMCommand->spindelOn;
     }
 
-    if (s.pMCommand->toolNumber != s.pMCommand->toolNumber) {
+    if (s.pMCommand->toolNumber != currentMCmd->toolNumber) {
         currentMCmd->toolNumber = s.pMCommand->toolNumber;
     }
 
-    if (s.pMCommand->toolDiameter != s.pMCommand->toolDiameter) {
+    if (s.pMCommand->toolDiameter != currentMCmd->toolDiameter) {
         currentMCmd->toolDiameter = s.pMCommand->toolDiameter;
     }
 
-    if (s.pMCommand->rapidVelo != s.pMCommand->rapidVelo) {
+    if (s.pMCommand->rapidVelo != currentMCmd->rapidVelo) {
         currentMCmd->rapidVelo = s.pMCommand->rapidVelo;
     }
 

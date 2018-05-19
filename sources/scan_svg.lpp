@@ -1,0 +1,138 @@
+/* -*-c-*- */
+
+%{
+/*
+ * scan_svg.lpp - scanner for a svg data file
+ *
+ * Copyright (C) 2018 Eduard Kalinowski <eduard_kalinowski@yahoo.de>
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this package; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ *
+ * $Id$
+ *
+ */
+
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-register"
+#endif
+
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#ifdef __MINGW32__
+#include <io.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+
+
+#if !HAVE_STRCHR
+# define strchr  index
+# define strrchr rindex
+#endif
+
+
+// this generated header file from parse_svg.ypp
+#include "parse_svg.h"
+
+
+#include "Settings.h"
+#include "Gerber.h"
+
+extern int svg_lineno;
+
+
+%}
+
+
+WSPACE   [ \t\r]+
+DIGIT    [0-9]
+COMMENT  \(.+\)
+EXPONENT [Ee][+-]?{DIGIT}+
+INTEGER  [+-]?{DIGIT}+
+REAL     [+-]?{DIGIT}+([.,]{DIGIT}+)?{EXPONENT}?
+DECIMAL  {DIGIT}+
+DIGITS   {DIGIT}+
+Eol      \n
+
+
+%option caseless yylineno noyywrap nounput noinput prefix="svg_"
+
+
+%%
+
+
+^[A-Z]   { 
+    svg_lval.c_val = svg_text[0]; 
+    return NL_CHAR;
+}
+
+[A-Z]    { 
+    svg_lval.c_val = svg_text[0]; 
+    return CHAR; 
+}
+
+
+{DIGITS} { 
+    svg_lval.i_val = atoi(svg_text); 
+    return INT; 
+}
+
+{REAL}   {
+    std::string s = svg_text;
+    std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
+    svg_lval.f_val = atof(s.c_str());
+    
+    return FLOAT;
+}
+
+^{Eol} { /* nothing*/ }
+
+{Eol} { return NEW_LINE; /* call NEW_LINE: push decoded data to vector */ }
+
+
+^{COMMENT}{Eol}+ { /* new line commentar */}
+
+
+{COMMENT} { svg_lval.s_val = strdup(svg_text); return COMMENTAR; }
+
+"%".*{Eol}+ { /* ignore comments, do nothing */ }
+
+";".*{Eol}+ { /* ignore comments, do nothing */ }
+
+
+<*>{WSPACE}  { /* skip end of line and spaces */ }
+
+<*>. { /* any other character is invalid */
+  fprintf (stderr,
+	   "line %d: syntax error, unrecognized character: `%s'\n",
+	   svg_lineno, svg_text);
+   return InvalidCharacter;
+}
+
+%%
+
+                  

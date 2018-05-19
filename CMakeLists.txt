@@ -285,6 +285,8 @@ SET ( UI_SOURCES_DIR temp )
 #
 SET(ParserTypes
   gcode
+  svg
+  dxf
   gerber
 )
 
