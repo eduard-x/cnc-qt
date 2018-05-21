@@ -105,7 +105,7 @@ struct GCodeOptim {
 
 // class for reading of different formats
 
-class cDataManager : public GData // , public cTranslator
+class cDataManager : public Parser // , public cTranslator
 {
     public:
         cDataManager();
@@ -177,12 +177,6 @@ class cDataManager : public GData // , public cTranslator
         void detectMinMax(const QVector3D& v);
 
         //         bool readGCode( const QByteArray &gcode );
-        bool readGBR( const QByteArray &gcode );
-        bool readDRL( const QByteArray &gcode );
-        bool readDXF( const QByteArray &gcode );
-        bool readSVG( const QByteArray &gcode );
-        bool readEPS( const QByteArray &gcode );
-        bool readPLT( const QByteArray &gcode );
 
     protected:
         void sortGCode(const QVector<int> &antdata);

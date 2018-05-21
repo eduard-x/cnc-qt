@@ -48,19 +48,29 @@
 #include "GData.h"
 
 
-class GData : public QObject
+class Parser : public QObject
 {
         Q_OBJECT
     public:
-        explicit GData(); // constructor
-        ~GData(); // destructor
+        explicit Parser(); // constructor
+        ~Parser(); // destructor
 
         bool readGCode(char *indata);
+        bool readSVG(char *indata);
+
+        bool readGBR( char *indata );
+        bool readDRL( char *indata );
+        bool readDXF( char *indata );
+        bool readEPS( char *indata );
+        bool readPLT( char *indata );
+
 
     private:
         void gcodeInit();
         void gcodeDestroy();
 
+        void svgInit();
+        void svgDestroy();
 
     signals:
         void logMessage(const QString &l);

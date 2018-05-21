@@ -175,14 +175,14 @@ SQRT     "SQRT"
 }
 
 {INTEGER} {
-    gcode_lval.i_val = atoi(gcode_text); 
+    gcode_lval.i_val = strtol(gcode_text, NULL, 10); 
     return IVAL; 
 }
 
 {REAL1}|{REAL2} {
     std::string s = gcode_text;
     std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
-    gcode_lval.f_val = atof(s.c_str());
+    gcode_lval.f_val = strtof(s.c_str(), NULL);
     return FVAL;
 }
 
@@ -210,8 +210,8 @@ SQRT     "SQRT"
 
 <*>. { /* any other character is invalid */
   fprintf (stderr,
-	   "line %d: syntax error, unrecognized character: `%s'\n",
-	   gcode_lineno, gcode_text);
+       "line %d: syntax error, unrecognized character: `%s'\n",
+       gcode_lineno, gcode_text);
   return InvalidCharacter;
 }
 

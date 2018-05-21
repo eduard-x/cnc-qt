@@ -220,7 +220,7 @@ gline:  CMD_CHAR IVAL
         }
         | NEW_LINE
         {
-            GData::dataVector << *gcode_data;
+            Parser::dataVector << *gcode_data;
             gcode_data = new ParserData(gcode_data);
             gcode_data->numberLine = (gcode_lineno+1); // for init
         }
@@ -235,7 +235,7 @@ vardef: VARIABLE '=' EXPR
         {
             // TODO: check, variable exists?
             if ($3->varType == DATA::FVAL) {
-                GData::dataVaris.insert($1, $3->result);
+                Parser::dataVaris.insert($1, $3->result);
             }
             if ($3->varType == DATA::SVAL) { 
                 // TODO
@@ -356,9 +356,9 @@ EXPR:   '[' EXPR ']'
         {
             $$ = new DataOperation(EXP::NONE, DATA::SVAL);
             
-            if (GData::dataVaris.contains($1)){
+            if (Parser::dataVaris.contains($1)){
                 $$->vName = $1;
-                $$->result = GData::dataVaris[$1];
+                $$->result = Parser::dataVaris[$1];
             }
             else {
                 qInfo() << $1 << "was not defined";

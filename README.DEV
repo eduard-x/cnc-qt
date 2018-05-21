@@ -1,0 +1,15 @@
+# generate call-graph progiling information
+# program runs 10 times slower
+#
+valgrind --tool=callgrind ./build/cnc-qt
+
+#generate cache and branch profiling information
+# program runs 10 times slower
+#
+valgrind --tool=cachegrind ./build/cnc-qt
+
+# check for memory leaks 
+#
+# --leak-check=<no|summary|yes|full> [default: summary] 
+# --leak-resolution=<low|med|high> [default: high] 
+valgrind --leak-check=yes ./build/cnc-qt
