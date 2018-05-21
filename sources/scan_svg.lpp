@@ -77,8 +77,8 @@ INTEGER  [+-]?{DIGITS}
 REAL1    [+-]?{DIGITS}?[.,]{DIGITS}
 REAL2    [+-]?{DIGITS}[.,]{DIGITS}?
 HEXNUM   #[0-9A-F]+
+IDNAME   [A-Z]+{DIGITS}?
 
-Eol      \n
 
 
 %option caseless yylineno noyywrap nounput noinput prefix="svg_"
@@ -86,13 +86,14 @@ Eol      \n
 
 %%
 
-"<"\?.*\?">" { printf("first line\n" );/* comments */ } 
+"<"\?.*\?">" { /* fisrt xml line */ } 
 
-"<"[A-Z]+(\:[A-Z]+)? { 
+"<"{IDNAME}(\:{IDNAME})? {
+    svg_lval.s_val = strdup(svg_text);
     return START;
 }
 
-\/[A-Z]+(\:[A-Z]+)?">" { 
+\/{IDNAME}(\:{IDNAME})?">" { 
     return STOP;
 }
 
@@ -100,11 +101,14 @@ Eol      \n
     return STOP;
 }
 
-[A-Z]+(\:[A-Z]+)?\= {
-    svg_lval.s_val = strdup(svg_text);
+{IDNAME}(\:{IDNAME})?\= {
+    svg_lval.s_val = strndup(svg_text, strlen(svg_text) -1);
     return ATTRIBUTE;
 }
 
+"\"" {
+    /*return QUOTE;*/
+}
 
 {INTEGER} { 
     svg_lval.i_val = strtol(svg_text, NULL, 10); 
@@ -125,10 +129,8 @@ Eol      \n
 }
 
 {WSPACE} {
-    return WSPACE;
+     /*return WSPACE;*/
 }
-
-{Eol} { /* nothing*/ }
 
 
 <*>. { /* any other character is invalid */

@@ -79,19 +79,14 @@ ParserData *svg_data;// = new GerberData();
 %name-prefix "svg_"
 
 
-%token NL_CHAR
-%token CHAR
 %token COMMENTAR
-%token NEW_LINE
 %token INT
 %token WSPACE
 %token HEXVAL
 %token FLOAT
 
-%token START
+
 %token STOP
-%token STR
-%token ATTRIBUTE
 
 %token InvalidCharacter
 
@@ -104,12 +99,14 @@ ParserData *svg_data;// = new GerberData();
     char*     s_val;
 }
 
+%token <s_val> START
+%token <s_val> STR ATTRIBUTE
 
 %type <i_val> INT HEXVAL
 %type <f_val> FLOAT
-%type <c_val> NL_CHAR CHAR 
 %type <s_val> COMMENTAR
 
+%right '='
 
 %start parse_svg
 
@@ -120,26 +117,42 @@ parse_svg:
         ;
 
 simple_xml : START value STOP
+        {
+            qInfo() << $1;
+        }
         ;
 
 value:  simple_xml 
         | STR
+        {
+            qInfo() << $1;
+        }
         | INT
+        {
+            qInfo() << $1;
+        }
         | attribs
         | value simple_xml
         ;
+
 
 attribs: attrib attribs
         | attrib
         ;
 
-attrib: ATTRIBUTE "\"" EXPRS "\""
+
+attrib: ATTRIBUTE '=' EXPRS
+        {
+            qInfo() << $1;
+        }
         ;
 
-EXPRS:  EXPR WSPACE EXPRS
+
+EXPRS:  '\"' EXPR WSPACE EXPRS '\"'
         | EXPR
         ;
-        
+
+
 EXPR:   HEXVAL 
         {
             qInfo() << "hex " << $1;
