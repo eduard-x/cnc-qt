@@ -78,53 +78,80 @@ REAL1    [+-]?{DIGITS}?[.,]{DIGITS}
 REAL2    [+-]?{DIGITS}[.,]{DIGITS}?
 HEXNUM   #[0-9A-F]+
 IDNAME   [A-Z]+{DIGITS}?
+URL      ["HTTP:\/"|"HTTPS:\/"].*
 
 
+%x COMMENT TAG ATTRIB ATTRIB_VALUES
 
 %option caseless yylineno noyywrap nounput noinput prefix="svg_"
 
 
 %%
 
-"<"\?.*\?">" { /* fisrt xml line */ } 
+<INITIAL>"<"\?.*\?">" { /* fisrt xml line */ } 
 
-"<"{IDNAME}(\:{IDNAME})? {
+<INITIAL>"<"{IDNAME} {
     svg_lval.s_val = strdup(svg_text);
-    return START;
+    BEGIN(TAG);
+    return '<';
 }
 
-\/{IDNAME}(\:{IDNAME})?">" { 
-    return STOP;
+
+<TAG>\/{IDNAME}">" { 
+    BEGIN(INITIAL);
+    return '>';
 }
 
-" />" { 
-    return STOP;
+<TAG>" />" { 
+    BEGIN(INITIAL);
+    return '>';
 }
 
-{IDNAME}(\:{IDNAME})?\= {
-    svg_lval.s_val = strndup(svg_text, strlen(svg_text) -1);
-    return ATTRIBUTE;
+<ATTRIB>"\"" {
+    BEGIN(ATTRIB_VALUES);
+    return '"';
 }
 
-"\"" {
-    /*return QUOTE;*/
+<ATTRIB_VALUES>"\"" {
+    BEGIN(INITIAL);
+    return '"';
 }
 
-{INTEGER} { 
-    svg_lval.i_val = strtol(svg_text, NULL, 10); 
-    return INT; 
+<INITIAL>"<" {
+    BEGIN(ATTRIB);
+    return '<';
 }
 
-{HEXNUM} {
+<ATTRIB>">" {
+    BEGIN(INITIAL);
+    return '>';
+}
+
+<ATTRIB_VALUES>{URL} {
+    /* ignore this part */
+}
+
+<ATTRIB_VALUES>{HEXNUM} {
     svg_lval.i_val = strtol(&svg_text[1], NULL, 16);
     return HEXVAL;
 }
 
-{REAL1}|{REAL2}   {
+<ATTRIB>{IDNAME}(\:{IDNAME})? {
+    svg_lval.s_val = strndup(svg_text, strlen(svg_text) -1);
+    return ATTRIBUTE;
+}
+
+
+<ATTRIB_VALUES>{INTEGER} { 
+    svg_lval.i_val = strtol(svg_text, NULL, 10); 
+    return INT; 
+}
+
+
+<ATTRIB_VALUES>{REAL1}|{REAL2}   {
     std::string s = svg_text;
     std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
     svg_lval.f_val = strtof(s.c_str(), NULL);
-    
     return FLOAT;
 }
 
