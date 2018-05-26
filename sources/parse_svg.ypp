@@ -52,7 +52,7 @@
 
 #include "Settings.h"
 
-#include "Gerber.h"
+#include "GData.h"
 
 /*
 
@@ -71,89 +71,85 @@ static int svgcharno = 0;
 
 // svg_lineno = 0;
 
-// init of first svg data
-ParserData *svg_data;// = new GerberData();
+
+// initializing for vector
+ParserData *svg_data = new ParserData();
+
 
 %}
 
 %name-prefix "svg_"
 
 
-%token COMMENTAR
 %token INT
-%token WSPACE
 %token HEXVAL
 %token FLOAT
-
-
-%token STOP
+%token NEW_LINE
 
 %token InvalidCharacter
 
-%token Eol
 
 %union {
     int       i_val;
     float     f_val;
     char      c_val;
     char*     s_val;
+    class ParserData* g;
 }
 
-%token <s_val> START
-%token <s_val> STR ATTRIBUTE
+%token ' ' ','
+
+%token <s_val> NAME
+%token <s_val> STR
+%token <c_val> CHAR OPER
 
 %type <i_val> INT HEXVAL
 %type <f_val> FLOAT
-%type <s_val> COMMENTAR
-
-%right '='
 
 %start parse_svg
 
 %%
 
 parse_svg: 
-        | simple_xml
+        | tags
         ;
 
-simple_xml : START value STOP
-        {
-            qInfo() << $1;
-        }
+tags:   tag 
+        | tag tags
         ;
-
-value:  simple_xml 
-        | STR
-        {
-            qInfo() << $1;
-        }
-        | INT
-        {
-            qInfo() << $1;
-        }
+        
+tag:    NAME attribs
         | attribs
-        | value simple_xml
         ;
 
 
-attribs: attrib attribs
-        | attrib
+attribs: attrib 
+        | attrib attribs
         ;
 
 
-attrib: ATTRIBUTE '=' EXPRS
+attrib: NAME EXPRS
         {
-            qInfo() << $1;
+            qInfo() << "attr name" << $1;
         }
+        | NAME 
+        {
+            /* ignore if only NAME of attribute, URL was removed for example */
+        }
+        | NEW_LINE
         ;
 
 
-EXPRS:  '\"' EXPR WSPACE EXPRS '\"'
-        | EXPR
+EXPRS:  EXPR 
+        | EXPR EXPRS
         ;
 
 
-EXPR:   HEXVAL 
+EXPR:   STR 
+        {
+            qInfo() << "str" << $1;
+        }
+        | HEXVAL 
         {
             qInfo() << "hex " << $1;
         }
@@ -169,17 +165,50 @@ EXPR:   HEXVAL
         {
             qInfo() << "floats " << $1 << $3;
         }
-        | 'M' EXPR
+        | CHAR 
         {
-            qInfo() << "m ";
+            qInfo() << $1;
+            
+            switch ($1) {
+                case 'M': // moveto x y
+                    break;
+                case 'm': // moveto dx dy
+                    break;
+                case 'L': // lineto 
+                    break;
+                case 'l': // lineto dx dy 
+                    break;
+                case 'H': // horizontal lineto
+                    break;
+                case 'h': // horizontal lineto dx
+                    break;
+                case 'V': // vertical lineto
+                    break;
+                case 'v': // vertical lineto dy
+                    break;
+                case 'C': // curveto
+                    break;
+                case 'c': // curveto
+                    break;
+                case 'S': // smooth curveto // TODO s?
+                    break;
+                case 'Q': // quadratic Bézier curve // TODO q?
+                    break;
+                case 'T': // smooth quadratic Bézier curveto // TODO t?
+                    break;
+                case 'A': // elliptical Arc // TODO a?
+                    break;
+                case 'Z': // closepath
+                case 'z': // closepath
+                    break;
+                default:
+                    break;
+            }
         }
-        | 'L' EXPR
+        | ' '
         {
-            qInfo() << "l ";
-        }
-        | 'C' EXPR
-        {
-            qInfo() << "c ";
+            qInfo() << "separator";
+            Parser::dataVector << *svg_data;
         }
         ;
 

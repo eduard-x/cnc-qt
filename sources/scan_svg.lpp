@@ -58,6 +58,7 @@
 #endif
 
 
+
 // this generated header file from parse_svg.ypp
 #include "parse_svg.h"
 
@@ -71,96 +72,144 @@ extern int svg_lineno;
 %}
 
 
-WSPACE   [ \t\r\n]+
+WSPACE   [ \t\r\f]+
 DIGITS   [0-9]+
 INTEGER  [+-]?{DIGITS}
-REAL1    [+-]?{DIGITS}?[.,]{DIGITS}
-REAL2    [+-]?{DIGITS}[.,]{DIGITS}?
+REAL1    [+-]?{DIGITS}?[.]{DIGITS}
+REAL2    [+-]?{DIGITS}[.]{DIGITS}?
 HEXNUM   #[0-9A-F]+
 IDNAME   [A-Z]+{DIGITS}?
-URL      ["HTTP:\/"|"HTTPS:\/"].*
+URL      "\""["HTTP:\/"|"HTTPS:\/"].*[^\"]
+PARAM    {WSPACE}?[A-Z]{WSPACE}
+EOL      [\n]+
+VERS     [0-9]+\.[0-9]+\.[0-9]+
+REL      {WSPACE}?"r"[0-9]*
+BEG      {WSPACE}?"<"
+END      ">"{WSPACE}?
+ANY_TEXT [0-9A-Z\s\;_\:]+
+OPER     [\(\)]
 
 
-%x COMMENT TAG ATTRIB ATTRIB_VALUES
+%x TAG ATTRIB DATAFIELD
 
-%option caseless yylineno noyywrap nounput noinput prefix="svg_"
+%option stack caseless yylineno noyywrap nounput noinput prefix="svg_"
 
 
 %%
 
-<INITIAL>"<"\?.*\?">" { /* fisrt xml line */ } 
+<INITIAL,TAG>{EOL} {
+    return NEW_LINE;
+}
 
-<INITIAL>"<"{IDNAME} {
+<INITIAL,TAG,ATTRIB>{WSPACE} {
+    /* skip */
+}
+
+<INITIAL>{BEG}\?.*\?{END} { /* fisrt xml line */ } 
+<INITIAL>{BEG}"!--".*"--"{END} { /* ignore comments */ } 
+
+<INITIAL>{BEG} {
+    yy_push_state(TAG);
+}
+
+<TAG>\/{IDNAME}(":"{IDNAME})?{END} {  /* end of tag */
+    yy_pop_state();
+}
+
+<TAG>"/"{END} { /* end of tag */
+    yy_pop_state();
+}
+
+
+<ATTRIB>{END} {
+    yy_pop_state();
+}
+
+
+<TAG>{IDNAME}(":"{IDNAME})? {
     svg_lval.s_val = strdup(svg_text);
-    BEGIN(TAG);
-    return '<';
+    yy_push_state(ATTRIB);
+    return NAME;
 }
 
-
-<TAG>\/{IDNAME}">" { 
-    BEGIN(INITIAL);
-    return '>';
+<ATTRIB>{IDNAME}(":"{IDNAME})? {
+     svg_lval.s_val = strdup(svg_text);
+     return NAME;
 }
 
-<TAG>" />" { 
-    BEGIN(INITIAL);
-    return '>';
-}
-
-<ATTRIB>"\"" {
-    BEGIN(ATTRIB_VALUES);
-    return '"';
-}
-
-<ATTRIB_VALUES>"\"" {
-    BEGIN(INITIAL);
-    return '"';
-}
-
-<INITIAL>"<" {
-    BEGIN(ATTRIB);
-    return '<';
-}
-
-<ATTRIB>">" {
-    BEGIN(INITIAL);
-    return '>';
-}
-
-<ATTRIB_VALUES>{URL} {
+<ATTRIB>"=" {
     /* ignore this part */
 }
 
-<ATTRIB_VALUES>{HEXNUM} {
+<ATTRIB>"\"" {
+    yy_push_state(DATAFIELD);
+}
+
+<DATAFIELD>"\""{WSPACE}? {
+    yy_pop_state();
+}
+
+<DATAFIELD>{WSPACE} {
+    return ' ';
+}
+
+<DATAFIELD,ATTRIB>{EOL} {
+    /* ignore */
+}
+
+<DATAFIELD,ATTRIB>{URL} { 
+    /* ignore this part */
+    /*return NEW_LINE;*/
+}
+
+<DATAFIELD>{HEXNUM} {
     svg_lval.i_val = strtol(&svg_text[1], NULL, 16);
     return HEXVAL;
 }
 
-<ATTRIB>{IDNAME}(\:{IDNAME})? {
-    svg_lval.s_val = strndup(svg_text, strlen(svg_text) -1);
-    return ATTRIBUTE;
+<DATAFIELD>{IDNAME}":" {
+    svg_lval.s_val = strndup(svg_text, strlen(svg_text)-1);
+    return STR;
 }
 
-
-<ATTRIB_VALUES>{INTEGER} { 
-    svg_lval.i_val = strtol(svg_text, NULL, 10); 
-    return INT; 
+<DATAFIELD>{OPER} {
+    /* svg_lval.c_val = svg_text[0]; 
+    return OPER; */
 }
 
+<DATAFIELD>{INTEGER} { 
+    svg_lval.f_val = (float)strtol(svg_text, NULL, 10); 
+    return FLOAT; 
+}
 
-<ATTRIB_VALUES>{REAL1}|{REAL2}   {
+<DATAFIELD>{PARAM} { 
+    svg_lval.c_val = svg_text[0]; 
+    return CHAR; 
+}
+
+<DATAFIELD>{VERS}{WSPACE}{REL} {
+    svg_lval.s_val = strdup(svg_text);
+    return STR;
+}
+
+<DATAFIELD>',' { 
+    /* separator for real numbers pairs */
+    return ',';
+}
+
+<DATAFIELD>{REAL1}|{REAL2} {
     std::string s = svg_text;
     std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
     svg_lval.f_val = strtof(s.c_str(), NULL);
     return FLOAT;
 }
 
-{WSPACE} {
-     /*return WSPACE;*/
+<DATAFIELD>{ANY_TEXT} {
+    svg_lval.s_val = strdup(svg_text);
+    return STR;
 }
 
-
-<*>. { /* any other character is invalid */
+. { /* any other character is invalid */
   fprintf (stderr,
        "line %d: syntax error, unrecognized character: `%s'\n",
        svg_lineno, svg_text);
