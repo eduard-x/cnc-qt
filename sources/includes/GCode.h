@@ -72,6 +72,9 @@ class Parser : public QObject
         void svgInit();
         void svgDestroy();
 
+        void dxfInit();
+        void dxfDestroy();
+
     signals:
         void logMessage(const QString &l);
 

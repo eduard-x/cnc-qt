@@ -51,6 +51,9 @@
 #include "scan_svg.h"
 
 
+#include "parse_dxf.h"
+#include "scan_dxf.h"
+
 // is static
 QVector<ParserData> Parser::dataVector;
 QMap<QString, float> Parser::dataVaris;
@@ -89,6 +92,15 @@ void Parser::svgInit()
     //   gcode_header = NULL;
 }
 
+
+void Parser::dxfInit()
+{
+    dxf_lineno = 0;
+    //      gcode_result = NULL;
+    //   gcode_vector = NULL;
+    //   gcode_header = NULL;
+}
+
 void Parser::gcodeDestroy()
 {
     //      if (csv_result != NULL) {
@@ -103,6 +115,11 @@ void Parser::gcodeDestroy()
 }
 
 void Parser::svgDestroy()
+{
+}
+
+
+void Parser::dxfDestroy()
 {
 }
 
@@ -179,6 +196,40 @@ bool Parser::readSVG(char *indata)
     return true;
 }
 
+
+
+bool Parser::readDXF( char *indata)
+{
+    int ret = true;
+
+    dataVector.clear();
+
+    mut.lock();
+
+    dxfInit();
+
+    /* because the data in already in buffer 'indata' */
+
+    YY_BUFFER_STATE bs = dxf__scan_string(indata);
+    dxf__switch_to_buffer(bs);
+
+    if ( dxf_parse() != 0) {
+        ret = false;
+    }
+
+    dxf_lex_destroy();
+
+    mut.unlock();
+
+    if (!ret) {
+        dxfDestroy();
+        return false;
+    }
+
+    dxfDestroy();
+
+    return true;
+}
 
 
 //
@@ -554,13 +605,6 @@ bool Parser::readEPS( char *indata)
 {
     return true;
 }
-
-
-bool Parser::readDXF( char *indata)
-{
-    return true;
-}
-
 
 bool Parser::readDRL(char *indata)
 {

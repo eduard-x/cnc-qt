@@ -78,12 +78,11 @@ ParserData *dxf_data;// = new GerberData();
 %name-prefix "dxf_"
 
 
-%token NL_CHAR
-%token CHAR
-%token COMMENTAR
-%token NEW_LINE
+%token STR
+%token SYM
 %token INT
 %token FLOAT
+%token VARIABLE
 
 %token InvalidCharacter
 
@@ -99,8 +98,8 @@ ParserData *dxf_data;// = new GerberData();
 
 %type <i_val> INT
 %type <f_val> FLOAT
-%type <c_val> NL_CHAR CHAR
-%type <s_val> COMMENTAR
+%type <c_val> SYM
+%type <s_val> STR VARIABLE
 
 
 %start parse_dxf
@@ -108,236 +107,39 @@ ParserData *dxf_data;// = new GerberData();
 %%
 
 parse_dxf: 
-        | glines
+        | lines
         ;
 
 
-glines: gline glines
-        | gline
+lines: line lines
+        | line
         ;
 
 
-gline:  NL_CHAR INT
+line:   STR
         {
-            // the new line, create new object
-            // for cases, when line begins with g, m command or n: label
-            if (Parser::dataVector.count() == 0){
-                dxf_data =  new ParserData();
-            }
-            else {
-                dxf_data =  new ParserData(dxf_data);
-            }
-            dxf_data->numberLine = dxf_lineno;
-
-            switch ($1 | 0x20){
-                case 'n' :
-                    dxf_data->labelNum = $2;
-                    break;
-
-                case 'g' :
-                    dxf_data->gCmd = $2;
-                    switch ($2){
-                        case 0:
-//                             dxf_data->baseData.movingCode = RAPID_LINE_CODE;
-                            break;
-                            
-                        case 1:
-                        case 2:
-                        case 3:
-//                             dxf_data->baseData.movingCode = FEED_LINE_CODE;
-                            break;
-                            
-                        case 17:
-//                             dxf_data->plane = XY;
-                            break;
-                            
-                        case 18:
-//                             dxf_data->plane = YZ;
-                            break;
-                            
-                        case 19:
-//                             dxf_data->plane = ZX;
-                            break;
-                    }
-                    break;
-
-                case 'm' :
-                    dxf_data->gCmd = -1;
-                    dxf_data->mCmd = $2;
-                    break;
- 
-                default:
-                    // not decoded, it's possible other code? 
-//                     if (set_data_float(($1 | 0x20), (float) $2) == false) {
-//                         dxf_data->decoded = false;
-//                         printf("not decoded char %c, line %d\n", $1, dxf_lineno);
-//                     }
-                    break;
-            }
+            qInfo() << $1;
         }
-        | NL_CHAR FLOAT
+        | FLOAT
         {
-            // when line begins with coordinates 
-            dxf_data =  new ParserData(dxf_data);
-            dxf_data->numberLine = dxf_lineno;
-            
-//             set_data_float(($1 | 0x20), $2);
+            qInfo() << $1;
         }
-        | NL_CHAR
+        | VARIABLE 
         {
-            // store coordinates
+            qInfo() << $1;
         }
-        | CHAR INT 
+        | SYM 
         {
-            switch ($1 | 0x20){
-                case 'g' : {
-                    // new command in line, create new object
-                    Parser::dataVector << *dxf_data;
-                    dxf_data =  new ParserData(dxf_data);
-                    dxf_data->numberLine = dxf_lineno;
-                    dxf_data->gCmd = $2; 
-                    
-                    if ($2 == 1 || $2 == 2 || $2 == 3) {
-//                         dxf_data->baseData.movingCode = FEED_LINE_CODE;
-                    }
-                    if ($2 == 0) {
-//                         dxf_data->baseData.movingCode = RAPID_LINE_CODE;
-                    }
-                    break;
-                }
-
-                case 'm' : {
-                    dxf_data->mCmd = $2;
-                    break;
-                }
- 
-                default:
-//                     if (set_data_float(($1 | 0x20), (float) $2) == false) {
-//                         dxf_data->decoded = false;
-//                     }
-                    break;
-            }
         }
-        | CHAR FLOAT 
+        | INT 
         {
-//             set_data_float(($1 | 0x20), $2);
-        }
-        | CHAR
-        {
-            // store coordinates
-        }
-        | COMMENTAR 
-        {
-           dxf_data->lineComment = QString($1).simplified();
-           free($1);
-        }
-        | NEW_LINE
-        {
-            Parser::dataVector << *dxf_data;
+            qInfo() << $1;
         }
         ;
 
 %%
 
 
-#if 0
-bool set_data_float(char c, float f) {
-    switch (c){
-        case 'x':
-            dxf_data->baseCoord.setX(f);
-            break;
-            
-        case 'y':
-            dxf_data->baseCoord.setY(f);
-            break;
-            
-        case 'z':
-            dxf_data->baseCoord.setZ(f);
-            break;
-            
-        case 'i':
-            dxf_data->useExtCoord = IJK; // TODO check conflicts
-            dxf_data->extCoord.setX(f);
-            break;
-            
-        case 'j':
-            dxf_data->useExtCoord = IJK; // TODO check conflicts
-            dxf_data->extCoord.setY(f);
-            break;
-            
-        case 'k':
-            dxf_data->useExtCoord = IJK; // TODO check conflicts
-            dxf_data->extCoord.setZ(f);
-            break;
-            
-        case 'a':
-            dxf_data->useExtCoord = ABC; // TODO check conflicts
-            dxf_data->extCoord.setX(f);
-            break;
-            
-        case 'b':
-            dxf_data->useExtCoord = ABC; // TODO check conflicts
-            dxf_data->extCoord.setY(f);
-            break;
-            
-        case 'c':
-            dxf_data->useExtCoord = ABC; // TODO check conflicts
-            dxf_data->extCoord.setZ(f);
-            break;
-            
-        case 'u':
-            dxf_data->useExtCoord = UVW; // TODO check conflicts
-            dxf_data->extCoord.setX(f);
-            break;
-            
-        case 'v':
-            dxf_data->useExtCoord = UVW; // TODO check conflicts
-            dxf_data->extCoord.setY(f);
-            break;
-            
-        case 'w':
-            dxf_data->useExtCoord = UVW; // TODO check conflicts
-            dxf_data->extCoord.setZ(f);
-            break;
-            
-        case 'r': // radius
-            dxf_data->radius = f;
-            break;
-            
-        case 's': // pause sec
-            if (dxf_data->gCmd == 4){
-                dxf_data->pauseMSec = f*1000.0;
-            }
-            break;
-            
-        case 'p': // pause msec
-            if (dxf_data->gCmd == 4){
-                dxf_data->pauseMSec = f;
-            }
-            break;
-            
-        case 'f': // feed
-            dxf_data->rapidVelo = f;
-            break;
-            
-        case 'd': // diameter
-            dxf_data->toolDiameter = f;
-            break;
-            
-        case 't': // change tool
-            dxf_data->toolChange = true;
-            dxf_data->toolNumber = f;
-            break;
-            
-        default:
-            dxf_data->decoded = false;
-            printf("not decoded char %c, line %d\n", c, dxf_lineno);
-            return false;
-            break;
-    }
-    return true;
-}
-#endif
 
 void dxf_error (const char * error) {
   fprintf (stderr, "line %d: %s\n", dxf_lineno, error);

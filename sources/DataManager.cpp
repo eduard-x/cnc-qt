@@ -1707,6 +1707,26 @@ bool cDataManager::readFile(const QString &fileName)
         return res;
     }
 
+    if ( detectArray.indexOf("$ACADVER") >= 0 ) { // polylines
+        TypeFile = DXF;
+
+        QTime tMess;
+        tMess.start();
+
+        bool res = readDXF(arr.data());
+
+        originalList.clear();
+        //         originalList = QString(arr).split("\n").toVector();s
+
+        emit logMessage(QString().sprintf("Parse DXF, flex/bison. Time elapsed: %d ms", tMess.elapsed()));
+        // the parsed data is in gCodeList
+
+        tMess.restart();
+
+        arr.clear();
+
+        return res;
+    }
 
     if ((detectArray.indexOf("G04 ") >= 0) && (detectArray.indexOf("%MOMM*%") > 0 || detectArray.indexOf("%MOIN*%") > 0) ) { // extended gerber
         TypeFile = GBR;
@@ -1726,13 +1746,6 @@ bool cDataManager::readFile(const QString &fileName)
     if ( detectArray.indexOf("") >= 0 ) { // eps
         TypeFile = EPS;
         bool res = readEPS(arr.data());
-
-        return res;
-    }
-
-    if ( detectArray.indexOf("") >= 0 ) { // polylines
-        TypeFile = DXF;
-        bool res = readDXF(arr.data());
 
         return res;
     }

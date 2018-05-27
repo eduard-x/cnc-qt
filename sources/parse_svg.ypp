@@ -188,7 +188,7 @@ EXPR:   STR
                     break;
                 case 'C': // curveto
                     break;
-                case 'c': // curveto
+                case 'c': // curveto dx dy 
                     break;
                 case 'S': // smooth curveto // TODO s?
                     break;

@@ -74,7 +74,7 @@ extern int gcode_lineno;
 %}
 
 
-WSPACE   [ \t\r]+
+WSPACE   [ \t\r\f]+
 DIGITS   [0-9]+
 COMMENT  \(.+\)
 PARAM    [A-FH-MP-Z]

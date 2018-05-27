@@ -63,7 +63,7 @@
 
 
 #include "Settings.h"
-#include "Gerber.h"
+#include "GCode.h"
 
 extern int dxf_lineno;
 
@@ -71,15 +71,16 @@ extern int dxf_lineno;
 %}
 
 
-WSPACE   [ \t\r]+
-DIGIT    [0-9]
-COMMENT  \(.+\)
-EXPONENT [Ee][+-]?{DIGIT}+
-INTEGER  [+-]?{DIGIT}+
-REAL     [+-]?{DIGIT}+([.,]{DIGIT}+)?{EXPONENT}?
-DECIMAL  {DIGIT}+
-DIGITS   {DIGIT}+
-Eol      \n
+
+WSPACE   [ \t\r\f]+
+EOL      [\n]+
+DIGITS   [0-9]+
+DEF      [A-Z0-9_]+
+INTEGER  [+-]?{DIGITS}
+REAL1    [+-]?{DIGITS}?[.]{DIGITS}
+REAL2    [+-]?{DIGITS}[.]{DIGITS}?
+VARI     \$[A-Z_]+
+OPER     [\.]
 
 
 %option caseless yylineno noyywrap nounput noinput prefix="dxf_"
@@ -87,24 +88,27 @@ Eol      \n
 
 %%
 
-
-^[A-Z]   { 
-    dxf_lval.c_val = dxf_text[0]; 
-    return NL_CHAR;
-}
-
-[A-Z]    { 
-    dxf_lval.c_val = dxf_text[0]; 
-    return CHAR; 
-}
-
-
-{DIGITS} { 
+{INTEGER} { 
     dxf_lval.i_val = atoi(dxf_text); 
     return INT; 
 }
 
-{REAL}   {
+{DEF} {
+    dxf_lval.s_val = strdup(dxf_text);
+    return STR;
+}
+
+{OPER} {
+    dxf_lval.c_val = dxf_text[0]; 
+    return SYM;
+}
+
+{VARI} {
+    dxf_lval.s_val = strdup(dxf_text);
+    return VARIABLE;
+}
+
+{REAL1}|{REAL2} {
     std::string s = dxf_text;
     std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
     dxf_lval.f_val = atof(s.c_str());
@@ -112,19 +116,7 @@ Eol      \n
     return FLOAT;
 }
 
-^{Eol} { /* nothing */ }
-
-{Eol} { return NEW_LINE; /* call NEW_LINE: push decoded data to vector */ }
-
-
-^{COMMENT}{Eol}+ { /* new line commentar */}
-
-
-{COMMENT} { dxf_lval.s_val = strdup(dxf_text); return COMMENTAR; }
-
-"%".*{Eol}+ { /* ignore comments, do nothing */ }
-
-";".*{Eol}+ { /* ignore comments, do nothing */ }
+{EOL} { /* nothing */ }
 
 
 <*>{WSPACE}  { /* skip end of line and spaces */ }
