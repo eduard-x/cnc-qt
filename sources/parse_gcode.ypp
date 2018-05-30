@@ -56,7 +56,7 @@
 #include "GCode.h"
 
 extern int gcode_lineno;
-static int gcodecharno = 0;
+extern int gcode_charno;
 
 extern int gcode_parse (void);
 extern void gcode_error (const char *c);
@@ -76,7 +76,7 @@ short lastGCode = -1;
 %}
 
 %name-prefix "gcode_"
-
+%locations
 
 %token NEW_LINE
 %token IF
@@ -198,6 +198,10 @@ gline:  CMD_CHAR IVAL
                     // TODO: not critical message 
                     break;
             }
+        }
+        | CMD_CHAR VARIABLE
+        {
+            qInfo() << $1 << $2;
         }
         | CMD_CHAR FVAL
         {
@@ -447,8 +451,16 @@ bool set_data_float(char c, float f) {
     return true;
 }
 
+extern YYLTYPE gcode_lloc;
+long offset;
 
+#define YY_USER_ACTION                 \
+  offset += gcode_leng;                \
+  gcode_lloc.last_line = gcode_lineno; \
+  gcode_lloc.last_column = offset;
+  
+  
 void gcode_error (const char * error) {
-  fprintf (stderr, "line %d: %s\n", gcode_lineno, error);
+  fprintf (stderr, "line %d pos %d: %s\n", gcode_lineno, gcode_charno, error);
 //   return 0;
 }

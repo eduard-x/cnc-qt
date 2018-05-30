@@ -64,10 +64,11 @@
 
 
 #include "Settings.h"
-#include "Gerber.h"
+#include "GCode.h"
 
 extern int svg_lineno;
-
+extern YYLTYPE svg_lloc; // TODO 
+extern int svg_charno = 1;
 
 %}
 
@@ -77,8 +78,10 @@ DIGITS   [0-9]+
 INTEGER  [+-]?{DIGITS}
 REAL1    [+-]?{DIGITS}?[.]{DIGITS}
 REAL2    [+-]?{DIGITS}[.]{DIGITS}?
+REAL3    {REAL2}[eE][+-]?{DIGITS}
 HEXNUM   #[0-9A-F]+
-IDNAME   [A-Z]+{DIGITS}?
+IDNAME   [A-Z\-]+{DIGITS}?
+ID       {IDNAME}(":"{IDNAME})?
 URL      "\""["HTTP:\/"|"HTTPS:\/"].*[^\"]
 PARAM    {WSPACE}?[A-Z]{WSPACE}
 EOL      [\n]+
@@ -97,107 +100,133 @@ OPER     [\(\)]
 
 %%
 
-<INITIAL,TAG>{EOL} {
+<INITIAL,TAG,ATTRIB>{EOL} {
+    svg_charno = 1;
     return NEW_LINE;
 }
 
 <INITIAL,TAG,ATTRIB>{WSPACE} {
+    svg_charno += yyleng;
     /* skip */
 }
 
-<INITIAL>{BEG}\?.*\?{END} { /* fisrt xml line */ } 
-<INITIAL>{BEG}"!--".*"--"{END} { /* ignore comments */ } 
+<INITIAL>{BEG}\?.*\?{END} { 
+    /* fisrt xml line */
+} 
+
+<INITIAL>{BEG}"!--".*"--"{END} {
+    /* ignore comments */
+} 
 
 <INITIAL>{BEG} {
+    svg_charno += yyleng;
     yy_push_state(TAG);
 }
 
-<TAG>\/{IDNAME}(":"{IDNAME})?{END} {  /* end of tag */
+<TAG>\/{ID}{END} {  /* end of tag */
+    svg_charno += yyleng;
     yy_pop_state();
 }
 
 <TAG>"/"{END} { /* end of tag */
+    svg_charno += yyleng;
     yy_pop_state();
 }
 
-
-<ATTRIB>{END} {
-    yy_pop_state();
-}
-
-
-<TAG>{IDNAME}(":"{IDNAME})? {
+<TAG>{ID} {
+    svg_charno += yyleng;
     svg_lval.s_val = strdup(svg_text);
     yy_push_state(ATTRIB);
     return NAME;
 }
 
-<ATTRIB>{IDNAME}(":"{IDNAME})? {
+<ATTRIB>{END} {
+    svg_charno += yyleng;
+    yy_pop_state();
+}
+
+
+<ATTRIB>{ID} {
+    svg_charno += yyleng;
      svg_lval.s_val = strdup(svg_text);
      return NAME;
 }
 
 <ATTRIB>"=" {
+    svg_charno += yyleng;
     /* ignore this part */
 }
 
 <ATTRIB>"\"" {
+    svg_charno += yyleng;
     yy_push_state(DATAFIELD);
 }
 
-<DATAFIELD>"\""{WSPACE}? {
+<DATAFIELD>"\"" {
+    svg_charno += yyleng;
     yy_pop_state();
 }
 
 <DATAFIELD>{WSPACE} {
+    svg_charno += yyleng;
     return ' ';
 }
 
-<DATAFIELD,ATTRIB>{EOL} {
+<DATAFIELD>{EOL} {
+    svg_charno = 1;
     /* ignore */
 }
 
 <DATAFIELD,ATTRIB>{URL} { 
+    svg_charno += yyleng;
     /* ignore this part */
     /*return NEW_LINE;*/
 }
 
 <DATAFIELD>{HEXNUM} {
+    svg_charno += yyleng;
     svg_lval.i_val = strtol(&svg_text[1], NULL, 16);
     return HEXVAL;
 }
 
 <DATAFIELD>{IDNAME}":" {
+    svg_charno += yyleng;
     svg_lval.s_val = strndup(svg_text, strlen(svg_text)-1);
-    return STR;
+    return STRING;
 }
 
 <DATAFIELD>{OPER} {
+    svg_charno += yyleng;
     /* svg_lval.c_val = svg_text[0]; 
     return OPER; */
 }
 
 <DATAFIELD>{INTEGER} { 
+    svg_charno += yyleng;
     svg_lval.f_val = (float)strtol(svg_text, NULL, 10); 
     return FLOAT; 
 }
 
 <DATAFIELD>{PARAM} { 
+    svg_charno += yyleng;
     svg_lval.c_val = svg_text[0]; 
-    return CHAR; 
+    return PARAM; 
 }
 
 <DATAFIELD>{VERS}{WSPACE}{REL} {
+    svg_charno += yyleng;
     svg_lval.s_val = strdup(svg_text);
-    return STR;
+    return STRING;
 }
 
 <DATAFIELD>',' { 
+    svg_charno += yyleng;
     /* separator for real numbers pairs */
     return ',';
 }
 
-<DATAFIELD>{REAL1}|{REAL2} {
+<DATAFIELD>{REAL1}|{REAL2}|{REAL3} {
+    svg_charno += yyleng;
     std::string s = svg_text;
     std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
     svg_lval.f_val = strtof(s.c_str(), NULL);
@@ -205,15 +234,14 @@ OPER     [\(\)]
 }
 
 <DATAFIELD>{ANY_TEXT} {
+    svg_charno += yyleng;
     svg_lval.s_val = strdup(svg_text);
-    return STR;
+    return STRING;
 }
 
 . { /* any other character is invalid */
-  fprintf (stderr,
-       "line %d: syntax error, unrecognized character: `%s'\n",
-       svg_lineno, svg_text);
-   return InvalidCharacter;
+    fprintf (stderr, "line %d pos %d: syntax error, unrecognized character: `%s'\n", svg_lineno, svg_charno, svg_text);
+    return InvalidCharacter;
 }
 
 %%

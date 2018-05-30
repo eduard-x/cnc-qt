@@ -69,7 +69,8 @@
 
 
 extern int gcode_lineno;
-
+extern YYLTYPE svg_lloc;
+extern int gcode_charno = 1;
 
 %}
 
@@ -81,7 +82,7 @@ PARAM    [A-FH-MP-Z]
 INTEGER  [+-]?{DIGITS}
 REAL1    [+-]?{DIGITS}?[.,]{DIGITS}
 REAL2    [+-]?{DIGITS}[.,]{DIGITS}?
-VARI     #<[A-Z_]+>
+VARI     #[\<\>A-Z0-9_]+
 COMMAND  [GM]
 EOL      [\n]+
 OPER     [\+\-\/\*\=\[\]]
@@ -111,75 +112,92 @@ SQRT     "SQRT"
 %%
 
 {COMMAND} { // commands
+    gcode_charno += yyleng;
     gcode_lval.c_val = gcode_text[0];
     return CMD_CHAR;
 }
 
 {POW} {
+    gcode_charno += yyleng;
     return POW_FUNC;
 }
 
 {SQRT} {
+    gcode_charno += yyleng;
     return SQRT_FUNC;
 }
 
 {SIN} {
+    gcode_charno += yyleng;
     return SIN_FUNC;
 }
 
 {COS} {
+    gcode_charno += yyleng;
     return COS_FUNC;
 }
 
 {EQ} {
+    gcode_charno += yyleng;
     return CMP_EQ;
 }
 
 {LE} {
+    gcode_charno += yyleng;
     return CMP_LE;
 }
 
 {NE} {
+    gcode_charno += yyleng;
     return CMP_NE;
 }
 
 {GT} {
+    gcode_charno += yyleng;
     return CMP_GT;
 }
 
 {LT} {
+    gcode_charno += yyleng;
     return CMP_LT;
 }
 
 {GE} {
+    gcode_charno += yyleng;
     return CMP_GE;
 }
 
 [NO] { // label
+    gcode_charno += yyleng;
     gcode_lval.c_val = gcode_text[0];
     return LABEL;
 }
 
 {OPER} {
+    gcode_charno += yyleng;
     return gcode_text[0];
 }
 
 {PARAM} { // params
+    gcode_charno += yyleng;
     gcode_lval.c_val = gcode_text[0]; 
     return PARAM_CHAR; 
 }
 
 {VARI} {
+    gcode_charno += yyleng;
     gcode_lval.s_val = strdup(gcode_text);
     return VARIABLE;
 }
 
 {INTEGER} {
+    gcode_charno += yyleng;
     gcode_lval.i_val = strtol(gcode_text, NULL, 10); 
     return IVAL; 
 }
 
 {REAL1}|{REAL2} {
+    gcode_charno += yyleng;
     std::string s = gcode_text;
     std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
     gcode_lval.f_val = strtof(s.c_str(), NULL);
@@ -187,32 +205,37 @@ SQRT     "SQRT"
 }
 
 {EOL} {
+    gcode_charno = 1;
     return NEW_LINE;
 }
 
 {COMMENT} {
+    gcode_charno += yyleng;
     gcode_lval.s_val = strdup(gcode_text); 
     return COMMENTAR;
 }
 
 "%".* {
+    gcode_charno += yyleng;
     gcode_lval.s_val = strdup(gcode_text); 
     return COMMENTAR;
 }
 
 ";".* {
+    gcode_charno += yyleng;
     gcode_lval.s_val = strdup(gcode_text); 
     return COMMENTAR;
 }
 
 
-{WSPACE}+  { /* ignore spaces */ }
+{WSPACE}+  { 
+    gcode_charno += yyleng;
+    /* ignore spaces */
+}
 
 <*>. { /* any other character is invalid */
-  fprintf (stderr,
-       "line %d: syntax error, unrecognized character: `%s'\n",
-       gcode_lineno, gcode_text);
-  return InvalidCharacter;
+    fprintf (stderr, "line %d pos %d: syntax error, unrecognized character: `%s'\n", gcode_lineno, gcode_charno, gcode_text);
+    return InvalidCharacter;
 }
 
 %%

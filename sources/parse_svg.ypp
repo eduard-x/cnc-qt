@@ -64,7 +64,8 @@ extern int svg_lex (void);
 extern int svg_lex_destroy (void);
 
 extern int svg_lineno;
-static int svgcharno = 0;
+extern int svg_charno;
+//
 
 
 // bool set_data_float(char c, float f);
@@ -79,7 +80,7 @@ ParserData *svg_data = new ParserData();
 %}
 
 %name-prefix "svg_"
-
+%locations
 
 %token INT
 %token HEXVAL
@@ -100,8 +101,8 @@ ParserData *svg_data = new ParserData();
 %token ' ' ','
 
 %token <s_val> NAME
-%token <s_val> STR
-%token <c_val> CHAR OPER
+%token <s_val> STRING
+%token <c_val> PARAM OPER
 
 %type <i_val> INT HEXVAL
 %type <f_val> FLOAT
@@ -145,7 +146,7 @@ EXPRS:  EXPR
         ;
 
 
-EXPR:   STR 
+EXPR:   STRING
         {
             qInfo() << "str" << $1;
         }
@@ -165,7 +166,7 @@ EXPR:   STR
         {
             qInfo() << "floats " << $1 << $3;
         }
-        | CHAR 
+        | PARAM 
         {
             qInfo() << $1;
             
@@ -214,9 +215,14 @@ EXPR:   STR
 
 %%
 
+extern YYLTYPE svg_lloc;
 
-
+#define YY_USER_ACTION             \
+  offset += svg_leng;              \
+  svg_lloc.last_line = svg_lineno; \
+  svg_lloc.last_column = offset;
+  
 void svg_error (const char * error) {
-  fprintf (stderr, "line %d: %s\n", svg_lineno, error);
+  fprintf (stderr, "line %d pos %d: %s\n", svg_lineno, svg_charno, error);
 //   return 0;
 }
