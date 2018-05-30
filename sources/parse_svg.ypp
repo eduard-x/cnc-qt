@@ -54,23 +54,13 @@
 
 #include "GData.h"
 
-/*
 
-
-// static int svglineno = 0;*/
 extern int svg_parse (void);
 extern void svg_error (const char *c);
 extern int svg_lex (void);
 extern int svg_lex_destroy (void);
 
 extern int svg_lineno;
-extern int svg_charno;
-//
-
-
-// bool set_data_float(char c, float f);
-
-// svg_lineno = 0;
 
 
 // initializing for vector
@@ -216,13 +206,8 @@ EXPR:   STRING
 %%
 
 extern YYLTYPE svg_lloc;
-
-#define YY_USER_ACTION             \
-  offset += svg_leng;              \
-  svg_lloc.last_line = svg_lineno; \
-  svg_lloc.last_column = offset;
   
 void svg_error (const char * error) {
-  fprintf (stderr, "line %d pos %d: %s\n", svg_lineno, svg_charno, error);
+  fprintf (stderr, "line %d pos %d: %s\n", svg_lineno,  svg_lloc.last_column, error);
 //   return 0;
 }

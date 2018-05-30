@@ -56,7 +56,7 @@
 #include "GCode.h"
 
 extern int gcode_lineno;
-extern int gcode_charno;
+// extern int gcode_charno;
 
 extern int gcode_parse (void);
 extern void gcode_error (const char *c);
@@ -452,15 +452,9 @@ bool set_data_float(char c, float f) {
 }
 
 extern YYLTYPE gcode_lloc;
-long offset;
-
-#define YY_USER_ACTION                 \
-  offset += gcode_leng;                \
-  gcode_lloc.last_line = gcode_lineno; \
-  gcode_lloc.last_column = offset;
   
   
 void gcode_error (const char * error) {
-  fprintf (stderr, "line %d pos %d: %s\n", gcode_lineno, gcode_charno, error);
+  fprintf (stderr, "line %d pos %d: %s\n", gcode_lineno, gcode_lloc.last_column, error);
 //   return 0;
 }

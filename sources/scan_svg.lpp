@@ -67,9 +67,15 @@
 #include "GCode.h"
 
 extern int svg_lineno;
-extern YYLTYPE svg_lloc; // TODO 
-extern int svg_charno = 1;
+extern YYLTYPE svg_lloc;
+long svg_ch_offset = 1;
 
+#define YY_USER_ACTION             \
+  svg_ch_offset += svg_leng;         \
+  svg_lloc.last_line = svg_lineno; \
+  svg_lloc.last_column = svg_ch_offset;
+  
+  
 %}
 
 
@@ -101,12 +107,11 @@ OPER     [\(\)]
 %%
 
 <INITIAL,TAG,ATTRIB>{EOL} {
-    svg_charno = 1;
+    svg_ch_offset = 1;
     return NEW_LINE;
 }
 
 <INITIAL,TAG,ATTRIB>{WSPACE} {
-    svg_charno += yyleng;
     /* skip */
 }
 
@@ -119,114 +124,95 @@ OPER     [\(\)]
 } 
 
 <INITIAL>{BEG} {
-    svg_charno += yyleng;
     yy_push_state(TAG);
 }
 
 <TAG>\/{ID}{END} {  /* end of tag */
-    svg_charno += yyleng;
     yy_pop_state();
 }
 
 <TAG>"/"{END} { /* end of tag */
-    svg_charno += yyleng;
     yy_pop_state();
 }
 
 <TAG>{ID} {
-    svg_charno += yyleng;
     svg_lval.s_val = strdup(svg_text);
     yy_push_state(ATTRIB);
     return NAME;
 }
 
 <ATTRIB>{END} {
-    svg_charno += yyleng;
     yy_pop_state();
 }
 
 
 <ATTRIB>{ID} {
-    svg_charno += yyleng;
-     svg_lval.s_val = strdup(svg_text);
-     return NAME;
+    svg_lval.s_val = strdup(svg_text);
+    return NAME;
 }
 
 <ATTRIB>"=" {
-    svg_charno += yyleng;
     /* ignore this part */
 }
 
 <ATTRIB>"\"" {
-    svg_charno += yyleng;
     yy_push_state(DATAFIELD);
 }
 
 <DATAFIELD>"\"" {
-    svg_charno += yyleng;
     yy_pop_state();
 }
 
 <DATAFIELD>{WSPACE} {
-    svg_charno += yyleng;
     return ' ';
 }
 
 <DATAFIELD>{EOL} {
-    svg_charno = 1;
+    svg_ch_offset = 1;
     /* ignore */
 }
 
 <DATAFIELD,ATTRIB>{URL} { 
-    svg_charno += yyleng;
     /* ignore this part */
     /*return NEW_LINE;*/
 }
 
 <DATAFIELD>{HEXNUM} {
-    svg_charno += yyleng;
     svg_lval.i_val = strtol(&svg_text[1], NULL, 16);
     return HEXVAL;
 }
 
 <DATAFIELD>{IDNAME}":" {
-    svg_charno += yyleng;
     svg_lval.s_val = strndup(svg_text, strlen(svg_text)-1);
     return STRING;
 }
 
 <DATAFIELD>{OPER} {
-    svg_charno += yyleng;
     /* svg_lval.c_val = svg_text[0]; 
     return OPER; */
 }
 
 <DATAFIELD>{INTEGER} { 
-    svg_charno += yyleng;
     svg_lval.f_val = (float)strtol(svg_text, NULL, 10); 
     return FLOAT; 
 }
 
 <DATAFIELD>{PARAM} { 
-    svg_charno += yyleng;
     svg_lval.c_val = svg_text[0]; 
     return PARAM; 
 }
 
 <DATAFIELD>{VERS}{WSPACE}{REL} {
-    svg_charno += yyleng;
     svg_lval.s_val = strdup(svg_text);
     return STRING;
 }
 
 <DATAFIELD>',' { 
-    svg_charno += yyleng;
     /* separator for real numbers pairs */
     return ',';
 }
 
 <DATAFIELD>{REAL1}|{REAL2}|{REAL3} {
-    svg_charno += yyleng;
     std::string s = svg_text;
     std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
     svg_lval.f_val = strtof(s.c_str(), NULL);
@@ -234,13 +220,12 @@ OPER     [\(\)]
 }
 
 <DATAFIELD>{ANY_TEXT} {
-    svg_charno += yyleng;
     svg_lval.s_val = strdup(svg_text);
     return STRING;
 }
 
 . { /* any other character is invalid */
-    fprintf (stderr, "line %d pos %d: syntax error, unrecognized character: `%s'\n", svg_lineno, svg_charno, svg_text);
+    fprintf (stderr, "line %d pos %d: syntax error, unrecognized character: `%s'\n", svg_lineno, svg_lloc.last_column, svg_text);
     return InvalidCharacter;
 }
 
