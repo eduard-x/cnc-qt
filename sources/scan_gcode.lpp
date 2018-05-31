@@ -69,13 +69,9 @@
 
 
 extern int gcode_lineno;
-extern YYLTYPE svg_lloc;
-long gcode_ch_offset = 1;
+int gcode_charno = 1;
 
-#define YY_USER_ACTION                 \
-  gcode_ch_offset += gcode_leng;       \
-  gcode_lloc.last_line = gcode_lineno; \
-  gcode_lloc.last_column = gcode_ch_offset;
+#define YY_USER_ACTION gcode_charno += gcode_leng; 
   
   
 %}
@@ -194,7 +190,7 @@ SQRT     "SQRT"
 }
 
 {EOL} {
-    gcode_ch_offset = 1;
+    gcode_charno = 1;
     return NEW_LINE;
 }
 
@@ -219,7 +215,7 @@ SQRT     "SQRT"
 }
 
 <*>. { /* any other character is invalid */
-    fprintf (stderr, "line %d pos %d: syntax error, unrecognized character: `%s'\n", gcode_lineno, gcode_lloc.last_column, gcode_text);
+    fprintf (stderr, "line %d pos %d: syntax error, unrecognized character: `%s'\n", gcode_lineno, gcode_charno, gcode_text);
     return InvalidCharacter;
 }
 

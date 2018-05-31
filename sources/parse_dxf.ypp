@@ -63,7 +63,6 @@ extern int dxf_lex (void);
 extern int dxf_lex_destroy (void);
 
 extern int dxf_lineno;
-static int dxfcharno = 0;
 
 
 // bool set_data_float(char c, float f);
@@ -139,9 +138,9 @@ line:   STR
 
 %%
 
-
+extern int dxf_charno;
 
 void dxf_error (const char * error) {
-  fprintf (stderr, "line %d: %s\n", dxf_lineno, error);
+  fprintf (stderr, "line %d pos %d: %s\n", dxf_lineno, dxf_charno, error);
 //   return 0;
 }

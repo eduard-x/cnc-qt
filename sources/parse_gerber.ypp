@@ -339,7 +339,9 @@ bool set_data_float(char c, float f) {
 }
 #endif
 
+extern int gerber_charno;
+
 void gerber_error (const char * error) {
-  fprintf (stderr, "line %d: %s\n", gerber_lineno, error);
+  fprintf (stderr, "line %d pos %d: %s\n", gerber_lineno, gerber_charno, error);
 //   return 0;
 }

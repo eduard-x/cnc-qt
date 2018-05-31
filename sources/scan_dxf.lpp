@@ -66,7 +66,9 @@
 #include "GCode.h"
 
 extern int dxf_lineno;
+int dxf_charno = 1;
 
+#define YY_USER_ACTION dxf_charno += dxf_leng; 
 
 %}
 
@@ -117,15 +119,13 @@ SYMBOL   [\.\"\|\@\*\{\}]
     return FLOAT;
 }
 
-{EOL} { /* nothing */ }
+{EOL} { dxf_charno = 1; /* nothing */ }
 
 
 <*>{WSPACE}  { /* skip end of line and spaces */ }
 
 <*>. { /* any other character is invalid */
-  fprintf (stderr,
-       "line %d: syntax error, unrecognized character: `%s'\n",
-       dxf_lineno, dxf_text);
+  fprintf (stderr, "line %d pos %d: syntax error, unrecognized character: `%s'\n", dxf_lineno, dxf_charno, dxf_text);
    return InvalidCharacter;
 }
 

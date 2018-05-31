@@ -66,7 +66,9 @@
 #include "Gerber.h"
 
 extern int gerber_lineno;
+int gerber_charno = 1;
 
+#define YY_USER_ACTION gerber_charno += gerber_leng; 
 
 %}
 
@@ -112,9 +114,8 @@ Eol      \n
     return FLOAT;
 }
 
-^{Eol} { /* nothing*/ }
 
-{Eol} { return NEW_LINE; /* call NEW_LINE: push decoded data to vector */ }
+{Eol} { gerber_charno=1; return NEW_LINE; /* call NEW_LINE: push decoded data to vector */ }
 
 
 ^{COMMENT}{Eol}+ { /* new line commentar */}
@@ -131,8 +132,7 @@ Eol      \n
 
 <*>. { /* any other character is invalid */
   fprintf (stderr,
-       "line %d: syntax error, unrecognized character: `%s'\n",
-       gerber_lineno, gerber_text);
+       "line %d pos %d: syntax error, unrecognized character: `%s'\n", gerber_lineno, gerber_charno, gerber_text);
    return InvalidCharacter;
 }
 

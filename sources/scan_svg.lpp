@@ -64,18 +64,15 @@
 
 
 #include "Settings.h"
-#include "GCode.h"
+#include "GData.h"
+
 
 extern int svg_lineno;
-extern YYLTYPE svg_lloc;
-long svg_ch_offset = 1;
+int svg_charno = 1;
 
-#define YY_USER_ACTION             \
-  svg_ch_offset += svg_leng;         \
-  svg_lloc.last_line = svg_lineno; \
-  svg_lloc.last_column = svg_ch_offset;
-  
-  
+#define YY_USER_ACTION svg_charno += svg_leng; 
+
+
 %}
 
 
@@ -83,19 +80,19 @@ WSPACE   [ \t\r\f]+
 DIGITS   [0-9]+
 INTEGER  [+-]?{DIGITS}
 REAL1    [+-]?{DIGITS}?[.]{DIGITS}
-REAL2    [+-]?{DIGITS}[.]{DIGITS}?
+REAL2    [+-]?{DIGITS}([.]{DIGITS})?
 REAL3    {REAL2}[eE][+-]?{DIGITS}
 HEXNUM   #[0-9A-F]+
 IDNAME   [A-Z\-]+{DIGITS}?
 ID       {IDNAME}(":"{IDNAME})?
 URL      "\""["HTTP:\/"|"HTTPS:\/"].*[^\"]
-PARAM    {WSPACE}?[A-Z]{WSPACE}
+PARAM    [A-Z]
 EOL      [\n]+
-VERS     [0-9]+\.[0-9]+\.[0-9]+
+VERS     [0-9]+\.[0-9]+(\.[0-9]+)?
 REL      {WSPACE}?"r"[0-9]*
 BEG      {WSPACE}?"<"
 END      ">"{WSPACE}?
-ANY_TEXT [0-9A-Z\s\;_\:]+
+ANY_TEXT [0-9A-Z\s\;_\:]{2,}
 OPER     [\(\)]
 
 
@@ -103,11 +100,10 @@ OPER     [\(\)]
 
 %option stack caseless yylineno noyywrap nounput noinput prefix="svg_"
 
-
 %%
 
 <INITIAL,TAG,ATTRIB>{EOL} {
-    svg_ch_offset = 1;
+    svg_charno = 1;
     return NEW_LINE;
 }
 
@@ -116,7 +112,8 @@ OPER     [\(\)]
 }
 
 <INITIAL>{BEG}\?.*\?{END} { 
-    /* fisrt xml line */
+    /* fisrt xml line 
+     * TODO: encoding */ 
 } 
 
 <INITIAL>{BEG}"!--".*"--"{END} {
@@ -145,7 +142,6 @@ OPER     [\(\)]
     yy_pop_state();
 }
 
-
 <ATTRIB>{ID} {
     svg_lval.s_val = strdup(svg_text);
     return NAME;
@@ -155,20 +151,22 @@ OPER     [\(\)]
     /* ignore this part */
 }
 
-<ATTRIB>"\"" {
+<ATTRIB>"\"" { 
+    /* begin of datafield */
     yy_push_state(DATAFIELD);
 }
 
 <DATAFIELD>"\"" {
+    /* end of datafield */
     yy_pop_state();
 }
 
-<DATAFIELD>{WSPACE} {
+<DATAFIELD>{WSPACE}+ {
     return ' ';
 }
 
 <DATAFIELD>{EOL} {
-    svg_ch_offset = 1;
+    svg_charno = 1;
     /* ignore */
 }
 
@@ -184,7 +182,7 @@ OPER     [\(\)]
 
 <DATAFIELD>{IDNAME}":" {
     svg_lval.s_val = strndup(svg_text, strlen(svg_text)-1);
-    return STRING;
+    return STR;
 }
 
 <DATAFIELD>{OPER} {
@@ -197,19 +195,64 @@ OPER     [\(\)]
     return FLOAT; 
 }
 
-<DATAFIELD>{PARAM} { 
-    svg_lval.c_val = svg_text[0]; 
-    return PARAM; 
+<DATAFIELD>{PARAM}{WSPACE}? { 
+    switch (svg_text[0]) {
+        case 'M': // moveto x y
+            return MOVE_ABS;
+        case 'm': // moveto dx dy
+            return MOVE_REL;
+        case 'L': // lineto 
+            return LINETO_ABS;
+        case 'l': // lineto dx dy
+            return LINETO_REL;
+        case 'H': // horizontal lineto
+            return HLINE_ABS;
+        case 'h': // horizontal lineto dx
+            return HLINE_REL;
+        case 'V': // vertical lineto
+            return VLINE_ABS;
+        case 'v': // vertical lineto dy
+            return VLINE_REL;
+        case 'C': // curveto
+            return CURVE_ABS;
+        case 'c': // curveto dx dy
+            return CURVE_REL;
+        case 'S': // smooth curveto 
+            return SMOOTH_ABS;
+        case 's': // smooth curveto 
+            return SMOOTH_REL;
+        case 'Q': // quadratic Bézier curve 
+            return QCURVE_ABS;
+        case 'q': // quadratic Bézier curve 
+            return QCURVE_REL;
+        case 'T': // smooth quadratic Bézier curveto 
+            return SMOOTH_QCURVE_ABS;
+        case 't': // smooth quadratic Bézier curveto 
+            return SMOOTH_QCURVE_REL;
+        case 'A': // elliptical Arc 
+            return ARC_ABS;
+        case 'a': // elliptical Arc 
+            return ARC_REL;
+        case 'Z': // closepath
+        case 'z': 
+            return CLOSEPATH;
+        default:
+            fprintf (stderr, "line %d: syntax error, unrecognized character: `%s'\n", svg_lineno, svg_text);
+            return InvalidCharacter;
+            break;
+    }
+    
+    /*return CHAR; */
 }
 
 <DATAFIELD>{VERS}{WSPACE}{REL} {
     svg_lval.s_val = strdup(svg_text);
-    return STRING;
+    return STR;
 }
 
-<DATAFIELD>',' { 
+<DATAFIELD>"," { 
     /* separator for real numbers pairs */
-    return ',';
+    return ' ';
 }
 
 <DATAFIELD>{REAL1}|{REAL2}|{REAL3} {
@@ -221,12 +264,12 @@ OPER     [\(\)]
 
 <DATAFIELD>{ANY_TEXT} {
     svg_lval.s_val = strdup(svg_text);
-    return STRING;
+    return STR;
 }
 
 . { /* any other character is invalid */
-    fprintf (stderr, "line %d pos %d: syntax error, unrecognized character: `%s'\n", svg_lineno, svg_lloc.last_column, svg_text);
-    return InvalidCharacter;
+  fprintf (stderr, "line %d: position %d syntax error, unrecognized character: `%s'\n", svg_lineno, svg_charno, svg_text);
+   return InvalidCharacter;
 }
 
 %%

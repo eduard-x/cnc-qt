@@ -54,12 +54,15 @@
 
 #include "GData.h"
 
+/*
 
+
+// static int svglineno = 0;*/
 extern int svg_parse (void);
 extern void svg_error (const char *c);
 extern int svg_lex (void);
 extern int svg_lex_destroy (void);
-
+// extern YYLTYPE *yylloc;
 extern int svg_lineno;
 
 
@@ -70,7 +73,17 @@ ParserData *svg_data = new ParserData();
 %}
 
 %name-prefix "svg_"
-%locations
+
+
+%token MOVE_REL MOVE_ABS
+%token HLINE_REL HLINE_ABS VLINE_REL VLINE_ABS
+%token LINETO_ABS LINETO_REL
+%token CURVE_ABS CURVE_REL
+%token SMOOTH_ABS SMOOTH_REL
+%token ARC_ABS ARC_REL
+%token QCURVE_REL QCURVE_ABS
+%token SMOOTH_QCURVE_ABS SMOOTH_QCURVE_REL
+%token CLOSEPATH
 
 %token INT
 %token HEXVAL
@@ -91,8 +104,8 @@ ParserData *svg_data = new ParserData();
 %token ' ' ','
 
 %token <s_val> NAME
-%token <s_val> STRING
-%token <c_val> PARAM OPER
+%token <s_val> STR
+%token <c_val> CHAR OPER
 
 %type <i_val> INT HEXVAL
 %type <f_val> FLOAT
@@ -136,9 +149,104 @@ EXPRS:  EXPR
         ;
 
 
-EXPR:   STRING
+EXPR:   STR 
         {
-            qInfo() << "str" << $1;
+            qInfo() << "str" << $1 << svg_lineno;
+        }
+        | MOVE_ABS FLOAT ' ' FLOAT
+        {
+            /* move x y */
+            /* ignore first space character after drawing char, when this exists */ 
+            qInfo() << "move abs" << $2 << $4;
+        }
+        | MOVE_REL FLOAT ' ' FLOAT
+        {
+            /* move x y */
+            qInfo() << "move rel" << $2 << $4;
+        }
+        | HLINE_REL FLOAT
+        {
+            /* horizontal line to x */
+            qInfo() << "horline rel" << $2; 
+        }
+        | HLINE_ABS FLOAT
+        {
+            /* horizontal line to x */
+            qInfo() << "horline abs" << $2;
+        }
+        | VLINE_REL FLOAT
+        {
+            /* vetical line to y */
+            qInfo() << "verline rel" << $2;
+        }
+        | VLINE_ABS FLOAT
+        {
+            /* vetical line to y */
+            qInfo() << "verline abs" << $2; 
+        }
+        | LINETO_ABS FLOAT ' ' FLOAT 
+        {
+            /* line to x y */
+            qInfo() << "lineto abs" << $2 << $4;
+        }
+        | LINETO_REL FLOAT ' ' FLOAT 
+        {
+            /* line to x y */
+            qInfo() << "lineto rel" << $2 << $4;
+        }
+        | CURVE_ABS FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT 
+        {
+            /* cubic bezier curve x1 y1 x2 y2 x y */ 
+            qInfo() << "curve abs";
+        }
+        | CURVE_REL FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT 
+        {
+            /* cubic bezier curve x1 y1 x2 y2 x y */ 
+            qInfo() << "curve rel";
+        }
+        | SMOOTH_ABS FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT 
+        {
+            /* cubic bezier curve x2 y2 x y */ 
+            qInfo() << "smooth abs";
+        }
+        | SMOOTH_REL FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT 
+        {
+            /* cubic bezier curve x2 y2 x y */ 
+            qInfo() << "smooth rel";
+        }
+        | ARC_ABS FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT 
+        {
+            /* elliptical Arc rx ry x-rotation lage-arc-flag sweep-flag x y */
+            qInfo() << "arc abs";
+        }
+        | ARC_REL FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT 
+        {
+            /* elliptical Arc rx ry x-rotation lage-arc-flag sweep-flag x y */
+            qInfo() << "arc rel";
+        }
+        | QCURVE_ABS FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT 
+        {
+            /* quadratic bezier curve x1 y1 x y */ 
+            qInfo() << "qcurve abs";
+        }
+        | QCURVE_REL FLOAT ' ' FLOAT ' ' FLOAT ' ' FLOAT 
+        {
+            /* quadratic bezier curve x1 y1 x y */ 
+            qInfo() << "qcurve rel";
+        }
+        | SMOOTH_QCURVE_ABS FLOAT ' ' FLOAT 
+        {
+            /* smooth quadratic Bézier curve x y */
+            qInfo() << "smooth qcurve abs";
+        }
+        | SMOOTH_QCURVE_REL FLOAT ' ' FLOAT 
+        {
+            /* smooth quadratic Bézier curve x y */
+            qInfo() << "smooth qcurve rel";
+        }
+        | CLOSEPATH
+        {
+            qInfo() << "closepath";
         }
         | HEXVAL 
         {
@@ -152,62 +260,18 @@ EXPR:   STRING
         {
             qInfo() << "float " << $1;
         }
-        | FLOAT ',' FLOAT
-        {
-            qInfo() << "floats " << $1 << $3;
-        }
-        | PARAM 
-        {
-            qInfo() << $1;
-            
-            switch ($1) {
-                case 'M': // moveto x y
-                    break;
-                case 'm': // moveto dx dy
-                    break;
-                case 'L': // lineto 
-                    break;
-                case 'l': // lineto dx dy 
-                    break;
-                case 'H': // horizontal lineto
-                    break;
-                case 'h': // horizontal lineto dx
-                    break;
-                case 'V': // vertical lineto
-                    break;
-                case 'v': // vertical lineto dy
-                    break;
-                case 'C': // curveto
-                    break;
-                case 'c': // curveto dx dy 
-                    break;
-                case 'S': // smooth curveto // TODO s?
-                    break;
-                case 'Q': // quadratic Bézier curve // TODO q?
-                    break;
-                case 'T': // smooth quadratic Bézier curveto // TODO t?
-                    break;
-                case 'A': // elliptical Arc // TODO a?
-                    break;
-                case 'Z': // closepath
-                case 'z': // closepath
-                    break;
-                default:
-                    break;
-            }
-        }
         | ' '
         {
             qInfo() << "separator";
-            Parser::dataVector << *svg_data;
         }
         ;
 
 %%
 
-extern YYLTYPE svg_lloc;
-  
+
+extern int svg_charno;
+
 void svg_error (const char * error) {
-  fprintf (stderr, "line %d pos %d: %s\n", svg_lineno,  svg_lloc.last_column, error);
+  fprintf (stderr, "line %d pos %d: %s\n", svg_lineno, svg_charno, error);
 //   return 0;
 }

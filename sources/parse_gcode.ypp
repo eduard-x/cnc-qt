@@ -56,7 +56,6 @@
 #include "GCode.h"
 
 extern int gcode_lineno;
-// extern int gcode_charno;
 
 extern int gcode_parse (void);
 extern void gcode_error (const char *c);
@@ -66,8 +65,6 @@ extern int gcode_lex_destroy (void);
 
 bool set_data_float(char c, float f);
 
-// extern struct addParam;
-
 // initializing for vector
 ParserData *gcode_data = new ParserData();
 
@@ -76,7 +73,7 @@ short lastGCode = -1;
 %}
 
 %name-prefix "gcode_"
-%locations
+
 
 %token NEW_LINE
 %token IF
@@ -136,7 +133,7 @@ parse_gcode:
 
 
 glines: gline 
-        | glines gline 
+        | gline glines
         ;
 
 
@@ -231,7 +228,7 @@ gline:  CMD_CHAR IVAL
         ;
 
 vardefs: vardef 
-        | vardefs vardef
+        | vardef vardefs
         ;
 
 
@@ -249,7 +246,7 @@ vardef: VARIABLE '=' EXPR
 
 
 params: param
-        | params param
+        | param params
         ;
 
 
@@ -287,33 +284,34 @@ EXPR:   '[' EXPR ']'
             // root expression 
             $$ = $2;
         }
-        | '[' EXPR '*' EXPR ']'
+        | EXPR '*' EXPR
         {
             $$ = new DataOperation(EXP::MUL, DATA::FVAL);
-            $$->expr1 = $2;
-            $$->expr2 = $4;
-            $$->result = $2->result * $4->result;
+            $$->expr1 = $1;
+            $$->expr2 = $3;
+            $$->result = $1->result * $3->result;
         }
-        | '[' EXPR '/' EXPR ']'
+        | EXPR '/' EXPR
         {
             $$ = new DataOperation(EXP::DIV, DATA::FVAL);
-            $$->expr1 = $2;
-            $$->expr2 = $4;
-            $$->result = $2->result / $4->result;
+            $$->expr1 = $1;
+            $$->expr2 = $3;
+            // TODO div by zero
+            $$->result = $1->result / $3->result;
         }
-        | '[' EXPR '+' EXPR ']'
+        | EXPR '+' EXPR
         {
             $$ = new DataOperation(EXP::PLUS, DATA::FVAL);
-            $$->expr1 = $2;
-            $$->expr2 = $4;
-            $$->result = $2->result + $4->result;
+            $$->expr1 = $1;
+            $$->expr2 = $3;
+            $$->result = $1->result + $3->result;
         }
-        | '[' EXPR '-' EXPR ']'
+        | EXPR '-' EXPR
         {
             $$ = new DataOperation(EXP::MINUS, DATA::FVAL);
-            $$->expr1 = $2;
-            $$->expr2 = $4;
-            $$->result = $2->result - $4->result;
+            $$->expr1 = $1;
+            $$->expr2 = $3;
+            $$->result = $1->result - $3->result;
         }
         | '-' EXPR %prec UMINUS 
         {
@@ -339,12 +337,12 @@ EXPR:   '[' EXPR ']'
             $$->expr1 = $3; 
             $$->result = qSqrt($3->result);
         }
-        | '[' EXPR POW_FUNC EXPR ']'
+        | EXPR POW_FUNC EXPR
         {
             $$ = new DataOperation(EXP::POW, DATA::FVAL);
-            $$->expr1 = $2;
-            $$->expr2 = $4;
-            $$->result = qPow($2->result, $4->result);
+            $$->expr1 = $1;
+            $$->expr2 = $3;
+            $$->result = qPow($1->result, $3->result);
         }
         | IVAL 
         {
@@ -451,10 +449,10 @@ bool set_data_float(char c, float f) {
     return true;
 }
 
-extern YYLTYPE gcode_lloc;
+extern int gcode_charno;
   
   
 void gcode_error (const char * error) {
-  fprintf (stderr, "line %d pos %d: %s\n", gcode_lineno, gcode_lloc.last_column, error);
+  fprintf (stderr, "line %d pos %d: %s\n", gcode_lineno, gcode_charno, error);
 //   return 0;
 }

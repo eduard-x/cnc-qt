@@ -318,7 +318,7 @@ FOREACH( type ${ParserTypes} )
   
   ADD_CUSTOM_COMMAND(
     OUTPUT ${FlexOutput}
-    COMMAND ${FLEX_EXECUTABLE}
+    COMMAND ${FLEX_EXECUTABLE} -Cf
             --outfile=${FlexOutput}
             --header-file=${CMAKE_CURRENT_BINARY_DIR}/scan_${type}.h
             ${FlexInput}
