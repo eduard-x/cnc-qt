@@ -108,7 +108,7 @@ SQRT     "SQRT"
 
 
 
-%option caseless yylineno noyywrap batch nounput noinput prefix="gcode_"
+%option caseless yylineno noyywrap nounput noinput prefix="gcode_"
 
 
 %%

@@ -63,12 +63,7 @@ extern int gerber_lex (void);
 extern int gerber_lex_destroy (void);
 
 extern int gerber_lineno;
-static int gerbercharno = 0;
 
-
-// bool set_data_float(char c, float f);
-
-// gerber_lineno = 0;
 
 // init of first gerber data
 ParserData *gerber_data;// = new GerberData();
@@ -78,16 +73,14 @@ ParserData *gerber_data;// = new GerberData();
 %name-prefix "gerber_"
 
 
-%token NL_CHAR
-%token CHAR
-%token COMMENTAR
+%token XPARAM YPARAM IPARAM JPARAM
 %token NEW_LINE
-%token INT
-%token FLOAT
+%token ABS REL SET_INCH SET_MM
+%token NEGATIVE POSITIVE
+%token MIRRORING
 
 %token InvalidCharacter
 
-%token Eol
 
 %union {
     int       i_val;
@@ -97,10 +90,10 @@ ParserData *gerber_data;// = new GerberData();
 }
 
 
-%type <i_val> INT
-%type <f_val> FLOAT
-%type <c_val> NL_CHAR CHAR
-%type <s_val> COMMENTAR
+%token <i_val> INTEGER D_OPCODE G_OPCODE
+%token <f_val> FLOAT APARAM BPARAM 
+%token <s_val> FMT
+%token <s_val> APER_MACRO_NAME APER_DICTIONARY APER_SELECT
 
 
 %start parse_gerber
@@ -112,124 +105,91 @@ parse_gerber:
         ;
 
 
-glines: gline glines
-        | gline
+glines: gline 
+        | gline glines
         ;
 
 
-gline:  NL_CHAR INT
+gline:  XPARAM INTEGER
         {
-            // the new line, create new object
-            // for cases, when line begins with g, m command or n: label
-            if (Parser::dataVector.count() == 0){
-                gerber_data =  new ParserData();
-            }
-            else {
-                gerber_data =  new ParserData(gerber_data);
-            }
-            gerber_data->numberLine = gerber_lineno;
-
-            switch ($1 | 0x20){
-                case 'n' :
-                    gerber_data->labelNum = $2;
-                    break;
-
-                case 'g' :
-                    gerber_data->gCmd = $2;
-                    switch ($2){
-                        case 0:
-//                             gerber_data->baseData.movingCode = RAPID_LINE_CODE;
-                            break;
-                            
-                        case 1:
-                        case 2:
-                        case 3:
-//                             gerber_data->baseData.movingCode = FEED_LINE_CODE;
-                            break;
-                            
-                        case 17:
-//                             gerber_data->plane = XY;
-                            break;
-                            
-                        case 18:
-//                             gerber_data->plane = YZ;
-                            break;
-                            
-                        case 19:
-//                             gerber_data->plane = ZX;
-                            break;
-                    }
-                    break;
-
-                case 'm' :
-                    gerber_data->gCmd = -1;
-                    gerber_data->mCmd = $2;
-                    break;
- 
-                default:
-                    // not decoded, it's possible other code? 
-//                     if (set_data_float(($1 | 0x20), (float) $2) == false) {
-//                         gerber_data->decoded = false;
-//                         printf("not decoded char %c, line %d\n", $1, gerber_lineno);
-//                     }
-                    break;
-            }
+            qInfo() << "x" << $2;
         }
-        | NL_CHAR FLOAT
+        | YPARAM INTEGER 
         {
-            // when line begins with coordinates 
-            gerber_data =  new ParserData(gerber_data);
-            gerber_data->numberLine = gerber_lineno;
-            
-//             set_data_float(($1 | 0x20), $2);
+            qInfo() << "y" << $2;
         }
-        | NL_CHAR
+        | IPARAM INTEGER
         {
-            // store coordinates
+            qInfo() << "i" << $2;
         }
-        | CHAR INT 
+        | JPARAM INTEGER
         {
-            switch ($1 | 0x20){
-                case 'g' : {
-                    // new command in line, create new object
-                    Parser::dataVector << *gerber_data;
-                    gerber_data =  new ParserData(gerber_data);
-                    gerber_data->numberLine = gerber_lineno;
-                    gerber_data->gCmd = $2; 
-                    
-                    if ($2 == 1 || $2 == 2 || $2 == 3) {
-//                         gerber_data->baseData.movingCode = FEED_LINE_CODE;
-                    }
-                    if ($2 == 0) {
-//                         gerber_data->baseData.movingCode = RAPID_LINE_CODE;
-                    }
-                    break;
-                }
-
-                case 'm' : {
-                    gerber_data->mCmd = $2;
-                    break;
-                }
- 
-                default:
-//                     if (set_data_float(($1 | 0x20), (float) $2) == false) {
-//                         gerber_data->decoded = false;
-//                     }
-                    break;
+            qInfo() << "j" << $2;
+        }
+        | SET_MM
+        {
+        }
+        | APARAM 
+        {
+        }
+        | MIRRORING
+        {
+        }
+        | BPARAM  
+        {
+        }
+        | POSITIVE
+        {
+        }
+        | NEGATIVE
+        {
+        }
+        | INTEGER
+        {
+        }
+        | FLOAT 
+        {
+        }
+        | D_OPCODE
+        {
+        }
+        | G_OPCODE
+        {
+        }
+        | APER_MACRO_NAME
+        {
+        }
+        | APER_DICTIONARY
+        {
+        }
+        | APER_SELECT
+        {
+        }
+        | SET_INCH
+        {
+        }
+        | FMT
+        {
+            if ($1[0] == 'L') {
+                /* OMIT_LEADING_ZEROS */
+            }
+            if ($1[0] == 'T') {
+                /* OMIT_TRAILING_ZEROS */
+            }
+            if ($1[1] == 'A') {
+                /* ABSOLUTE_NOTATION */
+            }
+            if ($1[1] == 'I') {
+                /* INCREMENTAL_NOTATION */
             }
         }
-        | CHAR FLOAT 
+        | IPARAM FLOAT
         {
-//             set_data_float(($1 | 0x20), $2);
+            qInfo() << "i" << $2;
         }
-        | CHAR
+        | JPARAM FLOAT
         {
-            // store coordinates
-        }
-        | COMMENTAR 
-        {
-           gerber_data->lineComment = QString($1).simplified();
-           free($1);
+            qInfo() << "j" << $2;
         }
         | NEW_LINE
         {
@@ -239,105 +199,6 @@ gline:  NL_CHAR INT
 
 %%
 
-
-#if 0
-bool set_data_float(char c, float f) {
-    switch (c){
-        case 'x':
-            gerber_data->baseCoord.setX(f);
-            break;
-            
-        case 'y':
-            gerber_data->baseCoord.setY(f);
-            break;
-            
-        case 'z':
-            gerber_data->baseCoord.setZ(f);
-            break;
-            
-        case 'i':
-            gerber_data->useExtCoord = IJK; // TODO check conflicts
-            gerber_data->extCoord.setX(f);
-            break;
-            
-        case 'j':
-            gerber_data->useExtCoord = IJK; // TODO check conflicts
-            gerber_data->extCoord.setY(f);
-            break;
-            
-        case 'k':
-            gerber_data->useExtCoord = IJK; // TODO check conflicts
-            gerber_data->extCoord.setZ(f);
-            break;
-            
-        case 'a':
-            gerber_data->useExtCoord = ABC; // TODO check conflicts
-            gerber_data->extCoord.setX(f);
-            break;
-            
-        case 'b':
-            gerber_data->useExtCoord = ABC; // TODO check conflicts
-            gerber_data->extCoord.setY(f);
-            break;
-            
-        case 'c':
-            gerber_data->useExtCoord = ABC; // TODO check conflicts
-            gerber_data->extCoord.setZ(f);
-            break;
-            
-        case 'u':
-            gerber_data->useExtCoord = UVW; // TODO check conflicts
-            gerber_data->extCoord.setX(f);
-            break;
-            
-        case 'v':
-            gerber_data->useExtCoord = UVW; // TODO check conflicts
-            gerber_data->extCoord.setY(f);
-            break;
-            
-        case 'w':
-            gerber_data->useExtCoord = UVW; // TODO check conflicts
-            gerber_data->extCoord.setZ(f);
-            break;
-            
-        case 'r': // radius
-            gerber_data->radius = f;
-            break;
-            
-        case 's': // pause sec
-            if (gerber_data->gCmd == 4){
-                gerber_data->pauseMSec = f*1000.0;
-            }
-            break;
-            
-        case 'p': // pause msec
-            if (gerber_data->gCmd == 4){
-                gerber_data->pauseMSec = f;
-            }
-            break;
-            
-        case 'f': // feed
-            gerber_data->rapidVelo = f;
-            break;
-            
-        case 'd': // diameter
-            gerber_data->toolDiameter = f;
-            break;
-            
-        case 't': // change tool
-            gerber_data->toolChange = true;
-            gerber_data->toolNumber = f;
-            break;
-            
-        default:
-            gerber_data->decoded = false;
-            printf("not decoded char %c, line %d\n", c, gerber_lineno);
-            return false;
-            break;
-    }
-    return true;
-}
-#endif
 
 extern int gerber_charno;
 

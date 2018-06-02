@@ -1645,6 +1645,28 @@ bool cDataManager::readFile(const QString &fileName)
     file.close();
 
     TypeFile = None;
+    
+    
+    if ((detectArray.indexOf("G04 ") >= 0) || (detectArray.indexOf("G4 ") >= 0)) { // extended gerber
+        TypeFile = GBR;
+        QTime tMess;
+        tMess.start();
+        
+        bool res = readGBR(arr.data());
+
+        originalList.clear();
+        //         originalList = QString(arr).split("\n").toVector();s
+
+        emit logMessage(QString().sprintf("Parse Gerber, flex/bison. Time elapsed: %d ms", tMess.elapsed()));
+        // the parsed data is in gCodeList
+
+        tMess.restart();
+
+        arr.clear();
+
+
+        return res;
+    }
 
     if ((detectArray.indexOf("G0") >= 0) || (detectArray.indexOf("G1") >= 0)) { // G-Code program detect
         TypeFile = GCODE;
@@ -1728,13 +1750,7 @@ bool cDataManager::readFile(const QString &fileName)
         return res;
     }
 
-    if ((detectArray.indexOf("G04 ") >= 0) && (detectArray.indexOf("%MOMM*%") > 0 || detectArray.indexOf("%MOIN*%") > 0) ) { // extended gerber
-        TypeFile = GBR;
-        bool res = readGBR(arr.data());
 
-
-        return res;
-    }
 
     if ( detectArray.indexOf("IN1;") >= 0 ) { // plotter format
         TypeFile = PLT;

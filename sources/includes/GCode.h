@@ -74,6 +74,9 @@ class Parser : public QObject
 
         void dxfInit();
         void dxfDestroy();
+        
+        void gerberInit();
+        void gerberDestroy();
 
     signals:
         void logMessage(const QString &l);

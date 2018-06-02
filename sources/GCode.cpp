@@ -50,6 +50,8 @@
 #include "parse_svg.h"
 #include "scan_svg.h"
 
+#include "parse_gerber.h"
+#include "scan_gerber.h"
 
 #include "parse_dxf.h"
 #include "scan_dxf.h"
@@ -101,6 +103,16 @@ void Parser::dxfInit()
     //   gcode_header = NULL;
 }
 
+
+void Parser::gerberInit()
+{
+    gerber_lineno = 0;
+    //      gcode_result = NULL;
+    //   gcode_vector = NULL;
+    //   gcode_header = NULL;
+}
+
+
 void Parser::gcodeDestroy()
 {
     //      if (csv_result != NULL) {
@@ -122,6 +134,13 @@ void Parser::svgDestroy()
 void Parser::dxfDestroy()
 {
 }
+
+
+void Parser::gerberDestroy()
+{
+}
+
+
 
 /**
  * @brief read and parse into ParserData list and OpenGL list
@@ -238,11 +257,36 @@ bool Parser::readDXF( char *indata)
 bool Parser::readGBR(char *indata)
 {
     //     GerberData grb;
+    int ret = true;
 
-    //
-    int numberSplineNow = -1;
-    int X = 0;
-    int Y = 0;
+    dataVector.clear();
+
+    mut.lock();
+
+    gerberInit();
+
+    /* because the data in already in buffer 'indata' */
+
+    YY_BUFFER_STATE bs = gerber__scan_string(indata);
+    gerber__switch_to_buffer(bs);
+
+    if ( gerber_parse() != 0) {
+        ret = false;
+    }
+
+    gerber_lex_destroy();
+
+    mut.unlock();
+
+    if (!ret) {
+        gerberDestroy();
+        return false;
+    }
+
+    gerberDestroy();
+
+    return true;
+    
 #if 0
     QTextStream stream(arr);
     stream.setLocale(QLocale("C"));
