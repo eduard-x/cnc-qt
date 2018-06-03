@@ -29,61 +29,103 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include <QtGui>
-#include <QUrl>
-#include <QPixmap>
 
-#include "MainWindow.h"
-#include "About.h"
-#include "version.h"
+#ifndef GCODE_H
+#define GCODE_H
+
+#include <stdlib.h>
+#include <string>
+#include <fstream>
+
+#include <QString>
+#include <QMap>
+#include <QList>
+#include <QVector>
+#include <QVector3D>
+
+#include "DataManager.h"
 
 
-/******************************************************************************
-** AboutDialog
-*/
+#if !defined(yyFlexLexerOnce)
+#include <FlexLexer.h>
+#endif
+
+#include "parse_gcode.h"
+
+using std::string;
 
 
-AboutDialog::AboutDialog(QWidget *p)
-    : QDialog(p)
+// Tell flex which function to define
+# undef YY_DECL
+# define YY_DECL int gcode::scanner::lex(       \
+        gcode::parser::semantic_type* yylval,   \
+        gcode::parser::location_type* yylloc,   \
+        gcode::driver& checker)
+
+
+class cDataManager;
+
+
+namespace gcode
 {
-    setupUi(this);
 
-    parent = static_cast<MainWindow*>(p);
+class driver
+{
+    public:
+        explicit driver (cDataManager *p);
+        virtual ~driver ();
 
-    setStyleSheet(parent->programStyleSheet);
+        // Handling the parser.
+        void parse (const QString& f);
+        bool trace_parsing;
 
-    translateDialog();
+    public:
+        // Error handling.
+        void  error (const gcode::parser::location_type& l, const string& m);
+        void  error (const string& m);
 
-    labelImage->setPixmap(QPixmap(":/images/cnc.png"));
+        bool  find_key(const QString &s);
+        float get_vari(const QString &s);
+        void  add_varimap(const QString &s, float f);
+        void  add_gcode(GData &g);
+        void  dataChecker();
 
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(reject()));
+    public:
+        gcode::scanner *lexer;
+        string file;
 
-    adjustSize();
+    private:
+        bool result;
+
+        cDataManager *parent;
+};
+
+// To feed data back to bison, the yylex method needs yylval and
+// yylloc parameters. Since the yyFlexLexer class is defined in the
+// system header <FlexLexer.h> the signature of its yylex() method
+// can not be changed anymore. This makes it necessary to derive a
+// scanner class that provides a method with the desired signature:
+
+#include <iostream>
+
+class scanner : public yyFlexLexer
+{
+    public:
+        explicit scanner(std::istream* arg_yyin = 0,
+                         std::ostream* arg_yyout = 0 );
+
+        virtual ~scanner();
+
+        virtual int lex(gcode::parser::semantic_type* yylval,
+                        gcode::parser::location_type* yylloc,
+                        gcode::driver& checker);
+};
+
+#ifdef  yylex
+#undef yylex
+#endif
+#define yylex checker.lexer->lex
+
 }
 
-
-void AboutDialog::translateDialog()
-{
-    setWindowTitle(translate(ID_ABOUT_TITLE));
-    labelAuthorNET->setText("<a href=\"zheigurov@gmail.com\">C#, Windows developing: S. Zheigurov</a>");
-    labelProgAuthor->setText("<a href=\"eduard_kalinowski@yahoo.de\">Qt/C++, Linux developing: E. Kalinowski</a>");
-    labelProgName->setText(translate(ID_PROG_NAME) + " v." + QString(CNCMK1QTVERSION));
-    labelProgVersion->setText("");
-
-    QString ab = translate(ID_ABOUT_TEXT);
-
-    QString link1 = "http://www.planet-cnc.com";
-    QString link2 = "http://www.selenur.ru";
-    QString link3 = "http://www.cnc-club.ru/forum/viewtopic.php?f=16&t=7078&p=175365#p175365";
-    QString link3_descr = "http://www.cnc-club.ru (forum)";
-    QString link4 = "https://github.com/eduard-x/cnc-qt";
-
-    ab.replace("\n", "<br>");
-    ab = ab.arg("<a href=\"" + link1 + "\">" + link1 + "</a>")
-         .arg("<a href=\"" + link2 + "\">" + link2 + "</a>")
-         .arg("<a href=\"" + link3 + "\">" + link3_descr + "</a>")
-         .arg("<a href=\"" + link4 + "\">" + link4 + "</a>");
-
-    textInfo->setText(ab);
-}
-
+#endif

@@ -45,7 +45,7 @@
 #include <QImage>
 #include <QTimeLine>
 
-#include <QtCore/qmath.h>
+#include <QtMath>
 
 #include <libusb.h>
 
@@ -53,22 +53,23 @@
 
 #include <QtOpenGL/QtOpenGL>
 
-#define MK1_PRODUCT_ID   0x2130
-#define MK1_VENDOR_ID    0x2121
-
 #include "GLWidget.h"
 
-#include "GCode.h"
 #include "DataManager.h"
 #include "mk1Controller.h"
 #include "Geometry.h"
 #include "Translator.h"
 
+#include "SettingsDialog.h"
+#include "About.h"
+#include "EditGCode.h"
+#include "ScanSurface.h"
+
 #include "ui_MainWindow.h"
 
+class AboutDialog;
 class ParserData;
 class GLWidget;
-
 class mk1Controller;
 class cTranslator;
 class cDataManager;
@@ -101,31 +102,6 @@ class MessageBox: public cTranslator
 };
 
 
-#define PI 3.14159265358979323846
-
-
-enum MATERIAL {
-    HARDWOOD,
-    SOFTWOOD,
-    PLYWOOD,
-    MDF,
-    ACRYLIC,
-    PHENOLIC, // PERTINAX, paper
-    FIBERGLASS, // same as polyacril
-    HARDPLASTIC,
-    SOFTPLASTIC,
-    BRONZE,
-    ALUMINIUM,
-    COPPER
-};
-
-
-enum AxesFix { FixX = 0, FixY, FixZ };
-
-//
-enum KeyPad { NoManuaControl = -1, NumPad = 0, CursorPad, UserDefined };
-
-
 //
 // class for current state of controller
 //
@@ -148,11 +124,6 @@ class Task
 };
 
 
-// struct uKeys {
-//     QString name;
-//     Qt::Key code;
-// };
-
 
 struct speedSettings {
     float startSpeed;
@@ -162,7 +133,7 @@ struct speedSettings {
 };
 
 
-class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator  // , public Reader
+class MainWindow : public QMainWindow, public cDataManager, public Ui::MainWindow, public cTranslator  // , public Reader
 {
         Q_OBJECT
 
@@ -202,19 +173,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
 
         bool enableOpenGL;
 
-
-        //         bool scale;
-
-
-        //         QVector<speedSettings> veloSettings[4];
-
-        QVector<SerialData*> *serData;
-
-
-
         GLWidget *scene3d; // OpenGL widget
-
-
 
 
     public slots:
@@ -256,8 +215,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
         void onEditGCode(int row, int col);
         void onCellSelect(int row, int col);
 
-        //         void change_language(QString language);
-
         void onStartTask();
         void onPauseTask();
         void onStopTask();
@@ -285,11 +242,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
         void onButtonZtoZero();
         void onButtonAtoZero();
 
-        //         void getRotation();
         void getFPS(int fps);
-        //         void getScale(int s);
-        void logMessage(const QString &s);
 
+        void logMessage(const QString &s);
 
 
     private slots:
@@ -330,12 +285,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
     private:
         libusb_context *context;
 
-        cDataManager *dMan;
         Task::StatusTask currentStatus;
         QGraphicsScene *sceneCoordinates;
-        //
-        //         QTranslator language_en;
-        //
 
         QLabel *statusLabel1;
         QProgressBar *statusProgress;
@@ -349,17 +300,11 @@ class MainWindow : public QMainWindow, public Ui::MainWindow, public cTranslator
         QActionGroup* langGroup;
         QActionGroup* filesGroup;
 
-        //         QString programStyleSheet;
         QStringList langFiles;
-
-
-
-
 
         QTimer *hotplugTimer;
         QTimer *refreshGUITimer;
 
-        //         int xAngle, yAngle, zAngle;
         int scale;
 
 };

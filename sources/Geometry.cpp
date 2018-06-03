@@ -29,10 +29,10 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include <QtCore/qmath.h>
-#include "includes/Geometry.h"
+#include <QtMath>
+#include "Geometry.h"
 
-#include "includes/Settings.h"
+// #include "Settings.h"
 
 
 /******************************************************************************

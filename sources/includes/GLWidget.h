@@ -52,12 +52,12 @@
 #include <QMainWindow>
 #include <QTimeLine>
 
-
+#include "GData.h"
 #include "Geometry.h"
 #include "MainWindow.h"
 #include "Translator.h"
 
-#include "DataManager.h"
+// #include "DataManager.h"
 
 
 class cTranslator;

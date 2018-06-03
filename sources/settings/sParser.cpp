@@ -30,60 +30,92 @@
  ****************************************************************************/
 
 #include <QtGui>
-#include <QUrl>
-#include <QPixmap>
-
-#include "MainWindow.h"
-#include "About.h"
-#include "version.h"
 
 
+#include "sParser.h"
+
+class Settings;
 /******************************************************************************
-** AboutDialog
+** SettingsParser
 */
 
 
-AboutDialog::AboutDialog(QWidget *p)
-    : QDialog(p)
+SettingsParser::SettingsParser(QWidget *p)
+    : QWidget(p)
 {
     setupUi(this);
 
-    parent = static_cast<MainWindow*>(p);
+    QStringList ls;
 
-    setStyleSheet(parent->programStyleSheet);
+    for (int i = 0; i < 10; i++) {
+        ls << QString::number(i);
+    }
 
-    translateDialog();
+    comboBoxTimes->addItems(ls);
 
-    labelImage->setPixmap(QPixmap(":/images/cnc.png"));
+    spinArcSplitPermm->setValue(Settings::splitsPerMm);
 
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(reject()));
+    checkBoxRemove->setChecked(Settings::filterRepeat);
+    checkBoxWithoutComment->setChecked(Settings::withoutComments);
+    groupBoxOptimize->setChecked(Settings::optimizeRapidWays);
+    groupBoxRepeat->setChecked(Settings::repeatProcessing);
+    spinBoxMaxDepth->setValue(Settings::maxAntSearchDepth);
+
+    int n;
+    n = comboBoxTimes->findText(QString::number(Settings::repeatTimes));
+
+    if (n >= 0) {
+        comboBoxTimes->setCurrentIndex(n);
+    } else {
+        comboBoxTimes->setCurrentIndex(0);
+    }
+
+    ls.removeAt(0);
+    comboBoxDepth->addItems(ls);
+    n = comboBoxDepth->findText(QString::number(Settings::depthSum));
+
+    if (n >= 0) {
+        comboBoxDepth->setCurrentIndex(n);
+    } else {
+        comboBoxDepth->setCurrentIndex(0);
+    }
+
+    translateWidget();
 
     adjustSize();
 }
 
-
-void AboutDialog::translateDialog()
+SettingsParser::~SettingsParser()
 {
-    setWindowTitle(translate(ID_ABOUT_TITLE));
-    labelAuthorNET->setText("<a href=\"zheigurov@gmail.com\">C#, Windows developing: S. Zheigurov</a>");
-    labelProgAuthor->setText("<a href=\"eduard_kalinowski@yahoo.de\">Qt/C++, Linux developing: E. Kalinowski</a>");
-    labelProgName->setText(translate(ID_PROG_NAME) + " v." + QString(CNCMK1QTVERSION));
-    labelProgVersion->setText("");
+}
+/**
+ *
+ *
+ */
+void SettingsParser::getSettings()
+{
+    Settings::splitsPerMm = spinArcSplitPermm->value();
+    Settings::filterRepeat = checkBoxRemove->isChecked();
+    Settings::withoutComments = checkBoxWithoutComment->isChecked();
+    Settings::depthSum = comboBoxDepth->currentText().toInt();
+    Settings::repeatTimes = comboBoxTimes->currentText().toInt();
+    Settings::optimizeRapidWays = groupBoxOptimize->isChecked();
+    Settings::repeatProcessing = groupBoxRepeat->isChecked();
+    Settings::maxAntSearchDepth = spinBoxMaxDepth->value();
+}
 
-    QString ab = translate(ID_ABOUT_TEXT);
-
-    QString link1 = "http://www.planet-cnc.com";
-    QString link2 = "http://www.selenur.ru";
-    QString link3 = "http://www.cnc-club.ru/forum/viewtopic.php?f=16&t=7078&p=175365#p175365";
-    QString link3_descr = "http://www.cnc-club.ru (forum)";
-    QString link4 = "https://github.com/eduard-x/cnc-qt";
-
-    ab.replace("\n", "<br>");
-    ab = ab.arg("<a href=\"" + link1 + "\">" + link1 + "</a>")
-         .arg("<a href=\"" + link2 + "\">" + link2 + "</a>")
-         .arg("<a href=\"" + link3 + "\">" + link3_descr + "</a>")
-         .arg("<a href=\"" + link4 + "\">" + link4 + "</a>");
-
-    textInfo->setText(ab);
+/**
+ *
+ *
+ */
+void SettingsParser::translateWidget()
+{
+    checkBoxRemove->setText(translate(ID_REMOVE_REPEAT));
+    checkBoxWithoutComment->setText(translate(ID_REMOVE_COMMENTS));
+    groupBoxRepeat->setTitle(translate(ID_REPEAT_CODE));
+    labelRepeat->setText(translate(ID_NUM_REPEAT));
+    labelDepth->setText(translate(ID_DEPTH_SUM));
+    groupBoxOptimize->setTitle(translate(ID_OPTIMIZE_RAPID_WAYS));
+    labelMaxDepthAnt->setText(translate(ID_MAX_DEPTH_OPTIMIZE));
 }
 

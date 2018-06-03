@@ -29,61 +29,122 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include <QtGui>
-#include <QUrl>
-#include <QPixmap>
 
-#include "MainWindow.h"
-#include "About.h"
-#include "version.h"
+#include <QObject>
+#include <QRegExp>
+#include <QDebug>
+#include <QString>
+
+#include <QtMath>
+
+#include "Settings.h"
+#include "SVGScanner.h"
+
+#include "parse_svg.h"
 
 
-/******************************************************************************
-** AboutDialog
-*/
+#define DEBUG_ARC 0
 
 
-AboutDialog::AboutDialog(QWidget *p)
-    : QDialog(p)
+SVGData::SVGData()
 {
-    setupUi(this);
+    UnitsType = "";
 
-    parent = static_cast<MainWindow*>(p);
+    // длина всего числа
+    countDigitsX = 1;
+    // длина всего числа
+    countDigitsY = 1;
+    // длина дробной части
+    countPdigX = 0;
+    // длина дробной части
+    countPdigY = 0;
 
-    setStyleSheet(parent->programStyleSheet);
+    X_min = 100000;
+    X_max = -100000;
 
-    translateDialog();
-
-    labelImage->setPixmap(QPixmap(":/images/cnc.png"));
-
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(reject()));
-
-    adjustSize();
+    Y_min = 100000;
+    Y_max = -100000;
 }
 
 
-void AboutDialog::translateDialog()
+
+svg::driver::driver(cDataManager *p)
 {
-    setWindowTitle(translate(ID_ABOUT_TITLE));
-    labelAuthorNET->setText("<a href=\"zheigurov@gmail.com\">C#, Windows developing: S. Zheigurov</a>");
-    labelProgAuthor->setText("<a href=\"eduard_kalinowski@yahoo.de\">Qt/C++, Linux developing: E. Kalinowski</a>");
-    labelProgName->setText(translate(ID_PROG_NAME) + " v." + QString(CNCMK1QTVERSION));
-    labelProgVersion->setText("");
-
-    QString ab = translate(ID_ABOUT_TEXT);
-
-    QString link1 = "http://www.planet-cnc.com";
-    QString link2 = "http://www.selenur.ru";
-    QString link3 = "http://www.cnc-club.ru/forum/viewtopic.php?f=16&t=7078&p=175365#p175365";
-    QString link3_descr = "http://www.cnc-club.ru (forum)";
-    QString link4 = "https://github.com/eduard-x/cnc-qt";
-
-    ab.replace("\n", "<br>");
-    ab = ab.arg("<a href=\"" + link1 + "\">" + link1 + "</a>")
-         .arg("<a href=\"" + link2 + "\">" + link2 + "</a>")
-         .arg("<a href=\"" + link3 + "\">" + link3_descr + "</a>")
-         .arg("<a href=\"" + link4 + "\">" + link4 + "</a>");
-
-    textInfo->setText(ab);
+    parent = p;
 }
+
+
+svg::driver::~driver ()
+{
+}
+
+
+void svg::driver::parse (const QString &f)
+{
+    result = false;
+    file = f.toUtf8().data();
+    std::ifstream in(file.c_str());
+    lexer = new svg::scanner(&in);
+    //         lexer->set_debug(trace_scanning);
+    svg::parser parser (*this);
+    //  parser.set_debug_level (trace_parsing);
+    result = parser.parse ();
+    delete lexer;
+    lexer = 0;
+    in.close();
+}
+
+
+
+void svg::driver::error (const svg::parser::location_type& l, const std::string& m)
+{
+    parent->logBuffer << QString().sprintf("error in line %d pos %d : %s", l.begin.line, l.begin.column, m.c_str());
+    //     std::cerr << l << ": " << m << std::endl;
+}
+
+
+void svg::driver::error (const std::string& m)
+{
+    parent->logBuffer << QString().sprintf("%s", m.c_str());
+    //     std::cerr << m << std::endl;
+}
+
+
+#if 0
+//
+// Вычисление размерности необходимого массива, для анализа
+//
+// accuracy: Коэфициент уменьшения размеров данных
+void SVGData::CalculateGatePoints(int _accuracy)
+{
+    // немного уменьшим значения
+    foreach (grbPoint VARIABLE, points) {
+        VARIABLE.X = VARIABLE.X / _accuracy;
+        VARIABLE.Y = VARIABLE.Y / _accuracy;
+    }
+
+    foreach (grbPoint VARIABLE, points) {
+        if (VARIABLE.X > X_max) {
+            X_max = VARIABLE.X;
+        }
+
+        if (VARIABLE.X < X_min) {
+            X_min = VARIABLE.X;
+        }
+
+        if (VARIABLE.Y > Y_max) {
+            Y_max = VARIABLE.Y;
+        }
+
+        if (VARIABLE.Y < Y_min) {
+            Y_min = VARIABLE.Y;
+        }
+    }
+
+    // Немного расширим границу
+    X_max += 500;
+    Y_max += 500;
+}
+#endif
+
 

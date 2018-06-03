@@ -29,61 +29,39 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include <QtGui>
-#include <QUrl>
-#include <QPixmap>
 
-#include "MainWindow.h"
-#include "About.h"
-#include "version.h"
+#ifndef SSPEED_H
+#define SSPEED_H
 
-
-/******************************************************************************
-** AboutDialog
-*/
+// #include "SettingsDialog.h"
+#include "Translator.h"
+#include "Settings.h"
+// #include "MainWindow.h"
+#include "ui_sSpeed.h"
 
 
-AboutDialog::AboutDialog(QWidget *p)
-    : QDialog(p)
+// class MainWindow;
+
+
+class SettingsSpeed : public QWidget, public Ui::sSpeed,  public cTranslator
 {
-    setupUi(this);
+        Q_OBJECT
+    public:
+        SettingsSpeed(QWidget *parent = 0);
+        ~SettingsSpeed();
+        void getSettings();
 
-    parent = static_cast<MainWindow*>(p);
+    private slots:
+        //         void onSaveChange();
+        //         void checkedChanged(int state);
 
-    setStyleSheet(parent->programStyleSheet);
+    private:
+        void translateWidget();
 
-    translateDialog();
+        //     private:
 
-    labelImage->setPixmap(QPixmap(":/images/cnc.png"));
-
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(reject()));
-
-    adjustSize();
-}
+        //         MainWindow* parent;
+};
 
 
-void AboutDialog::translateDialog()
-{
-    setWindowTitle(translate(ID_ABOUT_TITLE));
-    labelAuthorNET->setText("<a href=\"zheigurov@gmail.com\">C#, Windows developing: S. Zheigurov</a>");
-    labelProgAuthor->setText("<a href=\"eduard_kalinowski@yahoo.de\">Qt/C++, Linux developing: E. Kalinowski</a>");
-    labelProgName->setText(translate(ID_PROG_NAME) + " v." + QString(CNCMK1QTVERSION));
-    labelProgVersion->setText("");
-
-    QString ab = translate(ID_ABOUT_TEXT);
-
-    QString link1 = "http://www.planet-cnc.com";
-    QString link2 = "http://www.selenur.ru";
-    QString link3 = "http://www.cnc-club.ru/forum/viewtopic.php?f=16&t=7078&p=175365#p175365";
-    QString link3_descr = "http://www.cnc-club.ru (forum)";
-    QString link4 = "https://github.com/eduard-x/cnc-qt";
-
-    ab.replace("\n", "<br>");
-    ab = ab.arg("<a href=\"" + link1 + "\">" + link1 + "</a>")
-         .arg("<a href=\"" + link2 + "\">" + link2 + "</a>")
-         .arg("<a href=\"" + link3 + "\">" + link3_descr + "</a>")
-         .arg("<a href=\"" + link4 + "\">" + link4 + "</a>");
-
-    textInfo->setText(ab);
-}
-
+#endif // EDITCODE_H

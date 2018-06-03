@@ -2,8 +2,8 @@ PROJECT(cnc-qt)
 
 # Configure CMake ...
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8 FATAL_ERROR)
-CMAKE_POLICY(SET CMP0003 OLD)
-CMAKE_POLICY(SET CMP0015 OLD)
+# CMAKE_POLICY(SET CMP0003 OLD)
+# CMAKE_POLICY(SET CMP0015 OLD)
 
 # set the Qt version to 4 or 5
 OPTION (USE_QT5 "Using of Qt5 version for compiling" ON)
@@ -13,6 +13,26 @@ IF(${USE_QT5})
 ELSE(${USE_QT5})
     SET(USE_QT_VERSION 4)
 ENDIF(${USE_QT5})
+
+
+#debug or release
+OPTION (USE_DEBUGGER "Include in binary file debug information" OFF)
+
+#enable or disable profiling info
+OPTION (USE_PROFILER "Include in binary file profiling information" OFF)
+
+#addr sanitizer checking 
+OPTION (ADDR_SANITIZER "Include in binary file address sanitizer information" OFF)
+
+IF(${ADDR_SANITIZER})
+    #for detailed information
+    SET (USE_DEBUGGER ON)
+ENDIF()
+
+IF(${USE_PROFILER})
+    #for detailed information
+    SET (USE_DEBUGGER ON)
+ENDIF()
 
 
 MESSAGE(STATUS "System: ${CMAKE_SYSTEM_NAME}")
@@ -87,16 +107,6 @@ MESSAGE(STATUS "Qt version for compiling: " ${USE_QT_VERSION})
 #   MESSAGE(FATAL_ERROR "-- Qt version must be set to 4 or 5!")
 # ENDIF()
 
-#debug or release
-# SET(USE_DEBUGGER false)
-
-OPTION (USE_DEBUGGER "Include in binary file debug information" OFF)
-
-#enable or disable profiling info
-# SET(USE_PROFILER false)
-
-OPTION (USE_PROFILER "Include in binary file profiling information" OFF)
-
 
 
 IF(${USE_DEBUGGER})
@@ -106,6 +116,12 @@ ELSE()
   SET(CMAKE_BUILD_TYPE Release)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
 ENDIF()
+
+
+IF(${ADDR_SANITIZER})
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+ENDIF()
+
 
 MESSAGE(STATUS "CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}")
 
@@ -214,6 +230,10 @@ ELSE()
 ENDIF()
 
 
+IF(${ADDR_SANITIZER})
+  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lasan")
+ENDIF()
+
 
 IF(${USE_QT_VERSION} MATCHES "4")
     FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED)
@@ -291,7 +311,8 @@ SET(ParserTypes
 )
 
 # clear value
-SET(generated_SRC)
+SET(GENERATED_SOURCES)
+SET(GENERATED_HEADERS)
 
 MESSAGE(STATUS "Generate from ${FLEX_EXECUTABLE} ${BISON_EXECUTABLE}")
 
@@ -300,61 +321,76 @@ MESSAGE(STATUS "Sources dir ${CMAKE_SOURCE_DIR}")
 
 FOREACH( type ${ParserTypes} )
   MESSAGE(STATUS "Parser: ${type}" )
+  # We need to generate the parsers in separate directories because of 
+  # files location.hh position.hh and stack.hh will be cretated without prefix
+  FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/parser ${CMAKE_CURRENT_BINARY_DIR}/parser/${type}) 
+  
   # Create custom Bison
-  SET(BisonOutput ${CMAKE_CURRENT_BINARY_DIR}/parse_${type}.cpp)
+  SET(BisonOutput ${CMAKE_CURRENT_BINARY_DIR}/parser/${type}/parse_${type}.cpp)
 
   ADD_CUSTOM_COMMAND(
     OUTPUT ${BisonOutput}
     COMMAND ${BISON_EXECUTABLE}
-              --defines=${CMAKE_CURRENT_BINARY_DIR}/parse_${type}.h
+              --defines=${CMAKE_CURRENT_BINARY_DIR}/parser/${type}/parse_${type}.h
               --output=${BisonOutput}
-              ${CMAKE_CURRENT_SOURCE_DIR}/sources/parse_${type}.ypp
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/sources/parse_${type}.ypp
-    )
+              --verbose
+              ${CMAKE_CURRENT_SOURCE_DIR}/sources/parser/parse_${type}.ypp
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/sources/parser/parse_${type}.ypp
+  )
 
   # Create custom Flex
-  SET(FlexInput ${CMAKE_CURRENT_SOURCE_DIR}/sources/scan_${type}.lpp )
-  SET(FlexOutput ${CMAKE_CURRENT_BINARY_DIR}/scan_${type}.cpp )
-  
+  SET(FlexInput ${CMAKE_CURRENT_SOURCE_DIR}/sources/parser/scan_${type}.lpp )
+  SET(FlexOutput ${CMAKE_CURRENT_BINARY_DIR}/parser/${type}/scan_${type}.cpp )
+  # bison ${FLEX_EXECUTABLE} -Cf for little bit better performance 
+  # because of not compability with c++ deactivated
+  # --header-file=${CMAKE_CURRENT_BINARY_DIR}/parser/${type}/scan_${type}.h
+  # see https://stackoverflow.com/questions/35606354/multiple-parsers-in-flex-bison-include-fails
   ADD_CUSTOM_COMMAND(
     OUTPUT ${FlexOutput}
-    COMMAND ${FLEX_EXECUTABLE} -Cf
+    COMMAND ${FLEX_EXECUTABLE}
             --outfile=${FlexOutput}
-            --header-file=${CMAKE_CURRENT_BINARY_DIR}/scan_${type}.h
             ${FlexInput}
     DEPENDS ${BisonOutput} ${FlexInput}
-    )
+  )
     
-  SET(generated_SRC ${generated_SRC} ${FlexOutput})
-  SET(generated_SRC ${generated_SRC} ${BisonOutput})
+  INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/parser/${type})
+
+  SET(GENERATED_HEADERS ${GENERATED_HEADERS} 
+                     ${CMAKE_CURRENT_BINARY_DIR}/parser/${type}/parse_${type}.h )
+                     
+  SET(GENERATED_SOURCES ${GENERATED_SOURCES} ${BisonOutput} ${FlexOutput} )
 ENDFOREACH()
 
-FOREACH( gfile ${generated_SRC} )
+FOREACH( gfile ${GENERATED_SOURCES} )
   #MESSAGE(STATUS "Generate file: ${gfile}" )
   SET_SOURCE_FILES_PROPERTIES(${gfile} PROPERTIES GENERATED TRUE)
 ENDFOREACH()
 
-MESSAGE(STATUS "Sources dir ${generated_SRC}")
+MESSAGE(STATUS "Generated source files: ${GENERATED_SOURCES}")
 
-SET(GENERATED_PARSERS ${generated_SRC})
+ADD_SUBDIRECTORY(sources/settings)
 
-                
+ADD_SUBDIRECTORY(sources/parser)
 
 ADD_SUBDIRECTORY(sources)
 
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR} 
+                     ${CMAKE_CURRENT_SOURCE_DIR}/sources/settings/includes
+                     ${CMAKE_CURRENT_SOURCE_DIR}/sources/parser/includes 
+                     ${CMAKE_CURRENT_SOURCE_DIR}/sources/includes 
+                     ${LIBUSB_INCLUDE_DIRS})
 
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/sources/includes ${LIBUSB_INCLUDE_DIRS})
 MESSAGE(STATUS "LibUSB INCLUDES ${LIBUSB_INCLUDE_DIRS}")
 
 IF(${USE_QT_VERSION} MATCHES "4")
 #     QT4_ADD_TRANSLATION(APP_TRANSLATIONS ${TRANSLATION})
-    QT4_WRAP_CPP(APP_HEADERS_MOC ${MOC_HEADERS} )
-    QT4_WRAP_UI(APP_FORMS_HEADERS ${MAIN_FORMS} )
+    QT4_WRAP_CPP(APP_HEADERS_MOC ${MOC_HEADERS} ${MOC_SETTINGS_HEADERS} )
+    QT4_WRAP_UI(APP_FORMS_HEADERS ${MAIN_FORMS} ${SETTINGS_FORMS} )
     QT4_ADD_RESOURCES(APP_RESOURCES_RCC ${APP_RESOURCES})
 ELSE()
 #     QT5_ADD_TRANSLATION(APP_TRANSLATIONS ${TRANSLATION})
-    QT5_WRAP_CPP(APP_HEADERS_MOC ${MOC_HEADERS} )
-    QT5_WRAP_UI(APP_FORMS_HEADERS ${MAIN_FORMS} )
+    QT5_WRAP_CPP(APP_HEADERS_MOC ${MOC_HEADERS} ${MOC_SETTINGS_HEADERS} )
+    QT5_WRAP_UI(APP_FORMS_HEADERS ${MAIN_FORMS} ${SETTINGS_FORMS} )
     QT5_ADD_RESOURCES(APP_RESOURCES_RCC ${APP_RESOURCES})
 ENDIF()
 
@@ -363,10 +399,15 @@ INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR} )
 
 SOURCE_GROUP( "Generated Files" FILES
     ${MOC_FILES_CPP}
+    ${SETTINGS_HEADERS}
     ${MAIN_HEADERS}
+    ${PARSER_HEADERS} 
+    ${GENERATED_HEADERS}
     ${APP_FORMS_HEADERS}
     ${APP_RESOURCES_RCC}
 )
+
+# SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lfl")
 
 # ADD_DEFINITIONS(${QT_DEFINITIONS} -DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
 
@@ -374,9 +415,10 @@ IF(NOT ${USE_DEBUGGER})
     ADD_DEFINITIONS(${QT_DEFINITIONS} -DQT_NO_DEBUG_OUTPUT -DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
     
     IF (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fno-exceptions -fno-rtti")
+        # was -fno-exceptions -fno-rtti
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
     ELSE()
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-exceptions -fno-rtti")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
     ENDIF()
 ENDIF()
 
@@ -392,9 +434,11 @@ IF(WIN32)
 ENDIF()
 
 ADD_EXECUTABLE(${CMAKE_PROJECT_NAME}
-    ${GENERATED_PARSERS}
     ${APP_SOURCES}
+    ${SETTINGS_SOURCES}
     ${MAIN_SOURCES}
+    ${GENERATED_SOURCES}
+    ${PARSER_SOURCES}
     ${APP_HEADERS_MOC} 
     ${APP_FORMS_HEADERS} 
 #     ${APP_TRANSLATIONS}

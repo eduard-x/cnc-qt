@@ -13,3 +13,12 @@ valgrind --tool=cachegrind ./build/cnc-qt
 # --leak-check=<no|summary|yes|full> [default: summary] 
 # --leak-resolution=<low|med|high> [default: high] 
 valgrind --leak-check=yes ./build/cnc-qt
+
+# to compile with "parser" option:
+# set the CMake variable USE_PROFILER to ON
+
+# to compile with address sanitizer option:
+# set the CMake variable ADDR_SANITIZER to ON
+
+# static source code checking: 
+# start the script cppcheck.sh and read the result from cppreport.txt

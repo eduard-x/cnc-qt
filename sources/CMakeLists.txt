@@ -5,23 +5,9 @@
 #                  ${CMAKE_CURRENT_SOURCE_DIR}/translations/cnc_qt_de.ts
 #                  ${CMAKE_CURRENT_SOURCE_DIR}/translations/cnc_qt_ru.ts)
 
-
 SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/mk1Controller.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/sControl.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/sIO.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/sMaterial.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/sParser.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/sSpeed.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/sSystem.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/sVis.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/sWorkbench.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/Settings.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/SettingsDialog.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/GData.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/GCode.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/Gerber.cpp
-                 ${CMAKE_CURRENT_SOURCE_DIR}/DataManager.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/About.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Geometry.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/EditGCode.cpp
@@ -31,18 +17,6 @@ SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
 
 
 SET(MOC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/sControl.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/sIO.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/sMaterial.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/sParser.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/sSpeed.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/sSystem.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/sVis.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/sWorkbench.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/SettingsDialog.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/GCode.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/GData.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/Gerber.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/About.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/EditGCode.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/MainWindow.h
@@ -50,22 +24,11 @@ SET(MOC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
 
 
 SET(MAIN_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/Geometry.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/Settings.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Translator.h
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/DataManager.h
                  PARENT_SCOPE)
 
 # 
 SET(MAIN_FORMS  ${CMAKE_CURRENT_SOURCE_DIR}/forms/About.ui
-                ${CMAKE_CURRENT_SOURCE_DIR}/forms/sControl.ui
-                ${CMAKE_CURRENT_SOURCE_DIR}/forms/sIO.ui
-                ${CMAKE_CURRENT_SOURCE_DIR}/forms/sMaterial.ui
-                ${CMAKE_CURRENT_SOURCE_DIR}/forms/sParser.ui
-                ${CMAKE_CURRENT_SOURCE_DIR}/forms/sSpeed.ui
-                ${CMAKE_CURRENT_SOURCE_DIR}/forms/sSystem.ui
-                ${CMAKE_CURRENT_SOURCE_DIR}/forms/sVis.ui
-                ${CMAKE_CURRENT_SOURCE_DIR}/forms/sWorkbench.ui
-                ${CMAKE_CURRENT_SOURCE_DIR}/forms/Settings.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/EditGCode.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/MainWindow.ui
                 ${CMAKE_CURRENT_SOURCE_DIR}/forms/ScanSurface.ui

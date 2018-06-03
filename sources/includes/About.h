@@ -33,13 +33,19 @@
 #ifndef ABOUT_H
 #define ABOUT_H
 
+#include <QWidget>
+
 #include "MainWindow.h"
+#include "Translator.h"
 #include "ui_About.h"
 
+
+class MainWindow;
 
 class AboutDialog : public QDialog, public Ui::AboutDialog,  public cTranslator
 {
         Q_OBJECT
+
     public:
         AboutDialog(QWidget *parent = 0);
 

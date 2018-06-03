@@ -31,9 +31,8 @@
 
 #include <QtGui>
 
-#include "includes/Settings.h"
-#include "includes/mk1Controller.h"
-#include "includes/ScanSurface.h"
+
+#include "ScanSurface.h"
 
 
 /******************************************************************************

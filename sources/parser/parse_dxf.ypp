@@ -1,10 +1,6 @@
 /****************************************************************************
- * Main developer, C# developing:                                           *
- * Copyright (C) 2014-2016 by Sergey Zheigurov                              *
- * Russia, Novy Urengoy                                                     *
- * zheigurov@gmail.com                                                      *
- *                                                                          *
  * C# to Qt portation, Linux developing                                     *
+ * flex/bison DXF parser                                                    *
  * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
@@ -29,50 +25,123 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
+%{
 
-#ifndef GEOMETRY_H
-#define GEOMETRY_H
+extern int dxflineno;
 
-#include <QVector4D>
-#include <QMatrix4x4>
-#include <QAbstractTableModel>
-// #include "vec.h"
+%}
 
+/* C++ parser interface */
+%skeleton "lalr1.cc"
+%require  "3.0"
 
-#define PI 3.14159265358979323846
+// The parsing context.
+%parse-param { dxf::driver& checker }
+%lex-param   { dxf::driver& checker }
 
-struct coord {
-    float X;       // coord in mm
-    float Y;       // coord in mm
-    float Z;       // coord in mm
-    float A;       // angle in °
-    // extended coordinates system
-    float B;
-    float C;
-    float U;
-    float V;
-    float W;
-};
-
-// struct coord {
-//     float pos[4];
-// };
-
-
-class Geometry
+%initial-action
 {
-    public:
-        static coord GetZ(const coord &p1, const coord &p2, const coord &p3, const coord &p4, const coord &p5);
-        static coord CalcPX(const coord &p1, const coord &p2, const coord &p0);
-        static coord CalcPY(const coord &p1, const coord &p2, const coord &p0);
-
-        float cubicHermiteInterpolate (const float v[4], float t);
-        float bicubicHermitePatch(const float vv[4][4], float u, float v);
-        float bicubicInterpolate(QRectF borderRect, QAbstractTableModel *basePoints, float x, float y);
-        bool gernerateBicubicHermiteField();
-
+    // Initialize the initial location.
+    @$.begin.filename = @$.end.filename = &checker.file;
 };
 
+%locations
+
+/* increase usefulness of error messages */
+%define parse.error verbose
+%define api.namespace {dxf}
+/* assert correct cleanup of semantic value objects */
+%define parse.assert
+
+%define api.value.type variant
+%define api.token.prefix {T_}
 
 
-#endif // GEOMETRY_H
+
+%token STR
+%token SYM
+%token INT
+%token FLOAT
+%token VARIABLE
+
+%token InvalidCharacter
+
+%token                  END     0   "end of file"
+
+
+
+%type <int> INT
+%type <float> FLOAT
+%type <char> SYM
+%type <std::string> STR VARIABLE
+
+
+
+%code requires {
+    #include <QString>
+    #include <QChar>
+    #include <QDebug>
+    #include <QVector>
+    
+    #include <stdexcept>
+    #include <string>
+
+    #include "GData.h"
+    
+    #include "location.hh"
+
+    namespace dxf {
+        class scanner;
+        class driver;
+    };
+}
+
+%code {
+//     #include "Settings.h"
+    #include "DXFScanner.h"
+
+// init of first dxf data
+// ParserData *dxf_data;// = new GerberData();
+}
+
+%start parse_dxf
+
+%%
+
+parse_dxf: 
+        | lines
+        ;
+
+
+lines: line lines
+        | line
+        ;
+
+
+line:   STR
+        {
+            qInfo() << QString($1.c_str());
+        }
+        | FLOAT
+        {
+            qInfo() << $1;
+        }
+        | VARIABLE 
+        {
+            qInfo() << QString($1.c_str());
+        }
+        | SYM 
+        {
+        }
+        | INT 
+        {
+            qInfo() << $1;
+        }
+        ;
+
+%%
+
+void dxf::parser::error ( const dxf::parser::location_type& l, const std::string& m)
+{
+    checker.error (l, m);
+}

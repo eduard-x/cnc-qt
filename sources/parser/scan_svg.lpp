@@ -1,0 +1,305 @@
+/****************************************************************************
+ * C# to Qt portation, Linux developing                                     *
+ * flex/bison SVG parser                                                    *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
+ * Germany, Lower Saxony, Hanover                                           *
+ * eduard_kalinowski@yahoo.de                                               *
+ *                                                                          *
+ * C# project CNC-controller-for-mk1                                        *
+ * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
+ *                                                                          *
+ * CNC-Qt is free software; may be distributed and/or modified under the    *
+ * terms of the GNU General Public License version 3 as published by the    *
+ * Free Software Foundation and appearing in the file LICENSE_GPLv3         *
+ * included in the packaging of this file.                                  *
+ *                                                                          *
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
+ *                                                                          *
+ * You should have received a copy of the GNU Lesser General Public         *
+ * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
+ ****************************************************************************/
+
+
+%option stack
+%option yylineno
+%option full
+%option caseless
+%option c++
+%option nodefault
+%option noyywrap
+%option nounput
+%option noinput
+%option prefix="svg"
+
+
+%{
+    // this generated header file from parse_svg.ypp
+    #include "parse_svg.h"
+    #include "Settings.h"
+    #include "SVGScanner.h"
+        
+    #include "GData.h"
+
+    typedef svg::parser::token TOKEN;
+    
+    int svglineno;
+    int svg_charno = 1;
+    
+    #define YY_USER_ACTION          yylloc->columns(yyleng);  svg_charno += yyleng;
+
+%}
+
+
+WSPACE   [ \t\r\f]+
+DIGITS   [0-9]+
+INTEGER  [+-]?{DIGITS}
+REAL1    [+-]?{DIGITS}?[.]{DIGITS}
+REAL2    [+-]?{DIGITS}([.]{DIGITS})?
+REAL3    {REAL2}[eE][+-]?{DIGITS}
+HEXNUM   #[0-9A-F]+
+IDNAME   [A-Z\-]+{DIGITS}?
+ID       {IDNAME}(":"{IDNAME})?
+URL      "\""["HTTP:\/"|"HTTPS:\/"].*[^\"]
+PARAM    [A-Z]
+EOL      [\n]+
+VERS     [0-9]+\.[0-9]+(\.[0-9]+)?
+REL      {WSPACE}?"r"[0-9]*
+BEG      {WSPACE}?"<"
+END      ">"{WSPACE}?
+ANY_TEXT [0-9A-Z\s\;_\:]{2,}
+OPER     [\(\)]
+
+
+%x TAG ATTRIB DATAFIELD
+
+
+%%
+
+ /* code to be executed at every yylex() call */
+%{
+    yylloc->step();
+%}
+
+
+<INITIAL,TAG,ATTRIB>{EOL} {
+    svg_charno=0;
+    return TOKEN::T_NEW_LINE;
+}
+
+<INITIAL,TAG,ATTRIB>{WSPACE} {
+    /* skip */
+}
+
+<INITIAL>{
+    {BEG}\?.*\?{END} { 
+        /* fisrt xml line 
+        * TODO: encoding */ 
+    } 
+
+    {BEG}"!--".*"--"{END} {
+        /* ignore comments */
+    } 
+
+    {BEG} {
+        yy_push_state(TAG);
+    }
+}
+
+
+<TAG>{
+    \/{ID}{END} {  /* end of tag */
+        yy_pop_state();
+    }
+
+    "/"{END} { /* end of tag */
+        yy_pop_state();
+    }
+
+    {ID} {
+        yylval->build<std::string>(yytext);
+        return TOKEN::T_NAME;
+        yy_push_state(ATTRIB);
+    }
+}
+
+<ATTRIB>{
+    {END} {
+        yy_pop_state();
+    }
+
+    {ID} {
+        yylval->build<std::string>(yytext);
+        return TOKEN::T_NAME;
+    }
+
+    "=" {
+        /* ignore this part */
+    }
+
+    "\"" { 
+        /* begin of datafield */
+        yy_push_state(DATAFIELD);
+    }
+
+    {URL} { 
+        /* ignore this part */
+        /*return NEW_LINE;*/
+    }
+}
+
+<DATAFIELD>{
+    "\"" {
+        /* end of datafield */
+        yy_pop_state();
+    }
+
+    {WSPACE}+ {
+        return ' ';
+    }
+
+    {EOL} {
+        svg_charno=0;
+        /* ignore */
+    }
+
+    {URL} { 
+        /* ignore this part */
+        /*return NEW_LINE;*/
+    }
+
+    {HEXNUM} {
+        yylval->build<int>(strtol(&yytext[1], NULL, 16)); 
+        return TOKEN::T_HEXVAL;
+    }
+
+    {IDNAME}":" {
+        yylval->build<std::string>(strndup(yytext, strlen(yytext)-1));
+        return TOKEN::T_ID_NAME;
+        /*yylval.s_val = strndup(yytext, strlen(yytext)-1);
+        return STR;*/
+    }
+
+    {OPER} {
+        /* yylval.c_val = yytext[0]; 
+        return OPER; */
+    }
+
+    {INTEGER} { 
+        std::string s = yytext;
+        std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
+        yylval->build<float>(strtof(s.c_str(), NULL));
+        
+        return TOKEN::T_FLOAT;
+    }
+
+    {PARAM}{WSPACE}? { 
+        switch (yytext[0]) {
+            case 'M': // moveto x y
+                return TOKEN::T_MOVE_ABS;
+            case 'm': // moveto dx dy
+                return TOKEN::T_MOVE_REL;
+            case 'L': // lineto 
+                return TOKEN::T_LINETO_ABS;
+            case 'l': // lineto dx dy
+                return TOKEN::T_LINETO_REL;
+            case 'H': // horizontal lineto
+                return TOKEN::T_HLINE_ABS;
+            case 'h': // horizontal lineto dx
+                return TOKEN::T_HLINE_REL;
+            case 'V': // vertical lineto
+                return TOKEN::T_VLINE_ABS;
+            case 'v': // vertical lineto dy
+                return TOKEN::T_VLINE_REL;
+            case 'C': // curveto
+                return TOKEN::T_CURVE_ABS;
+            case 'c': // curveto dx dy
+                return TOKEN::T_CURVE_REL;
+            case 'S': // smooth curveto 
+                return TOKEN::T_SMOOTH_ABS;
+            case 's': // smooth curveto 
+                return TOKEN::T_SMOOTH_REL;
+            case 'Q': // quadratic Bézier curve 
+                return TOKEN::T_QCURVE_ABS;
+            case 'q': // quadratic Bézier curve 
+                return TOKEN::T_QCURVE_REL;
+            case 'T': // smooth quadratic Bézier curveto 
+                return TOKEN::T_SMOOTH_QCURVE_ABS;
+            case 't': // smooth quadratic Bézier curveto 
+                return TOKEN::T_SMOOTH_QCURVE_REL;
+            case 'A': // elliptical Arc 
+                return TOKEN::T_ARC_ABS;
+            case 'a': // elliptical Arc 
+                return TOKEN::T_ARC_REL;
+            case 'Z': // closepath
+            case 'z': 
+                return TOKEN::T_CLOSEPATH;
+            default:
+                fprintf (stderr, "line %d: syntax error, unrecognized character: `%s'\n", svglineno, yytext);
+                return TOKEN::T_InvalidCharacter;
+                break;
+        }
+        
+        /*return CHAR; */
+    }
+
+    {VERS}{WSPACE}{REL} {
+        yylval->build<std::string>(yytext);
+        return TOKEN::T_STR;
+    }
+
+    "," { 
+        /* separator for real numbers pairs */
+        return ' ';
+    }
+
+    {REAL1}|{REAL2}|{REAL3} {
+        std::string s = yytext;
+        std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
+        yylval->build<float>(strtof(s.c_str(), NULL));
+        
+        return TOKEN::T_FLOAT;
+    }
+
+    {ANY_TEXT} {
+        yylval->build<std::string>(yytext);
+        return TOKEN::T_STR;
+    }
+}
+
+. { /* any other character is invalid */
+    fprintf (stderr, "svg line %d: position %d syntax error, unrecognized character: `%s'\n", svglineno, svg_charno, yytext);
+    return TOKEN::T_InvalidCharacter;
+}
+
+%%
+
+
+
+// construct of svg scanner
+svg::scanner::scanner(
+        std::istream* arg_yyin,
+        std::ostream* arg_yyout ) :
+    yyFlexLexer(arg_yyin, arg_yyout)
+    {}
+
+// destruct 
+svg::scanner::~scanner() {}
+
+
+
+#ifdef yylex
+#undef yylex
+#endif
+
+int yyFlexLexer::yylex()
+{
+    std::cerr << "in yyFlexLexer::yylex() !" << std::endl;
+    return 0;
+}
+

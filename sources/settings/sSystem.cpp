@@ -30,60 +30,76 @@
  ****************************************************************************/
 
 #include <QtGui>
-#include <QUrl>
-#include <QPixmap>
-
-#include "MainWindow.h"
-#include "About.h"
-#include "version.h"
 
 
+#include "sSystem.h"
+#include "Settings.h"
+
+// class Settings;
 /******************************************************************************
-** AboutDialog
+** SettingsSystem
 */
 
 
-AboutDialog::AboutDialog(QWidget *p)
-    : QDialog(p)
+SettingsSystem::SettingsSystem(QWidget *p)
+    : QWidget(p)
 {
     setupUi(this);
 
-    parent = static_cast<MainWindow*>(p);
+    backlashX->setValue(Settings::coord[X].backlash);
+    backlashY->setValue(Settings::coord[Y].backlash);
+    backlashZ->setValue(Settings::coord[Z].backlash);
+    backlashA->setValue(Settings::coord[A].backlash);
 
-    setStyleSheet(parent->programStyleSheet);
+    spinBoxLookLines->setValue(Settings::maxLookaheadAngle);
 
-    translateDialog();
 
-    labelImage->setPixmap(QPixmap(":/images/cnc.png"));
 
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(reject()));
+    //     connect(checkCorrecture, SIGNAL(stateChanged ( int)), this, SLOT(checkedChanged( int )));
+    //
+    //     checkCorrecture->setChecked(true);
+    //     checkCorrecture->setChecked(false); // toggle
+    //
+    //     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSaveChange()));
+    //     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    //
+    //     doubleSpinOffsetX->setValue(parent->deltaX);
+    //     doubleSpinOffsetY->setValue(parent->deltaY);
+    //     doubleSpinOffsetZ->setValue(parent->deltaZ);
+    //
+    //     checkBoxZ->setChecked(parent->deltaFeed);
+    //
+    //     doubleSpinResizeX->setValue(parent->coeffSizeX);
+    //     doubleSpinResizeY->setValue(parent->coeffSizeY);
+
+    //     checkResizeZ->setChecked();
+
+    translateWidget();
 
     adjustSize();
 }
 
-
-void AboutDialog::translateDialog()
+SettingsSystem::~SettingsSystem()
 {
-    setWindowTitle(translate(ID_ABOUT_TITLE));
-    labelAuthorNET->setText("<a href=\"zheigurov@gmail.com\">C#, Windows developing: S. Zheigurov</a>");
-    labelProgAuthor->setText("<a href=\"eduard_kalinowski@yahoo.de\">Qt/C++, Linux developing: E. Kalinowski</a>");
-    labelProgName->setText(translate(ID_PROG_NAME) + " v." + QString(CNCMK1QTVERSION));
-    labelProgVersion->setText("");
+}
 
-    QString ab = translate(ID_ABOUT_TEXT);
+void SettingsSystem::getSettings()
+{
+    Settings::coord[X].backlash = backlashX->value();
+    Settings::coord[Y].backlash = backlashY->value();
+    Settings::coord[Z].backlash = backlashZ->value();
+    Settings::coord[A].backlash = backlashA->value();
 
-    QString link1 = "http://www.planet-cnc.com";
-    QString link2 = "http://www.selenur.ru";
-    QString link3 = "http://www.cnc-club.ru/forum/viewtopic.php?f=16&t=7078&p=175365#p175365";
-    QString link3_descr = "http://www.cnc-club.ru (forum)";
-    QString link4 = "https://github.com/eduard-x/cnc-qt";
+    Settings::maxLookaheadAngle = spinBoxLookLines->value();
+}
 
-    ab.replace("\n", "<br>");
-    ab = ab.arg("<a href=\"" + link1 + "\">" + link1 + "</a>")
-         .arg("<a href=\"" + link2 + "\">" + link2 + "</a>")
-         .arg("<a href=\"" + link3 + "\">" + link3_descr + "</a>")
-         .arg("<a href=\"" + link4 + "\">" + link4 + "</a>");
 
-    textInfo->setText(ab);
+void SettingsSystem::translateWidget()
+{
+    //     setWindowTitle(translate(_EDITGCODE_TITLE));
+    //     checkCorrecture->setText(translate(_CORRECTURE));
+    //     groupResize->setTitle(translate(_PROPORTION));
+    //     groupOffset->setTitle(translate(_OFFSET_GCODE));
+    //     checkBoxZ->setText(translate(_CORRECT_Z));
 }
 

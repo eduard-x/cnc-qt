@@ -29,61 +29,75 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include <QtGui>
-#include <QUrl>
+
+#ifndef SETTINGSDIALOG_H
+#define SETTINGSDIALOG_H
+
+#include <QColor>
+#include <QGraphicsScene>
+#include <QVector>
 #include <QPixmap>
 
 #include "MainWindow.h"
-#include "About.h"
-#include "version.h"
+
+#include "mk1Controller.h"
+
+#include "Settings.h"
+
+#include "sControl.h"
+#include "sMaterial.h"
+#include "sWorkbench.h"
+#include "sSpeed.h"
+#include "sSystem.h"
+#include "sParser.h"
+#include "sVis.h"
+#include "sIO.h"
+
+#include "ui_Settings.h"
 
 
-/******************************************************************************
-** AboutDialog
-*/
+class MainWindow;
+
+class SettingsParser;
+class SettingsControl;
+class SettingsMaterial;
+class SettingsSystem;
+class SettingsWorkbench;
+class SettingsSpeed;
+class SettingsVis;
+class SettingsIO;
 
 
-AboutDialog::AboutDialog(QWidget *p)
-    : QDialog(p)
+class SettingsDialog : public QDialog, public Ui::SettingsDialog,  public cTranslator
 {
-    setupUi(this);
+        Q_OBJECT
+    public:
+        explicit SettingsDialog(QWidget *parent = 0, int tabNum = 0);
+        ~SettingsDialog();
 
-    parent = static_cast<MainWindow*>(p);
+    private slots:
+        void onSave();
+        void onSelection(QTreeWidgetItem* it, QTreeWidgetItem * ip);
 
-    setStyleSheet(parent->programStyleSheet);
+    private:
+        void translateDialog();
 
-    translateDialog();
+    private:
+        MainWindow* parent;
+        mk1Controller *cnc;
+        QVector< QVector<QGroupBox*> > grpArr;
 
-    labelImage->setPixmap(QPixmap(":/images/cnc.png"));
+        QVector< QVector<QString> > menuArr;
 
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(reject()));
+        SettingsIO *sIO;
+        SettingsVis *sVis;
+        SettingsControl *sControl;
+        SettingsSystem *sSystem;
+        SettingsMaterial *sMaterial;
+        SettingsSpeed *sSpeed;
+        SettingsParser *sParser;
+        SettingsWorkbench *sWorkbench;
+};
 
-    adjustSize();
-}
 
-
-void AboutDialog::translateDialog()
-{
-    setWindowTitle(translate(ID_ABOUT_TITLE));
-    labelAuthorNET->setText("<a href=\"zheigurov@gmail.com\">C#, Windows developing: S. Zheigurov</a>");
-    labelProgAuthor->setText("<a href=\"eduard_kalinowski@yahoo.de\">Qt/C++, Linux developing: E. Kalinowski</a>");
-    labelProgName->setText(translate(ID_PROG_NAME) + " v." + QString(CNCMK1QTVERSION));
-    labelProgVersion->setText("");
-
-    QString ab = translate(ID_ABOUT_TEXT);
-
-    QString link1 = "http://www.planet-cnc.com";
-    QString link2 = "http://www.selenur.ru";
-    QString link3 = "http://www.cnc-club.ru/forum/viewtopic.php?f=16&t=7078&p=175365#p175365";
-    QString link3_descr = "http://www.cnc-club.ru (forum)";
-    QString link4 = "https://github.com/eduard-x/cnc-qt";
-
-    ab.replace("\n", "<br>");
-    ab = ab.arg("<a href=\"" + link1 + "\">" + link1 + "</a>")
-         .arg("<a href=\"" + link2 + "\">" + link2 + "</a>")
-         .arg("<a href=\"" + link3 + "\">" + link3_descr + "</a>")
-         .arg("<a href=\"" + link4 + "\">" + link4 + "</a>");
-
-    textInfo->setText(ab);
-}
-
+#endif // SETTINGSDIALOG_H

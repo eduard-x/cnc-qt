@@ -1,0 +1,448 @@
+/****************************************************************************
+ * C# to Qt portation, Linux developing                                     *
+ * flex/bison G-Code parser                                                 *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
+ * Germany, Lower Saxony, Hanover                                           *
+ * eduard_kalinowski@yahoo.de                                               *
+ *                                                                          *
+ * C# project CNC-controller-for-mk1                                        *
+ * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
+ *                                                                          *
+ * CNC-Qt is free software; may be distributed and/or modified under the    *
+ * terms of the GNU General Public License version 3 as published by the    *
+ * Free Software Foundation and appearing in the file LICENSE_GPLv3         *
+ * included in the packaging of this file.                                  *
+ *                                                                          *
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
+ *                                                                          *
+ * You should have received a copy of the GNU Lesser General Public         *
+ * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
+ ****************************************************************************/
+
+%{
+
+extern int gcodelineno;
+
+%}
+
+/* C++ parser interface */
+%skeleton "lalr1.cc"
+%require  "3.0"
+
+ // The parsing context.
+%parse-param { gcode::driver& checker }
+%lex-param   { gcode::driver& checker }
+
+%locations 
+%initial-action
+{
+    // Initialize the initial location.
+    @$.begin.filename = @$.end.filename = &checker.file;
+};
+
+/* increase usefulness of error messages */
+%define parse.error verbose
+%define api.namespace {gcode}
+/* assert correct cleanup of semantic value objects */
+%define parse.assert
+
+
+%define api.value.type variant
+%define api.token.prefix {T_}
+
+
+%token NEW_LINE
+%token IF
+%token ENDIF
+%token WHILE
+%token ENDWHILE
+%token GOTO
+%token POW
+%token SIN
+%token COS
+%token SQRT
+
+%token InvalidCharacter
+
+
+%token END     0   "end of file"
+
+
+%token <float> FVAL
+%token <std::string> SVAL COMMENTAR TERM VARIABLE
+%token <int> IVAL
+%token <int> G_CMD M_CMD
+
+%token <char> PARAM_CHAR LABEL
+
+%type <DataOperation*>     EXPR
+
+%token SIN_FUNC COS_FUNC POW_FUNC SQRT_FUNC
+%token CMP_EQ CMP_LE CMP_GT CMP_LT CMP_GE CMP_NE
+
+%right '='
+%left  '-' '+'
+%left  '*' '/'
+%right '[' 
+%left  ']'
+%left  UMINUS
+
+%right ELSE 
+
+
+%start parse_gcode
+
+%code requires {
+    #include <QtMath>
+    #include <QString>
+    #include <QChar>
+    #include <QDebug>
+    #include <QVector>
+    #include <stdexcept>
+    #include <string>
+
+    #include "GData.h"
+    #include "location.hh"
+
+    namespace gcode {
+        class driver;
+        class scanner;
+    };
+
+    class DataOperation;
+}
+
+
+%code {
+    #include "GCodeScanner.h"
+
+    bool set_data_float(char c, float f);
+
+    // initializing for vector
+    GData *gcode_data = new GData();
+
+    short lastGCode = -1;
+}
+
+
+%%
+
+parse_gcode: 
+        | glines
+        ;
+
+
+glines: gline 
+        | gline glines
+        ;
+
+
+gline:  G_CMD
+        {
+            // the new line, create new object
+            // for cases, when line begins with g, m command or n: label
+            // has already command data
+            if (gcode_data->gCmd >= 0) {
+                gcode_data = new GData(gcode_data);
+            }
+            gcode_data->numberLine = gcodelineno;
+
+            gcode_data->gCmd = (short)$1;
+
+            // add only commands to the list
+            // which will be interpretated
+            switch ($1){ // commands are known 
+                case 0:  // rapid moving
+                case 1:  // linear moving
+                case 2:  // clockwise arc
+                case 3:  // counter-clockwise arc
+                case 4:
+                case 17: // XY plane
+                case 18: // YZ plane
+                case 19: // ZX plane
+                case 20: // units: inches
+                case 21: // units: millimeters
+                case 28: // go to home pos
+                case 40: // compensation off
+                case 90: // set to absolute positioning 
+                case 91: // set to relative positioning
+                case 92:
+                case 161:
+                case 162:
+                    lastGCode = (short)$1;
+                    break;
+                
+                default:
+                    qWarning() << "G-Code is not decoded:" << $1;
+                    gcode_data->decoded = false;
+                    break;
+            }
+        }
+        | M_CMD
+        {
+            // has already M command
+            if (gcode_data->mCmd >= 0) {
+                gcode_data = new GData(gcode_data);
+            }
+            gcode_data->numberLine = gcodelineno;
+            gcode_data->mCmd = (short)$1;
+        }
+        | LABEL IVAL 
+        {
+             gcode_data->labelNum = $2;
+        }
+        | params
+        | vardefs
+        | COMMENTAR 
+        {
+            if ($1.length()) {
+                gcode_data->lineComment = QString($1.c_str()).simplified();
+                gcode_data->numberLine = gcodelineno;
+            }
+        }
+        | NEW_LINE
+        {
+            // cDataManager::dataVector << *gcode_data;
+            checker.add_gcode( *gcode_data );
+            gcode_data = new GData(gcode_data);
+            gcode_data->numberLine = (gcodelineno+1); // for init
+            gcodelineno++;
+        }
+        ;
+
+vardefs: vardef 
+        | vardef vardefs
+        ;
+
+
+vardef: VARIABLE '=' EXPR
+        {
+            // TODO: check, variable exists?
+            if ($3->varType == DATA::FVAL) {
+                checker.add_varimap(QString($1.c_str()), $3->result);
+                //cDataManager::dataVaris.insert(QString($1.c_str()), $3->result);
+            }
+            if ($3->varType == DATA::SVAL) { 
+                // TODO
+            }
+        }
+        ;
+
+
+params: param
+        | param params
+        ;
+
+
+param:  PARAM_CHAR EXPR
+        {
+            // when line begins with coordinates 
+            if (set_data_float(($1 | 0x20), $2->result) == false) {
+                gcode_data->decoded = false;
+                printf("not decoded char %c, line %d\n", $1, gcodelineno);
+            }
+
+            if ($2) {
+                gcode_data->opVector << $2;
+            }
+            if (gcode_data->gCmd == -1) { // in case, corrdinates without g code
+                if (lastGCode == 0 || lastGCode == 1) {
+                    gcode_data->gCmd = lastGCode;
+                }
+            }
+
+            gcode_data->numberLine = gcodelineno;
+        }
+        | PARAM_CHAR
+        {
+            // parameters without values
+            if (gcode_data) {
+                gcode_data->vParams << addParam { $1, false, 0 };
+            }
+        }
+        ;
+
+
+EXPR:   '[' EXPR ']' 
+        {
+            // root expression 
+            $$ = $2;
+        }
+        | '[' EXPR '*' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::MUL, DATA::FVAL);
+            $$->expr1 = $2;
+            $$->expr2 = $4;
+            $$->result = $2->result * $4->result;
+        }
+        | '[' EXPR '/' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::DIV, DATA::FVAL);
+            $$->expr1 = $2;
+            $$->expr2 = $4;
+            // TODO div by zero
+            $$->result = $2->result / $4->result;
+        }
+        | '[' EXPR '+' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::PLUS, DATA::FVAL);
+            $$->expr1 = $2;
+            $$->expr2 = $4;
+            $$->result = $2->result + $4->result;
+        }
+        | '[' EXPR '-' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::MINUS, DATA::FVAL);
+            $$->expr1 = $2;
+            $$->expr2 = $4;
+            $$->result = $2->result - $4->result;
+        }
+        | '[' '-' EXPR %prec UMINUS ']'
+        {
+            $$ = new DataOperation(EXP::NEG, DATA::FVAL);
+            $$->expr1 = $3; 
+            $$->result = (-$3->result);
+        }
+        | SIN_FUNC '[' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::SIN, DATA::FVAL);
+            $$->expr1 = $3; 
+            $$->result = qSin($3->result);
+        }
+        | COS_FUNC '[' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::COS, DATA::FVAL);
+            $$->expr1 = $3; 
+            $$->result = qCos($3->result);
+        }
+        | SQRT_FUNC '[' EXPR ']'
+        {
+            $$ = new DataOperation(EXP::SQRT, DATA::FVAL);
+            $$->expr1 = $3; 
+            $$->result = qSqrt($3->result);
+        }
+        | EXPR POW_FUNC EXPR
+        {
+            $$ = new DataOperation(EXP::POW, DATA::FVAL);
+            $$->expr1 = $1;
+            $$->expr2 = $3;
+            $$->result = qPow($1->result, $3->result);
+        }
+        | IVAL 
+        {
+            $$ = new DataOperation(EXP::NONE, DATA::FVAL);
+            $$->result = (float)$1;
+        }
+        | FVAL 
+        {
+            $$ = new DataOperation(EXP::NONE, DATA::FVAL);
+            $$->result = $1;
+        }
+        | VARIABLE 
+        {
+            $$ = new DataOperation(EXP::NONE, DATA::SVAL);
+            
+            //if (dataVaris.contains(QString($1.c_str()))){
+            if (checker.find_key(QString($1.c_str()))) {
+                float f = checker.get_vari(QString($1.c_str()));
+                $$->vName = QString($1.c_str());
+                $$->result = f; //dataVaris[QString($1.c_str())];
+            }
+            else {
+                qInfo() << QString($1.c_str()) << "was not defined";
+            }
+        }
+        ;
+%%
+
+
+bool set_data_float(char c, float f) {
+    switch (c){
+        case 'x':
+            gcode_data->coord.setX(f);
+            break;
+
+        case 'y':
+            gcode_data->coord.setY(f);
+            break;
+
+        case 'z':
+            gcode_data->coord.setZ(f);
+            break;
+
+        case 'i':
+            gcode_data->useExtCoord = IJK; // TODO check conflicts
+            gcode_data->extCoord.setX(f);
+            break;
+
+        case 'j':
+            gcode_data->useExtCoord = IJK; // TODO check conflicts
+            gcode_data->extCoord.setY(f);
+            break;
+
+        case 'k':
+            gcode_data->useExtCoord = IJK; // TODO check conflicts
+            gcode_data->extCoord.setZ(f);
+            break;
+
+        case 'a':
+            gcode_data->useExtCoord = ABC; // TODO check conflicts
+            gcode_data->extCoord.setX(f);
+            break;
+
+        case 'b':
+            gcode_data->useExtCoord = ABC; // TODO check conflicts
+            gcode_data->extCoord.setY(f);
+            break;
+
+        case 'c':
+            gcode_data->useExtCoord = ABC; // TODO check conflicts
+            gcode_data->extCoord.setZ(f);
+            break;
+
+        case 'u':
+            gcode_data->useExtCoord = UVW; // TODO check conflicts
+            gcode_data->extCoord.setX(f);
+            break;
+
+        case 'v':
+            gcode_data->useExtCoord = UVW; // TODO check conflicts
+            gcode_data->extCoord.setY(f);
+            break;
+
+        case 'w':
+            gcode_data->useExtCoord = UVW; // TODO check conflicts
+            gcode_data->extCoord.setZ(f);
+            break;
+
+        case 'r': // radius
+        case 's': // pause sec
+        case 'q': 
+        case 'p': // pause msec
+        case 'f': // feed
+        case 'd': // diameter
+        case 't': {// change tool
+            gcode_data->vParams << addParam {c, true, f};
+            break;
+        }
+
+        default:
+            gcode_data->decoded = false;
+            printf("not decoded char %c, line %d\n", c, gcodelineno);
+            return false;
+            break;
+    }
+    return true;
+}
+
+
+void gcode::parser::error ( const gcode::parser::location_type& l, const std::string& m)
+{
+    checker.error (l, m);
+}

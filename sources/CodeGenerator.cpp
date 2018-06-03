@@ -46,7 +46,7 @@ CodeGeneratorDialog::CodeGeneratorDialog(QWidget *p)
 {
     setupUi(this);
 
-    parent = static_cast<MainWindow*>(p);
+    parent = dynamic_cast<MainWindow*>(p);
 
     setStyleSheet(parent->programStyleSheet);
 

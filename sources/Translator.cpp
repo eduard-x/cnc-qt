@@ -32,9 +32,10 @@
 #include <QDir>
 #include <QDebug>
 #include <QTextStream>
+#include <QMessageBox>
 
-#include "includes/MainWindow.h"
-#include "includes/Translator.h"
+// #include "MainWindow.h"
+#include "Translator.h"
 
 
 QVector<QString> cTranslator::translateTable;
@@ -335,7 +336,7 @@ bool cTranslator::loadTranslation(const QString fname)
     if (llEng == "LANGUAGE_NAME") {
         translateTable << llEng;
     } else {
-        MessageBox::exec(this, translate(ID_FILEERR), "File is not a language file!", QMessageBox::Warning);
+        QMessageBox::warning(NULL, "File error!", "File is not a language file!");
 
         langFile.close();
         return (false);

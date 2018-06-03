@@ -36,9 +36,12 @@
 #include <QVector>
 
 #include "MainWindow.h"
+#include "mk1Controller.h"
+#include "Settings.h"
 
 #include "ui_ScanSurface.h"
 
+class MainWindow;
 class ScanThread;
 
 class ScanSurfaceDialog : public QDialog, public Ui::ScanSurfaceDialog,  public cTranslator

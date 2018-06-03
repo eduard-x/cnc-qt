@@ -1,0 +1,227 @@
+/****************************************************************************
+ * C# to Qt portation, Linux developing                                     *
+ * flex/bison G-Code parser                                                 *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
+ * Germany, Lower Saxony, Hanover                                           *
+ * eduard_kalinowski@yahoo.de                                               *
+ *                                                                          *
+ * C# project CNC-controller-for-mk1                                        *
+ * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
+ *                                                                          *
+ * CNC-Qt is free software; may be distributed and/or modified under the    *
+ * terms of the GNU General Public License version 3 as published by the    *
+ * Free Software Foundation and appearing in the file LICENSE_GPLv3         *
+ * included in the packaging of this file.                                  *
+ *                                                                          *
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
+ *                                                                          *
+ * You should have received a copy of the GNU Lesser General Public         *
+ * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
+ ****************************************************************************/
+
+
+%option caseless
+%option yylineno
+%option full
+%option c++
+%option nodefault
+%option debug
+%option nounput
+%option noinput
+%option noyywrap
+%option prefix="gcode"
+
+%{
+    // this generated header file from parse_gcode.ypp
+    #include <fstream>
+    #include "GCodeScanner.h"
+
+    #include "Settings.h"
+
+    int gcodelineno;
+    int gcode_charno = 1;
+
+    typedef gcode::parser::token TOKEN;
+    
+    #define YY_USER_ACTION          yylloc->columns(yyleng); gcode_charno += yyleng;
+%}
+
+
+
+WSPACE   [ \t\r\f]+
+DIGITS   [0-9]+
+COMMENT  \(.*\)
+PARAM    [A-FH-MP-Z]
+INTEGER  [+-]?{DIGITS}
+REAL1    [+-]?{DIGITS}?[.,]{DIGITS}
+REAL2    [+-]?{DIGITS}[.,]{DIGITS}?
+VARI     #[\<\>A-Z0-9_\-]+
+EOL      [\n]+
+OPER     [\+\-\/\*\=\[\]]
+
+EQ       "EQ"
+GE       "GE"
+NE       "NE"
+LE       "LE"
+GT       "GT"
+LT       "LT"
+IF       "IF"
+ELSE     "ELSE"
+ENDIF    "ENDIF"
+WHILE    "WHILE"
+ENDWHILE "ENDWHILE"
+GOTO     "GOTO"
+POW      "**"
+SIN      "SIN"
+COS      "COS"
+SQRT     "SQRT"
+
+
+%%
+
+ /* code to be executed at every yylex() call */
+%{
+    yylloc->step();
+%}
+
+
+{COMMENT} {
+    yylval->build<std::string>(yytext);
+    return TOKEN::T_COMMENTAR;
+}
+
+"G"{DIGITS} { // commands
+    yylval->build<int>(strtol(&yytext[1], NULL, 10)); 
+    return TOKEN::T_G_CMD; 
+}
+
+"M"{DIGITS} { // commands
+    yylval->build<int>(strtol(&yytext[1], NULL, 10)); 
+    return TOKEN::T_M_CMD;
+}
+
+{POW} {
+    return TOKEN::T_POW_FUNC;
+}
+
+{SQRT} {
+    return TOKEN::T_SQRT_FUNC;
+}
+
+{SIN} {
+    return TOKEN::T_SIN_FUNC;
+}
+
+{COS} {
+    return TOKEN::T_COS_FUNC;
+}
+
+{EQ} {
+    return TOKEN::T_CMP_EQ;
+}
+
+{LE} {
+    return TOKEN::T_CMP_LE;
+}
+
+{NE} {
+    return TOKEN::T_CMP_NE;
+}
+
+{GT} {
+    return TOKEN::T_CMP_GT;
+}
+
+{LT} {
+    return TOKEN::T_CMP_LT;
+}
+
+{GE} {
+    return TOKEN::T_CMP_GE;
+}
+
+[NO] { // label
+    yylval->build<char>(yytext[0]);
+    return TOKEN::T_LABEL;
+}
+
+{OPER} {
+    return yytext[0];
+}
+
+{PARAM} { // params
+    yylval->build<char>(yytext[0]);
+    return TOKEN::T_PARAM_CHAR;
+}
+
+{VARI} {
+    yylval->build<std::string>(yytext);
+    return TOKEN::T_VARIABLE;
+}
+
+{INTEGER} {
+    yylval->build<int>(strtol(yytext, NULL, 10)); 
+    return TOKEN::T_IVAL;
+}
+
+{REAL1}|{REAL2} {
+    std::string s = yytext;
+    std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
+    yylval->build<float>(strtof(s.c_str(), NULL));
+    return TOKEN::T_FVAL;
+}
+
+{EOL} {
+    gcode_charno=0;
+    return TOKEN::T_NEW_LINE;
+}
+
+
+"%".* {
+    yylval->build<std::string>(yytext);
+    return TOKEN::T_COMMENTAR;
+}
+
+";".* {
+    yylval->build<std::string>(yytext);
+    return TOKEN::T_COMMENTAR;
+}
+
+
+{WSPACE}+  {
+    /* ignore spaces */
+}
+
+<*>. { /* any other character is invalid */
+    fprintf (stderr, "gcode line %d pos %d: syntax error, unrecognized character: `%s'\n", gcodelineno, gcode_charno, yytext);
+    return TOKEN::T_InvalidCharacter;
+}
+
+%%
+
+// construct of gcode scanner
+gcode::scanner::scanner(
+        std::istream* arg_yyin,
+        std::ostream* arg_yyout ) :
+    yyFlexLexer(arg_yyin, arg_yyout)
+    {}
+
+// destruct 
+gcode::scanner::~scanner() {}
+
+
+#ifdef yylex
+#undef yylex
+#endif
+
+int yyFlexLexer::yylex()
+{
+    std::cerr << "in yyFlexLexer::yylex() !" << std::endl;
+    return 0;
+}

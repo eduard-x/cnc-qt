@@ -45,20 +45,20 @@
 #include <QToolButton>
 
 
-#include <QtCore/qmath.h>
+#include <QtMath>
 
-#include "includes/SettingsDialog.h"
-#include "includes/About.h"
-#include "includes/DataManager.h"
-#include "includes/EditGCode.h"
-#include "includes/ScanSurface.h"
+// #include "SettingsDialog.h"
+
+// // #include "DataManager.h"
+// #include "EditGCode.h"
+// #include "ScanSurface.h"
 
 
-#include "includes/MainWindow.h"
-
+#include "MainWindow.h"
+// #include "About.h"
 
 class GLWidget;
-
+// class AboutDialog;
 class MainWindow;
 
 
@@ -218,8 +218,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     Settings::fontSize = sysFont.pointSize();
 
-    dMan = new cDataManager();
-
     labelTask->setText("");
 
     int rc = 0;
@@ -229,7 +227,6 @@ MainWindow::MainWindow(QWidget *parent)
     if (rc != 0) {
         qApp->quit();
     }
-
 
     readSettings();
 
@@ -459,7 +456,7 @@ void MainWindow::addConnections()
 
     actionFiltered->setChecked(!Settings::viewOriginalGode);
 
-    connect(dMan, SIGNAL(logMessage(const QString&)), this, SLOT(logMessage(const QString&)));
+    //     connect(dMan, SIGNAL(logMessage(const QString&)), this, SLOT(logMessage(const QString&)));
 
     //     connect(actionOpenGL, SIGNAL(triggered()), this, SLOT(on3dSettings()));
     connect(actionProgram, SIGNAL(triggered()), this, SLOT(onSettings()));
@@ -975,7 +972,11 @@ bool MainWindow::OpenFile(QString &fileName)
     }
 
     if (name.length() > 0) {
-        bool f = dMan->readFile(name);
+        bool f = readFile(name);
+
+        foreach (QString s, logBuffer) {
+            AddLog(s);
+        }
 
         if (f == true) {
             QFileInfo fi(name);
@@ -985,18 +986,18 @@ bool MainWindow::OpenFile(QString &fileName)
 
             reloadRecentList();
 
-            if (Settings::viewOriginalGode) {
-                QVector<QString> *l = dMan->getOriginalList();
-                // TODO as option load the dMan->getFilteredList();
-                fillListWidget(*l);
-            } else {
-                QVector<QString> *l = dMan->getFilteredList();
-                // TODO as option load the dMan->getFilteredList();
-                fillListWidget(*l);
-            }
+            //             if (Settings::viewOriginalGode) {
+            //                 QVector<QString> *l = getOriginalList();
+            //                 // TODO as option load the getFilteredList();
+            //                 fillListWidget(*l);
+            //             } else {
+            //             QVector<QString> *l = getFilteredList();
+            // TODO as option load the getFilteredList();
+            fillListWidget(filteredList);
+            //             }
 
 
-            serData = dMan->getSerialVector();
+            //             serData = getSerialVector();
 
             if (enableOpenGL == true) {
                 scene3d->loadFigure();
@@ -1010,7 +1011,7 @@ bool MainWindow::OpenFile(QString &fileName)
             //         }
             //     }
 
-            if (serData->count() > 0) {
+            if (serialDataVector.count() > 0) {
                 name.replace(QDir::homePath(), QString("~"));
                 AddLog("File loaded: " + name );
             }
@@ -1125,7 +1126,7 @@ MainWindow::~MainWindow()
 {
     //     emit mk1Disconnected();
     //
-    delete dMan;
+    //     delete dMan;
     //     libusb_exit(context);
     //
     //     hotplugTimer->stop();
@@ -1194,7 +1195,7 @@ void MainWindow::onFilter()
     QAction* a  = static_cast<QAction*>(sender());
 
     disconnect(actionFiltered, SIGNAL(triggered()), this, SLOT(onFilter()));
-    disconnect(actionOriginal, SIGNAL(triggered()), this, SLOT(onFilter()));
+    //     disconnect(actionOriginal, SIGNAL(triggered()), this, SLOT(onFilter()));
 
     if (a == actionFiltered) {
         bool fltrd = actionFiltered->isChecked();
@@ -1209,18 +1210,18 @@ void MainWindow::onFilter()
     }
 
     // TODO reload the list
-    if (!Settings::viewOriginalGode) {
-        QVector<QString> *l = dMan->getFilteredList();
-        // TODO as option load the dMan->getFilteredList();
-        fillListWidget(*l);
-    } else {
-        QVector<QString> *l = dMan->getOriginalList();
-        // TODO as option load the dMan->getFilteredList();
-        fillListWidget(*l);
-    }
+    //     if (!Settings::viewOriginalGode) {
+    //     QVector<QString> *l = getFilteredList();
+    // TODO as option load the getFilteredList();
+    fillListWidget(filteredList);
+    //     } else {
+    //         QVector<QString> *l = getOriginalList();
+    //         // TODO as option load the getFilteredList();
+    //         fillListWidget(*l);
+    //     }
 
     connect(actionFiltered, SIGNAL(triggered()), this, SLOT(onFilter()));
-    connect(actionOriginal, SIGNAL(triggered()), this, SLOT(onFilter()));
+    //     connect(actionOriginal, SIGNAL(triggered()), this, SLOT(onFilter()));
 }
 
 /**
@@ -1385,7 +1386,7 @@ void MainWindow::onStartTask()
         return;
     }
 
-    if (serData->count() == 0) {
+    if (serialDataVector.count() == 0) {
         // no data
         MessageBox::exec(this, translate(ID_ERR), translate(ID_MSG_NO_DATA), QMessageBox::Critical);
         return;
@@ -1456,7 +1457,7 @@ void MainWindow::onStartTask()
 
 #endif
 
-    qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd /*<< "code" << Task::instructionStart << Task::instructionEnd*/ << "size of code" << serData->count();
+    qDebug() << "ranges, lines:" << Task::lineCodeStart << Task::lineCodeEnd /*<< "code" << Task::instructionStart << Task::instructionEnd*/ << "size of code" << serialDataVector.count();
     QString s = translate(ID_FROM_TO).arg( Task::lineCodeStart + 1).arg( Task::lineCodeEnd + 1);
     labelTask->setText( s );
 
@@ -1615,8 +1616,8 @@ void MainWindow::runNextCommand()
 #endif
     SerialData *gcodeNow;
 
-    if (Task::instrCounter < serData->count()) {
-        gcodeNow = serData->at(Task::instrCounter);
+    if (Task::instrCounter < serialDataVector.count()) {
+        gcodeNow = serialDataVector.at(Task::instrCounter);
     } else {
         currentStatus = Task::Stop;
     }
@@ -1863,8 +1864,8 @@ void MainWindow::runNextCommand()
 
             mk1->packCA(&mParams); // move to init position
 
-            if (Task::instrCounter < serData->count()) {
-                gcodeNow = serData->at(Task::instrCounter);
+            if (Task::instrCounter < serialDataVector.count()) {
+                gcodeNow = serialDataVector.at(Task::instrCounter);
             } else {
                 currentStatus = Task::Stop;
                 break;
@@ -2403,7 +2404,7 @@ void  MainWindow::refreshElementsForms()
             int lineNum = 0;
 
             // TODO to link with line number
-            foreach (const SerialData *v, *serData) {
+            foreach (const SerialData *v, serialDataVector) {
                 if (v->commandNum > complecated) {
                     break;
                 }
@@ -2653,6 +2654,7 @@ void MainWindow::onCopyPos()
  */
 void MainWindow::onLogClear()
 {
+    logBuffer.clear();
     textLog->clear();
 }
 

@@ -29,61 +29,82 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include <QtGui>
-#include <QUrl>
-#include <QPixmap>
 
-#include "MainWindow.h"
-#include "About.h"
-#include "version.h"
+#ifndef SCONTROL_H
+#define SCONTROL_H
+
+#include <QGroupBox>
+#include <QString>
+#include <QToolButton>
+#include <QLabel>
+#include <QVector>
+#include <QLabel>
+#include <QKeyEvent>
+#include <QMap>
 
 
-/******************************************************************************
-** AboutDialog
-*/
+// #include "MainWindow.h"
+#include "ui_sControl.h"
+#include "mk1Controller.h"
+#include "Translator.h"
+#include "Settings.h"
+// #include "SettingsDialog.h"
+
+class mk1Controller;
+// class MainWindow;
 
 
-AboutDialog::AboutDialog(QWidget *p)
-    : QDialog(p)
+class SettingsControl : public QWidget, public Ui::sControl,  public cTranslator
 {
-    setupUi(this);
+        Q_OBJECT
+    public:
+        SettingsControl(QWidget *parent = 0);
+        ~SettingsControl();
+        void getSettings();
 
-    parent = static_cast<MainWindow*>(p);
+        enum Direction { X_minus = 0, X_plus, Y_minus, Y_plus, Z_minus, Z_plus, A_minus, A_plus, X_minus_Y_minus, X_minus_Y_plus, X_plus_Y_plus, X_plus_Y_minus };
 
-    setStyleSheet(parent->programStyleSheet);
+    private slots:
+        //         void mousePressed();
+        void numPressed();
+        void curPressed();
+        void userPressed();
+        void tabChanged(int n);
+        void mouseReleased();
+        void spinChanged(int num);
+        void sliderChanged(int num);
+        void onEnableRemote();
+        void onRemoteNameChanged(const QString &s);
+        void onRemotePortChanged(const QString &s);
+        void onConnect();
 
-    translateDialog();
+    private:
+        void translateWidget();
+        void pressedCommand(int n);
+        void decodeUserDefined(Qt::Key n);
+        void checkUserEnteredKey(Qt::Key n);
+        void decodeCursor(Qt::Key n);
+        void decodeNumPad(Qt::Key n);
 
-    labelImage->setPixmap(QPixmap(":/images/cnc.png"));
+        //         void keyPressEvent( QKeyEvent *e );
+        //         void keyReleaseEvent( QKeyEvent *e );
+        bool eventFilter(QObject *target, QEvent *event);
+        //         bool eventFilter(QObject *target, QMouseEvent *event);
 
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(reject()));
+    private:
+        QVector< QVector<QGroupBox*> > grpArr;
+        QVector<QToolButton*> buttonsNumPad;
+        QVector<QToolButton*> buttonsCursor;
+        QVector<QToolButton*> buttonsUser;
+        QVector<QToolButton*> buttonsJoyPad;
+        QVector<QLabel*> labelsUser;
+        QVector<QString> strsUser;
+        QMap<QString, Qt::Key> userManualKeys;
 
-    adjustSize();
-}
+        int recordKey; // num of element or -1
+        //     private:
+        mk1Controller* cnc;
+};
 
 
-void AboutDialog::translateDialog()
-{
-    setWindowTitle(translate(ID_ABOUT_TITLE));
-    labelAuthorNET->setText("<a href=\"zheigurov@gmail.com\">C#, Windows developing: S. Zheigurov</a>");
-    labelProgAuthor->setText("<a href=\"eduard_kalinowski@yahoo.de\">Qt/C++, Linux developing: E. Kalinowski</a>");
-    labelProgName->setText(translate(ID_PROG_NAME) + " v." + QString(CNCMK1QTVERSION));
-    labelProgVersion->setText("");
-
-    QString ab = translate(ID_ABOUT_TEXT);
-
-    QString link1 = "http://www.planet-cnc.com";
-    QString link2 = "http://www.selenur.ru";
-    QString link3 = "http://www.cnc-club.ru/forum/viewtopic.php?f=16&t=7078&p=175365#p175365";
-    QString link3_descr = "http://www.cnc-club.ru (forum)";
-    QString link4 = "https://github.com/eduard-x/cnc-qt";
-
-    ab.replace("\n", "<br>");
-    ab = ab.arg("<a href=\"" + link1 + "\">" + link1 + "</a>")
-         .arg("<a href=\"" + link2 + "\">" + link2 + "</a>")
-         .arg("<a href=\"" + link3 + "\">" + link3_descr + "</a>")
-         .arg("<a href=\"" + link4 + "\">" + link4 + "</a>");
-
-    textInfo->setText(ab);
-}
-
+#endif // SCONTROL_H

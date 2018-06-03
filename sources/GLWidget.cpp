@@ -29,9 +29,9 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include "includes/version.h"
+#include "version.h"
 
-#include "includes/GLWidget.h"
+#include "GLWidget.h"
 
 #include <QDebug>
 
@@ -43,14 +43,14 @@
 
 // for GLES2 are QGLFunctions to implement
 
-#include "includes/Settings.h"
-#include "includes/MainWindow.h"
-#include "includes/mk1Controller.h"
+#include "Settings.h"
+#include "MainWindow.h"
+#include "mk1Controller.h"
 
 
 #define ZOOMSTEP 1.1
 
-#include "includes/shader.h"
+#include "shader.h"
 
 /**
  * @brief constructor
@@ -822,7 +822,7 @@ void GLWidget::surfaceReloaded()
     for (int i = 0; i < figure.count(); i++) {
         if (parent->deltaFeed) {
             //             QVector3D p;
-            QVector3D point = parent->serData->at(i)->coord;
+            QVector3D point = parent->serialDataVector.at(i)->coord;
             //             float pointY = parent->parseData.at(i).Y;
             //             float pointZ = parent->parseData.at(i).Z;
 
@@ -856,7 +856,7 @@ void GLWidget::loadFigure()
 {
     figure.clear();
 
-    foreach (const SerialData *vv, *parent->serData) {
+    foreach (const SerialData *vv, parent->serialDataVector) {
         QColor cl;
 
         if (vv->movingCode == RAPID_LINE_CODE) {

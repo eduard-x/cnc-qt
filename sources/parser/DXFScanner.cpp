@@ -29,82 +29,124 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include <QtGui>
+
+#include <QObject>
+#include <QRegExp>
+#include <QDebug>
+#include <QString>
+
+#include <QtMath>
+
+#include "Settings.h"
+#include "DXFScanner.h"
+
+#include "parse_dxf.h"
 
 
-#include "EditGCode.h"
+#define DEBUG_ARC 0
 
 
-/******************************************************************************
-** EditGCodeDialog
-*/
-
-
-EditGCodeDialog::EditGCodeDialog(QWidget *p)
-    : QDialog(p)
+DXFData::DXFData()
 {
-    setupUi(this);
+    UnitsType = "";
 
-    parent = static_cast<MainWindow*>(p);
+    // длина всего числа
+    countDigitsX = 1;
+    // длина всего числа
+    countDigitsY = 1;
+    // длина дробной части
+    countPdigX = 0;
+    // длина дробной части
+    countPdigY = 0;
 
-    setStyleSheet(parent->programStyleSheet);
+    X_min = 100000;
+    X_max = -100000;
 
-    connect(checkCorrecture, SIGNAL(stateChanged ( int)), this, SLOT(checkedChanged( int )));
-
-    checkCorrecture->setChecked(true);
-    checkCorrecture->setChecked(false); // toggle
-
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSaveChange()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-    doubleSpinOffsetX->setValue(parent->deltaX);
-    doubleSpinOffsetY->setValue(parent->deltaY);
-    doubleSpinOffsetZ->setValue(parent->deltaZ);
-
-    checkBoxZ->setChecked(parent->deltaFeed);
-
-    doubleSpinResizeX->setValue(parent->coeffSizeX);
-    doubleSpinResizeY->setValue(parent->coeffSizeY);
-
-    //     checkResizeZ->setChecked();
-
-    translateDialog();
-
-    adjustSize();
+    Y_min = 100000;
+    Y_max = -100000;
 }
 
-
-void EditGCodeDialog::translateDialog()
+#if 0
+//
+// Вычисление размерности необходимого массива, для анализа
+//
+// accuracy: Коэфициент уменьшения размеров данных
+void DXFData::CalculateGatePoints(int _accuracy)
 {
-    setWindowTitle(translate(ID_EDITGCODE_TITLE));
-    checkCorrecture->setText(translate(ID_CORRECTURE));
-    groupResize->setTitle(translate(ID_PROPORTION));
-    groupOffset->setTitle(translate(ID_OFFSET_GCODE));
-    checkBoxZ->setText(translate(ID_CORRECT_Z));
-}
-
-
-void EditGCodeDialog::checkedChanged( int state)
-{
-    bool check = checkCorrecture->isChecked();
-    groupOffset->setEnabled(check);
-    groupResize->setEnabled(check);
-}
-
-
-void EditGCodeDialog::onSaveChange()
-{
-    if (checkCorrecture->isChecked()) {
-        parent->deltaX = doubleSpinOffsetX->value();
-        parent->deltaY = doubleSpinOffsetY->value();
-        parent->deltaZ = doubleSpinOffsetZ->value();
-
-        parent->deltaFeed = checkBoxZ->isChecked();
-
-        parent->coeffSizeX = doubleSpinResizeX->value();
-        parent->coeffSizeY = doubleSpinResizeY->value();
+    // немного уменьшим значения
+    foreach (grbPoint VARIABLE, points) {
+        VARIABLE.X = VARIABLE.X / _accuracy;
+        VARIABLE.Y = VARIABLE.Y / _accuracy;
     }
 
-    emit accept();
+    foreach (grbPoint VARIABLE, points) {
+        if (VARIABLE.X > X_max) {
+            X_max = VARIABLE.X;
+        }
+
+        if (VARIABLE.X < X_min) {
+            X_min = VARIABLE.X;
+        }
+
+        if (VARIABLE.Y > Y_max) {
+            Y_max = VARIABLE.Y;
+        }
+
+        if (VARIABLE.Y < Y_min) {
+            Y_min = VARIABLE.Y;
+        }
+    }
+
+    // Немного расширим границу
+    X_max += 500;
+    Y_max += 500;
 }
+
+#endif
+
+// using namespace Parser;
+
+
+dxf::driver::driver(cDataManager *p)
+{
+    parent = p;
+}
+
+
+
+dxf::driver::~driver ()
+{
+}
+
+
+void dxf::driver::parse (const QString &f)
+{
+    result = false;
+    file = f.toUtf8().data();
+    std::ifstream in(file.c_str());
+    lexer = new dxf::scanner(&in);
+    //         lexer->set_debug(trace_scanning);
+    dxf::parser parser (*this);
+    //  parser.set_debug_level (trace_parsing);
+    result = parser.parse ();
+    delete lexer;
+    lexer = 0;
+    in.close();
+}
+
+
+void dxf::driver::error (const dxf::parser::location_type& l, const std::string& m)
+{
+    parent->logBuffer << QString().sprintf("error in line %d pos %d : %s", l.begin.line, l.begin.column, m.c_str());
+    //     std::cerr << l << ": " << m << std::endl;
+}
+
+
+void dxf::driver::error (const std::string& m)
+{
+    parent->logBuffer << QString().sprintf("%s", m.c_str());
+    //     std::cerr << m << std::endl;
+}
+
+
 

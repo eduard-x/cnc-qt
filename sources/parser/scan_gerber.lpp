@@ -1,0 +1,327 @@
+/****************************************************************************
+ * C# to Qt portation, Linux developing                                     *
+ * flex/bison Gerber parser                                                 *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
+ * Germany, Lower Saxony, Hanover                                           *
+ * eduard_kalinowski@yahoo.de                                               *
+ *                                                                          *
+ * C# project CNC-controller-for-mk1                                        *
+ * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
+ *                                                                          *
+ * CNC-Qt is free software; may be distributed and/or modified under the    *
+ * terms of the GNU General Public License version 3 as published by the    *
+ * Free Software Foundation and appearing in the file LICENSE_GPLv3         *
+ * included in the packaging of this file.                                  *
+ *                                                                          *
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
+ *                                                                          *
+ * You should have received a copy of the GNU Lesser General Public         *
+ * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
+ ****************************************************************************/
+
+%option stack 
+%option caseless 
+%option yylineno 
+%option c++
+%option nodefault
+%option noyywrap
+%option nounput 
+%option noinput 
+%option prefix="gerber"
+
+%{
+// this generated header file from parse_gerber.ypp
+    #include "parse_gerber.h"
+    
+    #include "Settings.h"
+    #include "GerberScanner.h"
+
+    typedef gerber::parser::token TOKEN;
+    
+    
+    int gerberlineno;
+    int gerber_charno = 1;
+    
+    #define YY_USER_ACTION          yylloc->columns(yyleng);  gerber_charno += yyleng;
+%}
+
+
+WSPACE    [ \t\r]+
+DIGITS    [0-9]+
+COMMENT   \(.+\)
+EXPONENT  [Ee][+-]?{DIGIT}+
+INT       [+-]?{DIGITS}
+REAL1     [+-]?{DIGITS}?[.]{DIGITS}
+REAL2     [+-]?{DIGITS}[.]{DIGITS}?
+EOL       \n
+
+APPERTYPE [CROPM]
+DICTNUM   \D{DIGITS}
+FILENAME  [A-Z0-9_\-\& \.]+
+INCH      \IN
+MM        \MM
+INFO      [A-Z]+\:
+UNIT      {INCH}|{MM}
+GRBBEG    \G0?4.*\*
+GRBEND    \M0?2
+MODE      \MO{UNIT}
+DCODE     \D[0]?[123]
+GCODE     \G[0]?[123]
+QUAD      \G7
+REGION    \G3
+POS       \POS
+NEG       \NEG
+OPER      [\(\)]
+NAME      [A-Z0-9]+
+
+%x OPTION DATAFIELD
+
+
+%%
+
+ /* code to be executed at every yylex() call */
+%{
+    yylloc->step();
+%}
+
+<INITIAL>{
+    "%" {
+        /* begin of options */
+        yy_push_state(OPTION);
+    }
+
+    {INFO} {
+        qInfo() << yytext;
+    }
+
+    {GRBBEG} {
+        /* begin prog */
+        qInfo() << yytext;
+    }
+
+    {GRBEND} {
+        /* end prog */
+    }
+
+    {DCODE} {
+        yylval->build<int>(strtol(&yytext[1], NULL, 10)); 
+        return TOKEN::T_D_OPCODE;
+    }
+
+    {GCODE} {
+        yylval->build<int>(strtol(&yytext[1], NULL, 10)); 
+        return TOKEN::T_G_OPCODE;
+    }
+
+    \G54{DICTNUM} {
+        yylval->build<std::string>(&yytext[3]);
+        return TOKEN::T_APER_SELECT;
+    }
+}
+
+<INITIAL,OPTION>{
+    {OPER} {
+        /* ignore '(' and ')' */
+    }
+
+    "*" {
+        /* end of data or separator between descriptor and followed datafield */
+    }
+
+    {WSPACE} {
+        /* ignore spaces */
+    }
+
+    "," {
+        /* separator in options, ignore */
+    }
+
+    {INT} {
+        yylval->build<int>(strtol(&yytext[0], NULL, 10));
+        return TOKEN::T_INTEGER;
+    }
+
+    {REAL1}|{REAL2} {
+        std::string s = yytext;
+        std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
+        yylval->build<float>(strtof(s.c_str(), NULL));
+        
+        return TOKEN::T_FLOAT;
+    }
+
+    \X{INT} {
+        yylval->build<int>(strtol(&yytext[1], NULL, 10)); 
+        return TOKEN::T_X_PAR;
+    }
+
+    \Y{INT} {
+        yylval->build<int>(strtol(&yytext[1], NULL, 10)); 
+        return TOKEN::T_Y_PAR;
+    }
+
+    \I{INT} {
+        yylval->build<int>(strtol(&yytext[1], NULL, 10)); 
+        return TOKEN::T_I_PAR;
+    }
+
+    \J{INT} {
+        yylval->build<int>(strtol(&yytext[1], NULL, 10)); 
+        return TOKEN::T_J_PAR;
+    }
+
+    {EOL} {
+        gerber_charno = 1;
+    }
+}
+
+<OPTION>{
+    "%" {
+        yy_pop_state();
+    }
+
+    {MODE} {
+        if (yytext[2] == 'I') {
+            return TOKEN::T_SET_INCH;
+        }
+        if (yytext[2] == 'M') {
+            return TOKEN::T_SET_MM;
+        }
+    }
+
+    \MI {
+        return TOKEN::T_MIRRORING;
+    }
+
+    \A{INT}|{REAL1}|{REAL2} {
+        std::string s = &yytext[1];
+        std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
+        yylval->build<float>(strtof(s.c_str(), NULL));
+        
+        return TOKEN::T_A_PAR;
+    }
+
+    \B{INT}|{REAL1}|{REAL2} {
+        std::string s = &yytext[1];
+        std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
+        yylval->build<float>(strtof(s.c_str(), NULL));
+        
+        return TOKEN::T_B_PAR;
+    }
+
+    \T[FAOD] {
+        /* only attributes F, A, O, D */
+        switch (yytext[1]) {
+            case 'F': /* ATTRIBUTE */
+                break;
+            case 'A': /* APERTURE_ATTRIBUTE */
+                break;
+            case 'O': /* OBJECT_ATTRIBUTE */
+                break;
+            case 'D': /* DELETE_ATTRIBUTE */
+                break;
+        }
+    }
+
+    \FS[LT][AI] {
+        /* L: OMIT_LEADING_ZEROS, T: OMIT_TRAILING_ZEROS, A: absolute, I: incremental */
+        qInfo() << yytext;
+        yylval->build<std::string>(strndup(&yytext[2], 2));
+        return TOKEN::T_FMT;
+    }
+
+    \SF {
+    }
+
+    \LN{FILENAME} {
+        /* name ? */
+    }
+
+    \AM{NAME} {
+        /* aperture macro */
+        yylval->build<std::string>(&yytext[2]);
+        return TOKEN::T_APER_MACRO_NAME;
+    }
+
+    \AD{DICTNUM}{NAME}? {
+        /* aperture dictionary */
+        yylval->build<std::string>(&yytext[2]);
+        return TOKEN::T_APER_DICTIONARY;
+    }
+
+    \IP{POS}|{NEG} {
+        /* image polarity */ 
+        if (yytext[2] == 'P') {
+            return TOKEN::T_POSITIVE;
+        }
+        else {
+            return TOKEN::T_NEGATIVE;
+        }
+    }
+
+    \LP[DC] {
+        /* level polarity */
+        if (yytext[2] == 'D') {
+            return TOKEN::T_POSITIVE;
+        }
+        else {
+            return TOKEN::T_NEGATIVE;
+        }
+    }
+    \G9[01] {
+        /* 0 is abs 1 is rel */ 
+        if (yytext[2] == '0') {
+            return TOKEN::T_ABS;
+        }
+        else {
+            return TOKEN::T_REL;
+        }
+    }
+
+    \SR {
+    }
+}
+
+
+{QUAD} {
+    /* quadr */
+}
+
+{REGION}[67]"*" {
+    /* region 6 is ON, 7 is OFF */
+    if (yytext[2] =='6'){
+    }
+    else {
+    }
+}
+
+
+<*>. { /* any other character is invalid */
+  fprintf (stderr,
+       "gerber line %d pos %d: syntax error, unrecognized character: `%s'\n", yylloc->begin.line, yylloc->begin.column, yytext);
+   return TOKEN::T_InvalidCharacter;
+}
+
+%%
+
+
+gerber::scanner::scanner(std::istream* in, std::ostream* out)
+    : yyFlexLexer(in, out)
+{
+}
+
+
+#ifdef yylex
+#undef yylex
+#endif
+
+int yyFlexLexer::yylex()
+{
+    std::cerr << "in yyFlexLexer::yylex() !" << std::endl;
+    return 0;
+}

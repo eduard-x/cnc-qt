@@ -45,6 +45,9 @@
 #define GDATA_H
 
 
+#define MK1_PRODUCT_ID   0x2130
+#define MK1_VENDOR_ID    0x2121
+
 /* enum class is C++11 feature */
 enum class EXP {
     NONE = 0,
@@ -84,6 +87,27 @@ enum class CMD {
 };
 
 
+struct VertexData {
+    QVector3D coord;
+    QVector3D color;
+};
+
+/**
+ * for ant sorting function
+ */
+struct GCodeOptim {
+    QVector3D coord;
+    //     int lineBegOrig;
+    //     int lineEndOrig;
+    int lineBegFilter;
+    int lineEndFilter;
+    int serialBeg;
+    int serialEnd;
+    int vertexBeg;
+    int vertexEnd;
+};
+
+
 class DataOperation
 {
     public :
@@ -118,13 +142,6 @@ class DataOperation
 };
 
 
-enum Apertures {
-    C_circle,
-    R_rectangle,
-    O_obround,
-    P_polygon
-};
-
 // possible data types
 enum typeCollections {
     Points,
@@ -132,7 +149,7 @@ enum typeCollections {
     Property,
 };
 
-
+#if 0
 struct typeSpline {
     int number;
     Apertures aperture;
@@ -182,7 +199,7 @@ struct Point {
     //         size = _size;
     //     }
 };
-
+#endif
 // tool descriptor
 struct Instrument {
     int Number;
@@ -195,7 +212,7 @@ struct Instrument {
     //     }
 };
 
-
+#if 0
 //
 class DataCollections
 {
@@ -216,7 +233,7 @@ class DataCollections
         QList<Point> points;
         Instrument intrument;
 };
-
+#endif
 
 enum PlaneEnum {
     None = 0,
@@ -338,7 +355,7 @@ struct addParam {
 //
 // parsed data
 //
-class ParserData
+class GData
 {
     public:
         short gCmd;
@@ -371,14 +388,16 @@ class ParserData
     public:
         //
         // null constructor
-        ParserData();
+        GData();
 
         // constructor with copy from last data
-        ParserData(ParserData *_cmd);
+        GData(GData *_cmd);
 
         // for mathematical operations and other
         QVector<class DataOperation*> opVector;
 };
+
+
 
 
 #endif // GDATA_H

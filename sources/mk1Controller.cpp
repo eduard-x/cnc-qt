@@ -32,9 +32,7 @@
 #include <QDebug>
 #include <QIODevice>
 
-#include "includes/Settings.h"
-#include "includes/mk1Controller.h"
-
+#include "mk1Controller.h"
 
 #include <QString>
 

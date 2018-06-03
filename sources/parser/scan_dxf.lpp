@@ -1,0 +1,137 @@
+/****************************************************************************
+ * C# to Qt portation, Linux developing                                     *
+ * flex/bison DXF parser                                                    *
+ * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
+ * Germany, Lower Saxony, Hanover                                           *
+ * eduard_kalinowski@yahoo.de                                               *
+ *                                                                          *
+ * C# project CNC-controller-for-mk1                                        *
+ * https://github.com/selenur/CNC-controller-for-mk1                        *
+ *                                                                          *
+ * The Qt project                                                           *
+ * https://github.com/eduard-x/cnc-qt                                       *
+ *                                                                          *
+ * CNC-Qt is free software; may be distributed and/or modified under the    *
+ * terms of the GNU General Public License version 3 as published by the    *
+ * Free Software Foundation and appearing in the file LICENSE_GPLv3         *
+ * included in the packaging of this file.                                  *
+ *                                                                          *
+ * This program is distributed in the hope that it will be useful,          *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ * GNU General Public License for more details.                             *
+ *                                                                          *
+ * You should have received a copy of the GNU Lesser General Public         *
+ * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
+ ****************************************************************************/
+
+
+
+%option caseless 
+%option yylineno 
+%option c++
+%option nodefault
+%option nounput 
+%option noinput 
+%option noyywrap
+%option prefix="dxf"
+
+
+%{
+    // this generated header file from parse_dxf.ypp
+    #include "DXFScanner.h"
+    #include "parse_dxf.h"
+    #include "Settings.h"
+
+    typedef dxf::parser::token TOKEN;
+    
+    
+    int dxflineno;
+    int dxf_charno = 1;
+    
+    #define YY_USER_ACTION          yylloc->columns(yyleng);  dxf_charno += yyleng;
+
+%}
+
+
+
+WSPACE   [ \t\r\f]+
+EOL      [\n]+
+DIGITS   [0-9]+
+DEF      [A-Z0-9_\-]+
+INTEGER  [+-]?{DIGITS}
+REAL1    [+-]?{DIGITS}?[.]{DIGITS}
+REAL2    [+-]?{DIGITS}[.]{DIGITS}?
+VARI     \$[A-Z_\-]+
+SYMBOL   [\.\"\|\@\*\{\}]
+
+
+%%
+
+ /* code to be executed at every yylex() call */
+%{
+    yylloc->step();
+%}
+
+
+{INTEGER} { 
+    yylval->build<int>(std::atol(yytext));
+    return TOKEN::T_INT;
+}
+
+{DEF} {
+    yylval->build<std::string>(yytext);
+    return TOKEN::T_STR;
+}
+
+{SYMBOL} {
+    yylval->build<char>(yytext[0]);
+    return TOKEN::T_SYM;
+}
+
+{VARI} {
+    yylval->build<std::string>(yytext);
+    return TOKEN::T_VARIABLE;
+}
+
+{REAL1}|{REAL2} {
+    std::string s = yytext;
+    std::replace( s.begin(), s.end(), Settings::toDecimalPoint, Settings::fromDecimalPoint);
+    yylval->build<float>(strtof(s.c_str(), NULL));
+    
+    return TOKEN::T_FLOAT;
+}
+
+{EOL} { /* nothing */ }
+
+
+<*>{WSPACE}  { /* skip end of line and spaces */ }
+
+<*>. { /* any other character is invalid */
+    fprintf (stderr, "dxf line %d pos %d: syntax error, unrecognized character: `%s'\n", yylloc->begin.line, yylloc->begin.column, yytext);
+    return TOKEN::T_InvalidCharacter;
+}
+
+%%
+
+
+// construct of dxf scanner
+dxf::scanner::scanner(
+        std::istream* arg_yyin,
+        std::ostream* arg_yyout ) :
+    yyFlexLexer(arg_yyin, arg_yyout)
+    {}
+
+// destruct 
+dxf::scanner::~scanner() {}
+
+
+#ifdef yylex
+#undef yylex
+#endif
+
+int yyFlexLexer::yylex()
+{
+    std::cerr << "in yyFlexLexer::yylex() !" << std::endl;
+    return 0;
+}

@@ -43,9 +43,11 @@
 #include <QThread>
 #include <QIODevice>
 
-#include "MainWindow.h"
+// #include "MainWindow.h"
+#include "GData.h"
 #include "Translator.h"
-// #include "Settings.h"
+#include "Settings.h"
+#include "Geometry.h"
 
 #include <libusb.h>
 

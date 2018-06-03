@@ -29,14 +29,14 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#include "includes/GData.h"
+#include "GData.h"
 
 
 /**
  * @brief consructor
  *
  */
-ParserData::ParserData()
+GData::GData()
 {
     numberLine = 0;
     decoded = true;
@@ -62,7 +62,7 @@ ParserData::ParserData()
  * @brief constructor based on command
  *
  */
-ParserData::ParserData(ParserData *d)
+GData::GData(GData *d)
 {
     gCmd = -1;
     gExtCmd = -1;
