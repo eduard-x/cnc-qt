@@ -179,7 +179,7 @@ gline:  G_CMD
                     break;
                 
                 default:
-                    qWarning() << "G-Code is not decoded:" << $1;
+                    checker.error(QString("G-Code is not decoded:") + QString::number($1));
                     gcode_data->decoded = false;
                     break;
             }
@@ -245,12 +245,13 @@ param:  PARAM_CHAR EXPR
             // when line begins with coordinates 
             if (set_data_float(($1 | 0x20), $2->result) == false) {
                 gcode_data->decoded = false;
-                printf("not decoded char %c, line %d\n", $1, gcodelineno);
+                checker.error(QString().sprintf("not decoded char %c, line %d\n", $1, gcodelineno));
             }
 
             if ($2) {
                 gcode_data->opVector << $2;
             }
+
             if (gcode_data->gCmd == -1) { // in case, corrdinates without g code
                 if (lastGCode == 0 || lastGCode == 1) {
                     gcode_data->gCmd = lastGCode;
@@ -355,12 +356,11 @@ EXPR:   '[' EXPR ']'
                 $$->result = f; //dataVaris[QString($1.c_str())];
             }
             else {
-                qInfo() << QString($1.c_str()) << "was not defined";
+                checker.error(QString().sprintf("Variable %s was not defined", $1));
             }
         }
         ;
 %%
-
 
 bool set_data_float(char c, float f) {
     switch (c){
@@ -434,15 +434,15 @@ bool set_data_float(char c, float f) {
 
         default:
             gcode_data->decoded = false;
-            printf("not decoded char %c, line %d\n", c, gcodelineno);
             return false;
             break;
     }
+    
     return true;
 }
 
 
 void gcode::parser::error ( const gcode::parser::location_type& l, const std::string& m)
 {
-    checker.error (l, m);
+    checker.error (l, QString(m.c_str()));
 }

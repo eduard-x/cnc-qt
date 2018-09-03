@@ -1317,7 +1317,7 @@ bool cDataManager::readFile(const QString &fileName)
             break;
         }
 
-        if(s.indexOf(QRegExp("G0*1\\s")) >= 0 || s.indexOf(QRegExp("G0+\\s")) >= 0) {
+        if(s.indexOf(QRegExp("G0*1[\\sX-Zx-z]")) >= 0 || s.indexOf(QRegExp("G0+[\\sX-Zx-z]")) >= 0) {
             TypeFile = GCODE;
             break;
         }
@@ -1412,7 +1412,7 @@ bool cDataManager::readFile(const QString &fileName)
         QTime tMess;
         tMess.start();
 
-        bool res;
+        bool res = false;
         //         = DXFParser::read(fileName.toUtf8().data());
 
         //         originalList.clear();

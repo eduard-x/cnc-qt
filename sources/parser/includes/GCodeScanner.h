@@ -81,8 +81,8 @@ class driver
 
     public:
         // Error handling.
-        void  error (const gcode::parser::location_type& l, const string& m);
-        void  error (const string& m);
+        void  error (const gcode::parser::location_type& l, const QString& m);
+        void  error (const QString& m);
 
         bool  find_key(const QString &s);
         float get_vari(const QString &s);

@@ -97,17 +97,15 @@ void gcode::driver::add_gcode(GData &g)
 }
 
 
-void gcode::driver::error (const gcode::parser::location_type& l, const std::string& m)
+void gcode::driver::error (const gcode::parser::location_type& l, const QString& m)
 {
-    parent->logBuffer << QString().sprintf("error in line %d pos %d : %s", l.begin.line, l.begin.column, m.c_str());
-    //     std::cerr << l << ": " << m << std::endl;
+    parent->logBuffer << QString(QString().sprintf("error in line %d pos %d : ", l.begin.line, l.begin.column) + m);
 }
 
 
-void gcode::driver::error (const std::string& m)
+void gcode::driver::error (const QString& m)
 {
-    parent->logBuffer << QString().sprintf("%s", m.c_str());
-    //     std::cerr << m << std::endl;
+    parent->logBuffer << m;
 }
 
 

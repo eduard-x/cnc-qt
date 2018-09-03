@@ -57,6 +57,24 @@ extern int gerberlineno;
 %define api.token.prefix {T_}
 
 
+%code requires {
+    #include <QString>
+    #include <QChar>
+    #include <QDebug>
+    #include <QVector>
+    
+    #include <stdexcept>
+    #include <string>
+
+    #include "location.hh"
+
+    namespace gerber {
+        class scanner;
+        class driver;
+    };
+}
+
+
 
 %token                  END     0   "end of file"
 
@@ -75,24 +93,6 @@ extern int gerberlineno;
 %token <std::string> FMT
 %token <std::string> APER_MACRO_NAME APER_DICTIONARY APER_SELECT
 
-
-
-%code requires {
-    #include <QString>
-    #include <QChar>
-    #include <QDebug>
-    #include <QVector>
-    
-    #include <stdexcept>
-    #include <string>
-
-    #include "location.hh"
-
-    namespace gerber {
-        class scanner;
-        class driver;
-    };
-}
 
 %code {
     #include <iostream>     // cerr, endl

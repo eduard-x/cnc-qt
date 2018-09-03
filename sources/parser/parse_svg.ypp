@@ -58,6 +58,23 @@ extern int svglineno;
 %define api.token.prefix {T_}
 
 
+%code requires {
+    #include <QString>
+    #include <QChar>
+    #include <QDebug>
+    #include <QVector>
+    #include <stdexcept>
+    #include <string>
+
+    #include "location.hh"
+
+    namespace svg {
+        class scanner;
+        class driver;
+    };
+}
+
+
 
 %token MOVE_REL MOVE_ABS
 %token HLINE_REL HLINE_ABS VLINE_REL VLINE_ABS
@@ -88,23 +105,6 @@ extern int svglineno;
 %type <int> INT HEXVAL
 %type <float> FLOAT
 
-
-
-%code requires {
-    #include <QString>
-    #include <QChar>
-    #include <QDebug>
-    #include <QVector>
-    #include <stdexcept>
-    #include <string>
-
-    #include "location.hh"
-
-    namespace svg {
-        class scanner;
-        class driver;
-    };
-}
 
 %code {
     #include "Settings.h"

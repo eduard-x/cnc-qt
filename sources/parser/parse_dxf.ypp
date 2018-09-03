@@ -58,25 +58,6 @@ extern int dxflineno;
 
 
 
-%token STR
-%token SYM
-%token INT
-%token FLOAT
-%token VARIABLE
-
-%token InvalidCharacter
-
-%token                  END     0   "end of file"
-
-
-
-%type <int> INT
-%type <float> FLOAT
-%type <char> SYM
-%type <std::string> STR VARIABLE
-
-
-
 %code requires {
     #include <QString>
     #include <QChar>
@@ -95,6 +76,26 @@ extern int dxflineno;
         class driver;
     };
 }
+
+
+
+%token STR
+%token SYM
+%token INT
+%token FLOAT
+%token VARIABLE
+
+%token InvalidCharacter
+
+%token                  END     0   "end of file"
+
+
+
+%type <int> INT
+%type <float> FLOAT
+%type <char> SYM
+%type <std::string> STR VARIABLE
+
 
 %code {
 //     #include "Settings.h"

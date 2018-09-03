@@ -568,20 +568,23 @@ void GLWidget::initStaticElements()
     border.clear();
 
     QVector3D brdColor = QVector3D(Settings::colorSettings[COLOR_BORDER].redF(), Settings::colorSettings[COLOR_BORDER].greenF(), Settings::colorSettings[COLOR_BORDER].blueF());
-    border << (VertexData) {
-        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0}, brdColor
-    };
-    border << (VertexData) {
-        QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin, 0}, brdColor
-    };
-    border << (VertexData) {
-        QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMax, 0}, brdColor
-    };
-    border << (VertexData) {
-        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMax, 0}, brdColor
-    };
-    border << (VertexData) {
-        QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0}, brdColor
+
+    border = QVector<VertexData> {
+        {
+            QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0}, brdColor
+        }, (VertexData)
+        {
+            QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin, 0}, brdColor
+        }, (VertexData)
+        {
+            QVector3D{ Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMax, 0}, brdColor
+        }, (VertexData)
+        {
+            QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMax, 0}, brdColor
+        }, (VertexData)
+        {
+            QVector3D{ Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin, 0}, brdColor
+        }
     };
 
 
@@ -628,117 +631,126 @@ void GLWidget::initStaticElements()
 
     if (border.count() > 0) {
 
-        messure << (VertexData) { // X messure
-            QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
-        }
-        // pfeil links
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin + 2.5,  Settings::coord[Y].softLimitMin - 10.5, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin + 2.5,  Settings::coord[Y].softLimitMin - 9.5, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
-        }
-        // pfeil ende
-        // pfeil rechts
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMax - 2.5, Settings::coord[Y].softLimitMin - 10.5, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMax - 2.5, Settings::coord[Y].softLimitMin - 9.5, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
-        }
-        // pfeil ende
+        messure = QVector<VertexData> {
+            {
+                // X messure
+                QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
+            },
+            // pfeil links
+            (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin + 2.5,  Settings::coord[Y].softLimitMin - 10.5, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin + 2.5,  Settings::coord[Y].softLimitMin - 9.5, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
+            },
+            // pfeil ende
+            // pfeil rechts
+            (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMax - 2.5, Settings::coord[Y].softLimitMin - 10.5, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMax - 2.5, Settings::coord[Y].softLimitMin - 9.5, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 10.0, 0.0), grdColor
+            },
+            // pfeil ende
+            (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 7.5, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 12.5, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 7.5, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 12.5, 0.0), grdColor
+            },  (VertexData)   // Y messure
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMax, 0.0), grdColor
+            },
+            // pfeil unten
+            (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 10.5,  Settings::coord[Y].softLimitMin + 2.5, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 9.5,  Settings::coord[Y].softLimitMin + 2.5, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin, 0.0), grdColor
+            },
+            // pfeil ende
+            // pfeil oben
+            (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 10.5,  Settings::coord[Y].softLimitMax - 2.5, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMax, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 9.5,  Settings::coord[Y].softLimitMax - 2.5, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMax, 0.0), grdColor
+            },
+            // pfeil ende
+            (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMin, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMin, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMax, 0.0), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMax, 0.0), grdColor
+            },
 
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 7.5, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin,  Settings::coord[Y].softLimitMin - 12.5, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 7.5, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMax,  Settings::coord[Y].softLimitMin - 12.5, 0.0), grdColor
-        }
-        <<  (VertexData) { // Y messure
-            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMax, 0.0), grdColor
-        }
-        // pfeil unten
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 10.5,  Settings::coord[Y].softLimitMin + 2.5, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 9.5,  Settings::coord[Y].softLimitMin + 2.5, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin, 0.0), grdColor
-        }
-        // pfeil ende
-        // pfeil oben
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 10.5,  Settings::coord[Y].softLimitMax - 2.5, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMax, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 9.5,  Settings::coord[Y].softLimitMax - 2.5, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMax, 0.0), grdColor
-        }
-        // pfeil ende
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMin, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMin, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMax, 0.0), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMax, 0.0), grdColor
-        }
-
-        <<  (VertexData) { // Z messure
-            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin - 10.0, Settings::coord[Z].softLimitMin), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin - 10.0, Settings::coord[Z].softLimitMax), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMin - 7.5, Settings::coord[Z].softLimitMin), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMin - 12.5, Settings::coord[Z].softLimitMin), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMin - 7.5, Settings::coord[Z].softLimitMax), grdColor
-        }
-        <<  (VertexData) {
-            QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMin - 12.5, Settings::coord[Z].softLimitMax), grdColor
+            (VertexData)   // Z messure
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin - 10.0, Settings::coord[Z].softLimitMin), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 10.0,  Settings::coord[Y].softLimitMin - 10.0, Settings::coord[Z].softLimitMax), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMin - 7.5, Settings::coord[Z].softLimitMin), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMin - 12.5, Settings::coord[Z].softLimitMin), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 7.5,  Settings::coord[Y].softLimitMin - 7.5, Settings::coord[Z].softLimitMax), grdColor
+            },  (VertexData)
+            {
+                QVector3D(Settings::coord[X].softLimitMin - 12.5,  Settings::coord[Y].softLimitMin - 12.5, Settings::coord[Z].softLimitMax), grdColor
+            }
         };
 
         QFont f("Times", 5);
