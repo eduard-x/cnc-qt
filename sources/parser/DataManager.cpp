@@ -53,9 +53,7 @@
 // constructor
 cDataManager::cDataManager()
 {
-    TypeFile = None;
 
-    //     this->parent = parent;
 }
 
 // destructor
@@ -178,7 +176,7 @@ void cDataManager::fixSerialList()
     // grad to rad
     maxLookaheadAngleRad = Settings::maxLookaheadAngle * PI / 180.0;
 
-    qInfo() << "fixSerialList, list size" << serialDataVector.size();
+    //     qInfo() << "fixSerialList, list size" << serialDataVector.size();
 
     // calculate the number of steps in one direction, if exists
     for (int idx = 0; idx < serialDataVector.size(); idx++) {
@@ -638,19 +636,12 @@ void cDataManager::antColonyOptimization()
  */
 void cDataManager::sortGCode(const QVector<int> &citydata)
 {
-    QVector<QString> tmpOrigList; // for the display list
     QVector<QString> tmpFilteredList; // for the display list
     QVector<GData> tmpGCodeList; // serial data
     QVector<VertexData> tmpVertexVector; // for the visualisation
 
     for(int n = 0; n < citydata.size(); n++) {
         int pos = citydata.at(n);
-        //         int startNum = gCities.at(pos).lineBegOrig;
-        //         int endNum = gCities.at(pos).lineEndOrig;
-        //
-        //         for (int j = startNum; j <= endNum; j++) {
-        //             tmpOrigList << originalList.at(j);
-        //         }
 
         int startNum = gCities.at(pos).lineBegFilter;
         int endNum = gCities.at(pos).lineEndFilter;
@@ -682,18 +673,10 @@ void cDataManager::sortGCode(const QVector<int> &citydata)
     filteredList.clear();
     filteredList = tmpFilteredList;
 
-    //     originalList.clear();
-    //     originalList = tmpOrigList;
-
     dataVector.clear();
     dataVector = tmpGCodeList;
 
     mut.unlock();
-    //     for  (int n = 0; n < citydata.size(); n++) {
-    //         int ln = gCities.at(citydata.at(n)).line;
-    //         endNum =
-    //         qDebug() << "line:" << ln << goodList.at(ln) << gCities.at(citydata.at(n)).coord;
-    //     }
 }
 
 #if 0
@@ -906,7 +889,7 @@ void cDataManager::convertArcToLines(int p)
         float theta;                 /* angle of line from M to center */
         float turn2;                 /* absolute value of half of turn */
 
-        abs_radius = fabs(radius);
+        abs_radius = qFabs(radius);
 
         switch (currentMCmd->plane) {
             case XY: {
@@ -1358,6 +1341,8 @@ bool cDataManager::readFile(const QString &fileName)
         tMess.restart();
 
         d->dataChecker();
+
+        logBuffer << "serial list size " + serialDataVector.size() ;
 
         if (serialDataVector.size() > 0 ) {
             logBuffer << QString().sprintf("Data post processed. Time elapsed: %d ms, lines parsed: %d", tMess.elapsed(), filteredList.count());

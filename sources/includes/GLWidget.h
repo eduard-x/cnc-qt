@@ -64,7 +64,7 @@ class cTranslator;
 class MainWindow;
 class mk1Controller;
 
-// for GLES2 are QGLFunctions to implement
+// for GLES2 in Qt4 are QGLFunctions to implement
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTranslator
 {
         Q_OBJECT
@@ -79,6 +79,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
         void Draw();
 
     private:
+        void initVertexArrays();
         void initPreviewSettings();
         float normalizeAngle(float angle);
         void createButtons();
@@ -174,15 +175,15 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions, public cTrans
 
         QSlider *cmdZoom;
 
-        static QVector<QVector3D> footArray;
-        static QVector<QVector3D> traverseArray;
+        QVector<QVector3D> footArray;
+        QVector<QVector3D> traverseArray;
 
         QVector<QVector3D> holderArray;
         QVector<QVector3D> motorArray;
 
-        static QVector<QVector3D> xAxis;
-        static QVector<QVector3D> yAxis;
-        static QVector<QVector3D> zAxis;
+        QVector<QVector3D> xAxis;
+        QVector<QVector3D> yAxis;
+        QVector<QVector3D> zAxis;
 
         QVector<QVector3D> surfaceArray; //
 
