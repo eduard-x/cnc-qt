@@ -64,7 +64,6 @@ class cDataManager //: private QObject //: public Parser // , public cTranslator
 
         void writeFile(const QString &fileName);
 
-        void fixSerialList();
 
     public:
         QStringList logBuffer; // for sending of log data
@@ -98,9 +97,6 @@ class cDataManager //: private QObject //: public Parser // , public cTranslator
         void convertArcToLines(int p);
         float calcAngleOfLines(const QVector3D &c1, const QVector3D &c2, int plane);
 
-        int  calculateMinAngleSteps(int pos);
-        void patchSpeedAndAccelCode(int begPos, int endPos);
-
         void detectMinMax(const QVector3D& v);
 
     protected:
@@ -126,8 +122,6 @@ class cDataManager //: private QObject //: public Parser // , public cTranslator
         QVector<int> occup;
         QVector <QVector <float> > distance;
 
-
-        float maxLookaheadAngleRad;
         typeFileLoad TypeFile;// = typeFileLoad.None;
 
         QMutex mut;

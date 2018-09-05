@@ -245,7 +245,7 @@ param:  PARAM_CHAR EXPR
             // when line begins with coordinates 
             if (set_data_float(($1 | 0x20), $2->result) == false) {
                 gcode_data->decoded = false;
-                checker.error(QString().sprintf("not decoded char %c, line %d\n", $1, gcodelineno));
+                checker.error(QString().sprintf("not decoded char %c, line %d", $1, gcodelineno));
             }
 
             if ($2) {
@@ -356,7 +356,7 @@ EXPR:   '[' EXPR ']'
                 $$->result = f; //dataVaris[QString($1.c_str())];
             }
             else {
-                checker.error(QString().sprintf("Variable %s was not defined", $1));
+                checker.error(QString().sprintf("Variable %s was not defined", $1.c_str()));
             }
         }
         ;

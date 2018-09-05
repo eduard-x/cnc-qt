@@ -252,6 +252,9 @@ class MainWindow : public QMainWindow, public cDataManager, public Ui::MainWindo
 
 
     private:
+        int  calculateMinAngleSteps(int pos);
+        void patchSpeedAndAccelCode(int begPos, int endPos);
+        void fixSerialList();
 
         bool OpenFile(QString &name);
 
@@ -305,6 +308,7 @@ class MainWindow : public QMainWindow, public cDataManager, public Ui::MainWindo
         QTimer *hotplugTimer;
         QTimer *refreshGUITimer;
 
+        float maxLookaheadAngleRad;
         int scale;
 
 };
