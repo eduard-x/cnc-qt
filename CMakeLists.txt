@@ -369,13 +369,14 @@ ENDFOREACH()
 MESSAGE(STATUS "Generated source files: ${GENERATED_SOURCES}")
 
 ADD_SUBDIRECTORY(sources/settings)
-
+ADD_SUBDIRECTORY(sources/gldrawers)
 ADD_SUBDIRECTORY(sources/parser)
 
 ADD_SUBDIRECTORY(sources)
 
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR} 
                      ${CMAKE_CURRENT_SOURCE_DIR}/sources/settings/includes
+                     ${CMAKE_CURRENT_SOURCE_DIR}/sources/gldrawers/includes 
                      ${CMAKE_CURRENT_SOURCE_DIR}/sources/parser/includes 
                      ${CMAKE_CURRENT_SOURCE_DIR}/sources/includes 
                      ${LIBUSB_INCLUDE_DIRS})

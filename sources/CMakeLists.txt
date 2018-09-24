@@ -37,12 +37,14 @@ SET(MAIN_FORMS  ${CMAKE_CURRENT_SOURCE_DIR}/forms/About.ui
 
 IF(${QT_USE_QTOPENGL})
   SET(MAIN_SOURCES ${MAIN_SOURCES}
-                 ${CMAKE_CURRENT_SOURCE_DIR}/GLWidget.cpp
-                 PARENT_SCOPE)
+                   ${GL_SOURCES}
+                   ${CMAKE_CURRENT_SOURCE_DIR}/GLWidget.cpp
+                   PARENT_SCOPE)
 
-  SET(MOC_HEADERS ${MOC_HEADERS}
-                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/GLWidget.h
-                 PARENT_SCOPE)
+  SET(MOC_HEADERS  ${MOC_HEADERS}
+                   ${GL_HEADERS}
+                   ${CMAKE_CURRENT_SOURCE_DIR}/includes/GLWidget.h
+                   PARENT_SCOPE)
 ELSE()
   SET(MAIN_SOURCES ${MAIN_SOURCES}
                  PARENT_SCOPE)
@@ -55,8 +57,10 @@ ENDIF()
 # SET(FILES_TO_TRANSLATE ${FILES_TO_TRANSLATE} ${MAIN_SOURCES} ${MAIN_FORMS} ${MAIN_HEADERS} 
 #                  PARENT_SCOPE)
 
-SET(APP_RESOURCES  ${CMAKE_CURRENT_SOURCE_DIR}/CNC-Qt.qrc
-		 PARENT_SCOPE)
+SET(APP_RESOURCES  
+                ${CMAKE_CURRENT_SOURCE_DIR}/CNC-Qt.qrc
+                ${CMAKE_CURRENT_SOURCE_DIR}/shaders.qrc
+                PARENT_SCOPE)
 
 
 

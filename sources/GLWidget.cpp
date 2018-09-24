@@ -50,7 +50,7 @@
 
 #define ZOOMSTEP 1.1
 
-#include "shader.h"
+// #include "shader.h"
 
 /**
  * @brief constructor
@@ -66,13 +66,40 @@ GLWidget::GLWidget(QWidget *p)
         return;
     }
 
-    m_zoom = 1;
-
-    initVertexArrays();
-
     parent = static_cast<MainWindow*>(p);
 
     cnc = parent->mk1;
+
+    m_animateView = false;
+    m_updatesEnabled = false;
+
+    m_xRot = 90;
+    m_yRot = 0;
+
+    m_xRotTarget = 90;
+    m_yRotTarget = 0;
+
+    m_zoom = 1;
+
+    m_xPan = 0;
+    m_yPan = 0;
+    m_distance = 100;
+
+    m_xLookAt = 0;
+    m_yLookAt = 0;
+    m_zLookAt = 0;
+
+    m_xMin = 0;
+    m_xMax = 0;
+    m_yMin = 0;
+    m_yMax = 0;
+    m_zMin = 0;
+    m_zMax = 0;
+    m_xSize = 0;
+    m_ySize = 0;
+    m_zSize = 0;
+
+    initVertexArrays();
 
     Settings::PosX = -50;
     Settings::PosY = -50;
@@ -118,6 +145,63 @@ GLWidget::~GLWidget()
     //     indexVBO.destroy();
 }
 
+
+void GLWidget::setFps(int fps)
+{
+    if (fps <= 0) {
+        return;
+    }
+
+    m_targetFps = fps;
+    m_timerAnimation.stop();
+    m_timerAnimation.start(1000 / fps, Qt::PreciseTimer, this);
+}
+
+
+void GLWidget::onFramesTimer()
+{
+    m_fps = m_frames;
+    m_frames = 0;
+
+    QTimer::singleShot(1000, this, SLOT(onFramesTimer()));
+}
+
+void GLWidget::viewAnimation()
+{
+    double t = (double)m_animationFrame++ / (m_targetFps * 0.2);
+
+    if (t == 1) {
+        stopViewAnimation();
+    }
+
+    QEasingCurve ec(QEasingCurve::OutExpo);
+    double val = ec.valueForProgress(t);
+
+    m_xRot = m_xRotStored + double(m_xRotTarget - m_xRotStored) * val;
+    m_yRot = m_yRotStored + double(m_yRotTarget - m_yRotStored) * val;
+
+    updateView();
+}
+
+QTime GLWidget::estimatedTime() const
+{
+    return m_estimatedTime;
+}
+
+void GLWidget::setEstimatedTime(const QTime &estimatedTime)
+{
+    m_estimatedTime = estimatedTime;
+}
+
+QTime GLWidget::spendTime() const
+{
+    return m_spendTime;
+}
+
+void GLWidget::setSpendTime(const QTime &spendTime)
+{
+    m_spendTime = spendTime;
+}
 
 /**
  * @brief change the information about rotations on the push buttons
@@ -462,7 +546,7 @@ QVector<QVector3D> GLWidget::generateCylinder()
  *        z
  *
  */
-QVector<QVector<VertexData> > GLWidget::textToVector(double x, double y, double z, const QString &s, const QColor &c, int direction, const QFont &f)
+QVector<QVector<VertexData> > GLWidget::textToVector(float x, float y, float z, const QString &s, const QColor &c, int direction, const QFont &f)
 {
     QPainterPath path;
     QVector<QVector<VertexData> > v;
@@ -803,69 +887,32 @@ void GLWidget::loadFigure()
             cl = Settings::colorSettings[COLOR_WORK];
         }
 
-#if 0
+        // coordinates of next point
+        float pointX = vv->coord.x();
+        float pointY = vv->coord.y();
+        float pointZ = vv->coord.z();
 
-        if (vv.arcData.count() > 0) {
-            foreach (SerializedData s, vv.arcData) {
-                // coordinates of next point
-                float pointX = s.coord.x();
-                float pointY = s.coord.y();
-                float pointZ = s.coord.z();
+        // moving in G-code
+        if (parent->Correction) {
+            // proportions
+            pointX *= parent->coeffSizeX;
+            pointY *= parent->coeffSizeY;
 
-                // moving in G-code
-                if (parent->Correction) {
-                    // proportions
-                    pointX *= parent->coeffSizeX;
-                    pointY *= parent->coeffSizeY;
+            // offset
+            pointX += parent->deltaX;
+            pointY += parent->deltaY;
+            pointZ += parent->deltaZ;
 
-                    // offset
-                    pointX += parent->deltaX;
-                    pointY += parent->deltaY;
-                    pointZ += parent->deltaZ;
-
-                    // to use the scanned surface, z correcture
-                    if (parent->deltaFeed) {
-                        pointZ += parent->getDeltaZ(pointX, pointY);
-                    }
-                }
-
-                figure << (VertexData) {
-                    QVector3D { pointX, pointY, pointZ},
-                              QVector3D(cl.redF(), cl.greenF(), cl.blueF())
-                };
+            // to use the scanned surface, z correcture
+            if (parent->deltaFeed) {
+                pointZ += parent->getDeltaZ(pointX, pointY);
             }
-        } else {
-#endif
-            // coordinates of next point
-            float pointX = vv->coord.x();
-            float pointY = vv->coord.y();
-            float pointZ = vv->coord.z();
-
-            // moving in G-code
-            if (parent->Correction) {
-                // proportions
-                pointX *= parent->coeffSizeX;
-                pointY *= parent->coeffSizeY;
-
-                // offset
-                pointX += parent->deltaX;
-                pointY += parent->deltaY;
-                pointZ += parent->deltaZ;
-
-                // to use the scanned surface, z correcture
-                if (parent->deltaFeed) {
-                    pointZ += parent->getDeltaZ(pointX, pointY);
-                }
-            }
-
-            figure << (VertexData) {
-                QVector3D { pointX, pointY, pointZ},
-                          QVector3D(cl.redF(), cl.greenF(), cl.blueF())
-            };
-#if 0
         }
 
-#endif
+        figure << (VertexData) {
+            QVector3D { pointX, pointY, pointZ},
+                      QVector3D(cl.redF(), cl.greenF(), cl.blueF())
+        };
     }
 
     initStaticElements();
@@ -895,10 +942,45 @@ void GLWidget::initPreviewSettings()
 {
     //     emit rotationChanged();
     displayRotation();
+
+    beginViewAnimation();
     //     emit yRotationChanged(Settings::PosAngleY);
     //     emit zRotationChanged(Settings::PosAngleZ);
 
     update();
+}
+
+
+void GLWidget::updateProjection()
+{
+    // Reset projection
+    m_projectionMatrix.setToIdentity();
+
+    double asp = (double)width() / height();
+    m_projectionMatrix.frustum((-0.5 + m_xPan) * asp, (0.5 + m_xPan) * asp, -0.5 + m_yPan, 0.5 + m_yPan, 2, m_distance * 2);
+}
+
+
+void GLWidget::updateView()
+{
+    // Set view matrix
+    m_viewMatrix.setToIdentity();
+
+    double r = m_distance;
+    double angY = M_PI / 180 * m_yRot;
+    double angX = M_PI / 180 * m_xRot;
+
+    QVector3D eye(r * cos(angX) * sin(angY) + m_xLookAt, r * sin(angX) + m_yLookAt, r * cos(angX) * cos(angY) + m_zLookAt);
+    QVector3D center(m_xLookAt, m_yLookAt, m_zLookAt);
+    QVector3D up(fabs(m_xRot) == 90 ? -sin(angY + (m_xRot < 0 ? M_PI : 0)) : 0, cos(angX), fabs(m_xRot) == 90 ? -cos(angY + (m_xRot < 0 ? M_PI : 0)) : 0);
+
+    m_viewMatrix.lookAt(eye, center, up.normalized());
+
+    m_viewMatrix.translate(m_xLookAt, m_yLookAt, m_zLookAt);
+    m_viewMatrix.scale(m_zoom, m_zoom, m_zoom);
+    m_viewMatrix.translate(-m_xLookAt, -m_yLookAt, -m_zLookAt);
+
+    m_viewMatrix.rotate(-90, 1.0, 0.0, 0.0);
 }
 
 
@@ -920,27 +1002,34 @@ void GLWidget::initializeGL()//Init3D()//*OK*
         timer.start(75, this);
     }
 
-    program = new QOpenGLShaderProgram(this);
+    m_shaderProgram = new QOpenGLShaderProgram(this);
 
-    program->addShaderFromSourceCode(QOpenGLShader::Vertex, vsrc);
-    program->addShaderFromSourceCode(QOpenGLShader::Fragment, fsrc);
+    if (m_shaderProgram) {
+        // Compile vertex shader
+        m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vshader.glsl");
+        // Compile fragment shader
+        m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fshader.glsl");
+        // Link shader pipeline
+        m_shaderProgram->link();
+        qDebug() << "shader program created";
+    }
 
-    program->link();
+    //     m_shaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, vsrc);
+    //     m_shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, fsrc);
+
+    //     m_shaderProgram->link();
 
 
-    m_posAttr = program->attributeLocation("a_position");
-    //     m_startAttr = program->attributeLocation("a_start");
-    m_colAttr = program->attributeLocation("a_color");
-    m_matrixUniform = program->uniformLocation("mvp_matrix"); // matrix
-    m_mvUniform = program->uniformLocation("mv_matrix");
-    m_pointSizeUniform = program->uniformLocation("point_size");
-    //     m_idx = program->uniformLocation("idx");
 
-    program->bind();
+    // Disable 2D Textures
+    glDisable( GL_TEXTURE_2D );
 
+    //     glShadeModel( GL_FLAT );
 
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
+
+    glDepthFunc( GL_LESS );
 
     // Enable back face culling
     glEnable(GL_CULL_FACE);
@@ -962,6 +1051,44 @@ void GLWidget::paintGL()
     fps++;
 }
 
+
+void GLWidget::beginViewAnimation()
+{
+    m_xRotStored = m_xRot;
+    m_yRotStored = m_yRot;
+    m_animationFrame = 0;
+    m_animateView = true;
+}
+
+
+void GLWidget::stopViewAnimation()
+{
+    m_animateView = false;
+}
+
+
+float GLWidget::calculateVolume(QVector3D size)
+{
+    return size.x() * size.y() * size.z();
+}
+
+
+/**
+ * @brief when angle over 360 or under 0, normalize it
+ *
+ */
+float GLWidget::normalizeAngle(float angle)
+{
+    while (angle < 0) {
+        angle += 360;
+    }
+
+    while (angle > 360) {
+        angle -= 360;
+    }
+
+    return angle;
+}
 
 /**
  * @brief resize the scene
@@ -1042,9 +1169,32 @@ void GLWidget::timerEvent(QTimerEvent *)
  */
 void GLWidget::Draw() // drawing, main function
 {
-    if (!program) {
+    if (!m_shaderProgram) {
         return;
     }
+
+    m_shaderProgram->bind();
+
+    m_posAttr = m_shaderProgram->attributeLocation("a_position");
+    //     m_startAttr = m_shaderProgram->attributeLocation("a_start");
+    m_colAttr = m_shaderProgram->attributeLocation("a_color");
+    m_matrixUniform = m_shaderProgram->uniformLocation("mvp_matrix"); // matrix
+    m_mvUniform = m_shaderProgram->uniformLocation("mv_matrix");
+    m_pointSizeUniform = m_shaderProgram->uniformLocation("point_size");
+    //     m_idx = m_shaderProgram->uniformLocation("idx");
+
+    //     // Update geometries in current opengl context
+    //     foreach (ShaderDrawable *drawable, m_shaderDrawables) {
+    //         if (drawable->needsUpdateGeometry()) drawable->updateGeometry(m_shaderProgram);
+    //     }
+    //
+    //     // Draw geometries
+    //     foreach (ShaderDrawable *drawable, m_shaderDrawables) {
+    //         drawable->draw(m_shaderProgram);
+    //         if (drawable->visible()) vertices += drawable->getVertexCount();
+    //     }
+
+    m_shaderProgram->release();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     int w = this->width();
@@ -1068,7 +1218,7 @@ void GLWidget::Draw() // drawing, main function
     matrix.rotate(Settings::PosAngleY, 0.0f, 1.0f, 0.0f);
     matrix.rotate(Settings::PosAngleZ, 0.0f, 0.0f, 1.0f);
 
-    program->setUniformValue(m_matrixUniform, matrix);
+    m_shaderProgram->setUniformValue(m_matrixUniform, matrix);
 
     if (figure.count() > 2) {
         // draw figure
@@ -1083,7 +1233,6 @@ void GLWidget::Draw() // drawing, main function
 
         glDisableVertexAttribArray(m_colAttr);
         glDisableVertexAttribArray(m_posAttr);
-
 
         int numSelectStart = -1;
         int numSelectStop = -1;
@@ -1261,7 +1410,7 @@ void GLWidget::Draw() // drawing, main function
         }
 
         if (Settings::ShowPoints) {
-            program->setUniformValue(m_pointSizeUniform, (GLfloat)Settings::pointSize);
+            m_shaderProgram->setUniformValue(m_pointSizeUniform, (GLfloat)Settings::pointSize);
 
             glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &surfacePoints[0].coord);
             glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &surfacePoints[0].color);
@@ -1292,7 +1441,7 @@ void GLWidget::Draw() // drawing, main function
         }
 
         if (Settings::ShowPoints) {
-            program->setUniformValue(m_pointSizeUniform, (GLfloat)Settings::pointSize);
+            m_shaderProgram->setUniformValue(m_pointSizeUniform, (GLfloat)Settings::pointSize);
 
             glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridPoints[0].coord);
             glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridPoints[0].color);
@@ -1311,7 +1460,7 @@ void GLWidget::Draw() // drawing, main function
     if (Settings::ShowInstrument) {
         matrix.translate(Settings::coord[X].posMm(), Settings::coord[Y].posMm(), Settings::coord[Z].posMm()); // moving to point x=10, y=10
 
-        program->setUniformValue(m_matrixUniform, matrix);
+        m_shaderProgram->setUniformValue(m_matrixUniform, matrix);
 
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &instrument[0].coord);
         glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &instrument[0].color);
@@ -1345,8 +1494,8 @@ void GLWidget::Draw() // drawing, main function
     QPen pen(m_colorText);
     painter.setPen(pen);
 
-    double x = 10;
-    double y = this->height() - 60;
+    float x = 10;
+    float y = this->height() - 60;
 
     //     painter.drawText(QPoint(x, y), QString("X: %1 ... %2").arg(m_xMin, 0, 'f', 3).arg(m_xMax, 0, 'f', 3));
     //     painter.drawText(QPoint(x, y + 15), QString("Y: %1 ... %2").arg(m_yMin, 0, 'f', 3).arg(m_yMax, 0, 'f', 3));
@@ -1464,18 +1613,18 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
  * @brief when angle over 360 or under 0, normalize it
  *
  */
-float GLWidget::normalizeAngle(float angle)
-{
-    while (angle < 0) {
-        angle += 360;
-    }
-
-    while (angle > 360) {
-        angle -= 360;
-    }
-
-    return angle;
-}
+// float GLWidget::normalizeAngle(float angle)
+// {
+//     while (angle < 0) {
+//         angle += 360;
+//     }
+//
+//     while (angle > 360) {
+//         angle -= 360;
+//     }
+//
+//     return angle;
+// }
 
 
 /**
@@ -1508,7 +1657,7 @@ void GLWidget::setYCoord(int dy)
  */
 void GLWidget::setXRotation(int angle)
 {
-    normalizeAngle(angle);
+    angle = normalizeAngle(angle);
 
     if (angle != Settings::PosAngleX) {
         Settings::PosAngleX = angle;
@@ -1523,7 +1672,7 @@ void GLWidget::setXRotation(int angle)
  */
 void GLWidget::setYRotation(int angle)
 {
-    normalizeAngle(angle);
+    angle = normalizeAngle(angle);
 
     if (angle != Settings::PosAngleY) {
         Settings::PosAngleY = angle;
@@ -1539,7 +1688,7 @@ void GLWidget::setYRotation(int angle)
  */
 void GLWidget::setZRotation(int angle)
 {
-    normalizeAngle(angle);
+    angle = normalizeAngle(angle);
 
     if (angle != Settings::PosAngleZ) {
         Settings::PosAngleZ = angle;
@@ -1556,7 +1705,7 @@ void GLWidget::setZRotation(int angle)
 void GLWidget::onPosAngleXm()
 {
     --Settings::PosAngleX;
-    normalizeAngle(Settings::PosAngleX);
+    Settings::PosAngleX = normalizeAngle(Settings::PosAngleX);
     displayRotation();
     //     emit rotationChanged();
 }
@@ -1581,7 +1730,7 @@ void GLWidget::onPosAngleX()
 void GLWidget::onPosAngleXp()
 {
     ++Settings::PosAngleX;
-    normalizeAngle(Settings::PosAngleX);
+    Settings::PosAngleX = normalizeAngle(Settings::PosAngleX);
     displayRotation();
     //     emit rotationChanged();
 }
@@ -1594,7 +1743,7 @@ void GLWidget::onPosAngleXp()
 void GLWidget::onPosAngleYp()
 {
     ++Settings::PosAngleY;
-    normalizeAngle(Settings::PosAngleY);
+    Settings::PosAngleY = normalizeAngle(Settings::PosAngleY);
     displayRotation();
     //     emit rotationChanged();
 }
@@ -1617,7 +1766,7 @@ void GLWidget::onPosAngleY()
 void GLWidget::onPosAngleYm()
 {
     --Settings::PosAngleY;
-    normalizeAngle(Settings::PosAngleY);
+    Settings::PosAngleY = normalizeAngle(Settings::PosAngleY);
     displayRotation();
     //     emit rotationChanged();
 }
@@ -1629,7 +1778,7 @@ void GLWidget::onPosAngleYm()
 void GLWidget::onPosAngleZp()
 {
     ++Settings::PosAngleZ;
-    normalizeAngle(Settings::PosAngleZ);
+    Settings::PosAngleZ = normalizeAngle(Settings::PosAngleZ);
     displayRotation();
     //     emit rotationChanged();
 }
@@ -1652,7 +1801,7 @@ void GLWidget::onPosAngleZ()
 void GLWidget::onPosAngleZm()
 {
     --Settings::PosAngleZ;
-    normalizeAngle(Settings::PosAngleZ);
+    Settings::PosAngleZ = normalizeAngle(Settings::PosAngleZ);
     displayRotation();
     //     emit rotationChanged();
 }
