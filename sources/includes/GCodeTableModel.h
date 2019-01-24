@@ -28,80 +28,45 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#ifndef GCODEDRAWER_H
-#define GCODEDRAWER_H
+#ifndef GCODETABLEMODEL_H
+#define GCODETABLEMODEL_H
 
-#include <QObject>
-#include <QVector3D>
-#include <QColor>
-#include <QList>
-// #include "parser/linesegment.h"
-// #include "parser/gcodeviewparse.h"
-#include "shaderdrawable.h"
+#include <QAbstractTableModel>
+#include <QString>
 
-class GcodeDrawer : public ShaderDrawable
+struct GCodeItem {
+    QString command;
+    QString state;
+    QString status;
+    int line;
+    QList<QString> args;
+};
+
+class GCodeTableModel : public QAbstractTableModel
 {
+        Q_OBJECT
     public:
-        explicit GcodeDrawer();
+        explicit GCodeTableModel(QObject *parent = 0);
 
-        void update();
-        void update(QList<int> indexes);
-        bool updateData();
+        QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+        bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+        bool insertRow(int row, const QModelIndex &parent = QModelIndex());
+        bool removeRow(int row, const QModelIndex &parent = QModelIndex());
+        void clear();
 
-        //         QVector3D getSizes();
-        //         QVector3D getMinimumExtremes();
-        //         QVector3D getMaximumExtremes();
+        int rowCount(const QModelIndex &parent = QModelIndex()) const;
+        int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
-        //         void setViewParser(GcodeViewParse* viewParser);
-        //         GcodeViewParse* viewParser();
-
-        bool simplify() const;
-        void setSimplify(bool simplify);
-
-        double simplifyPrecision() const;
-        void setSimplifyPrecision(double simplifyPrecision);
-
-        bool geometryUpdated();
-
-        QColor colorNormal() const;
-        void setColorNormal(const QColor &colorNormal);
-
-        QColor colorHighlight() const;
-        void setColorHighlight(const QColor &colorHighlight);
-
-        QColor colorZMovement() const;
-        void setColorZMovement(const QColor &colorZMovement);
-
-        QColor colorDrawn() const;
-        void setColorDrawn(const QColor &colorDrawn);
-
-        QColor colorStart() const;
-        void setColorStart(const QColor &colorStart);
-
-        QColor colorEnd() const;
-        void setColorEnd(const QColor &colorEnd);
+        QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+        Qt::ItemFlags flags(const QModelIndex &index) const;
 
     signals:
 
     public slots:
 
     private:
-        //         GcodeViewParse *m_viewParser;
-        bool m_simplify;
-        double m_simplifyPrecision;
-        bool m_geometryUpdated;
-
-        QColor m_colorNormal;
-        QColor m_colorDrawn;
-        QColor m_colorHighlight;
-        QColor m_colorZMovement;
-        QColor m_colorStart;
-        QColor m_colorEnd;
-
-        QList<int> m_indexes;
-
-        //         int getSegmentType(LineSegment *segment);
-        //         QColor getSegmentColor(LineSegment *segment);
+        QList<GCodeItem*> m_data;
+        QList<QString> m_headers;
 };
 
-#endif // GCODEDRAWER_H
+#endif // GCODETABLEMODEL_H

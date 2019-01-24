@@ -141,6 +141,7 @@ bool GcodeDrawer::updateData()
                 m_points.append(vertex);
             }
         }
+
 #endif
         m_indexes.clear();
         m_geometryUpdated = true;
@@ -191,6 +192,7 @@ bool GcodeDrawer::updateData()
         } else {
             return true;    // Update full vbo via allocate
         }
+
 #endif
     }
 }
@@ -209,7 +211,7 @@ bool GcodeDrawer::updateData()
 //         return m_colorNormal;    //QVector3D(0.0, 0.0, 0.0);
 //     }
 // }
-// 
+//
 // int GcodeDrawer::getSegmentType(LineSegment* segment)
 // {
 //     return segment->isFastTraverse() + segment->isZMovement() * 2;
@@ -219,25 +221,25 @@ bool GcodeDrawer::updateData()
 // {
 //     QVector3D min = m_viewParser->getMinimumExtremes();
 //     QVector3D max = m_viewParser->getMaximumExtremes();
-// 
+//
 //     return QVector3D(max.x() - min.x(), max.y() - min.y(), max.z() - min.z());
 // }
-// 
+//
 // QVector3D GcodeDrawer::getMinimumExtremes()
 // {
 //     return m_viewParser->getMinimumExtremes();
 // }
-// 
+//
 // QVector3D GcodeDrawer::getMaximumExtremes()
 // {
 //     return m_viewParser->getMaximumExtremes();
 // }
-// 
+//
 // void GcodeDrawer::setViewParser(GcodeViewParse* viewParser)
 // {
 //     m_viewParser = viewParser;
 // }
-// 
+//
 // GcodeViewParse *GcodeDrawer::viewParser()
 // {
 //     return m_viewParser;

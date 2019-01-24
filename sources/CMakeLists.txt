@@ -11,6 +11,7 @@ SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/About.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Geometry.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/EditGCode.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/GCodeTableModel.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/ScanSurface.cpp)
@@ -19,6 +20,7 @@ SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
 SET(MOC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/About.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/EditGCode.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/GCodeTableModel.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/MainWindow.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/ScanSurface.h)
 

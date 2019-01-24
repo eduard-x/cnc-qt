@@ -102,7 +102,7 @@ void HeightMapDrawer::updteInterpolationData()
                 continue;
             }
 
-            // Horizontal lines 
+            // Horizontal lines
             color.setHsvF(0.67 * (max - m_data->at(i).at(j - 1)) / (max - min), 1.0, 1.0);
             vertex.color = color;
 
@@ -197,7 +197,7 @@ void HeightMapDrawer::updateGridData()
                 continue;
             }
 
-            // horizontal lines 
+            // horizontal lines
             vertex.position = QVector3D(m_borderRect.x() + gridStepX * (j - 1), m_borderRect.y() + gridStepY * i, m_model->data(m_model->index(i, j - 1), Qt::UserRole).toDouble());
             m_lines.append(vertex);
 
@@ -205,7 +205,7 @@ void HeightMapDrawer::updateGridData()
             m_lines.append(vertex);
         }
     }
-    
+
     // Vertical grid lines
     vertex.color = QColor(0.0, 0.0, 1.0);
 
