@@ -28,8 +28,6 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
-#define sNan qQNaN()
-
 #include "origindrawer.h"
 
 OriginDrawer::OriginDrawer()

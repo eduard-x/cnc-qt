@@ -40,6 +40,10 @@
 #include <QOpenGLVertexArrayObject>
 // #include "utils/util.h"
 
+
+#define sNan qQNaN()
+
+
 struct VertexData {
     QVector3D position;
     QColor color;
