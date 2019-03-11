@@ -4,7 +4,7 @@
  * https://github.com/Denvi/grblControl                                     *
  *                                                                          *
  * Qt, Linux developing                                                     *
- * Copyright (C) 2015-2018 by Eduard Kalinowski                             *
+ * Copyright (C) 2015-2019 by Eduard Kalinowski                             *
  * Germany, Lower Saxony, Hanover                                           *
  * eduard_kalinowski@yahoo.de                                               *
  *                                                                          *

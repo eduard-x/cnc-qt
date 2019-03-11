@@ -202,7 +202,7 @@ MESSAGE(STATUS "Version build date: ${BUILD_DATE}")
 SET(CNCQT_PACKAGE cnc-qt)
 # SET(CNCQT_VERSION ${CNCQT_MAJOR_VERSION}.${CNCQT_MINOR_VERSION}.${CNCQT_RELEASE_VERSION}.${CNCQT_BUILD_VERSION})
 SET(CNCQT_HOST ${CMAKE_SYSTEM} ${CMAKE_SYSTEM_PROCESSOR})
-SET(CNCQT_COPYRIGHT "Copyright (c) 2015-2016, Sergey Zheigurov, Copyright (c) 2015-2018 Eduard Kalinowski. All Rights Reserved.")
+SET(CNCQT_COPYRIGHT "Copyright (c) 2015-2016, Sergey Zheigurov, Copyright (c) 2015-2019 Eduard Kalinowski. All Rights Reserved.")
 SET(CNCQT_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 # Setup high-level build options
