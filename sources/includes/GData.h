@@ -29,6 +29,10 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
+#ifndef GDATA_H
+#define GDATA_H
+
+
 #include <QVector3D>
 #include <QColor>
 #include <QVector>
@@ -39,10 +43,6 @@
 #define DECELERAT_CODE  0x21
 #define FEED_LINE_CODE  0x31
 #define RAPID_LINE_CODE 0x39
-
-
-#ifndef GDATA_H
-#define GDATA_H
 
 
 #define MK1_PRODUCT_ID   0x2130

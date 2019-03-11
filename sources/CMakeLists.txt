@@ -8,6 +8,7 @@
 SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/mk1Controller.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/GData.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/usbwatcher.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/About.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/Geometry.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/EditGCode.cpp
@@ -17,8 +18,9 @@ SET(MAIN_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Translator.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/ScanSurface.cpp)
 
 
-SET(MOC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
+SET(MOC_HEADERS  ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/About.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/usbwatcher.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/EditGCode.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/GCodeTableModel.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/MainWindow.h
@@ -26,6 +28,7 @@ SET(MOC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/mk1Controller.h
 
 
 SET(MAIN_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/includes/Geometry.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/includes/GData.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/includes/Translator.h
                  PARENT_SCOPE)
 

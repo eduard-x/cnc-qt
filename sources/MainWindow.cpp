@@ -221,8 +221,12 @@ MainWindow::MainWindow(QWidget *parent)
     labelTask->setText("");
 
     int rc = 0;
-    context = NULL;
-    rc = libusb_init(&context);
+    mk1_connected = false;
+
+    hotplugUSB = new USBWatcher(this);
+
+    //     context = NULL;
+    //     rc = libusb_init(&context);
 
     if (rc != 0) {
         qApp->quit();
@@ -852,11 +856,20 @@ void MainWindow::addConnections()
     connect(checkBoxLimitsAmax, SIGNAL(clicked()), this, SLOT(onCheckBoxWorkbenchLimits()));
     // end of workbench
 #endif
+
+
     connect(listGCodeWidget, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(onEditGCode(int, int)));
     connect(listGCodeWidget, SIGNAL(cellActivated(int, int)), this, SLOT(onCellSelect(int, int)));
 
     connect(pushSendSignal, SIGNAL(clicked()), this, SLOT(onSendCommand()));
     connect(toolRunMoving, SIGNAL(clicked()), this, SLOT(onRunToPoint()));
+
+    if (hotplugUSB) {
+        connect(hotplugUSB, SIGNAL(USBConnected()), this, SLOT(mk1_hotplug()));
+        connect(hotplugUSB, SIGNAL(USBDisconnected()), this, SLOT(mk1_detach()));
+
+        hotplugUSB->start();
+    }
 
     // connected or disconnected
     //     connect(mk1, SIGNAL(hotplugSignal ()), this, SLOT(onCncHotplug())); // cnc->WasConnected += CncConnect;
@@ -869,13 +882,6 @@ void MainWindow::addConnections()
         connect(this, SIGNAL(mk1Connected()),      mk1,  SLOT(onDeviceConnected()) );
         connect(this, SIGNAL(mk1Disconnected()),   mk1,  SLOT(onDeviceDisconnected()) );
     }
-
-    // Start timer that will periodicaly check if hardware is connected
-    hotplugTimer = new QTimer(this);
-    // this signal-slot connection is Qt5
-    connect(hotplugTimer, SIGNAL(timeout()), this, SLOT(hotplugTimerTick()) );
-    hotplugTimer->start(250); // every 0.25 sec
-
 
     refreshGUITimer = new QTimer(this);
     connect(refreshGUITimer, SIGNAL(timeout()), this, SLOT(onRefreshGUITimer()));
@@ -921,59 +927,29 @@ void MainWindow::addConnections()
 }
 
 
-
-// Function pools messges from udev
-// Linux specific
-void MainWindow::hotplugTimerTick()
+void MainWindow::mk1_hotplug()
 {
-    size_t count = 0;
-    static bool mk1_connected = false;
+    mk1_connected = true;
+    AddLog(translate(ID_HOTPLUGED));
 
-    libusb_device **list = NULL;
+    emit mk1Connected();
+    actionInfo->setEnabled(mk1_connected);
 
-    count = libusb_get_device_list(context, &list);
-
-    if(count == 0) {
-        mk1_connected = false;
-        emit mk1Disconnected();
-        return;
+    if (refreshGUITimer->isActive() == false) {
+        refreshElementsForms();
     }
+}
 
-    bool mk1_detected = false;
+void MainWindow::mk1_detach()
+{
+    mk1_connected = false;
+    AddLog(translate(ID_DETACHED));
 
-    for (size_t idx = 0; idx < count; ++idx) {
-        libusb_device *device = list[idx];
-        libusb_device_descriptor desc = {0};
+    emit mk1Disconnected();
+    actionInfo->setEnabled(mk1_connected);
 
-        int rc = libusb_get_device_descriptor(device, &desc);
-
-        if (rc != 0) {
-            continue;
-        }
-
-        if (desc.idVendor == MK1_VENDOR_ID && desc.idProduct == MK1_PRODUCT_ID) {
-            mk1_detected = true;
-            //      printf("Vendor:Device = %04x:%04x\n", desc.idVendor, desc.idProduct);
-        }
-    }
-
-    libusb_free_device_list(list, 1);
-
-    if (mk1_detected != mk1_connected) {
-        if (mk1_detected == true) {
-            AddLog(translate(ID_HOTPLUGED));
-            emit mk1Connected();
-        } else {
-            AddLog(translate(ID_DETACHED));
-            emit mk1Disconnected();
-        }
-
-        actionInfo->setEnabled(mk1_detected);
-        mk1_connected = mk1_detected;
-
-        if (refreshGUITimer->isActive() == false) {
-            refreshElementsForms();
-        }
+    if (refreshGUITimer->isActive() == false) {
+        refreshElementsForms();
     }
 }
 
@@ -1469,12 +1445,9 @@ void MainWindow::getFPS(int f)
 
 MainWindow::~MainWindow()
 {
-    //     emit mk1Disconnected();
-    //
-    //     delete dMan;
-    //     libusb_exit(context);
-    //
-    //     hotplugTimer->stop();
+    if(hotplugUSB) {
+        delete hotplugUSB;
+    }
 };
 
 
@@ -1505,11 +1478,9 @@ void MainWindow::closeEvent(QCloseEvent* ce)
 
     emit mk1Disconnected();
 
-    if (context != 0) {
-        libusb_exit(context);
+    if(hotplugUSB) {
+        delete hotplugUSB;
     }
-
-    hotplugTimer->stop();
 
     disconnect(mk1, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 
@@ -1586,12 +1557,6 @@ void MainWindow::onExit()
     }
 
     emit mk1Disconnected();
-
-    if (context != 0) {
-        libusb_exit(context);
-    }
-
-    hotplugTimer->stop();
 
     disconnect(mk1, SIGNAL(Message (int)), this, SLOT(onCncMessage(int))); // cnc->Message -= CncMessage;
 

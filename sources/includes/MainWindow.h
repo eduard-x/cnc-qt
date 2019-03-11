@@ -55,6 +55,7 @@
 
 #include "GLWidget.h"
 
+#include "usbwatcher.h"
 #include "DataManager.h"
 #include "mk1Controller.h"
 #include "Geometry.h"
@@ -180,10 +181,12 @@ class MainWindow : public QMainWindow, public cDataManager, public Ui::MainWindo
         // connect to controller
         void onCncMessage(int n_msg);
         void onCncNewData();
-        //         void onCncHotplug();
 
 
     private slots:
+        void mk1_hotplug();
+        void mk1_detach();
+
         void onExit();
 
         void onVisualize(bool b);
@@ -247,10 +250,6 @@ class MainWindow : public QMainWindow, public cDataManager, public Ui::MainWindo
         void logMessage(const QString &s);
 
 
-    private slots:
-        void hotplugTimerTick(void);
-
-
     private:
         int  calculateMinAngleSteps(int pos);
         void patchSpeedAndAccelCode(int begPos, int endPos);
@@ -286,7 +285,9 @@ class MainWindow : public QMainWindow, public cDataManager, public Ui::MainWindo
         void closeEvent(QCloseEvent *event);
 
     private:
-        libusb_context *context;
+        USBWatcher *hotplugUSB;
+        bool mk1_connected;
+        //         libusb_context *context;
 
         Task::StatusTask currentStatus;
         QGraphicsScene *sceneCoordinates;
@@ -305,7 +306,6 @@ class MainWindow : public QMainWindow, public cDataManager, public Ui::MainWindo
 
         QStringList langFiles;
 
-        QTimer *hotplugTimer;
         QTimer *refreshGUITimer;
 
         float maxLookaheadAngleRad;
