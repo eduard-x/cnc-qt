@@ -867,8 +867,7 @@ void MainWindow::addConnections()
     if (hotplugUSB) {
         connect(hotplugUSB, SIGNAL(USBConnected()), this, SLOT(mk1_hotplug()));
         connect(hotplugUSB, SIGNAL(USBDisconnected()), this, SLOT(mk1_detach()));
-
-        hotplugUSB->start();
+        // is with autostart option
     }
 
     // connected or disconnected

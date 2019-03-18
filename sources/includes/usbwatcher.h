@@ -55,6 +55,9 @@ class USBWatcher: public QThread
         void USBConnected();
         void USBDisconnected();
 
+    private slots:
+        void autoStart();
+
     private:
         void run();
 

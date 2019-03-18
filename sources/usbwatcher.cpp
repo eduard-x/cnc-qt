@@ -29,6 +29,8 @@
  * License along with CNC-Qt. If not, see  http://www.gnu.org/licenses      *
  ****************************************************************************/
 
+#include <QTimer>
+
 #include "GData.h"
 #include "usbwatcher.h"
 
@@ -56,7 +58,7 @@ int LIBUSB_CALL hotplug_callback(struct libusb_context *ctx, struct libusb_devic
 
 USBWatcher::USBWatcher(QObject *p) : QThread(p)
 {
-    hotplug_register();
+    QTimer::singleShot(1000, this, SLOT(autoStart()));
 }
 
 
@@ -70,6 +72,13 @@ USBWatcher::~USBWatcher()
     libusb_exit(NULL);
 
     exit(0);
+}
+
+
+void USBWatcher::autoStart()
+{
+    hotplug_register();
+    this->start();
 }
 
 
@@ -93,7 +102,28 @@ void USBWatcher::hotplug_register()
     usb_thread_loop = true;
 
     libusb_init(&usb_ctx);
-    rc = libusb_hotplug_register_callback(NULL, (libusb_hotplug_event)(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT),
+    libusb_device_handle *devh;
+    devh = libusb_open_device_with_vid_pid(usb_ctx, MK1_VENDOR_ID, MK1_PRODUCT_ID);
+
+    if (devh != NULL) {  // connected
+
+#ifndef Q_OS_WIN32
+        if (libusb_kernel_driver_active(devh, 0)) {
+            rc = libusb_detach_kernel_driver(devh, 0);
+
+            if (rc) {
+                qCritical("Failed to detach kernel driver: '%s'", strerror(-rc));
+                //          CloseHandle();
+                //          return -1;
+            }
+        }
+
+#endif
+        emit USBConnected();
+        libusb_close(devh);
+    }
+
+    rc = libusb_hotplug_register_callback(usb_ctx, (libusb_hotplug_event)(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT),
                                           LIBUSB_HOTPLUG_ENUMERATE,
                                           MK1_VENDOR_ID,
                                           MK1_PRODUCT_ID,
@@ -103,7 +133,7 @@ void USBWatcher::hotplug_register()
                                           &handle);
 
     if (LIBUSB_SUCCESS != rc) {
-        libusb_exit(NULL);
+        libusb_exit(usb_ctx);
 
         exit(0);
     }
